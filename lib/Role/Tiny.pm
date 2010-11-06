@@ -6,18 +6,24 @@ use Class::Method::Modifiers ();
 our %INFO;
 our %APPLIED_TO;
 
+sub _getglob { no strict 'refs'; \*{$_[0]} }
+
 sub import {
   my $target = caller;
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
   # install before/after/around subs
   foreach my $type (qw(before after around)) {
-    *{(do { no strict 'refs'; \*{"${target}::${type}"}})} = sub {
+    *{_getglob "${target}::${type}"} = sub {
       push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
     };
   }
-  *{(do { no strict 'refs'; \*{"${target}::requires"}})} = sub {
+  *{_getglob "${target}::requires"} = sub {
     push @{$INFO{$target}{requires}||=[]}, @_;
+  };
+  *{_getglob "${target}::with"} = sub {
+    die "Only one role supported at a time by with" if @_ > 1;
+    Role::Tiny->apply_role_to_package($_[0], $target);
   };
   # grab all *non-constant* (ref eq 'SCALAR') subs present
   # in the symbol table and store their refaddrs (no need to forcibly
@@ -68,13 +74,18 @@ sub apply_role_to_package {
   my @to_install = grep !exists $has_methods{$_}, keys %$methods;
   foreach my $i (@to_install) {
     no warnings 'once';
-    *{(do { no strict 'refs'; \*{"${to}::$i"}})}
-      = $methods->{$i};
+    *{_getglob "${to}::${i}"} = $methods->{$i};
   }
 
   foreach my $modifier (@{$info->{modifiers}||[]}) {
     Class::Method::Modifiers::install_modifier($to, @{$modifier});
   }
+
+  # only add does() method to classes and only if they don't have one
+  if (not $INFO{$to} and not $to->can('does')) {
+    ${_getglob "${to}::does"} = \&does_role;
+  }
+    
 
   # copy our role list into the target's
   @{$APPLIED_TO{$to}||={}}{keys %{$APPLIED_TO{$role}}} = ();

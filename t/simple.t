@@ -43,6 +43,8 @@ is(try_apply_to('MyClass'), undef, 'role applies cleanly');
 is(MyClass->foo, 'role foo class foo', 'method modifier');
 is(MyClass->bar, 'role bar', 'method from role');
 is(MyClass->baz, 'class baz', 'method from class');
+ok(MyClass->does('MyRole'), 'class does role');
+ok(!MyClass->does('Random'), 'class does not do non-role');
 
 like(try_apply_to('NoMethods'), qr/req1, req2/, 'error for both methods');
 like(try_apply_to('OneMethod'), qr/req2/, 'error for one method');
