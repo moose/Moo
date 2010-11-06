@@ -1,12 +1,10 @@
 package Role::Tiny;
 
 use strictures 1;
-use Class::Method::Modifiers ();
+use Class::Tiny::_Utils;
 
 our %INFO;
 our %APPLIED_TO;
-
-sub _getglob { no strict 'refs'; \*{$_[0]} }
 
 sub import {
   my $target = caller;
@@ -78,7 +76,7 @@ sub apply_role_to_package {
   }
 
   foreach my $modifier (@{$info->{modifiers}||[]}) {
-    Class::Method::Modifiers::install_modifier($to, @{$modifier});
+    _install_modifier($to, @{$modifier});
   }
 
   # only add does() method to classes and only if they don't have one

@@ -2,12 +2,11 @@ package Sub::Defer;
 
 use strictures 1;
 use base qw(Exporter);
+use Class::Tiny::_Utils;
 
 our @EXPORT = qw(defer undefer);
 
 our %DEFERRED;
-
-sub _getglob { no strict 'refs'; \*{$_[0]} }
 
 sub undefer {
   my ($deferred) = @_;
