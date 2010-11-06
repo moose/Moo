@@ -1,5 +1,5 @@
 use strictures 1;
-use Test::More qw(no_plan);
+use Test::More;
 use Test::Fatal;
 
 BEGIN {
@@ -48,3 +48,5 @@ ok(!MyClass->does('Random'), 'class does not do non-role');
 
 like(try_apply_to('NoMethods'), qr/req1, req2/, 'error for both methods');
 like(try_apply_to('OneMethod'), qr/req2/, 'error for one method');
+
+done_testing;
