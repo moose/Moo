@@ -11,8 +11,13 @@ sub _install_modifier {
   require Class::Method::Modifiers;
   my ($into, $type, $name, $code) = @_;
   my $ref = ref(my $to_modify = $into->can($name));
-  if ($ref && $ref =~ /Sub::Defer::Deferred/) {
-    require Sub::Defer; undefer($to_modify);
+
+  # if it isn't CODE, then either we're about to die, or it's a blessed
+  # coderef - if it's a blessed coderef it might be deferred, and the
+  # user's already doing something clever so a minor speed hit is meh.
+
+  if ($ref && $ref ne 'CODE') {
+    require Sub::Defer; Sub::Defer::undefer_sub($to_modify);
   }
   Class::Method::Modifiers::install_modifier(@_);
 }

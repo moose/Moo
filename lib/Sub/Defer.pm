@@ -4,30 +4,33 @@ use strictures 1;
 use base qw(Exporter);
 use Class::Tiny::_Utils;
 
-our @EXPORT = qw(defer undefer);
+our @EXPORT = qw(defer_sub undefer_sub);
 
 our %DEFERRED;
 
-sub undefer {
+sub undefer_sub {
   my ($deferred) = @_;
   my ($target, $maker, $undeferred_ref) = @{
     $DEFERRED{$deferred}||return $deferred
   };
   ${$undeferred_ref} = my $made = $maker->();
-  { no warnings 'redefine'; *{_getglob($target)} = $made }
+  if (defined($target)) {
+    no warnings 'redefine';
+    *{_getglob($target)} = $made;
+  }
   return $made;
 }
 
-sub defer {
+sub defer_sub {
   my ($target, $maker) = @_;
   my $undeferred;
   my $deferred_string;
   my $deferred = bless(sub {
-    goto &{$undeferred ||= undefer($deferred_string)};
+    goto &{$undeferred ||= undefer_sub($deferred_string)};
   }, 'Sub::Defer::Deferred');
   $deferred_string = "$deferred";
   $DEFERRED{$deferred} = [ $target, $maker, \$undeferred ];
-  *{_getglob $target} = $deferred;
+  *{_getglob $target} = $deferred if defined($target);
   return $deferred;
 }
 
