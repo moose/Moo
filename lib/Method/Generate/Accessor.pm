@@ -30,8 +30,8 @@ sub _generate_get {
   my $simple = $self->_generate_simple_get('$_[0]', $name);
   my ($lazy, $default, $builder) = @{$spec}{qw(lazy default builder)};
   return $simple unless $lazy and ($default or $builder);
-  'do { '.$self->_generate_default(
-    '$_[0]', $name, $default, $builder,
+  'do { '.$self->_generate_use_default(
+    '$_[0]', $name, $spec,
     $self->_generate_simple_has('$_[0]', $name),
   ).'; '.$simple.' }';
 }
@@ -41,15 +41,25 @@ sub _generate_simple_has {
   "exists ${me}->{${\perlstring $name}}";
 }
 
-sub _generate_default {
-  my ($self, $me, $name, $default, $builder, $test) = @_;
+sub generate_get_default {
+  my $self = shift;
+  local $self->{captures} = {};
+  my $code = $self->_generate_get_default(@_);
+  return ($code, $self->{captures});
+}
+
+sub _generate_use_default {
+  my ($self, $me, $name, $spec, $test) = @_;
   $self->_generate_simple_set(
-    $me, $name, (
-      $default
-        ? $self->_generate_call_code($name, 'default', $me, $default)
-        : "${me}->${builder}"
-    )
+    $me, $name, $self->_generate_get_default($me, $name, $spec)
   ).' unless '.$test;
+}
+
+sub _generate_get_default {
+  my ($self, $me, $name, $spec) = @_;
+  $spec->{default}
+    ? $self->_generate_call_code($name, 'default', $me, $spec->{default})
+    : "${me}->${\$spec->{builder}}"
 }
 
 sub generate_simple_get {
@@ -124,6 +134,13 @@ sub _generate_call_code {
   my $cap_name = qq{\$${type}_for_${name}};
   $self->{captures}->{$cap_name} = \$sub;
   return "${cap_name}->(${values})";
+}
+
+sub generate_simple_set {
+  my $self = shift;
+  local $self->{captures} = {};
+  my $code = $self->_generate_simple_set(@_);
+  return ($code, $self->{captures});
 }
 
 sub _generate_simple_set {

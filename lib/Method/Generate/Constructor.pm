@@ -62,14 +62,14 @@ sub _assign_new {
   NAME: foreach my $name (sort keys %$spec) {
     my $attr_spec = $spec->{$name};
     next NAME unless defined(my $i = $attr_spec->{init_arg});
-    if ($attr_spec->{lazy}) {
+    if ($attr_spec->{lazy} or $attr_spec->{default} or $attr_spec->{builder}) {
       $test{$name} = $i;
       next NAME;
     }
     push @init, $i;
     push @slots, $name;
   }
-  return '' unless @init;
+  return '' unless @init or %test;
   join '', (
     @init
       ? '    @{$new}{qw('.join(' ',@slots).')}'
@@ -77,8 +77,35 @@ sub _assign_new {
       : ''
   ), map {
     my $arg_key = perlstring($test{$_});
-    "    \$new->{${\perlstring($_)}} = \$args->{$arg_key}\n"
-    ."      if exists \$args->{$arg_key};\n"
+    my $ag = $self->accessor_generator;
+    my $test = "exists \$args->{$arg_key}";
+    my $source = "\$args->{$arg_key}";
+    my $attr_spec = $spec->{$_};
+    my ($code, $add_captures);
+    if (!$attr_spec->{lazy} and
+          ($attr_spec->{default} or $attr_spec->{builder})) {
+      my $get_captures;
+      ($code, $add_captures) = $ag->generate_simple_set(
+        '$new', $_,
+        "(\n      ${test}\n        ? ${source}\n        : "
+          .do {
+            (my $get, $get_captures) = $ag->generate_get_default(
+              '$new', $_, $attr_spec
+            );
+            $get;
+          }
+          ."\n    )"
+      );
+      @{$add_captures}{keys %$get_captures} = values %$get_captures;
+      $code .= ";\n";
+    } else {
+      ($code, $add_captures) = $ag->generate_simple_set(
+        '$new', $_, "\$args->{$arg_key}"
+      );
+      $code .= " if ${test};\n";
+    }
+    @{$self->{captures}}{keys %$add_captures} = values %$add_captures;
+    '    '.$code;
   } sort keys %test;
 }
 
@@ -108,7 +135,12 @@ sub _check_isa {
       $name, "\$args->{${init_str}}", $isa
     );
     @{$captures}{keys %$add_captures} = values %$add_captures;
-    $check .= "    ${code} if exists \$args->{${init_str}};\n";
+    $check .= "    ${code}".(
+      (not($spec->{lazy}) and ($spec->{default} or $spec->{builder})
+        ? ";\n"
+        : "if exists \$args->{${init_str}};\n"
+      )
+    );
   }
   return $check;
 }
