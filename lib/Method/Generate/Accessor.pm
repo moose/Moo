@@ -63,9 +63,14 @@ sub generate_trigger {
 
 sub _generate_trigger {
   my ($self, $name, $obj, $value, $trigger) = @_;
+  if (my $quoted = quoted_from_sub($trigger)) {
+    die "Captures? ARGH!" if $quoted->[2];
+    my $code = $quoted->[1];
+    return 'do { local @_ = ('.join(', ', $obj, $value).'); '.$code.' }';
+  }
   my $cap_name = qq{\$trigger_for_${name}};
   $self->{captures}->{$cap_name} = \$trigger;
-  "${cap_name}->(${obj}, ${value})";
+  return "${cap_name}->(${obj}, ${value})";
 }
 
 sub _generate_simple_set {

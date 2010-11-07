@@ -1,32 +1,51 @@
 use strictures 1;
 use Test::More;
 
-my @one_tr;
+our @tr;
+
+sub run_for {
+  my $class = shift;
+
+  @tr = ();
+
+  my $obj = $class->new;
+
+  ok(!@tr, "${class}: trigger not fired with no value");
+
+  $obj = $class->new(one => 1);
+
+  is_deeply(\@tr, [ 1 ], "${class}: trigger fired on new");
+
+  my $res = $obj->one(2);
+
+  is_deeply(\@tr, [ 1, 2 ], "${class}: trigger fired on set");
+
+  is($res, 2, "${class}: return from set ok");
+
+  is($obj->one, 2, "${class}: return from accessor ok");
+
+  is_deeply(\@tr, [ 1, 2 ], "${class}: trigger not fired for accessor as get");
+}
 
 {
   package Foo;
 
   use Class::Tiny;
 
-  has one => (is => 'rw', trigger => sub { push @one_tr, $_[1] });
+  has one => (is => 'rw', trigger => sub { push @::tr, $_[1] });
 }
 
-my $foo = Foo->new;
+run_for 'Foo';
 
-ok(!@one_tr, "trigger not fired with no value");
+{
+  package Bar;
 
-$foo = Foo->new(one => 1);
+  use Sub::Quote;
+  use Class::Tiny;
 
-is_deeply(\@one_tr, [ 1 ], "trigger fired on new");
+  has one => (is => 'rw', trigger => quote_sub q{ push @::tr, $_[1] });
+}
 
-my $res = $foo->one(2);
-
-is_deeply(\@one_tr, [ 1, 2 ], "trigger fired on set");
-
-is($res, 2, "return from set ok");
-
-is($foo->one, 2, "return from accessor ok");
-
-is_deeply(\@one_tr, [ 1, 2 ], "trigger not fired for accessor as get");
+run_for 'Bar';
 
 done_testing;

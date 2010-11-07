@@ -8,7 +8,7 @@ use Sub::Defer;
 use B 'perlstring';
 use base qw(Exporter);
 
-our @EXPORT = qw(quote_sub unquote_sub);
+our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);
 
 our %QUOTE_OUTSTANDING;
 
@@ -86,6 +86,7 @@ sub quote_sub {
       ? pop
       : {};
   my $captures = pop if ref($_[-1]) eq 'HASH';
+  undef($captures) if $captures && !keys %$captures;
   my $code = pop;
   my $name = $_[0];
   my $outstanding;
