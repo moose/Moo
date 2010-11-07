@@ -20,7 +20,7 @@ sub capture_unroll {
     '',
     map {
       /^([\@\%\$])/
-	or die "capture key should start with \@, \% or \$: $_";
+        or die "capture key should start with \@, \% or \$: $_";
       (' ' x $indent).qq{my ${_} = ${1}{${from}->{${\perlstring $_}}};\n};
     } keys %$captures
   );

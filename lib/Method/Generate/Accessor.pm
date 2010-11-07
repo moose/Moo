@@ -70,8 +70,8 @@ sub _generate_trigger {
       my $cap_name = qq{\$trigger_captures_for_${name}};
       $self->{captures}->{$cap_name} = \$captures;
       return "do {\n".'      '.$at_."\n"
-	.Sub::Quote::capture_unroll($cap_name, $captures, 6)
-	."     ${code}\n    }";
+        .Sub::Quote::capture_unroll($cap_name, $captures, 6)
+        ."     ${code}\n    }";
     }
     return 'do { local @_ = ('.join(', ', $obj, $value).'); '.$code.' }';
   }
