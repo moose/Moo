@@ -5,9 +5,14 @@ use Sub::Quote;
 use base qw(Class::Tiny::Object);
 use Sub::Defer;
 
-sub register_attribute_spec {
-  my ($self, $name, $spec) = @_;
-  $self->{attribute_specs}{$name} = $spec;
+sub register_attribute_specs {
+  my ($self, %spec) = @_;
+  @{$self->{attribute_specs}||={}}{keys %spec} = values %spec;
+  $self;
+}
+
+sub all_attribute_specs {
+  $_[0]->{attribute_specs}
 }
 
 sub install_delayed {

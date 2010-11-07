@@ -24,6 +24,14 @@ sub import {
     die "Only one role supported at a time by with" if @_ > 1;
     Role::Tiny->apply_role_to_package($_[0], $target);
   };
+  *{_getglob "${target}::has"} = sub {
+    my ($name, %spec) = @_;
+    ($INFO{$target}{accessor_maker} ||= do {
+      require Method::Generate::Accessor;
+      Method::Generate::Accessor->new
+    })->generate_method($target, $name, \%spec);
+    $INFO{$target}{attributes}{$name} = \%spec;
+  };
   # grab all *non-constant* (ref eq 'SCALAR') subs present
   # in the symbol table and store their refaddrs (no need to forcibly
   # inflate constant subs into real subs) - also add '' to here (this
@@ -84,7 +92,29 @@ sub apply_role_to_package {
   if (not $INFO{$to} and not $to->can('does')) {
     ${_getglob "${to}::does"} = \&does_role;
   }
-    
+
+  if (my $attr_info = $info->{attributes}) {
+    if ($INFO{$to}) {
+      @{$INFO{$to}{attributes}||={}}{keys %$attr_info} = values %$attr_info;
+    } else {
+      my $con = $Class::Tiny::MAKERS{$to}{constructor} ||= do {
+        require Method::Generate::Constructor;
+        Method::Generate::Constructor
+          ->new(package => $to)
+          ->install_delayed
+          ->register_attribute_specs(do {
+            my @spec;
+            if (my $super = do { no strict 'refs'; ${"${to}::ISA"}[0] }) {
+              if (my $con = $Class::Tiny::MAKERS{$super}{constructor}) {
+                @spec = %{$con->all_attribute_specs};
+              }
+            }
+            @spec;
+          });
+      };
+      $con->register_attribute_specs(%$attr_info);
+    }
+  }
 
   # copy our role list into the target's
   @{$APPLIED_TO{$to}||={}}{keys %{$APPLIED_TO{$role}}} = ();

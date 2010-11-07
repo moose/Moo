@@ -24,8 +24,19 @@ sub import {
     })->generate_method($target, $name, \%spec);
     ($MAKERS{$target}{constructor} ||= do {
       require Method::Generate::Constructor;
-      Method::Generate::Constructor->new(package => $target)->install_delayed
-    })->register_attribute_spec($name, \%spec);
+      Method::Generate::Constructor
+        ->new(package => $target)
+        ->install_delayed
+        ->register_attribute_specs(do {
+          my @spec;
+          if (my $super = do { no strict 'refs'; ${"${target}::ISA"}[0] }) {
+            if (my $con = $MAKERS{$super}{constructor}) {
+              @spec = %{$con->all_attribute_specs};
+            }
+          }
+          @spec;
+        });
+    })->register_attribute_specs($name, \%spec);
   };
   foreach my $type (qw(before after around)) {
     *{_getglob "${target}::${type}"} = sub {
