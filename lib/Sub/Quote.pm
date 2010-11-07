@@ -55,12 +55,16 @@ sub _unquote_all_outstanding {
     $assembled_code .= $make_sub;
   }
   if (@localize_these) {
+    $ENV{SUB_QUOTE_DEBUG} && warn
+      "# localizing: ".join(', ', @localize_these)."\n"
+      .$assembled_code;
     $assembled_code = join("\n",
       (map { "local *${_};" } @localize_these),
       'eval '.perlstring $assembled_code
     );
+  } else {
+    $ENV{SUB_QUOTE_DEBUG} && warn $assembled_code;
   }
-  $ENV{SUB_QUOTE_DEBUG} && warn $assembled_code;
   _clean_eval $assembled_code, \@assembled_captures;
   if ($@) {
     die "Eval went very, very wrong:\n\n${assembled_code}\n\n$@";
