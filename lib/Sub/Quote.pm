@@ -27,12 +27,12 @@ sub _unquote_all_outstanding {
     if (keys %$captures) {
       my $ass_cap_count = @assembled_captures;
       $make_sub .= join(
-	"\n",
-	map {
-	  /^([\@\%\$])/
-	    or die "capture key should start with \@, \% or \$: $_";
-	  qq{  my ${_} = ${1}{\$_[1][${ass_cap_count}]{${\perlstring $_}}};\n};
-	} keys %$captures
+        "\n",
+        map {
+          /^([\@\%\$])/
+            or die "capture key should start with \@, \% or \$: $_";
+          qq{  my ${_} = ${1}{\$_[1][${ass_cap_count}]{${\perlstring $_}}};\n};
+        } keys %$captures
       );
       push @assembled_captures, $captures;
     }
@@ -40,11 +40,11 @@ sub _unquote_all_outstanding {
     my $o_quoted = perlstring $outstanding;
     $make_sub .= (
       $name
-	  # disable the 'variable $x will not stay shared' warning since
-	  # we're not letting it escape from this scope anyway so there's
-	  # nothing trying to share it
+          # disable the 'variable $x will not stay shared' warning since
+          # we're not letting it escape from this scope anyway so there's
+          # nothing trying to share it
         ? "  no warnings 'closure';\n  sub ${name} {\n"
-	: "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = sub {\n"
+        : "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = sub {\n"
     );
     $make_sub .= $code;
     $make_sub .= "  }".($name ? '' : ';')."\n";

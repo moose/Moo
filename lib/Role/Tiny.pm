@@ -46,9 +46,9 @@ sub apply_role_to_package {
     +{
       # grab all code entries that aren't in the not_methods list
       map {
-	my $code = *{$stash->{$_}}{CODE};
-	# rely on the '' key we added in import for "no code here"
-	exists $not_methods->{$code||''} ? () : ($_ => $code)
+        my $code = *{$stash->{$_}}{CODE};
+        # rely on the '' key we added in import for "no code here"
+        exists $not_methods->{$code||''} ? () : ($_ => $code)
       } grep !(ref($stash->{$_}) eq 'SCALAR'), keys %$stash
     };
   };
@@ -61,7 +61,7 @@ sub apply_role_to_package {
     keys %$stash
   } = ();
   if (my @requires_fail
-	= grep !exists $has_methods{$_}, @{$info->{requires}||[]}) {
+        = grep !exists $has_methods{$_}, @{$info->{requires}||[]}) {
     # role -> role, add to requires, role -> class, error out
     if (my $to_info = $INFO{$to}) {
       push @{$to_info->{requires}||=[]}, @requires_fail;
