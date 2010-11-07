@@ -5,6 +5,7 @@ use Class::Tiny::_Utils;
 
 sub import {
   my $target = caller;
+  strictures->import;
   *{_getglob("${target}::extends")} = sub {
     *{_getglob("${target}::ISA")} = \@_;
   };

@@ -8,6 +8,7 @@ our %APPLIED_TO;
 
 sub import {
   my $target = caller;
+  strictures->import;
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
   # install before/after/around subs
