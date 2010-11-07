@@ -21,9 +21,9 @@ sub generate_method {
   $body .= $self->_check_required($spec);
   $body .= '    my $new = bless({}, $class);'."\n";
   $body .= $self->_assign_new($spec);
-  $body .= '    return $new;';
+  $body .= '    return $new;'."\n";
   quote_sub
-    "${into}::${name}" => '    '.$body."\n",
+    "${into}::${name}" => $body,
     (ref($quote_opts) ? ({}, $quote_opts) : ())
   ;
 }
