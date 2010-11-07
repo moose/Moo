@@ -12,7 +12,7 @@ sub generate_method {
   local $self->{captures} = {};
   my $body = do {
     if ($is eq 'ro') {
-      $self->_generate_get($name)
+      $self->_generate_get($name, $spec)
     } elsif ($is eq 'rw') {
       $self->_generate_getset($name, $spec)
     } else {
@@ -26,8 +26,30 @@ sub generate_method {
 }
 
 sub _generate_get {
-  my ($self, $name) = @_;
-  $self->_generate_simple_get('$_[0]', $name);
+  my ($self, $name, $spec) = @_;
+  my $simple = $self->_generate_simple_get('$_[0]', $name);
+  my ($lazy, $default, $builder) = @{$spec}{qw(lazy default builder)};
+  return $simple unless $lazy and ($default or $builder);
+  'do { '.$self->_generate_default(
+    '$_[0]', $name, $default, $builder,
+    $self->_generate_simple_has('$_[0]', $name),
+  ).'; '.$simple.' }';
+}
+
+sub _generate_simple_has {
+  my ($self, $me, $name) = @_;
+  "exists ${me}->{${\perlstring $name}}";
+}
+
+sub _generate_default {
+  my ($self, $me, $name, $default, $builder, $test) = @_;
+  $self->_generate_simple_set(
+    $me, $name, (
+      $default
+        ? $self->_generate_call_code($name, 'default', $me, $default)
+        : "${me}->${builder}"
+    )
+  ).' unless '.$test;
 }
 
 sub generate_simple_get {
@@ -42,7 +64,7 @@ sub _generate_simple_get {
 
 sub _generate_set {
   my ($self, $name, $value, $spec) = @_;
-  my $simple = $self->_generate_simple_set($name, $value);
+  my $simple = $self->_generate_simple_set('$_[0]', $name, $value);
   my ($trigger, $isa_check) = @{$spec}{qw(trigger isa)};
   return $simple unless $trigger or $isa_check;
   my $code = 'do {';
@@ -105,9 +127,9 @@ sub _generate_call_code {
 }
 
 sub _generate_simple_set {
-  my ($self, $name, $value) = @_;
+  my ($self, $me, $name, $value) = @_;
   my $name_str = perlstring $name;
-  "\$_[0]->{${name_str}} = ${value}";
+  "${me}->{${name_str}} = ${value}";
 }
 
 sub _generate_getset {

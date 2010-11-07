@@ -58,18 +58,28 @@ sub _generate_args {
 
 sub _assign_new {
   my ($self, $spec) = @_;
-  my (@init, @slots);
-  NAME: foreach my $name (keys %$spec) {
+  my (@init, @slots, %test);
+  NAME: foreach my $name (sort keys %$spec) {
     my $attr_spec = $spec->{$name};
-    push @init, do {
-      next NAME unless defined(my $i = $attr_spec->{init_arg});
-      $i;
-    };
+    next NAME unless defined(my $i = $attr_spec->{init_arg});
+    if ($attr_spec->{lazy}) {
+      $test{$name} = $i;
+      next NAME;
+    }
+    push @init, $i;
     push @slots, $name;
   }
   return '' unless @init;
-  '    @{$new}{qw('.join(' ',@slots).')} = @{$args}{qw('.join(' ',@init).')};'
-    ."\n";
+  join '', (
+    @init
+      ? '    @{$new}{qw('.join(' ',@slots).')}'
+        .' = @{$args}{qw('.join(' ',@init).')};'."\n"
+      : ''
+  ), map {
+    my $arg_key = perlstring($test{$_});
+    "    \$new->{${\perlstring($_)}} = \$args->{$arg_key}\n"
+    ."      if exists \$args->{$arg_key};\n"
+  } sort keys %test;
 }
 
 sub _check_required {
