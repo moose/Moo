@@ -53,7 +53,7 @@ sub _check_required {
   my @required_init =
     map $spec->{$_}{init_arg},
       grep $spec->{$_}{required},
-	keys %$spec;
+        keys %$spec;
   return '' unless @required_init;
   '    if (my @missing = grep !exists $args->{$_}, qw('
     .join(' ',@required_init).')) {'."\n"
