@@ -40,6 +40,9 @@ sub _unquote_all_outstanding {
     my $o_quoted = perlstring $outstanding;
     $make_sub .= (
       $name
+	  # disable the 'variable $x will not stay shared' warning since
+	  # we're not letting it escape from this scope anyway so there's
+	  # nothing trying to share it
         ? "  no warnings 'closure';\n  sub ${name} {\n"
 	: "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = sub {\n"
     );
