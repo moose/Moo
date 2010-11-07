@@ -3,13 +3,23 @@ package Method::Generate::Constructor;
 use strictures 1;
 use Sub::Quote;
 use base qw(Class::Tiny::Object);
+use Sub::Defer;
 
-##{
-##  use Method::Generate::Accessor;
-##  my $gen = Method::Generate::Accessor->new;
-##  $gen->generate_method(__PACKAGE__, $_, { is => 'ro' })
-##    for qw(accessor_generator);
-##}
+sub register_attribute_spec {
+  my ($self, $name, $spec) = @_;
+  $self->{attribute_specs}{$name} = $spec;
+}
+
+sub install_delayed {
+  my ($self) = @_;
+  my $package = $self->{package};
+  defer_sub "${package}::new" => sub {
+    unquote_sub $self->generate_method(
+      $package, 'new', $self->{attribute_specs}, { no_install => 1 }
+    )
+  };
+  $self;
+}
 
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
@@ -44,6 +54,7 @@ sub _assign_new {
     };
     push @slots, $name;
   }
+  return '' unless @init;
   '    @{$new}{qw('.join(' ',@slots).')} = @{$args}{qw('.join(' ',@init).')};'
     ."\n";
 }

@@ -3,6 +3,8 @@ package Class::Tiny;
 use strictures 1;
 use Class::Tiny::_Utils;
 
+our %MAKERS;
+
 sub import {
   my $target = caller;
   strictures->import;
@@ -13,6 +15,17 @@ sub import {
     require Role::Tiny;
     die "Only one role supported at a time by with" if @_ > 1;
     Role::Tiny->apply_role_to_package($_[0], $target);
+  };
+  *{_getglob("${target}::has")} = sub {
+    my ($name, %spec) = @_;
+    ($MAKERS{$target}{accessor} ||= do {
+      require Method::Generate::Accessor;
+      Method::Generate::Accessor->new
+    })->generate_method($target, $name, \%spec);
+    ($MAKERS{$target}{constructor} ||= do {
+      require Method::Generate::Constructor;
+      Method::Generate::Constructor->new(package => $target)->install_delayed
+    })->register_attribute_spec($name, \%spec);
   };
   foreach my $type (qw(before after around)) {
     *{_getglob "${target}::${type}"} = sub {
