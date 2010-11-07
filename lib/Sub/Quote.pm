@@ -54,21 +54,23 @@ sub _unquote_all_outstanding {
     $make_sub .= "}\n";
     $assembled_code .= $make_sub;
   }
+  my $debug_code = $assembled_code;
   if (@localize_these) {
-    $ENV{SUB_QUOTE_DEBUG} && warn
+    $debug_code =
       "# localizing: ".join(', ', @localize_these)."\n"
       .$assembled_code;
     $assembled_code = join("\n",
       (map { "local *${_};" } @localize_these),
-      'eval '.perlstring $assembled_code
+      'eval '.perlstring($assembled_code).'; die $@ if $@;'
     );
   } else {
     $ENV{SUB_QUOTE_DEBUG} && warn $assembled_code;
   }
-  _clean_eval $assembled_code, \@assembled_captures;
-  if ($@) {
-    die "Eval went very, very wrong:\n\n${assembled_code}\n\n$@";
+  $assembled_code .= "\n1;";
+  unless (_clean_eval $assembled_code, \@assembled_captures) {
+    die "Eval went very, very wrong:\n\n${debug_code}\n\n$@";
   }
+  $ENV{SUB_QUOTE_DEBUG} && warn $debug_code;
   %QUOTE_OUTSTANDING = ();
 }
 

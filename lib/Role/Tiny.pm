@@ -97,22 +97,10 @@ sub apply_role_to_package {
     if ($INFO{$to}) {
       @{$INFO{$to}{attributes}||={}}{keys %$attr_info} = values %$attr_info;
     } else {
-      my $con = $Class::Tiny::MAKERS{$to}{constructor} ||= do {
-        require Method::Generate::Constructor;
-        Method::Generate::Constructor
-          ->new(package => $to)
-          ->install_delayed
-          ->register_attribute_specs(do {
-            my @spec;
-            if (my $super = do { no strict 'refs'; ${"${to}::ISA"}[0] }) {
-              if (my $con = $Class::Tiny::MAKERS{$super}{constructor}) {
-                @spec = %{$con->all_attribute_specs};
-              }
-            }
-            @spec;
-          });
-      };
-      $con->register_attribute_specs(%$attr_info);
+      # only fiddle with the constructor if the target is a Class::Tiny class
+      if (my $con = Class::Tiny->_constructor_maker_for($to)) {
+        $con->register_attribute_specs(%$attr_info);
+      }
     }
   }
 

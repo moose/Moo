@@ -4,6 +4,7 @@ use strictures 1;
 use Sub::Quote;
 use base qw(Class::Tiny::Object);
 use Sub::Defer;
+use B 'perlstring';
 
 sub register_attribute_specs {
   my ($self, %spec) = @_;
@@ -13,6 +14,10 @@ sub register_attribute_specs {
 
 sub all_attribute_specs {
   $_[0]->{attribute_specs}
+}
+
+sub accessor_generator {
+  $_[0]->{accessor_generator}
 }
 
 sub install_delayed {
@@ -31,15 +36,17 @@ sub generate_method {
   foreach my $no_init (grep !exists($spec->{$_}{init_arg}), keys %$spec) {
     $spec->{$no_init}{init_arg} = $no_init;
   }
+  local $self->{captures} = {};
   my $body = '    my $class = shift;'."\n";
   $body .= $self->_generate_args;
   $body .= $self->_check_required($spec);
   $body .= '    my $new = bless({}, $class);'."\n";
   $body .= $self->_assign_new($spec);
+  $body .= $self->_fire_triggers($spec);
   $body .= '    return $new;'."\n";
   quote_sub
     "${into}::${name}" => $body,
-    (ref($quote_opts) ? ({}, $quote_opts) : ())
+    $self->{captures}, $quote_opts||{}
   ;
 }
 
@@ -75,6 +82,26 @@ sub _check_required {
     .join(' ',@required_init).')) {'."\n"
     .q{      die "Missing required arguments: ".join(', ', sort @missing);}."\n"
     ."    }\n";
+}
+
+sub _fire_triggers {
+  my ($self, $spec) = @_;
+  my @fire = map {
+    [ $_, $spec->{$_}{init_arg}, $spec->{$_}{trigger} ]
+  } grep { $spec->{$_}{init_arg} && $spec->{$_}{trigger} } keys %$spec;
+  my $acc = $self->accessor_generator;
+  my $captures = $self->{captures};
+  my $fire = '';
+  foreach my $name (keys %$spec) {
+    my ($init, $trigger) = @{$spec->{$name}}{qw(init_arg trigger)};
+    next unless $init && $trigger;
+    my ($code, $add_captures) = $acc->generate_trigger(
+      $name, '$new', $acc->generate_simple_get('$new', $name), $trigger
+    );
+    @{$captures}{keys %$add_captures} = values %$add_captures;
+    $fire .= "    ${code} if exists \$args->{${\perlstring $init}};\n";
+  }
+  return $fire;
 }
 
 1;
