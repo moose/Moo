@@ -48,4 +48,18 @@ run_for 'Foo';
 
 run_for 'Bar';
 
+{
+  package Baz;
+
+  use Sub::Quote;
+  use Class::Tiny;
+
+  has one => (
+    is => 'rw',
+    trigger => quote_sub(q{ push @{$tr}, $_[1] }, { '$tr' => \\@::tr })
+  );
+}
+
+run_for 'Baz';
+
 done_testing;

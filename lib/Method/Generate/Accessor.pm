@@ -64,8 +64,15 @@ sub generate_trigger {
 sub _generate_trigger {
   my ($self, $name, $obj, $value, $trigger) = @_;
   if (my $quoted = quoted_from_sub($trigger)) {
-    die "Captures? ARGH!" if $quoted->[2];
     my $code = $quoted->[1];
+    my $at_ = 'local @_ = ('.join(', ', $obj, $value).');';
+    if (my $captures = $quoted->[2]) {
+      my $cap_name = qq{\$trigger_captures_for_${name}};
+      $self->{captures}->{$cap_name} = \$captures;
+      return "do {\n".'      '.$at_."\n"
+	.Sub::Quote::capture_unroll($cap_name, $captures, 6)
+	."     ${code}\n    }";
+    }
     return 'do { local @_ = ('.join(', ', $obj, $value).'); '.$code.' }';
   }
   my $cap_name = qq{\$trigger_for_${name}};

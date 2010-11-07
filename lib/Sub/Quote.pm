@@ -14,6 +14,18 @@ our %QUOTE_OUTSTANDING;
 
 our %QUOTED;
 
+sub capture_unroll {
+  my ($from, $captures, $indent) = @_;
+  join(
+    '',
+    map {
+      /^([\@\%\$])/
+	or die "capture key should start with \@, \% or \$: $_";
+      (' ' x $indent).qq{my ${_} = ${1}{${from}->{${\perlstring $_}}};\n};
+    } keys %$captures
+  );
+}
+
 sub _unquote_all_outstanding {
   return unless %QUOTE_OUTSTANDING;
   my ($assembled_code, @assembled_captures, @localize_these) = '';
@@ -26,14 +38,7 @@ sub _unquote_all_outstanding {
 
     if (keys %$captures) {
       my $ass_cap_count = @assembled_captures;
-      $make_sub .= join(
-        "\n",
-        map {
-          /^([\@\%\$])/
-            or die "capture key should start with \@, \% or \$: $_";
-          qq{  my ${_} = ${1}{\$_[1][${ass_cap_count}]{${\perlstring $_}}};\n};
-        } keys %$captures
-      );
+      $make_sub .= capture_unroll("\$_[1][${ass_cap_count}]", $captures, 2);
       push @assembled_captures, $captures;
     }
 
