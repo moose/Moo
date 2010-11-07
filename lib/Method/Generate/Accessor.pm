@@ -6,20 +6,20 @@ use base qw(Class::Tiny::Object);
 use Sub::Quote;
 use B 'perlstring';
 
-sub generate_methods {
+sub generate_method {
   my ($self, $into, $name, $spec) = @_;
   die "Must have an is" unless my $is = $spec->{is};
   my $name_str = perlstring $name;
   my $body = do {
     if ($is eq 'ro') {
-      '    '.$self->_generate_get($name_str)
+      $self->_generate_get($name_str)
     } elsif ($is eq 'rw') {
-      '    '.$self->_generate_getset($name_str)
+      $self->_generate_getset($name_str)
     } else {
       die "Unknown is ${is}";
     }
   };
-  quote_sub "${into}::${name}" => $body;
+  quote_sub "${into}::${name}" => '    '.$body."\n";
 }
 
 sub _generate_get {

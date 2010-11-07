@@ -11,9 +11,9 @@ my $gen = Method::Generate::Accessor->new;
   use Class::Tiny;
 }
 
-$gen->generate_methods('Foo' => 'one' => { is => 'ro' });
+$gen->generate_method('Foo' => 'one' => { is => 'ro' });
 
-$gen->generate_methods('Foo' => 'two' => { is => 'rw' });
+$gen->generate_method('Foo' => 'two' => { is => 'rw' });
 
 like(
   exception { $gen->generate_methods('Foo' => 'three' => {}) },
