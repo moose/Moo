@@ -132,3 +132,102 @@ sub unquote_sub {
 }
 
 1;
+
+=pod
+
+=head1 SYNOPSIS
+
+ package Silly;
+
+ use Sub::Quote qw(quote_sub unquote_sub quoted_from_sub);
+
+ quote_sub 'Silly::kitty', q{ print "meow" };
+
+ quote_sub 'Silly::doggy', q{ print "woof" };
+
+ my $sound; $$sound = 0;
+
+ quote_sub 'Silly::dagron',
+   q{ print ++$$sound % 2 ? 'burninate' : 'roar' },
+   { '$sound' => \$sound };
+
+And elsewhere:
+
+ Silly->kitty;  # meow
+ Silly->doggy;  # woof
+ Silly->dagron; # burninate
+ Silly->dagron; # roar
+ Silly->dagron; # burninate
+
+=head1 DESCRIPTION
+
+This package provides performant ways to generate subroutines from strings.
+
+=head1 SUBROUTINES
+
+=head2 quote_sub
+
+ my $coderef = quote_sub 'Foo:bar', q{ print $x++ . "\n" }, { '$x' => \0 };
+
+Arguments: ?$name, $code, ?\%captures, ?\%options
+
+C<$name> is the subroutine where the coderef will be installed.
+
+C<$code> is a string that will be turned into code.
+
+C<\%captures> is a hashref of variables that will be made available to the
+code.  See the L</SYNOPSIS>'s C<Silly::dagron> for an example using captures.
+
+=head3 options
+
+=over 2
+
+=item * no_install
+
+B<Boolean>.  Set this option to not install the generated coderef into the
+passed subroutine.
+
+=back
+
+=head2 unquote_sub
+
+ my $coderef = unquote_sub 'Foo::bar';
+
+Forcibly replace subroutine with actual code.  Note that as many subs are
+unquoted at a time for performance reasons.  This means that if you have a
+syntax error in one of your quoted subs you may find out when some other sub
+is unquoted.
+
+=head2 quoted_from_sub
+
+ my $coderef = quoted_from_sub 'Foo::bar';
+
+Returns quoted coderef based on subroutine name.
+
+=head2 inlinify
+
+ my $prelude = capture_unroll {
+   '$x' => 1,
+   '$y' => 2,
+ };
+
+ my $inlined_code = inlinify q{
+   my ($x, $y) = @_;
+
+   print $x + $y . "\n";
+ }, '$x, $y', $prelude;
+
+Takes a string of code, a string of arguments, a string of code which acts as a
+"prelude", and a B<Boolean> representing whether or not to localize the
+arguments.
+
+=head2 capture_unroll
+
+ my $prelude = capture_unroll {
+   '$x' => 1,
+   '$y' => 2,
+ };
+
+Generates a snippet of code which is suitable to be used as a prelude for
+L</inlinify>.  The keys are the names of the variables and the values are (duh)
+the values.  Note that references work as values.
