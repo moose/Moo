@@ -29,7 +29,8 @@ sub capture_unroll {
 sub _unquote_all_outstanding {
   return unless %QUOTE_OUTSTANDING;
   my ($assembled_code, @assembled_captures, @localize_these) = '';
-  foreach my $outstanding (keys %QUOTE_OUTSTANDING) {
+  # we sort the keys in order to make debugging more predictable
+  foreach my $outstanding (sort keys %QUOTE_OUTSTANDING) {
     my ($name, $code, $captures) = @{$QUOTE_OUTSTANDING{$outstanding}};
 
     push @localize_these, $name if $name;
@@ -107,7 +108,7 @@ sub quote_sub {
 
 sub quoted_from_sub {
   my ($sub) = @_;
-  $QUOTED{$sub};
+  $QUOTED{$sub||''};
 }
 
 sub unquote_sub {

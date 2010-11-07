@@ -43,15 +43,22 @@ sub _generate_simple_get {
 sub _generate_set {
   my ($self, $name, $value, $spec) = @_;
   my $simple = $self->_generate_simple_set($name, $value);
-  if (my $trigger = $spec->{trigger}) {
-    my $value = '$value';
-    my $fire = $self->_generate_trigger($name, '$_[0]', '$value', $trigger);
-    return 'do { '
-      .'my $value = '.$simple.'; '.$fire.'; '
-      .'$value }'
-    ;
+  my ($trigger, $isa_check) = @{$spec}{qw(trigger isa)};
+  return $simple unless $trigger or $isa_check;
+  my $code = 'do {';
+  if ($isa_check) {
+    $code .= ' '.$self->_generate_isa_check($name, '$_[1]', $isa_check).';';
   }
-  return $simple;
+  if ($trigger) {
+    my $fire = $self->_generate_trigger($name, '$_[0]', '$value', $trigger);
+    $code .=
+      ' my $value = '.$simple.'; '.$fire.'; '
+      .'$value';
+  } else {
+    $code .= ' '.$simple;
+  }
+  $code .= ' }';
+  return $code;
 }
 
 sub generate_trigger {
@@ -63,21 +70,38 @@ sub generate_trigger {
 
 sub _generate_trigger {
   my ($self, $name, $obj, $value, $trigger) = @_;
-  if (my $quoted = quoted_from_sub($trigger)) {
+  $self->_generate_call_code($name, 'trigger', "${obj}, ${value}", $trigger);
+}
+
+sub generate_isa_check {
+  my $self = shift;
+  local $self->{captures} = {};
+  my $code = $self->_generate_isa_check(@_);
+  return ($code, $self->{captures});
+}
+
+sub _generate_isa_check {
+  my ($self, $name, $value, $check) = @_;
+  $self->_generate_call_code($name, 'isa_check', $value, $check);
+}
+
+sub _generate_call_code {
+  my ($self, $name, $type, $values, $sub) = @_;
+  if (my $quoted = quoted_from_sub($sub)) {
     my $code = $quoted->[1];
-    my $at_ = 'local @_ = ('.join(', ', $obj, $value).');';
+    my $at_ = 'local @_ = ('.$values.');';
     if (my $captures = $quoted->[2]) {
-      my $cap_name = qq{\$trigger_captures_for_${name}};
+      my $cap_name = qq{\$${type}_captures_for_${name}};
       $self->{captures}->{$cap_name} = \$captures;
       return "do {\n".'      '.$at_."\n"
         .Sub::Quote::capture_unroll($cap_name, $captures, 6)
         ."     ${code}\n    }";
     }
-    return 'do { local @_ = ('.join(', ', $obj, $value).'); '.$code.' }';
+    return 'do { local @_ = ('.$values.'); '.$code.' }';
   }
-  my $cap_name = qq{\$trigger_for_${name}};
-  $self->{captures}->{$cap_name} = \$trigger;
-  return "${cap_name}->(${obj}, ${value})";
+  my $cap_name = qq{\$${type}_for_${name}};
+  $self->{captures}->{$cap_name} = \$sub;
+  return "${cap_name}->(${values})";
 }
 
 sub _generate_simple_set {

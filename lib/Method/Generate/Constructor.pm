@@ -40,6 +40,7 @@ sub generate_method {
   my $body = '    my $class = shift;'."\n";
   $body .= $self->_generate_args;
   $body .= $self->_check_required($spec);
+  $body .= $self->_check_isa($spec);
   $body .= '    my $new = bless({}, $class);'."\n";
   $body .= $self->_assign_new($spec);
   $body .= $self->_fire_triggers($spec);
@@ -76,7 +77,7 @@ sub _check_required {
   my @required_init =
     map $spec->{$_}{init_arg},
       grep $spec->{$_}{required},
-        keys %$spec;
+        sort keys %$spec;
   return '' unless @required_init;
   '    if (my @missing = grep !exists $args->{$_}, qw('
     .join(' ',@required_init).')) {'."\n"
@@ -84,15 +85,30 @@ sub _check_required {
     ."    }\n";
 }
 
+sub _check_isa {
+  my ($self, $spec) = @_;
+  my $acc = $self->accessor_generator;
+  my $captures = $self->{captures};
+  my $check = '';
+  foreach my $name (sort keys %$spec) {
+    my ($init, $isa) = @{$spec->{$name}}{qw(init_arg isa)};
+    next unless $init and $isa;
+    my $init_str = perlstring($init);
+    my ($code, $add_captures) = $acc->generate_isa_check(
+      $name, "\$args->{${init_str}}", $isa
+    );
+    @{$captures}{keys %$add_captures} = values %$add_captures;
+    $check .= "    ${code} if exists \$args->{${init_str}};\n";
+  }
+  return $check;
+}
+
 sub _fire_triggers {
   my ($self, $spec) = @_;
-  my @fire = map {
-    [ $_, $spec->{$_}{init_arg}, $spec->{$_}{trigger} ]
-  } grep { $spec->{$_}{init_arg} && $spec->{$_}{trigger} } keys %$spec;
   my $acc = $self->accessor_generator;
   my $captures = $self->{captures};
   my $fire = '';
-  foreach my $name (keys %$spec) {
+  foreach my $name (sort keys %$spec) {
     my ($init, $trigger) = @{$spec->{$name}}{qw(init_arg trigger)};
     next unless $init && $trigger;
     my ($code, $add_captures) = $acc->generate_trigger(
