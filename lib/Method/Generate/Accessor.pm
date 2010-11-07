@@ -7,7 +7,7 @@ use Sub::Quote;
 use B 'perlstring';
 
 sub generate_method {
-  my ($self, $into, $name, $spec) = @_;
+  my ($self, $into, $name, $spec, $quote_opts) = @_;
   die "Must have an is" unless my $is = $spec->{is};
   my $name_str = perlstring $name;
   my $body = do {
@@ -19,7 +19,10 @@ sub generate_method {
       die "Unknown is ${is}";
     }
   };
-  quote_sub "${into}::${name}" => '    '.$body."\n";
+  quote_sub
+    "${into}::${name}" => '    '.$body."\n",
+    (ref($quote_opts) ? ({}, $quote_opts) : ())
+  ;
 }
 
 sub _generate_get {

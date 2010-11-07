@@ -16,12 +16,12 @@ $gen->generate_method('Foo' => 'one' => { is => 'ro' });
 $gen->generate_method('Foo' => 'two' => { is => 'rw' });
 
 like(
-  exception { $gen->generate_methods('Foo' => 'three' => {}) },
+  exception { $gen->generate_method('Foo' => 'three' => {}) },
   qr/Must have an is/, 'No is rejected'
 );
 
 like(
-  exception { $gen->generate_methods('Foo' => 'three' => { is => 'purple' }) },
+  exception { $gen->generate_method('Foo' => 'three' => { is => 'purple' }) },
   qr/Unknown is purple/, 'is purple rejected'
 );
 

@@ -74,15 +74,20 @@ sub _unquote_all_outstanding {
 
 sub quote_sub {
   # HOLY DWIMMERY, BATMAN!
+  # $name => $code => \%captures => \%options
   # $name => $code => \%captures
   # $name => $code
-  # $code => \%captures
+  # $code => \%captures => \%options
   # $code
+  my $options =
+    (ref($_[-1]) eq 'HASH' and ref($_[-2]) eq 'HASH')
+      ? pop
+      : {};
   my $captures = pop if ref($_[-1]) eq 'HASH';
   my $code = pop;
   my $name = $_[0];
   my $outstanding;
-  my $deferred = defer_sub $name => sub {
+  my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
     unquote_sub($outstanding);
   };
   $outstanding = "$deferred";
