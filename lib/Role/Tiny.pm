@@ -5,6 +5,7 @@ use Class::Tiny::_Utils;
 
 our %INFO;
 our %APPLIED_TO;
+our %COMPOSED;
 
 sub import {
   my $target = caller;
@@ -44,9 +45,115 @@ sub import {
 }
 
 sub apply_role_to_package {
-  my ($class, $role, $to) = @_;
+  my ($me, $role, $to) = @_;
+
   die "This is apply_role_to_package" if ref($to);
-  die "Not a Role::Tiny" unless my $info = $INFO{$role};
+  die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
+
+  $me->_check_requires($to, $role, @{$info->{requires}||[]});
+
+  $me->_install_methods($to, $role);
+
+  $me->_install_modifiers($to, $info->{modifiers});
+
+  # only add does() method to classes and only if they don't have one
+  if (not $INFO{$to} and not $to->can('does')) {
+    *{_getglob "${to}::does"} = \&does_role;
+  }
+
+  $me->_handle_constructor($to, $info->{attributes});
+
+  # copy our role list into the target's
+  @{$APPLIED_TO{$to}||={}}{keys %{$APPLIED_TO{$role}}} = ();
+}
+
+sub apply_roles_to_object {
+  my ($me, $object, @roles) = @_;
+  die "No roles supplied!" unless @roles;
+  my $class = ref($object);
+  bless($object, $me->create_class_with_roles($class, @roles));
+  $object;
+}
+
+sub create_class_with_roles {
+  my ($me, $superclass, @roles) = @_;
+
+  my $new_name = join('+', $superclass, my $compose_name = join '+', @roles);
+  return $new_name if $COMPOSED{class}{$new_name};
+
+  foreach my $role (@roles) {
+    die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
+  }
+
+  if ($] > 5.010) {
+    require mro;
+  } else {
+    require MRO::Compat;
+  }
+
+  require Sub::Quote;
+
+  my @composable = map $me->_composable_package_for($_), reverse @roles;
+
+  *{_getglob("${new_name}::ISA")} = [ @composable, $superclass ];
+
+  my @info = map +($INFO{$_} ? $INFO{$_} : ()), @roles;
+
+  $me->_check_requires(
+    $new_name, $compose_name,
+    do { my %h; @h{map @{$_->{requires}||[]}, @info} = (); keys %h }
+  );
+  $me->_handle_constructor(
+    $new_name, { map %{$_->{attr_info}||{}}, @info }
+  );
+
+  *{_getglob "${new_name}::does"} = \&does_role unless $new_name->can('does');
+
+  @{$APPLIED_TO{$new_name}||={}}{
+    map keys %{$APPLIED_TO{$_}}, @roles
+  } = ();
+
+  $COMPOSED{class}{$new_name} = 1;
+  return $new_name;
+}
+
+sub _composable_package_for {
+  my ($me, $role) = @_;
+  my $composed_name = 'Role::Tiny::_COMPOSABLE::'.$role;
+  return $composed_name if $COMPOSED{role}{$composed_name};
+  $me->_install_methods($composed_name, $role);
+  my $base_name = $composed_name.'::_BASE';
+  *{_getglob("${composed_name}::ISA")} = [ $base_name ];
+  my $modifiers = $INFO{$role}{modifiers}||[];
+  foreach my $modified (
+    do { my %h; @h{map $_->[1], @$modifiers} = (); keys %h }
+  ) {
+    Sub::Quote::quote_sub(
+      "${base_name}::${modified}" => q{ shift->next::method(@_) }
+    );
+  }
+  $me->_install_modifiers($composed_name, $modifiers);
+  $COMPOSED{role}{$composed_name} = 1;
+  return $composed_name;
+}
+
+sub _check_requires {
+  my ($me, $to, $name, @requires) = @_;
+  if (my @requires_fail = grep !$to->can($_), @requires) {
+    # role -> role, add to requires, role -> class, error out
+    if (my $to_info = $INFO{$to}) {
+      push @{$to_info->{requires}||=[]}, @requires_fail;
+    } else {
+      die "Can't apply ${name} to ${to} - missing ".join(', ', @requires_fail);
+    }
+  }
+}
+
+sub _install_methods {
+  my ($me, $to, $role) = @_;
+
+  my $info = $INFO{$role};
+
   my $methods = $info->{methods} ||= do {
     # grab role symbol table
     my $stash = do { no strict 'refs'; \%{"${role}::"}};
@@ -60,52 +167,42 @@ sub apply_role_to_package {
       } grep !(ref($stash->{$_}) eq 'SCALAR'), keys %$stash
     };
   };
+
   # grab target symbol table
   my $stash = do { no strict 'refs'; \%{"${to}::"}};
+
   # determine already extant methods of target
   my %has_methods;
   @has_methods{grep
     +((ref($stash->{$_}) eq 'SCALAR') || (*{$stash->{$_}}{CODE})),
     keys %$stash
   } = ();
-  if (my @requires_fail
-        = grep !exists $has_methods{$_}, @{$info->{requires}||[]}) {
-    # role -> role, add to requires, role -> class, error out
-    if (my $to_info = $INFO{$to}) {
-      push @{$to_info->{requires}||=[]}, @requires_fail;
-    } else {
-      die "Can't apply ${role} to ${to} - missing ".join(', ', @requires_fail);
-    }
-  }
 
-  my @to_install = grep !exists $has_methods{$_}, keys %$methods;
-  foreach my $i (@to_install) {
+  foreach my $i (grep !exists $has_methods{$_}, keys %$methods) {
     no warnings 'once';
     *{_getglob "${to}::${i}"} = $methods->{$i};
   }
+}
 
-  foreach my $modifier (@{$info->{modifiers}||[]}) {
+sub _install_modifiers {
+  my ($me, $to, $modifiers) = @_;
+  foreach my $modifier (@{$modifiers||[]}) {
     _install_modifier($to, @{$modifier});
   }
+}
 
-  # only add does() method to classes and only if they don't have one
-  if (not $INFO{$to} and not $to->can('does')) {
-    ${_getglob "${to}::does"} = \&does_role;
-  }
-
-  if (my $attr_info = $info->{attributes}) {
-    if ($INFO{$to}) {
-      @{$INFO{$to}{attributes}||={}}{keys %$attr_info} = values %$attr_info;
-    } else {
-      # only fiddle with the constructor if the target is a Class::Tiny class
-      if (my $con = Class::Tiny->_constructor_maker_for($to)) {
-        $con->register_attribute_specs(%$attr_info);
-      }
+sub _handle_constructor {
+  my ($me, $to, $attr_info) = @_;
+  return unless $attr_info && keys %$attr_info;
+  if ($INFO{$to}) {
+    @{$INFO{$to}{attributes}||={}}{keys %$attr_info} = values %$attr_info;
+  } else {
+    # only fiddle with the constructor if the target is a Class::Tiny class
+    if ($INC{"Class/Tiny.pm"}
+        and my $con = Class::Tiny->_constructor_maker_for($to)) {
+      $con->register_attribute_specs(%$attr_info);
     }
   }
-
-  # copy our role list into the target's
-  @{$APPLIED_TO{$to}||={}}{keys %{$APPLIED_TO{$role}}} = ();
 }
 
 sub does_role {
