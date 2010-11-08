@@ -3,8 +3,11 @@ use Test::More;
 use Test::Fatal;
 
 use Method::Generate::Constructor;
+use Method::Generate::Accessor;
 
-my $gen = Method::Generate::Constructor->new;
+my $gen = Method::Generate::Constructor->new(
+  accessor_generator => Method::Generate::Accessor->new
+);
 
 $gen->generate_method('Foo', 'new', {
   one => { },

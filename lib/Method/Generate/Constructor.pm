@@ -40,10 +40,8 @@ sub generate_method {
   my $body = '    my $class = shift;'."\n";
   $body .= $self->_generate_args;
   $body .= $self->_check_required($spec);
-  $body .= $self->_check_isa($spec);
   $body .= '    my $new = bless({}, $class);'."\n";
   $body .= $self->_assign_new($spec);
-  $body .= $self->_fire_triggers($spec);
   if ($into->can('BUILD')) {
     require Method::Generate::BuildAll;
     $body .= Method::Generate::BuildAll->new->buildall_body_for(
@@ -57,6 +55,12 @@ sub generate_method {
   ;
 }
 
+sub _cap_call {
+  my ($self, $code, $captures) = @_;
+  @{$self->{captures}}{keys %$captures} = values %$captures if $captures;
+  $code;
+}
+
 sub _generate_args {
   my ($self) = @_;
   q{    my $args = ref($_[0]) eq 'HASH' ? $_[0] : { @_ };}."\n";
@@ -65,10 +69,11 @@ sub _generate_args {
 sub _assign_new {
   my ($self, $spec) = @_;
   my (@init, @slots, %test);
+  my $ag = $self->accessor_generator;
   NAME: foreach my $name (sort keys %$spec) {
     my $attr_spec = $spec->{$name};
     next NAME unless defined(my $i = $attr_spec->{init_arg});
-    if ($attr_spec->{lazy} or $attr_spec->{default} or $attr_spec->{builder}) {
+    unless ($ag->is_simple_attribute($name, $attr_spec)) {
       $test{$name} = $i;
       next NAME;
     }
@@ -78,40 +83,18 @@ sub _assign_new {
   return '' unless @init or %test;
   join '', (
     @init
-      ? '    @{$new}{qw('.join(' ',@slots).')}'
-        .' = @{$args}{qw('.join(' ',@init).')};'."\n"
+      ? '    '.$self->_cap_call($ag->generate_multi_set(
+	  '$new', [ @slots ], '@{$args}{qw('.join(' ',@init).')}'
+	)).";\n"
       : ''
   ), map {
     my $arg_key = perlstring($test{$_});
-    my $ag = $self->accessor_generator;
     my $test = "exists \$args->{$arg_key}";
     my $source = "\$args->{$arg_key}";
     my $attr_spec = $spec->{$_};
-    my ($code, $add_captures);
-    if (!$attr_spec->{lazy} and
-          ($attr_spec->{default} or $attr_spec->{builder})) {
-      my $get_captures;
-      ($code, $add_captures) = $ag->generate_simple_set(
-        '$new', $_,
-        "(\n      ${test}\n        ? ${source}\n        : "
-          .do {
-            (my $get, $get_captures) = $ag->generate_get_default(
-              '$new', $_, $attr_spec
-            );
-            $get;
-          }
-          ."\n    )"
-      );
-      @{$add_captures}{keys %$get_captures} = values %$get_captures;
-      $code .= ";\n";
-    } else {
-      ($code, $add_captures) = $ag->generate_simple_set(
-        '$new', $_, "\$args->{$arg_key}"
-      );
-      $code .= " if ${test};\n";
-    }
-    @{$self->{captures}}{keys %$add_captures} = values %$add_captures;
-    '    '.$code;
+    $self->_cap_call($ag->generate_populate_set(
+      '$new', $_, $attr_spec, $source, $test
+    ));
   } sort keys %test;
 }
 

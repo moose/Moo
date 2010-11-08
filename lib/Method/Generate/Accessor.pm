@@ -25,6 +25,11 @@ sub generate_method {
   ;
 }
 
+sub is_simple_attribute {
+  my ($self, $name, $spec) = @_;
+  return !grep $spec->{$_}, qw(lazy default builder isa trigger);
+}
+
 sub _generate_get {
   my ($self, $name, $spec) = @_;
   my $simple = $self->_generate_simple_get('$_[0]', $name);
@@ -134,6 +139,68 @@ sub _generate_call_code {
   my $cap_name = qq{\$${type}_for_${name}};
   $self->{captures}->{$cap_name} = \$sub;
   return "${cap_name}->(${values})";
+}
+
+sub generate_populate_set {
+  my $self = shift;
+  local $self->{captures} = {};
+  my $code = $self->_generate_populate_set(@_);
+  return ($code, $self->{captures});
+}
+
+sub _generate_populate_set {
+  my ($self, $me, $name, $spec, $source, $test) = @_;
+  if (!$spec->{lazy} and
+        ($spec->{default} or $spec->{builder})) {
+    my $get_indent = ' ' x ($spec->{isa} ? 6 : 4);
+    my $get_value = 
+      "(\n${get_indent}  ${test}\n${get_indent}   ? ${source}\n${get_indent}   : "
+        .$self->_generate_get_default(
+          '$new', $_, $spec
+        )
+        ."\n${get_indent})";
+    ($spec->{isa}
+      ? "    {\n      my \$value = ".$get_value.";\n      "
+	.$self->_generate_isa_check(
+	  $name, '$value', $spec->{isa}
+	).";\n"
+	.'      '.$self->_generate_simple_set($me, $name, '$value').";\n"
+	."    }\n"
+      : '    '.$self->_generate_simple_set($me, $name, $get_value).";\n"
+    )
+    .($spec->{trigger}
+      ? '    '
+	.$self->_generate_trigger(
+	  $name, $me, $self->_generate_simple_get($me, $name),
+	  $spec->{trigger}
+	)." if ${test};\n"
+      : ''
+    );
+  } else {
+    "    if (${test}) {\n"
+      .($spec->{isa}
+        ? "      "
+	  .$self->_generate_isa_check(
+	    $name, $source, $spec->{isa}
+	  ).";\n"
+        : ""
+      )
+      ."      ".$self->_generate_simple_set($me, $name, $source).";\n"
+      .($spec->{trigger}
+	? "      "
+	  .$self->_generate_trigger(
+	    $name, $me, $self->_generate_simple_get($me, $name),
+	    $spec->{trigger}
+	  ).";\n"
+	: ""
+      )
+      ."    }\n";
+  }
+}
+
+sub generate_multi_set {
+  my ($self, $me, $to_set, $from) = @_;
+  "\@{${me}}{qw(${\join ' ', @$to_set})} = $from";
 }
 
 sub generate_simple_set {
