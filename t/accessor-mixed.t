@@ -16,25 +16,25 @@ my @result;
   }
 
   has a1 => (
-    is => 'ro', @isa
+    is => 'rw', @isa
   );
   has a2 => (
-    is => 'ro', @isa, @trigger
+    is => 'rw', @isa, @trigger
   );
   has a3 => (
-    is => 'ro', @isa, @trigger
+    is => 'rw', @isa, @trigger
   );
   has a4 => (
-    is => 'ro', @trigger, _mkdefault('a4')
+    is => 'rw', @trigger, _mkdefault('a4')
   );
   has a5 => (
-    is => 'ro', @trigger, _mkdefault('a5')
+    is => 'rw', @trigger, _mkdefault('a5')
   );
   has a6 => (
-    is => 'ro', @isa, @trigger, _mkdefault('a6')
+    is => 'rw', @isa, @trigger, _mkdefault('a6')
   );
   has a7 => (
-    is => 'ro', @isa, @trigger, _mkdefault('a7')
+    is => 'rw', @isa, @trigger, _mkdefault('a7')
   );
 }
 

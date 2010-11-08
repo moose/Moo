@@ -15,19 +15,30 @@ sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
   die "Must have an is" unless my $is = $spec->{is};
   local $self->{captures} = {};
-  local $self->{into} = $into; # for XS gen
   my $body = do {
     if ($is eq 'ro') {
-      $self->_generate_get($name, $spec)
+      if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
+        $self->_generate_xs_get($into, $name);
+      } else {
+        $self->_generate_get($name, $spec)
+      }
     } elsif ($is eq 'rw') {
-      $self->_generate_getset($name, $spec)
+      if (
+        our $CAN_HAZ_XS
+        && $self->is_simple_get($name, $spec)
+        && $self->is_simple_set($name, $spec)
+      ) {
+        $self->_generate_xs_getset($into, $name);
+      } else {
+        $self->_generate_getset($name, $spec)
+      }
     } else {
       die "Unknown is ${is}";
     }
   };
   if (my $pred = $spec->{predicate}) {
     quote_sub "${into}::${pred}" =>
-      '    '.$self->_generate_simple_has('$_[0]', $name)."\n"
+    '    '.$self->_generate_simple_has('$_[0]', $name)."\n"
     ;
   }
   if (my $cl = $spec->{clearer}) {
@@ -62,9 +73,6 @@ sub is_simple_set {
 
 sub _generate_get {
   my ($self, $name, $spec) = @_;
-  if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
-    return $self->_generate_xs_get($name);
-  }
   my $simple = $self->_generate_simple_get('$_[0]', $name);
   my ($lazy, $default, $builder) = @{$spec}{qw(lazy default builder)};
   return $simple unless $lazy and ($default or $builder);
@@ -115,19 +123,20 @@ sub _generate_set {
   my $simple = $self->_generate_simple_set('$_[0]', $name, $value);
   my ($trigger, $isa_check) = @{$spec}{qw(trigger isa)};
   return $simple unless $trigger or $isa_check;
-  my $code = 'do {';
+  my $code = "do {\n";
   if ($isa_check) {
-    $code .= ' '.$self->_generate_isa_check($name, '$_[1]', $isa_check).';';
+    $code .= 
+      "        ".$self->_generate_isa_check($name, '$_[1]', $isa_check).";\n";
   }
   if ($trigger) {
     my $fire = $self->_generate_trigger($name, '$_[0]', '$value', $trigger);
     $code .=
-      ' my $value = '.$simple.'; '.$fire.'; '
-      .'$value';
+      "        my \$value = ".$simple.";\n        ".$fire.";\n"
+      ."        \$value;\n";
   } else {
-    $code .= ' '.$simple;
+    $code .= "        ".$simple.";\n";
   }
-  $code .= ' }';
+  $code .= "      }";
   return $code;
 }
 
@@ -251,15 +260,8 @@ sub _generate_simple_set {
 
 sub _generate_getset {
   my ($self, $name, $spec) = @_;
-  if (
-    our $CAN_HAZ_XS
-    && $self->is_simple_get($name, $spec)
-    && $self->is_simple_set($name, $spec)
-  ) {
-    return $self->_generate_xs_getset($name);
-  }
-  q{(@_ > 1 ? }.$self->_generate_set($name, q{$_[1]}, $spec)
-    .' : '.$self->_generate_get($name).')';
+  q{(@_ > 1}."\n      ? ".$self->_generate_set($name, q{$_[1]}, $spec)
+    ."\n      : ".$self->_generate_get($name)."\n    )";
 }
 
 sub _generate_xs_get {
@@ -271,13 +273,13 @@ sub _generate_xs_getset {
 }
 
 sub _generate_xs {
-  my ($self, $type, $name) = @_;
+  my ($self, $type, $into, $name) = @_;
   no strict 'refs';
   Class::XSAccessor->import(
-    class => $self->{into},
+    class => $into,
     $type => { $name => $name }
   );
-  return $self->{into}->can($name);
+  return $into->can($name);
 }
 
 1;
