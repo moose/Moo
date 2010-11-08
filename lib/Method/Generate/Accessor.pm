@@ -5,11 +5,17 @@ use Class::Tiny::_Utils;
 use base qw(Class::Tiny::Object);
 use Sub::Quote;
 use B 'perlstring';
+BEGIN {
+  our $CAN_HAZ_XS = ($^O ne 'Win32')
+    && _maybe_load_module('Class::XSAccessor')
+    && (Class::XSAccessor->VERSION > 1.06);
+}
 
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
   die "Must have an is" unless my $is = $spec->{is};
   local $self->{captures} = {};
+  local $self->{into} = $into; # for XS gen
   my $body = do {
     if ($is eq 'ro') {
       $self->_generate_get($name, $spec)
@@ -29,6 +35,7 @@ sub generate_method {
       "    delete \$_[0]->{${\perlstring $name}}\n"
     ;
   }
+  return $body if ref($body); # optimiferised
   quote_sub
     "${into}::${name}" => '    '.$body."\n",
     $self->{captures}, $quote_opts||{}
@@ -43,8 +50,21 @@ sub is_simple_attribute {
     qw(lazy default builder isa trigger predicate);
 }
 
+sub is_simple_get {
+  my ($self, $name, $spec) = @_;
+  return !($spec->{lazy} and ($spec->{default} or $spec->{builder}));
+}
+
+sub is_simple_set {
+  my ($self, $name, $spec) = @_;
+  return !grep $spec->{$_}, qw(isa trigger);
+}
+
 sub _generate_get {
   my ($self, $name, $spec) = @_;
+  if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
+    return $self->_generate_xs_get($name);
+  }
   my $simple = $self->_generate_simple_get('$_[0]', $name);
   my ($lazy, $default, $builder) = @{$spec}{qw(lazy default builder)};
   return $simple unless $lazy and ($default or $builder);
@@ -231,8 +251,33 @@ sub _generate_simple_set {
 
 sub _generate_getset {
   my ($self, $name, $spec) = @_;
+  if (
+    our $CAN_HAZ_XS
+    && $self->is_simple_get($name, $spec)
+    && $self->is_simple_set($name, $spec)
+  ) {
+    return $self->_generate_xs_getset($name);
+  }
   q{(@_ > 1 ? }.$self->_generate_set($name, q{$_[1]}, $spec)
     .' : '.$self->_generate_get($name).')';
+}
+
+sub _generate_xs_get {
+  shift->_generate_xs('getters', @_);
+}
+
+sub _generate_xs_getset {
+  shift->_generate_xs('accessors', @_);
+}
+
+sub _generate_xs {
+  my ($self, $type, $name) = @_;
+  no strict 'refs';
+  Class::XSAccessor->import(
+    class => $self->{into},
+    $type => { $name => $name }
+  );
+  return $self->{into}->can($name);
 }
 
 1;

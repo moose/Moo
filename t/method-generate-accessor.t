@@ -28,7 +28,7 @@ like(
 my $foo = Foo->new(one => 1);
 
 is($foo->one, 1, 'ro reads');
-$foo->one(-3);
+$foo->one(-3) unless $Method::Generate::Accessor::CAN_HAZ_XS;
 is($foo->one, 1, 'ro does not write');
 
 is($foo->two, undef, 'rw reads');
