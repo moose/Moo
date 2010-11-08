@@ -19,6 +19,16 @@ sub generate_method {
       die "Unknown is ${is}";
     }
   };
+  if (my $pred = $spec->{predicate}) {
+    quote_sub "${into}::${pred}" =>
+      '    '.$self->_generate_simple_has('$_[0]', $name)."\n"
+    ;
+  }
+  if (my $cl = $spec->{clearer}) {
+    quote_sub "${into}::${cl}" => 
+      "    delete \$_[0]->{${\perlstring $name}}\n"
+    ;
+  }
   quote_sub
     "${into}::${name}" => '    '.$body."\n",
     $self->{captures}, $quote_opts||{}
@@ -27,7 +37,10 @@ sub generate_method {
 
 sub is_simple_attribute {
   my ($self, $name, $spec) = @_;
-  return !grep $spec->{$_}, qw(lazy default builder isa trigger);
+  # clearer doesn't have to be listed because it doesn't
+  # affect whether defined/exists makes a difference
+  return !grep $spec->{$_},
+    qw(lazy default builder isa trigger predicate);
 }
 
 sub _generate_get {
