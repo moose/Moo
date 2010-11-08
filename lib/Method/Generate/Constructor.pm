@@ -44,6 +44,12 @@ sub generate_method {
   $body .= '    my $new = bless({}, $class);'."\n";
   $body .= $self->_assign_new($spec);
   $body .= $self->_fire_triggers($spec);
+  if ($into->can('BUILD')) {
+    require Method::Generate::BuildAll;
+    $body .= Method::Generate::BuildAll->new->buildall_body_for(
+      $into, '$new', '$args'
+    );
+  }
   $body .= '    return $new;'."\n";
   quote_sub
     "${into}::${name}" => $body,

@@ -12,7 +12,10 @@ sub new {
   $NO_BUILD{$class} = !$class->can('BUILD') unless exists $NO_BUILD{$class};
   $NO_BUILD{$class}
     ? bless({ ref($_[0]) eq 'HASH' ? %{$_[0]} : @_ }, $class)
-    : bless({ ref($_[0]) eq 'HASH' ? %{$_[0]} : @_ }, $class)->BUILDALL;
+    : do {
+	my $proto = ref($_[0]) eq 'HASH' ? $_[0] : { @_ };
+	bless({ %$proto }, $class)->BUILDALL($proto);
+      };
 }
 
 sub BUILDALL {
