@@ -84,8 +84,8 @@ sub _assign_new {
   join '', (
     @init
       ? '    '.$self->_cap_call($ag->generate_multi_set(
-	  '$new', [ @slots ], '@{$args}{qw('.join(' ',@init).')}'
-	)).";\n"
+          '$new', [ @slots ], '@{$args}{qw('.join(' ',@init).')}'
+        )).";\n"
       : ''
   ), map {
     my $arg_key = perlstring($test{$_});

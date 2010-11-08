@@ -13,8 +13,8 @@ sub new {
   $NO_BUILD{$class}
     ? bless({ ref($_[0]) eq 'HASH' ? %{$_[0]} : @_ }, $class)
     : do {
-	my $proto = ref($_[0]) eq 'HASH' ? $_[0] : { @_ };
-	bless({ %$proto }, $class)->BUILDALL($proto);
+        my $proto = ref($_[0]) eq 'HASH' ? $_[0] : { @_ };
+        bless({ %$proto }, $class)->BUILDALL($proto);
       };
 }
 
