@@ -85,12 +85,7 @@ sub create_class_with_roles {
     die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
   }
 
-  if ($] > 5.010) {
-    require mro;
-  } else {
-    require MRO::Compat;
-  }
-
+  require Class::Tiny::_mro;
   require Sub::Quote;
 
   my @composable = map $me->_composable_package_for($_), reverse @roles;

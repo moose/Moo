@@ -56,7 +56,10 @@ sub _constructor_maker_for {
       ->install_delayed
       ->register_attribute_specs(do {
         my @spec;
-        if (my $super = do { no strict 'refs'; ${"${target}::ISA"}[0] }) {
+	# using the -last- entry in @ISA means that classes created by
+	# Role::Tiny as N roles + superclass will still get the attributes
+	# from the superclass
+        if (my $super = do { no strict 'refs'; ${"${target}::ISA"}[-1] }) {
           if (my $con = $MAKERS{$super}{constructor}) {
             @spec = %{$con->all_attribute_specs};
           }
