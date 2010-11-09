@@ -221,3 +221,126 @@ sub does_role {
 }
 
 1;
+
+=pod
+
+=head1 SYNOPSIS
+
+ package Some::Role;
+
+ use Role::Tiny;
+
+ sub foo { ... }
+
+ sub bar { ... }
+
+ 1;
+
+else where
+
+ package Some::Class;
+
+ require Role::Tiny;
+
+ # bar gets imported, but not foo
+ Role::Tiny->apply_role_to_package('Some::Role', __PACKAGE__);
+
+ sub foo { ... }
+
+ 1;
+
+=head1 DESCRIPTION
+
+C<Role::Tiny> is a minimalist role composition tool.
+
+=head1 ROLE COMPOSITION
+
+Role composition can be thought of as much more clever and meaningful multiple
+inheritance.  The basics of this implementation of roles is:
+
+=over 2
+
+=item *
+
+If a method is already defined on a class, that method will not be composed in
+from the role.
+
+=item *
+
+If a method that the role L</requires> to be implemented is not implemented,
+role application will fail loudly.
+
+Unlike L<Class::C3>, where the B<last> class inherited from "wins," role
+composition is the other way around, where first wins.  In a more complete
+system (see L<Moose>) roles are checked to see if they clash.  The goal of this
+is to be much simpler, hence disallowing composition of multiple roles at once.
+
+=head1 METHODS
+
+=head2 apply_role_to_package
+
+ Role::Tiny->apply_role_to_package('Some::Role', 'Some::Package');
+
+Composes role with package
+
+=head2 apply_roles_to_object
+
+ Role::Tiny->apply_roles_to_object($foo, qw(Some::Role1 Some::Role2));
+
+Composes roles in order into object directly.  Object is reblessed into the
+resulting class.
+
+=head2 create_class_with_roles
+
+ Role::Tiny->create_class_with_roles('Some::Base', qw(Some::Role1 Some::Role2));
+
+Creates a new class based on base, with the roles composed into it in order.
+New class is returned.
+
+=head1 IMPORTED METHODS
+
+=head2 does_role
+
+ if ($foo->does_role('Some::Role')) {
+   ...
+ }
+
+Returns true if class has been composed with role.
+
+=head1 IMPORTED SUBROUTINES
+
+=head2 requires
+
+ requires qw(foo bar);
+
+Declares a list of methods that must be defined to compose role.
+
+=head2 with
+
+ with 'Some::Role1';
+ with 'Some::Role2';
+
+Composes another role into the current role.  Only one role may be composed in
+at a time to allow the code to remain as simple as possible.
+
+=head2 before
+
+ before foo => sub { ... };
+
+See L<< Class::Method::Modifiers/before method(s) => sub { ... } >> for full
+documentation.
+
+=head2 around
+
+ around foo => sub { ... };
+
+See L<< Class::Method::Modifiers/around method(s) => sub { ... } >> for full
+documentation.
+
+=head2 after
+
+ after foo => sub { ... };
+
+See L<< Class::Method::Modifiers/after method(s) => sub { ... } >> for full
+documentation.
+
