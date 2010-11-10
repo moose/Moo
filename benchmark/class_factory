@@ -95,7 +95,7 @@ sub _add_moosey_has {
   my ($name, $base, $attr_type) = @_;
 
   # this works only with Moo, not with Moose, not with Mouse
-  return if ($attr_type =~ /qsub/ and $name !~ /moo\b/ );
+  return if ($attr_type =~ /qsub/ and $name !~ /^moo(_XS)?$/ );
 
   my @to_eval;
 
@@ -114,7 +114,7 @@ sub _add_moosey_has {
       }
 
       $perl .= '__PACKAGE__->meta->make_immutable;'
-        if $name !~ /moo\b/;
+        if $name !~ /^moo(_XS)?$/;
 
       $counters->{accessors} = 0
         unless $opts->{unique};
