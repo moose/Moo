@@ -120,8 +120,8 @@ sub _add_moosey_has {
         unless $opts->{unique};
 
       if ($opts->{run}) {
-        $perl .= 'package main;';
-        $perl .= "our \$foo = $class->$_; $class->$_(1); our \$foo = $class->$_;"
+        $perl .= "\$::obj = $class->new;";
+        $perl .= "\$::foo = \$::obj->$_; \$::obj->$_(1); \$::foo = \$::obj->$_;"
           for @attr_names;
       }
     }
