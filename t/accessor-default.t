@@ -5,7 +5,7 @@ use Test::More;
   package Foo;
 
   use Sub::Quote;
-  use Class::Tiny;
+  use Moo;
 
   has one => (is => 'ro', lazy => 1, default => quote_sub q{ {} });
   has two => (is => 'ro', lazy => 1, builder => '_build_two');

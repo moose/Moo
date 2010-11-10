@@ -4,7 +4,7 @@ use Test::More;
 {
   package Foo;
 
-  use Class::Tiny;
+  use Moo;
 
   has one => (is => 'ro');
   has two => (is => 'rw', init_arg => undef);
@@ -12,13 +12,13 @@ use Test::More;
 
   package Bar;
 
-  use Role::Tiny;
+  use Moo::Role;
 
   has four => (is => 'ro');
 
   package Baz;
 
-  use Class::Tiny;
+  use Moo;
 
   extends 'Foo';
 

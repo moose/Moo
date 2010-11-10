@@ -6,7 +6,7 @@ my @result;
 {
   package Foo;
 
-  use Class::Tiny;
+  use Moo;
 
   my @isa = (isa => sub { push @result, 'isa', $_[0] });
   my @trigger = (trigger => sub { push @result, 'trigger', $_[1] });

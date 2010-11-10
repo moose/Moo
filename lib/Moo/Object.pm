@@ -1,4 +1,4 @@
-package Class::Tiny::Object;
+package Moo::Object;
 
 use strictures 1;
 

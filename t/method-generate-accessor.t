@@ -8,7 +8,7 @@ my $gen = Method::Generate::Accessor->new;
 
 {
   package Foo;
-  use Class::Tiny;
+  use Moo;
 }
 
 $gen->generate_method('Foo' => 'one' => { is => 'ro' });

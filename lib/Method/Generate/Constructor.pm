@@ -2,7 +2,7 @@ package Method::Generate::Constructor;
 
 use strictures 1;
 use Sub::Quote;
-use base qw(Class::Tiny::Object);
+use base qw(Moo::Object);
 use Sub::Defer;
 use B 'perlstring';
 

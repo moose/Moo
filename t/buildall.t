@@ -4,15 +4,15 @@ use Test::More;
 my @ran;
 
 {
-  package Foo; use Class::Tiny; sub BUILD { push @ran, 'Foo' }
-  package Bar; use Class::Tiny; extends 'Foo'; sub BUILD { push @ran, 'Bar' }
-  package Baz; use Class::Tiny; extends 'Bar';
-  package Quux; use Class::Tiny; extends 'Baz'; sub BUILD { push @ran, 'Quux' }
+  package Foo; use Moo; sub BUILD { push @ran, 'Foo' }
+  package Bar; use Moo; extends 'Foo'; sub BUILD { push @ran, 'Bar' }
+  package Baz; use Moo; extends 'Bar';
+  package Quux; use Moo; extends 'Baz'; sub BUILD { push @ran, 'Quux' }
 }
 
 {
   package Fleem;
-  use Class::Tiny;
+  use Moo;
   extends 'Quux';
   has 'foo' => (is => 'ro');
   sub BUILD { push @ran, $_[0]->foo, $_[1]->{bar} }

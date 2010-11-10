@@ -30,7 +30,7 @@ sub run_for {
 {
   package Foo;
 
-  use Class::Tiny;
+  use Moo;
 
   has one => (is => 'rw', trigger => sub { push @::tr, $_[1] });
 }
@@ -41,7 +41,7 @@ run_for 'Foo';
   package Bar;
 
   use Sub::Quote;
-  use Class::Tiny;
+  use Moo;
 
   has one => (is => 'rw', trigger => quote_sub q{ push @::tr, $_[1] });
 }
@@ -52,7 +52,7 @@ run_for 'Bar';
   package Baz;
 
   use Sub::Quote;
-  use Class::Tiny;
+  use Moo;
 
   has one => (
     is => 'rw',

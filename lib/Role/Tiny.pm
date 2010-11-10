@@ -1,20 +1,24 @@
 package Role::Tiny;
 
-use strictures 1;
-use Class::Tiny::_Utils;
+use strict;
+use warnings FATAL => 'all';
 
 our %INFO;
 our %APPLIED_TO;
 our %COMPOSED;
 
+sub _getglob { no strict 'refs'; \*{$_[0]} }
+
 sub import {
   my $target = caller;
+  my $me = $_[0];
   strictures->import;
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
   # install before/after/around subs
   foreach my $type (qw(before after around)) {
     *{_getglob "${target}::${type}"} = sub {
+      require Class::Method::Modifiers;
       push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
     };
   }
@@ -23,15 +27,7 @@ sub import {
   };
   *{_getglob "${target}::with"} = sub {
     die "Only one role supported at a time by with" if @_ > 1;
-    Role::Tiny->apply_role_to_package($_[0], $target);
-  };
-  *{_getglob "${target}::has"} = sub {
-    my ($name, %spec) = @_;
-    ($INFO{$target}{accessor_maker} ||= do {
-      require Method::Generate::Accessor;
-      Method::Generate::Accessor->new
-    })->generate_method($target, $name, \%spec);
-    $INFO{$target}{attributes}{$name} = \%spec;
+    $me->apply_role_to_package($_[0], $target);
   };
   # grab all *non-constant* (ref eq 'SCALAR') subs present
   # in the symbol table and store their refaddrs (no need to forcibly
@@ -61,8 +57,6 @@ sub apply_role_to_package {
     *{_getglob "${to}::does"} = \&does_role;
   }
 
-  $me->_handle_constructor($to, $info->{attributes});
-
   # copy our role list into the target's
   @{$APPLIED_TO{$to}||={}}{keys %{$APPLIED_TO{$role}}} = ();
 }
@@ -85,8 +79,11 @@ sub create_class_with_roles {
     die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
   }
 
-  require Class::Tiny::_mro;
-  require Sub::Quote;
+  if ($] > 5.010) {
+    require mro;
+  } else {
+    require MRO::Compat;
+  }
 
   my @composable = map $me->_composable_package_for($_), reverse @roles;
 
@@ -97,9 +94,6 @@ sub create_class_with_roles {
   $me->_check_requires(
     $new_name, $compose_name,
     do { my %h; @h{map @{$_->{requires}||[]}, @info} = (); keys %h }
-  );
-  $me->_handle_constructor(
-    $new_name, { map %{$_->{attr_info}||{}}, @info }
   );
 
   *{_getglob "${new_name}::does"} = \&does_role unless $new_name->can('does');
@@ -120,13 +114,14 @@ sub _composable_package_for {
   my $base_name = $composed_name.'::_BASE';
   *{_getglob("${composed_name}::ISA")} = [ $base_name ];
   my $modifiers = $INFO{$role}{modifiers}||[];
+  my @mod_base;
   foreach my $modified (
     do { my %h; @h{map $_->[1], @$modifiers} = (); keys %h }
   ) {
-    Sub::Quote::quote_sub(
-      "${base_name}::${modified}" => q{ shift->next::method(@_) }
-    );
+    push @mod_base, "sub ${modified} { shift->next::method(\@_) }";
   }
+  eval(my $code = join "\n", "package ${base_name};", @mod_base);
+  die "Evaling failed: $@\nTrying to eval:\n${code}" if $@;
   $me->_install_modifiers($composed_name, $modifiers);
   $COMPOSED{role}{$composed_name} = 1;
   return $composed_name;
@@ -182,21 +177,7 @@ sub _install_methods {
 sub _install_modifiers {
   my ($me, $to, $modifiers) = @_;
   foreach my $modifier (@{$modifiers||[]}) {
-    _install_modifier($to, @{$modifier});
-  }
-}
-
-sub _handle_constructor {
-  my ($me, $to, $attr_info) = @_;
-  return unless $attr_info && keys %$attr_info;
-  if ($INFO{$to}) {
-    @{$INFO{$to}{attributes}||={}}{keys %$attr_info} = values %$attr_info;
-  } else {
-    # only fiddle with the constructor if the target is a Class::Tiny class
-    if ($INC{"Class/Tiny.pm"}
-        and my $con = Class::Tiny->_constructor_maker_for($to)) {
-      $con->register_attribute_specs(%$attr_info);
-    }
+    Class::Method::Modifiers::install_modifier($to, @{$modifier});
   }
 }
 

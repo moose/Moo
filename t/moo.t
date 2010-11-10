@@ -6,7 +6,7 @@ use Test::More;
 
   BEGIN { our @ISA = 'ZeroZero' }
 
-  use Class::Tiny;
+  use Moo;
 }
 
 BEGIN {
@@ -19,18 +19,18 @@ BEGIN {
 {
   package MyClass1;
 
-  use Class::Tiny;
+  use Moo;
 }
 
 is_deeply(
-  [ @MyClass1::ISA ], [ 'Class::Tiny::Object' ], 'superclass defaulted'
+  [ @MyClass1::ISA ], [ 'Moo::Object' ], 'superclass defaulted'
 );
 
 {
   package MyClass2;
 
   use base qw(MyClass1);
-  use Class::Tiny;
+  use Moo;
 }
 
 is_deeply(
@@ -40,7 +40,7 @@ is_deeply(
 {
   package MyClass3;
 
-  use Class::Tiny;
+  use Moo;
 
   extends 'MyClass2';
 }
@@ -52,7 +52,7 @@ is_deeply(
 {
   package MyClass4;
 
-  use Class::Tiny;
+  use Moo;
 
   extends 'WhatTheFlyingFornication';
 
@@ -66,7 +66,7 @@ is_deeply(
 {
   package MyClass5;
 
-  use Class::Tiny;
+  use Moo;
 
   sub foo { 'foo' }
 

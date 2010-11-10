@@ -1,4 +1,4 @@
-package Class::Tiny::_Utils;
+package Moo::_Utils;
 
 use strictures 1;
 use base qw(Exporter);

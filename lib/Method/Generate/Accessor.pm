@@ -1,8 +1,8 @@
 package Method::Generate::Accessor;
 
 use strictures 1;
-use Class::Tiny::_Utils;
-use base qw(Class::Tiny::Object);
+use Moo::_Utils;
+use base qw(Moo::Object);
 use Sub::Quote;
 use B 'perlstring';
 BEGIN {

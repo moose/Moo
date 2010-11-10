@@ -4,7 +4,7 @@ use Test::More;
 {
   package Foo;
 
-  use Class::Tiny;
+  use Moo;
 
   has one => (
     is => 'ro', lazy => 1, default => sub { 3 },

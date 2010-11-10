@@ -1,10 +1,10 @@
 package Method::Generate::BuildAll;
 
 use strictures 1;
-use base qw(Class::Tiny::Object);
+use base qw(Moo::Object);
 use Sub::Quote;
-use Class::Tiny::_mro;
-use Class::Tiny::_Utils;
+use Moo::_mro;
+use Moo::_Utils;
 
 sub generate_method {
   my ($self, $into) = @_;

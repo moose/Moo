@@ -36,7 +36,7 @@ sub run_for {
 {
   package Foo;
 
-  use Class::Tiny;
+  use Moo;
 
   has less_than_three => (
     is => 'rw',
@@ -50,7 +50,7 @@ run_for 'Foo';
   package Bar;
 
   use Sub::Quote;
-  use Class::Tiny;
+  use Moo;
 
   has less_than_three => (
     is => 'rw',
@@ -64,7 +64,7 @@ run_for 'Bar';
   package Baz;
 
   use Sub::Quote;
-  use Class::Tiny;
+  use Moo;
 
   has less_than_three => (
     is => 'rw',

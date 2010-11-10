@@ -1,4 +1,4 @@
-package Class::Tiny::_mro;
+package Moo::_mro;
 
 if ($] > 5.010) {
   require mro;

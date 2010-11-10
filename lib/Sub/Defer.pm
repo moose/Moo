@@ -2,7 +2,7 @@ package Sub::Defer;
 
 use strictures 1;
 use base qw(Exporter);
-use Class::Tiny::_Utils;
+use Moo::_Utils;
 
 our @EXPORT = qw(defer_sub undefer_sub);
 
