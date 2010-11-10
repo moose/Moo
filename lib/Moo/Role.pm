@@ -72,3 +72,54 @@ sub _handle_constructor {
 }
 
 1;
+
+=pod
+
+=head1 SYNOPSIS
+
+ package My::Role;
+
+ use Moo::Role;
+
+ sub foo { ... }
+
+ sub bar { ... }
+
+ has baz => (
+   is => 'ro',
+ );
+
+ 1;
+
+else where
+
+ package Some::Class;
+
+ use Moo;
+
+ # bar gets imported, but not foo
+ with('My::Role');
+
+ sub foo { ... }
+
+ 1;
+
+=head1 DESCRIPTION
+
+C<Moo::Role> builds upon L<Role::Tiny>, so look there for most of the
+documentation on how this works.  The main addition here is extra bits to make
+the roles more "Moosey;" which is to say, it adds L</has>.
+
+=head1 IMPORTED SUBROUTINES
+
+See L<Role::Tiny/IMPORTED SUBROUTINES> for all the other subroutines that are
+imported by this module.
+
+=head2 has
+
+ has attr => (
+   is => 'ro',
+ );
+
+Declares an attribute for the class to be composed into.  See
+L<Moo/has> for all options.
