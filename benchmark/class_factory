@@ -85,7 +85,12 @@ for (1, 2) {
   print "Perl $], take $_:\n";
 
   # if forking must run for certain number of cycles, cputime doesn't work
-  cmpthese ( $opts->{subprocess} ? 15 : -1 , $tasks );
+  foreach my $type (sort keys %$attrs_to_bench) {
+    print "Benchming ${type}:\n";
+    my %these = map { (split ' ', $_)[0] => $tasks->{$_} }
+      grep /${type}$/, keys %$tasks;
+    cmpthese ( $opts->{subprocess} ? 15 : -1 , \%these );
+  }
   print "\n";
 }
 
@@ -93,9 +98,6 @@ exit 0; # the end
 
 sub _add_moosey_has {
   my ($name, $base, $attr_type) = @_;
-
-  # this works only with Moo, not with Moose, not with Mouse
-  return if ($attr_type =~ /qsub/ and $name !~ /^moo(_XS)?$/ );
 
   my @to_eval;
 
