@@ -25,9 +25,9 @@ sub defer_sub {
   my ($target, $maker) = @_;
   my $undeferred;
   my $deferred_string;
-  my $deferred = bless(sub {
+  my $deferred = sub {
     goto &{$undeferred ||= undefer_sub($deferred_string)};
-  }, 'Sub::Defer::Deferred');
+  };
   $deferred_string = "$deferred";
   $DEFERRED{$deferred} = [ $target, $maker, \$undeferred ];
   *{_getglob $target} = $deferred if defined($target);
