@@ -3,6 +3,9 @@ use strictures 1;
 use Benchmark qw/:hireswallclock cmpthese/;
 use Getopt::Long::Descriptive;
 
+use Config;
+$ENV{PERL5LIB} = join ($Config{path_sep}, @INC);
+
 
 my ($opts, $usage);
 BEGIN {
@@ -10,8 +13,10 @@ BEGIN {
     '%c: %o' =>
     [ 'help|h'          => 'Print usage message and exit' ],
     [ 'classes|c:i'     => 'How many classes to create per benchmark cycle (def 10)', { default => 10 } ],
-    [ 'accessors|a:i'   => 'How many accessors to create per class (def 100)', { default => 100 } ],
-    [ 'pregenerate|p:i' => 'For how many maximum benchmark cycles should we prepare (def 1000)', { default => 1000 } ],
+    [ 'accessors|a:i'   => 'How many accessors/attributes of each type to create per class (def 10)', { default => 10 } ],
+    [ 'subprocess|startup|s' => 'Run the code in a subprocess to benchmark actual time spent on compilation' ],
+    [ 'pregenerate|p:i' => 'How many bench-runs to pre-generate for compilation in case --subprocess is not used (def 1000)', { default => 1000} ],
+    [ 'run|r'           => 'Use each accessor at runtime (get/set/get cycle)' ],
     [ 'unique|u'        => 'Make accessor names globally unique (instead of just per class)' ],
     [ 'bench|b:s'       => 'Which benchmarks to run (all|xs|pp)', { default => 'all', regex => qr/^(?:all|xs|pp)$/ } ],
     { getopt_conf => [qw/gnu_getopt bundling_override no_ignore_case/] },
@@ -35,31 +40,41 @@ BEGIN {
   }
 }
 
-use Method::Generate::Accessor; # need to pre-load for the XS shutoff to work
+use Method::Generate::Accessor; # need to pre-load for the XS shut-off to work
 
 $usage->die if $opts->{help};
+
+$opts->{pregenerate} = 1 if $opts->{subprocess};
 
 my $counters;
 my $tasks = {};
 
-if ($opts->{bench} =~ /all|pp/) {
-  {
-    local $Method::Generate::Accessor::CAN_HAZ_XS = 0;
-    _add_moosey_has (moo => 'Moo');
+my $attrs_to_bench = {
+  plain =>              q|is => 'rw'|,
+  lazy_default =>       q|is => 'rw', lazy => 1, default => sub { {} }|,
+  lazy_default_qsub =>  q|is => 'rw', lazy => 1, default => Sub::Quote::quote_sub q{ {} }|,
+};
+
+for (keys %$attrs_to_bench) {
+  if ($opts->{bench} =~ /all|pp/) {
+    {
+      local $Method::Generate::Accessor::CAN_HAZ_XS = 0;
+      _add_moosey_has (moo => 'Moo', $_);
+    }
+
+    _add_moosey_has (moose => 'Moose', $_);
+    _add_moosey_has (mouse => 'Mouse', $_)
+      if $ENV{MOUSE_PUREPERL};
   }
 
-  _add_moosey_has (moose => 'Moose');
-  _add_moosey_has (mouse => 'Mouse')
-    if $ENV{MOUSE_PUREPERL};
-}
-
-if ($opts->{bench} =~ /all|xs/) {
-  {
-    local $Method::Generate::Accessor::CAN_HAZ_XS = 1;
-    _add_moosey_has (moo_XS => 'Moo');
+  if ($opts->{bench} =~ /all|xs/) {
+    {
+      local $Method::Generate::Accessor::CAN_HAZ_XS = 1;
+      _add_moosey_has (moo_XS => 'Moo', $_);
+    }
+    _add_moosey_has (mouse_XS => 'Mouse', $_)
+      unless $ENV{MOUSE_PUREPERL};
   }
-  _add_moosey_has (mouse_XS => 'Mouse')
-    unless $ENV{MOUSE_PUREPERL};
 }
 
 # run each task once, prime whatever caches there may be
@@ -68,38 +83,60 @@ $_->() for values %$tasks;
 # Actual Benchmarking
 for (1, 2) {
   print "Perl $], take $_:\n";
-  cmpthese ( -1, $tasks );
+
+  # if forking must run for certain number of cycles, cputime doesn't work
+  cmpthese ( $opts->{subprocess} ? 15 : -1 , $tasks );
   print "\n";
 }
 
 exit 0; # the end
 
 sub _add_moosey_has {
-  my ($name, $base) = @_;
+  my ($name, $base, $attr_type) = @_;
 
-  my @for_eval;
+  # this works only with Moo, not with Moose, not with Mouse
+  return if ($attr_type =~ /qsub/ and $name !~ /moo\b/ );
 
-  # need to pre-gen stuff so that the class names will differ for every bench run
-  for (1 .. $opts->{pregenerate}) {
-    my $perl;
+  my @to_eval;
+
+  for (1 .. $opts->{pregenerate} ) {
+    my $perl = 'use Sub::Quote;';
+
     for ( 1.. $opts->{classes} ) {
-      my $class = "Bench::${base}::" . ++$counters->{class};
+      my $class = "Bench::${base}_" . ++$counters->{class};
       $perl .= "package $class; use $base;";
+
+      my @attr_names;
       for ( 1.. $opts->{accessors} ) {
-        my $attr = 'attribute_' . ++$counters->{acc};
-        $perl .= "has $attr => ( is => rw );";
+        my $attr = "attribute_${attr_type}" . ++$counters->{acc};
+        push @attr_names, $attr;
+        $perl .= "has $attr => ($attrs_to_bench->{$attr_type});";
       }
+
+      $perl .= '__PACKAGE__->meta->make_immutable;'
+        if $name !~ /moo\b/;
 
       $counters->{accessors} = 0
         unless $opts->{unique};
+
+      if ($opts->{run}) {
+        $perl .= 'package main;';
+        $perl .= "our \$foo = $class->$_; $class->$_(1); our \$foo = $class->$_;"
+          for @attr_names;
+      }
     }
 
-    push @for_eval, $perl;
+    push @to_eval, $perl;
   }
 
-  $tasks->{$name} = sub {
-    my $code = shift @for_eval
-      or die "Ran out of pre-generated stuff, raise -p\n";
-    eval $code;
-  };
+  $tasks->{"$name $attr_type"} = $opts->{subprocess}
+    ? sub {
+      open (my $subproc, '|-', $^X, '-');
+      print $subproc $to_eval[0];
+      close $subproc;
+    }
+    : sub {
+      eval shift @to_eval;
+    }
+  ;
 }
