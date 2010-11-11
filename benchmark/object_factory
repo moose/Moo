@@ -24,6 +24,7 @@ BEGIN {
     Moo
     Mouse
     Mousse
+    Class::XSAccessor
   /) {
     eval "require $_" or push @missing, $_;
   }
@@ -57,10 +58,12 @@ if ($opts->{bench} =~ /all|pp/) {
 }
 
 if ($opts->{bench} =~ /all|xs/) {
+  if (! $Method::Generate::Accessor::CAN_HAZ_XS)
   {
-    local $Method::Generate::Accessor::CAN_HAZ_XS = 1;
-    _add_moosey_has (moo_XS => 'Moo');
+    die "Requested XS benchmarks but XS isn't available in Method::Generate::Accessor";
   }
+
+  _add_moosey_has (moo_XS => 'Moo');
   _add_moosey_has (mouse_XS => 'Mouse')
 }
 
