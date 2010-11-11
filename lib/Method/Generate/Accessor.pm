@@ -6,9 +6,11 @@ use base qw(Moo::Object);
 use Sub::Quote;
 use B 'perlstring';
 BEGIN {
-  our $CAN_HAZ_XS = ($^O ne 'Win32')
-    && _maybe_load_module('Class::XSAccessor')
-    && (Class::XSAccessor->VERSION > 1.06);
+  our $CAN_HAZ_XS =
+    _maybe_load_module('Class::XSAccessor')
+      &&
+    (Class::XSAccessor->VERSION > 1.06)
+  ;
 }
 
 sub generate_method {
