@@ -1,0 +1,126 @@
+use strictures 1;
+
+use Benchmark qw/:hireswallclock cmpthese/;
+use Getopt::Long::Descriptive;
+
+use Config;
+$ENV{PERL5LIB} = join ($Config{path_sep}, @INC);
+
+
+my ($opts, $usage);
+BEGIN {
+  ($opts, $usage) = describe_options(
+    '%c: %o' =>
+    [ 'help|h'          => 'Print usage message and exit' ],
+    [ 'bench|b:s'       => 'Which benchmarks to run (all|xs|pp)', { default => 'all', regex => qr/^(?:all|xs|pp)$/ } ],
+    [ 'iterations|i:i'  => 'How many iterations in each bench run (def 1000)', { default => 1000 } ],
+    [ 'reuse|r'         => 'Reuse the object between benchmark runs' ],
+    { getopt_conf => [qw/gnu_getopt bundling_override no_ignore_case/] },
+  );
+
+  # can not change this runtime, thus in-block
+  $ENV{MOUSE_PUREPERL} = 1 if $opts->{bench} eq 'pp';
+
+  my @missing;
+  for (qw/
+    Moose
+    Moo
+    Mouse
+  /) {
+    eval "require $_" or push @missing, $_;
+  }
+
+  if (@missing) {
+    die sprintf "Missing modules necessary for benchmark:\n\n%s\n\n",
+      join ("\n", @missing);
+  }
+}
+
+use Method::Generate::Accessor; # need to pre-load for the XS shut-off to work
+
+$usage->die if $opts->{help};
+
+my $attrs_to_bench = {
+  plain =>              q|is => 'rw'                                                      |,
+  lazy_default =>       q|is => 'rw', lazy => 1, default => sub { {} }                    |,
+  lazy_default_qsub =>  q|is => 'rw', lazy => 1, default => Sub::Quote::quote_sub q{ {} } |,
+};
+
+my $class_types;
+
+if ($opts->{bench} =~ /all|pp/) {
+  {
+    local $Method::Generate::Accessor::CAN_HAZ_XS = 0;
+    _add_moosey_has (moo => 'Moo');
+  }
+
+  _add_moosey_has (moose => 'Moose');
+  _add_moosey_has (mouse => 'Mouse')
+    if $ENV{MOUSE_PUREPERL};
+}
+
+if ($opts->{bench} =~ /all|xs/) {
+  {
+    local $Method::Generate::Accessor::CAN_HAZ_XS = 1;
+    _add_moosey_has (moo_XS => 'Moo');
+  }
+  _add_moosey_has (mouse_XS => 'Mouse')
+    unless $ENV{MOUSE_PUREPERL};
+}
+
+
+# Actual Benchmarking
+for (1, 2) {
+  print "Perl $], take $_:\n";
+
+  my $objects;
+
+  print "\n\nBenching new()\n====================\n";
+
+  cmpthese ( -1, { map {
+    my $type = $_;
+    "${type}->new" => sub {
+      $objects->{$type} = $class_types->{$type}->new
+        for (1 .. $opts->{iterations});
+    }
+  } keys %$class_types } );
+
+  for my $attr (keys %$attrs_to_bench) {
+    print "\n\nBenching $attr\n====================\n";
+
+    cmpthese ( -1, { map {
+      my $type = $_;
+      "${type}->$attr" => sub {
+        $objects->{$type} = $class_types->{$type}->new
+          unless $opts->{reuse};
+
+        for (1 .. $opts->{iterations} ) {
+          my $init = $objects->{$type}->$attr;
+          $objects->{$type}->$attr('foo');
+          my $set = $objects->{$type}->$attr;
+        }
+      }
+    } keys %$objects } );
+  }
+}
+
+exit 0; # the end
+
+sub _add_moosey_has {
+  my ($name, $base) = @_;
+
+  my $class = "Bench::${name}";
+
+  my $perl = "package $class; use $base;";
+
+  for my $attr (keys %$attrs_to_bench) {
+    $perl .= "has $attr => ($attrs_to_bench->{$attr});";
+
+    $class_types->{$name} = $class;
+  }
+
+  $perl .= 'eval { __PACKAGE__->meta->make_immutable };';
+
+  eval $perl;
+  die $@ if $@;
+}
