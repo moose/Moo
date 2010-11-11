@@ -18,14 +18,12 @@ BEGIN {
     { getopt_conf => [qw/gnu_getopt bundling_override no_ignore_case/] },
   );
 
-  # can not change this runtime, thus in-block
-  $ENV{MOUSE_PUREPERL} = 1 if $opts->{bench} eq 'pp';
-
   my @missing;
   for (qw/
     Moose
     Moo
     Mouse
+    Mousse
   /) {
     eval "require $_" or push @missing, $_;
   }
@@ -55,8 +53,7 @@ if ($opts->{bench} =~ /all|pp/) {
   }
 
   _add_moosey_has (moose => 'Moose');
-  _add_moosey_has (mouse => 'Mouse')
-    if $ENV{MOUSE_PUREPERL};
+  _add_moosey_has (mouse => 'Mousse')
 }
 
 if ($opts->{bench} =~ /all|xs/) {
@@ -65,7 +62,6 @@ if ($opts->{bench} =~ /all|xs/) {
     _add_moosey_has (moo_XS => 'Moo');
   }
   _add_moosey_has (mouse_XS => 'Mouse')
-    unless $ENV{MOUSE_PUREPERL};
 }
 
 
