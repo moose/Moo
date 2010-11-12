@@ -48,40 +48,45 @@ sub generate_method {
       "    delete \$_[0]->{${\perlstring $name}}\n"
     ;
   }
-  return $body if ref($body); # optimiferised
-  quote_sub
-    "${into}::${name}" => '    '.$body."\n",
-    $self->{captures}, $quote_opts||{}
-  ;
+  if (ref($body)) {
+    $body;
+  } else {
+    quote_sub
+      "${into}::${name}" => '    '.$body."\n",
+      $self->{captures}, $quote_opts||{}
+    ;
+  }
 }
 
 sub is_simple_attribute {
   my ($self, $name, $spec) = @_;
   # clearer doesn't have to be listed because it doesn't
   # affect whether defined/exists makes a difference
-  return !grep $spec->{$_},
+  !grep $spec->{$_},
     qw(lazy default builder isa trigger predicate);
 }
 
 sub is_simple_get {
   my ($self, $name, $spec) = @_;
-  return !($spec->{lazy} and ($spec->{default} or $spec->{builder}));
+  !($spec->{lazy} and ($spec->{default} or $spec->{builder}));
 }
 
 sub is_simple_set {
   my ($self, $name, $spec) = @_;
-  return !grep $spec->{$_}, qw(isa trigger);
+  !grep $spec->{$_}, qw(isa trigger);
 }
 
 sub _generate_get {
   my ($self, $name, $spec) = @_;
   my $simple = $self->_generate_simple_get('$_[0]', $name);
-  my ($lazy, $default, $builder) = @{$spec}{qw(lazy default builder)};
-  return $simple unless $lazy and ($default or $builder);
-  'do { '.$self->_generate_use_default(
-    '$_[0]', $name, $spec,
-    $self->_generate_simple_has('$_[0]', $name),
-  ).'; '.$simple.' }';
+  if ($self->is_simple_get($name, $spec)) {
+    $simple;
+  } else {
+    'do { '.$self->_generate_use_default(
+      '$_[0]', $name, $spec,
+      $self->_generate_simple_has('$_[0]', $name),
+    ).'; '.$simple.' }';
+  }
 }
 
 sub _generate_simple_has {
@@ -93,7 +98,7 @@ sub generate_get_default {
   my $self = shift;
   local $self->{captures} = {};
   my $code = $self->_generate_get_default(@_);
-  return ($code, $self->{captures});
+  ($code, $self->{captures});
 }
 
 sub _generate_use_default {
@@ -111,7 +116,8 @@ sub _generate_get_default {
 }
 
 sub generate_simple_get {
-  shift->_generate_simple_get(@_);
+  my ($self, @args) = @_;
+  $self->_generate_simple_get(@args);
 }
 
 sub _generate_simple_get {
@@ -123,30 +129,33 @@ sub _generate_simple_get {
 sub _generate_set {
   my ($self, $name, $value, $spec) = @_;
   my $simple = $self->_generate_simple_set('$_[0]', $name, $value);
-  my ($trigger, $isa_check) = @{$spec}{qw(trigger isa)};
-  return $simple unless $trigger or $isa_check;
-  my $code = "do {\n";
-  if ($isa_check) {
-    $code .= 
-      "        ".$self->_generate_isa_check($name, '$_[1]', $isa_check).";\n";
-  }
-  if ($trigger) {
-    my $fire = $self->_generate_trigger($name, '$_[0]', '$value', $trigger);
-    $code .=
-      "        my \$value = ".$simple.";\n        ".$fire.";\n"
-      ."        \$value;\n";
+  if ($self->is_simple_set($name, $spec)) {
+    $simple;
   } else {
-    $code .= "        ".$simple.";\n";
+    my ($trigger, $isa_check) = @{$spec}{qw(trigger isa)};
+    my $code = "do {\n";
+    if ($isa_check) {
+      $code .= 
+        "        ".$self->_generate_isa_check($name, '$_[1]', $isa_check).";\n";
+    }
+    if ($trigger) {
+      my $fire = $self->_generate_trigger($name, '$_[0]', '$value', $trigger);
+      $code .=
+        "        my \$value = ".$simple.";\n        ".$fire.";\n"
+        ."        \$value;\n";
+    } else {
+      $code .= "        ".$simple.";\n";
+    }
+    $code .= "      }";
+    $code;
   }
-  $code .= "      }";
-  return $code;
 }
-
+  
 sub generate_trigger {
   my $self = shift;
   local $self->{captures} = {};
   my $code = $self->_generate_trigger(@_);
-  return ($code, $self->{captures});
+  ($code, $self->{captures});
 }
 
 sub _generate_trigger {
@@ -155,10 +164,10 @@ sub _generate_trigger {
 }
 
 sub generate_isa_check {
-  my $self = shift;
+  my ($self, @args) = @_;
   local $self->{captures} = {};
-  my $code = $self->_generate_isa_check(@_);
-  return ($code, $self->{captures});
+  my $code = $self->_generate_isa_check(@args);
+  ($code, $self->{captures});
 }
 
 sub _generate_isa_check {
@@ -178,18 +187,19 @@ sub _generate_call_code {
         .Sub::Quote::capture_unroll($cap_name, $captures, 6)
         ."     ${code}\n    }";
     }
-    return 'do { local @_ = ('.$values.'); '.$code.' }';
+    'do { local @_ = ('.$values.'); '.$code.' }';
+  } else {
+    my $cap_name = qq{\$${type}_for_${name}};
+    $self->{captures}->{$cap_name} = \$sub;
+    "${cap_name}->(${values})";
   }
-  my $cap_name = qq{\$${type}_for_${name}};
-  $self->{captures}->{$cap_name} = \$sub;
-  return "${cap_name}->(${values})";
 }
 
 sub generate_populate_set {
   my $self = shift;
   local $self->{captures} = {};
   my $code = $self->_generate_populate_set(@_);
-  return ($code, $self->{captures});
+  ($code, $self->{captures});
 }
 
 sub _generate_populate_set {
@@ -251,7 +261,7 @@ sub generate_simple_set {
   my $self = shift;
   local $self->{captures} = {};
   my $code = $self->_generate_simple_set(@_);
-  return ($code, $self->{captures});
+  ($code, $self->{captures});
 }
 
 sub _generate_simple_set {
@@ -281,7 +291,7 @@ sub _generate_xs {
     class => $into,
     $type => { $name => $name }
   );
-  return $into->can($name);
+  $into->can($name);
 }
 
 1;
