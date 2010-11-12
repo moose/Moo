@@ -90,6 +90,38 @@ sub generate_method {
         "    delete \$_[0]->{${\perlstring $name}}\n"
       ;
   }
+  if (my $hspec = $spec->{handles}) {
+    my $asserter = $spec->{asserter} ||= '_assert_'.$name;
+    my @specs = do {
+      if (ref($hspec) eq 'ARRAY') {
+        map [ $_ => $_ ], @$hspec;
+      } elsif (ref($hspec) eq 'HASH') {
+        map [ $_ => ref($hspec->{$_}) ? @{$hspec->{$_}} : $hspec->{$_} ],
+          keys %$hspec;
+      } elsif (!ref($hspec)) {
+        map [ $_ => $_ ], Role::Tiny->methods_provided_by($hspec);
+      } else {
+        die "You gave me a handles of ${hspec} and I have no idea why";
+      }
+    };
+    foreach my $spec (@specs) {
+      my ($proxy, $target, @args) = @$spec;
+      local $self->{captures} = {};
+      $methods{$proxy} =
+        quote_sub "${into}::${proxy}" =>
+          $self->_generate_delegation($asserter, $target, \@args),
+          $self->{captures}
+        ;
+    }
+  }
+  if (my $asserter = $spec->{asserter}) {
+    local $self->{captures} = {};
+    $methods{$asserter} =
+      quote_sub "${into}::${asserter}" =>
+        'do { '.$self->_generate_get($name, $spec).qq! }||die "Attempted to access '${name}' but it is not set"!,
+        $self->{captures}
+      ;
+  }
   \%methods;
 }
 
@@ -309,6 +341,21 @@ sub _generate_getset {
   my ($self, $name, $spec) = @_;
   q{(@_ > 1}."\n      ? ".$self->_generate_set($name, $spec)
     ."\n      : ".$self->_generate_get($name)."\n    )";
+}
+
+sub _generate_delegation {
+  my ($self, $asserter, $target, $args) = @_;
+  my $arg_string = do {
+    if (@$args) {
+      # I could, I reckon, linearise out non-refs here using perlstring
+      # plus something to check for numbers but I'm unsure if it's worth it
+      $self->{captures}{'@curries'} = $args;
+      '@curries, @_';
+    } else {
+      '@_';
+    }
+  };
+  "shift->${asserter}->${target}(${arg_string});";
 }
 
 sub _generate_xs {

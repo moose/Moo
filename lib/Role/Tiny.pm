@@ -139,12 +139,10 @@ sub _check_requires {
   }
 }
 
-sub _install_methods {
-  my ($me, $to, $role) = @_;
-
+sub _concrete_methods_of {
+  my ($me, $role) = @_;
   my $info = $INFO{$role};
-
-  my $methods = $info->{methods} ||= do {
+  $info->{methods} ||= do {
     # grab role symbol table
     my $stash = do { no strict 'refs'; \%{"${role}::"}};
     my $not_methods = $info->{not_methods};
@@ -157,6 +155,20 @@ sub _install_methods {
       } grep !(ref($stash->{$_}) eq 'SCALAR'), keys %$stash
     };
   };
+}
+
+sub methods_provided_by {
+  my ($me, $role) = @_;
+  die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
+  (keys %{$me->_concrete_methods_of($role)}, @{$info->{requires}||[]});
+}
+
+sub _install_methods {
+  my ($me, $to, $role) = @_;
+
+  my $info = $INFO{$role};
+
+  my $methods = $me->_concrete_methods_of($role);
 
   # grab target symbol table
   my $stash = do { no strict 'refs'; \%{"${to}::"}};
