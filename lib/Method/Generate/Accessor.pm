@@ -16,46 +16,81 @@ BEGIN {
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
   die "Must have an is" unless my $is = $spec->{is};
-  local $self->{captures} = {};
-  my $body = do {
-    if ($is eq 'ro') {
-      if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
-        $self->_generate_xs_get($into, $name);
-      } else {
-        $self->_generate_get($name, $spec)
-      }
-    } elsif ($is eq 'rw') {
-      if (
-        our $CAN_HAZ_XS
-        && $self->is_simple_get($name, $spec)
-        && $self->is_simple_set($name, $spec)
-      ) {
-        $self->_generate_xs_getset($into, $name);
-      } else {
-        $self->_generate_getset($name, $spec)
-      }
+  if ($is eq 'ro') {
+    $spec->{reader} = $name unless exists $spec->{reader};
+  } elsif ($is eq 'rw') {
+    $spec->{accessor} = $name unless exists $spec->{accessor};
+  } elsif ($is eq 'lazy') {
+    $spec->{init_arg} = undef unless exists $spec->{init_arg};
+    $spec->{reader} = $name unless exists $spec->{reader};
+    $spec->{lazy} = 1;
+    $spec->{builder} ||= '_build_'.$name unless $spec->{default};
+  } elsif ($is ne 'bare') {
+    die "Unknown is ${is}";
+  }
+  my %methods;
+  if (my $reader = $spec->{reader}) {
+    if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
+      $methods{$reader} = $self->_generate_xs(
+        getters => $into, $reader, $name
+      );
     } else {
-      die "Unknown is ${is}";
+      local $self->{captures} = {};
+      $methods{$reader} =
+        quote_sub "${into}::${reader}"
+          => $self->_generate_get($name, $spec)
+          => $self->{captures}
+        ;
     }
-  };
+  }
+  if (my $accessor = $spec->{accessor}) {
+    if (
+      our $CAN_HAZ_XS
+      && $self->is_simple_get($name, $spec)
+      && $self->is_simple_set($name, $spec)
+    ) {
+      $methods{$accessor} = $self->_generate_xs(
+        accessors => $into, $accessor, $name
+      );
+    } else {
+      local $self->{captures} = {};
+      $methods{$accessor} =
+        quote_sub "${into}::${accessor}"
+          => $self->_generate_getset($name, $spec)
+          => $self->{captures}
+        ;
+    }
+  }
+  if (my $writer = $spec->{writer}) {
+    if (
+      our $CAN_HAZ_XS
+      && $self->is_simple_set($name, $spec)
+    ) {
+      $methods{$writer} = $self->_generate_xs(
+        setters => $into, $writer, $name
+      );
+    } else {
+      local $self->{captures} = {};
+      $methods{$writer} =
+        quote_sub "${into}::${writer}"
+          => $self->_generate_set($name, $spec)
+          => $self->{captures}
+        ;
+    }
+  }
   if (my $pred = $spec->{predicate}) {
-    quote_sub "${into}::${pred}" =>
-    '    '.$self->_generate_simple_has('$_[0]', $name)."\n"
-    ;
+    $methods{$pred} =
+      quote_sub "${into}::${pred}" =>
+        '    '.$self->_generate_simple_has('$_[0]', $name)."\n"
+      ;
   }
   if (my $cl = $spec->{clearer}) {
-    quote_sub "${into}::${cl}" => 
-      "    delete \$_[0]->{${\perlstring $name}}\n"
-    ;
+    $methods{$cl} =
+      quote_sub "${into}::${cl}" => 
+        "    delete \$_[0]->{${\perlstring $name}}\n"
+      ;
   }
-  if (ref($body)) {
-    $body;
-  } else {
-    quote_sub
-      "${into}::${name}" => '    '.$body."\n",
-      $self->{captures}, $quote_opts||{}
-    ;
-  }
+  \%methods;
 }
 
 sub is_simple_attribute {
@@ -127,8 +162,8 @@ sub _generate_simple_get {
 }
 
 sub _generate_set {
-  my ($self, $name, $value, $spec) = @_;
-  my $simple = $self->_generate_simple_set('$_[0]', $name, $value);
+  my ($self, $name, $spec) = @_;
+  my $simple = $self->_generate_simple_set('$_[0]', $name, '$_[1]');
   if ($self->is_simple_set($name, $spec)) {
     $simple;
   } else {
@@ -272,24 +307,15 @@ sub _generate_simple_set {
 
 sub _generate_getset {
   my ($self, $name, $spec) = @_;
-  q{(@_ > 1}."\n      ? ".$self->_generate_set($name, q{$_[1]}, $spec)
+  q{(@_ > 1}."\n      ? ".$self->_generate_set($name, $spec)
     ."\n      : ".$self->_generate_get($name)."\n    )";
 }
 
-sub _generate_xs_get {
-  shift->_generate_xs('getters', @_);
-}
-
-sub _generate_xs_getset {
-  shift->_generate_xs('accessors', @_);
-}
-
 sub _generate_xs {
-  my ($self, $type, $into, $name) = @_;
-  no strict 'refs';
+  my ($self, $type, $into, $name, $slot) = @_;
   Class::XSAccessor->import(
     class => $into,
-    $type => { $name => $name }
+    $type => { $name => $slot }
   );
   $into->can($name);
 }
