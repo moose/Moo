@@ -74,32 +74,30 @@ for (1, 2) {
 
   my $objects;
 
-  print "\n\nBenching new()\n====================\n";
+  for my $use_attrs (0, 1) {
+    for my $attr (keys %$attrs_to_bench) {
+      printf "\n\nBenching %s ( %s )\n====================\n",
+        $attr,
+        $use_attrs
+          ? ($opts->{reuse} ? '' : 'new() and ' ) . 'get/set/get cycle'
+          : 'new() only'
+        ,
+      ;
 
-  cmpthese ( -1, { map {
-    my $type = $_;
-    "${type}->new" => sub {
-      $objects->{$type} = $class_types->{$type}->new
-        for (1 .. $opts->{iterations});
+      cmpthese ( -1, { map {
+        my $type = $_;
+        "${type}->$attr" => sub {
+          $objects->{$type} = $class_types->{$type}->new
+            unless ( $use_attrs && $opts->{reuse} );
+
+          for (1 .. $opts->{iterations} ) {
+            my $init = $objects->{$type}->$attr;
+            $objects->{$type}->$attr('foo') unless $attr eq 'ro';
+            my $set = $objects->{$type}->$attr;
+          }
+        };
+      } keys %$class_types } );
     }
-  } keys %$class_types } );
-
-  for my $attr (keys %$attrs_to_bench) {
-    print "\n\nBenching $attr\n====================\n";
-
-    cmpthese ( -1, { map {
-      my $type = $_;
-      "${type}->$attr" => sub {
-        $objects->{$type} = $class_types->{$type}->new
-          unless $opts->{reuse};
-
-        for (1 .. $opts->{iterations} ) {
-          my $init = $objects->{$type}->$attr;
-          $objects->{$type}->$attr('foo');
-          my $set = $objects->{$type}->$attr;
-        }
-      }
-    } keys %$objects } );
   }
 }
 
