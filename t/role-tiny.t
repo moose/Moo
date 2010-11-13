@@ -27,6 +27,21 @@ BEGIN {
 }
 
 BEGIN {
+  package ExtraClass;
+  sub req1 { }
+  sub req2 { }
+  sub req3 { }
+  sub foo { }
+  sub baz { 'class baz' }
+}
+
+BEGIN {
+  package IntermediaryRole;
+  use Role::Tiny;
+  requires 'req3';
+}
+
+BEGIN {
   package NoMethods;
 
   package OneMethod;
@@ -49,4 +64,15 @@ ok(!MyClass->does('Random'), 'class does not do non-role');
 like(try_apply_to('NoMethods'), qr/req1, req2/, 'error for both methods');
 like(try_apply_to('OneMethod'), qr/req2/, 'error for one method');
 
+is exception {
+  Role::Tiny->apply_role_to_package('MyRole', 'IntermediaryRole');
+  Role::Tiny->apply_role_to_package('IntermediaryRole', 'ExtraClass');
+}, undef, 'No errors applying roles';
+
+ok(ExtraClass->does('MyRole'), 'ExtraClass does MyRole');
+ok(ExtraClass->does('IntermediaryRole'), 'ExtraClass does IntermediaryRole');
+is(ExtraClass->bar, 'role bar', 'method from role');
+is(ExtraClass->baz, 'class baz', 'method from class');
+
 done_testing;
+
