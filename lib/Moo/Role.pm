@@ -51,11 +51,9 @@ sub create_class_with_roles {
   return $new_name;
 }
 
-sub _install_modifiers {
-  my ($me, $to, $modifiers) = @_;
-  foreach my $modifier (@{$modifiers||[]}) {
-    _install_modifier($to, @{$modifier});
-  }
+sub _install_single_modifier {
+  my ($me, @args) = @_;
+  _install_modifier(@args);
 }
 
 sub _handle_constructor {

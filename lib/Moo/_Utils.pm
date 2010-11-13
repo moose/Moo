@@ -9,12 +9,12 @@ sub _getglob { no strict 'refs'; \*{$_[0]} }
 
 sub _install_modifier {
   my ($into, $type, $name, $code) = @_;
-  my $ref = ref(my $to_modify = $into->can($name));
 
-  require Sub::Defer;
-  Sub::Defer::undefer_sub($to_modify);
+  if (my $to_modify = $into->can($name)) { # CMM will throw for us if not
+    require Sub::Defer;
+    Sub::Defer::undefer_sub($to_modify);
+  }
 
-  require Class::Method::Modifiers;
   Class::Method::Modifiers::install_modifier(@_);
 }
 

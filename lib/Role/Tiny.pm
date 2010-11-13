@@ -200,9 +200,18 @@ sub _install_methods {
 
 sub _install_modifiers {
   my ($me, $to, $modifiers) = @_;
-  foreach my $modifier (@{$modifiers||[]}) {
-    Class::Method::Modifiers::install_modifier($to, @{$modifier});
+  if (my $info = $INFO{$to}) {
+    push @{$info->{modifiers}}, @{$modifiers||[]};
+  } else {
+    foreach my $modifier (@{$modifiers||[]}) {
+      $me->_install_single_modifier($to, @$modifier);
+    }
   }
+}
+
+sub _install_single_modifier {
+  my ($me, @args) = @_;
+  Class::Method::Modifiers::install_modifier(@args);
 }
 
 sub does_role {

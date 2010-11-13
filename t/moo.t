@@ -49,6 +49,8 @@ is_deeply(
   [ @MyClass3::ISA ], [ 'MyClass2' ], 'extends sets superclass'
 );
 
+{ package WhatTheFlyingFornication; sub wtff {} }
+
 {
   package MyClass4;
 

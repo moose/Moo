@@ -33,6 +33,7 @@ sub import {
   };
   foreach my $type (qw(before after around)) {
     *{_getglob "${target}::${type}"} = sub {
+      require Class::Method::Modifiers;
       _install_modifier($target, $type, @_);
     };
   }
