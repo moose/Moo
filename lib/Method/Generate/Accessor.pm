@@ -341,7 +341,7 @@ sub _generate_simple_set {
 sub _generate_getset {
   my ($self, $name, $spec) = @_;
   q{(@_ > 1}."\n      ? ".$self->_generate_set($name, $spec)
-    ."\n      : ".$self->_generate_get($name)."\n    )";
+    ."\n      : ".$self->_generate_get($name, $spec)."\n    )";
 }
 
 sub _generate_delegation {

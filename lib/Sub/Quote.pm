@@ -33,7 +33,7 @@ sub inlinify {
     if ($code_args eq $args) {
       $do.$body.' }'
     } else {
-      $do.'my '.$code_args.' = ('.$args.'); '.$body.' }';
+      $do.'my ('.$code_args.') = ('.$args.'); '.$body.' }';
     }
   } else {
     $do.($local ? 'local ' : '').'@_ = ('.$args.'); '.$code.' }';
