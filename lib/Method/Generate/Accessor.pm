@@ -130,7 +130,7 @@ sub is_simple_attribute {
   # clearer doesn't have to be listed because it doesn't
   # affect whether defined/exists makes a difference
   !grep $spec->{$_},
-    qw(lazy default builder isa trigger predicate);
+    qw(lazy default builder isa trigger predicate weak_ref);
 }
 
 sub is_simple_get {
@@ -140,7 +140,7 @@ sub is_simple_get {
 
 sub is_simple_set {
   my ($self, $name, $spec) = @_;
-  !grep $spec->{$_}, qw(isa trigger);
+  !grep $spec->{$_}, qw(isa trigger weak_ref);
 }
 
 sub _generate_get {
@@ -171,7 +171,7 @@ sub generate_get_default {
 sub _generate_use_default {
   my ($self, $me, $name, $spec, $test) = @_;
   $self->_generate_simple_set(
-    $me, $name, $self->_generate_get_default($me, $name, $spec)
+    $me, $name, $spec, $self->_generate_get_default($me, $name, $spec)
   ).' unless '.$test;
 }
 
@@ -196,10 +196,10 @@ sub _generate_simple_get {
 sub _generate_set {
   my ($self, $name, $spec) = @_;
   if ($self->is_simple_set($name, $spec)) {
-    $self->_generate_simple_set('$_[0]', $name, '$_[1]');
+    $self->_generate_simple_set('$_[0]', $name, $spec, '$_[1]');
   } else {
     my ($trigger, $isa_check) = @{$spec}{qw(trigger isa)};
-    my $simple = $self->_generate_simple_set('$self', $name, '$value');
+    my $simple = $self->_generate_simple_set('$self', $name, $spec, '$value');
     my $code = "do { my (\$self, \$value) = \@_;\n";
     if ($isa_check) {
       $code .= 
@@ -286,9 +286,9 @@ sub _generate_populate_set {
         .$self->_generate_isa_check(
           $name, '$value', $spec->{isa}
         ).";\n"
-        .'      '.$self->_generate_simple_set($me, $name, '$value').";\n"
+        .'      '.$self->_generate_simple_set($me, $name, $spec, '$value').";\n"
         ."    }\n"
-      : '    '.$self->_generate_simple_set($me, $name, $get_value).";\n"
+      : '    '.$self->_generate_simple_set($me, $name, $spec, $get_value).";\n"
     )
     .($spec->{trigger}
       ? '    '
@@ -307,7 +307,7 @@ sub _generate_populate_set {
           ).";\n"
         : ""
       )
-      ."      ".$self->_generate_simple_set($me, $name, $source).";\n"
+      ."      ".$self->_generate_simple_set($me, $name, $spec, $source).";\n"
       .($spec->{trigger}
         ? "      "
           .$self->_generate_trigger(
@@ -325,17 +325,16 @@ sub generate_multi_set {
   "\@{${me}}{qw(${\join ' ', @$to_set})} = $from";
 }
 
-sub generate_simple_set {
-  my $self = shift;
-  $self->{captures} = {};
-  my $code = $self->_generate_simple_set(@_);
-  ($code, delete $self->{captures});
-}
-
 sub _generate_simple_set {
-  my ($self, $me, $name, $value) = @_;
+  my ($self, $me, $name, $spec, $value) = @_;
   my $name_str = perlstring $name;
-  "${me}->{${name_str}} = ${value}";
+  my $simple = "${me}->{${name_str}} = ${value}";
+  if ($spec->{weak_ref}) {
+    require Scalar::Util;
+    "Scalar::Util::weaken(${simple})";
+  } else {
+    $simple;
+  }
 }
 
 sub _generate_getset {
