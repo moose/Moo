@@ -51,4 +51,10 @@ is(
   'pass with both required args'
 );
 
+is(
+  exception { Bar->new({ one => 1, THREE => 3 }) },
+  undef,
+  'hashrefs also supported'
+);
+
 done_testing;
