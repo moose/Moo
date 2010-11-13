@@ -4,40 +4,6 @@ use Benchmark qw/:hireswallclock cmpthese/;
 use Getopt::Long::Descriptive;
 
 use Config;
-$ENV{PERL5LIB} = join ($Config{path_sep}, @INC);
-
-
-my ($opts, $usage);
-BEGIN {
-  ($opts, $usage) = describe_options(
-    '%c: %o' =>
-    [ 'help|h'          => 'Print usage message and exit' ],
-    [ 'bench|b:s'       => 'Which benchmarks to run (all|xs|pp)', { default => 'all', regex => qr/^(?:all|xs|pp)$/ } ],
-    [ 'iterations|i:i'  => 'How many iterations in each bench run (def 1000)', { default => 1000 } ],
-    [ 'reuse|r'         => 'Reuse the object between benchmark runs' ],
-    { getopt_conf => [qw/gnu_getopt bundling_override no_ignore_case/] },
-  );
-
-  my @missing;
-  for (qw/
-    Moose
-    Moo
-    Mouse
-    Mousse
-    Class::XSAccessor
-  /) {
-    eval "require $_" or push @missing, $_;
-  }
-
-  if (@missing) {
-    die sprintf "Missing modules necessary for benchmark:\n\n%s\n\n",
-      join ("\n", @missing);
-  }
-}
-
-use Method::Generate::Accessor; # need to pre-load for the XS shut-off to work
-
-$usage->die if $opts->{help};
 
 my $attrs_to_bench = {
   plain =>              q|is => 'rw'                                                      |,
@@ -47,6 +13,64 @@ my $attrs_to_bench = {
   lazy_default_qsub =>  q|is => 'rw', lazy => 1, default => Sub::Quote::quote_sub q{ {} } |,
 };
 
+my $cycles = {
+  1 => 'get',
+  2 => 'get/set/get',
+};
+
+my ($opts, $usage) = describe_options(
+  '%c: %o' =>
+  [ 'help|h'          => 'Print usage message and exit' ],
+  [ 'bench|b:s'       => 'Which benchmarks to run (all|xs|pp)', { default => 'all', regex => qr/^(?:all|xs|pp)$/ } ],
+  [ 'lib|l:s@'        => 'Bench against specific lib(s), runs same benches against multiple targets, excluding non-moo benches' ],
+  [ 'attr|a:s@'       => 'Which attributes to benchmark (must be defined in-file)' ],
+  [ 'cycle|c:i'       => 'Which cycle to run 1 - get, 2 - get/set/get (def 1)', { default => 1 } ],
+  [ 'iterations|i:i'  => 'How many iterations in each bench run (def 1000)', { default => 1000 } ],
+  [ 'totalruns|total|t:i' => 'How many times to rerun the whole benchmark (def 1)', { default => 1 } ],
+  [ 'reuse|r'         => 'Reuse the object between attribute usage runs' ],
+  { getopt_conf => [qw/gnu_getopt bundling_override no_ignore_case/] },
+);
+
+$usage->die if $opts->{help};
+
+if ($opts->{attr}) {
+  my %to_bench = map { $_ => 1 } map { split /\s*,\s*/, $_ } @{$opts->{attr}};
+
+  for (keys %to_bench) {
+    die "No such attr '$_'\n" unless $attrs_to_bench->{$_};
+  }
+
+  for (keys %$attrs_to_bench) {
+    delete $attrs_to_bench->{$_} unless $to_bench{$_};
+  }
+}
+
+my @libs = map { split /\s*:\s*/, $_ } @{$opts->{lib}}
+  if ($opts->{lib});
+
+if (@libs) {
+  my $myself = $$;
+
+  for my $lib (@libs) {
+    $ENV{PERL5LIB} = join ($Config{path_sep}, $lib, @INC);
+
+    my $pid = fork();
+    die "Unable to fork: $!" unless defined $pid;
+
+    if ($pid) {
+      wait;
+    }
+    else {
+      print "Benchmarking with $lib\n";
+      last;
+    }
+  }
+
+  exit 0 if $$ == $myself;
+}
+
+require Method::Generate::Accessor; # need to pre-load for the XS shut-off to work
+
 my $class_types;
 
 if ($opts->{bench} =~ /all|pp/) {
@@ -55,8 +79,8 @@ if ($opts->{bench} =~ /all|pp/) {
     _add_moosey_has (moo => 'Moo');
   }
 
-  _add_moosey_has (moose => 'Moose');
-  _add_moosey_has (mouse => 'Mousse')
+  _add_moosey_has (moose => 'Moose') unless @libs;
+  _add_moosey_has (mouse => 'Mousse') unless @libs;
 }
 
 if ($opts->{bench} =~ /all|xs/) {
@@ -66,12 +90,12 @@ if ($opts->{bench} =~ /all|xs/) {
   }
 
   _add_moosey_has (moo_XS => 'Moo');
-  _add_moosey_has (mouse_XS => 'Mouse')
+  _add_moosey_has (mouse_XS => 'Mouse') unless @libs;
 }
 
 
 # Actual Benchmarking
-for (1, 2) {
+for (1 .. $opts->{totalruns} ) {
   print "Perl $], take $_:\n";
 
   my $objects;
@@ -81,7 +105,7 @@ for (1, 2) {
       printf "\n\nBenching %s ( %s )\n====================\n",
         $attr,
         $use_attrs
-          ? ($opts->{reuse} ? '' : 'new() and ' ) . 'get/set/get cycle'
+          ? sprintf '%s%s cycle', ($opts->{reuse} ? '' : 'new() and ' ), $cycles->{$opts->{cycle}}
           : 'new() only'
         ,
       ;
@@ -93,14 +117,21 @@ for (1, 2) {
             unless ( $use_attrs && $opts->{reuse} );
 
           for (1 .. $opts->{iterations} ) {
-            my $init = $objects->{$type}->$attr;
-            $objects->{$type}->$attr('foo') unless $attr eq 'ro';
-            my $set = $objects->{$type}->$attr;
+            if ($opts->{cycle} == 1) {
+              my $init = $objects->{$type}->$attr;
+            }
+            elsif ($opts->{cycle} == 2) {
+              my $init = $objects->{$type}->$attr;
+              $objects->{$type}->$attr('foo') unless $attr eq 'ro';
+              my $set = $objects->{$type}->$attr;
+            }
           }
         };
       } keys %$class_types } );
     }
   }
+
+  print "\n\n\n";
 }
 
 exit 0; # the end
