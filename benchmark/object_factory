@@ -41,6 +41,8 @@ $usage->die if $opts->{help};
 
 my $attrs_to_bench = {
   plain =>              q|is => 'rw'                                                      |,
+  ro =>                 q|is => 'ro'                                                      |,
+  default =>            q|is => 'rw', default => sub { {} }                               |,
   lazy_default =>       q|is => 'rw', lazy => 1, default => sub { {} }                    |,
   lazy_default_qsub =>  q|is => 'rw', lazy => 1, default => Sub::Quote::quote_sub q{ {} } |,
 };
