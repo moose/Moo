@@ -35,11 +35,11 @@ sub generate_method {
         getters => $into, $reader, $name
       );
     } else {
-      local $self->{captures} = {};
+      $self->{captures} = {};
       $methods{$reader} =
         quote_sub "${into}::${reader}"
           => $self->_generate_get($name, $spec)
-          => $self->{captures}
+          => delete $self->{captures}
         ;
     }
   }
@@ -53,11 +53,11 @@ sub generate_method {
         accessors => $into, $accessor, $name
       );
     } else {
-      local $self->{captures} = {};
+      $self->{captures} = {};
       $methods{$accessor} =
         quote_sub "${into}::${accessor}"
           => $self->_generate_getset($name, $spec)
-          => $self->{captures}
+          => delete $self->{captures}
         ;
     }
   }
@@ -70,11 +70,11 @@ sub generate_method {
         setters => $into, $writer, $name
       );
     } else {
-      local $self->{captures} = {};
+      $self->{captures} = {};
       $methods{$writer} =
         quote_sub "${into}::${writer}"
           => $self->_generate_set($name, $spec)
-          => $self->{captures}
+          => delete $self->{captures}
         ;
     }
   }
@@ -106,20 +106,20 @@ sub generate_method {
     };
     foreach my $spec (@specs) {
       my ($proxy, $target, @args) = @$spec;
-      local $self->{captures} = {};
+      $self->{captures} = {};
       $methods{$proxy} =
         quote_sub "${into}::${proxy}" =>
           $self->_generate_delegation($asserter, $target, \@args),
-          $self->{captures}
+          delete $self->{captures}
         ;
     }
   }
   if (my $asserter = $spec->{asserter}) {
-    local $self->{captures} = {};
+    $self->{captures} = {};
     $methods{$asserter} =
       quote_sub "${into}::${asserter}" =>
         'do { '.$self->_generate_get($name, $spec).qq! }||die "Attempted to access '${name}' but it is not set"!,
-        $self->{captures}
+        delete $self->{captures}
       ;
   }
   \%methods;
@@ -163,9 +163,9 @@ sub _generate_simple_has {
 
 sub generate_get_default {
   my $self = shift;
-  local $self->{captures} = {};
+  $self->{captures} = {};
   my $code = $self->_generate_get_default(@_);
-  ($code, $self->{captures});
+  ($code, delete $self->{captures});
 }
 
 sub _generate_use_default {
@@ -195,20 +195,20 @@ sub _generate_simple_get {
 
 sub _generate_set {
   my ($self, $name, $spec) = @_;
-  my $simple = $self->_generate_simple_set('$_[0]', $name, '$_[1]');
   if ($self->is_simple_set($name, $spec)) {
-    $simple;
+    $self->_generate_simple_set('$_[0]', $name, '$_[1]');
   } else {
     my ($trigger, $isa_check) = @{$spec}{qw(trigger isa)};
-    my $code = "do {\n";
+    my $simple = $self->_generate_simple_set('$self', $name, '$value');
+    my $code = "do { my (\$self, \$value) = \@_;\n";
     if ($isa_check) {
       $code .= 
-        "        ".$self->_generate_isa_check($name, '$_[1]', $isa_check).";\n";
+        "        ".$self->_generate_isa_check($name, '$value', $isa_check).";\n";
     }
     if ($trigger) {
-      my $fire = $self->_generate_trigger($name, '$_[0]', '$value', $trigger);
+      my $fire = $self->_generate_trigger($name, '$self', '$value', $trigger);
       $code .=
-        "        my \$value = ".$simple.";\n        ".$fire.";\n"
+        "        ".$simple.";\n        ".$fire.";\n"
         ."        \$value;\n";
     } else {
       $code .= "        ".$simple.";\n";
@@ -220,9 +220,9 @@ sub _generate_set {
   
 sub generate_trigger {
   my $self = shift;
-  local $self->{captures} = {};
+  $self->{captures} = {};
   my $code = $self->_generate_trigger(@_);
-  ($code, $self->{captures});
+  ($code, delete $self->{captures});
 }
 
 sub _generate_trigger {
@@ -232,9 +232,9 @@ sub _generate_trigger {
 
 sub generate_isa_check {
   my ($self, @args) = @_;
-  local $self->{captures} = {};
+  $self->{captures} = {};
   my $code = $self->_generate_isa_check(@args);
-  ($code, $self->{captures});
+  ($code, delete $self->{captures});
 }
 
 sub _generate_isa_check {
@@ -246,15 +246,16 @@ sub _generate_call_code {
   my ($self, $name, $type, $values, $sub) = @_;
   if (my $quoted = quoted_from_sub($sub)) {
     my $code = $quoted->[1];
-    my $at_ = 'local @_ = ('.$values.');';
+    my $at_ = '@_ = ('.$values.');';
     if (my $captures = $quoted->[2]) {
       my $cap_name = qq{\$${type}_captures_for_${name}};
       $self->{captures}->{$cap_name} = \$captures;
-      return "do {\n".'      '.$at_."\n"
-        .Sub::Quote::capture_unroll($cap_name, $captures, 6)
-        ."     ${code}\n    }";
+      Sub::Quote::inlinify(
+        $code, $values, Sub::Quote::capture_unroll($cap_name, $captures, 6)
+      );
+    } else {
+      Sub::Quote::inlinify($code, $values);
     }
-    'do { local @_ = ('.$values.'); '.$code.' }';
   } else {
     my $cap_name = qq{\$${type}_for_${name}};
     $self->{captures}->{$cap_name} = \$sub;
@@ -264,9 +265,9 @@ sub _generate_call_code {
 
 sub generate_populate_set {
   my $self = shift;
-  local $self->{captures} = {};
+  $self->{captures} = {};
   my $code = $self->_generate_populate_set(@_);
-  ($code, $self->{captures});
+  ($code, delete $self->{captures});
 }
 
 sub _generate_populate_set {
@@ -326,9 +327,9 @@ sub generate_multi_set {
 
 sub generate_simple_set {
   my $self = shift;
-  local $self->{captures} = {};
+  $self->{captures} = {};
   my $code = $self->_generate_simple_set(@_);
-  ($code, $self->{captures});
+  ($code, delete $self->{captures});
 }
 
 sub _generate_simple_set {

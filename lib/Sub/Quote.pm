@@ -26,6 +26,20 @@ sub capture_unroll {
   );
 }
 
+sub inlinify {
+  my ($code, $args, $extra, $local) = @_;
+  my $do = 'do { '.($extra||'');
+  if (my ($code_args, $body) = $code =~ / +my \(([^)]+)\) = \@_;(.*)$/s) {
+    if ($code_args eq $args) {
+      $do.$body.' }'
+    } else {
+      $do.'my '.$code_args.' = ('.$args.'); '.$body.' }';
+    }
+  } else {
+    $do.($local ? 'local ' : '').'@_ = ('.$args.'); '.$code.' }';
+  }
+}
+
 sub _unquote_all_outstanding {
   return unless %QUOTE_OUTSTANDING;
   my ($assembled_code, @assembled_captures, @localize_these) = '';

@@ -7,29 +7,30 @@ sub run_for {
 
   my $obj = $class->new(less_than_three => 1);
 
-  is($obj->less_than_three, 1, 'initial value set');
+  is($obj->less_than_three, 1, "initial value set (${class})");
 
   like(
     exception { $obj->less_than_three(4) },
-    qr/4 is not less than three/, 'exception thrown on bad set'
+    qr/4 is not less than three/, "exception thrown on bad set (${class})"
   );
 
-  is($obj->less_than_three, 1, 'initial value remains after bad set');
+  is($obj->less_than_three, 1, "initial value remains after bad set (${class})");
 
   my $ret;
 
   is(
     exception { $ret = $obj->less_than_three(2) },
-    undef, 'no exception on correct set'
+    undef, "no exception on correct set (${class})"
   );
 
-  is($ret, 2, 'correct setter return');
-  is($obj->less_than_three, 2, 'correct getter return');
+  is($ret, 2, "correct setter return (${class})");
+  is($obj->less_than_three, 2, "correct getter return (${class})");
 
-  is(exception { $class->new }, undef, 'no exception with no value');
+  is(exception { $class->new }, undef, "no exception with no value (${class})");
   like(
     exception { $class->new(less_than_three => 12) },
-    qr/12 is not less than three/, 'exception thrown on bad constructor arg'
+    qr/12 is not less than three/,
+    "exception thrown on bad constructor arg (${class})"
   );
 }
 
@@ -54,7 +55,10 @@ run_for 'Foo';
 
   has less_than_three => (
     is => 'rw',
-    isa => quote_sub q{ die "$_[0] is not less than three" unless $_[0] < 3 }
+    isa => quote_sub q{
+      my ($x) = @_;
+      die "$x is not less than three" unless $x < 3
+    }
   );
 }
 
@@ -69,7 +73,10 @@ run_for 'Bar';
   has less_than_three => (
     is => 'rw',
     isa => quote_sub(
-      q{ die "$_[0] is not less than ${word}" unless $_[0] < $limit },
+      q{
+        my ($value) = @_;
+        die "$value is not less than ${word}" unless $value < $limit
+      },
       { '$limit' => \3, '$word' => \'three' }
     )
   );
