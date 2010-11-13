@@ -3,7 +3,7 @@ package Moo::_Utils;
 use strictures 1;
 use base qw(Exporter);
 
-our @EXPORT = qw(_getglob _install_modifier _maybe_load_module);
+our @EXPORT = qw(_getglob _install_modifier _load_module _maybe_load_module);
 
 sub _getglob { no strict 'refs'; \*{$_[0]} }
 
@@ -19,6 +19,13 @@ sub _install_modifier {
 }
 
 our %MAYBE_LOADED;
+
+sub _load_module {
+  return 1 if $_[0]->can('can');
+  (my $proto = $_[0]) =~ s/::/\//g;
+  require "${proto}.pm";
+  return 1;
+}
 
 sub _maybe_load_module {
   return $MAYBE_LOADED{$_[0]} if exists $MAYBE_LOADED{$_[0]};

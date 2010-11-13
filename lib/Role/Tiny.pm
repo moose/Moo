@@ -9,6 +9,13 @@ our %COMPOSED;
 
 sub _getglob { no strict 'refs'; \*{$_[0]} }
 
+sub _load_module {
+  return 1 if $_[0]->can('can');
+  (my $proto = $_[0]) =~ s/::/\//g;
+  require "${proto}.pm";
+  return 1;
+}
+
 sub import {
   my $target = caller;
   my $me = $_[0];
@@ -43,6 +50,8 @@ sub import {
 sub apply_role_to_package {
   my ($me, $role, $to) = @_;
 
+  _load_module($role);
+
   die "This is apply_role_to_package" if ref($to);
   die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
 
@@ -72,10 +81,13 @@ sub apply_roles_to_object {
 sub create_class_with_roles {
   my ($me, $superclass, @roles) = @_;
 
+  die "No roles supplied!" unless @roles;
+
   my $new_name = join('+', $superclass, my $compose_name = join '+', @roles);
   return $new_name if $COMPOSED{class}{$new_name};
 
   foreach my $role (@roles) {
+    _load_module($role);
     die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
   }
 

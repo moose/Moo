@@ -10,6 +10,7 @@ sub import {
   my $class = shift;
   strictures->import;
   *{_getglob("${target}::extends")} = sub {
+    _load_module($_) for @_;
     *{_getglob("${target}::ISA")} = \@_;
   };
   *{_getglob("${target}::with")} = sub {
