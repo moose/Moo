@@ -297,15 +297,24 @@ resulting class.
 Creates a new class based on base, with the roles composed into it in order.
 New class is returned.
 
-=head1 IMPORTED METHODS
+=head1 SUBROUTINES
 
 =head2 does_role
 
- if ($foo->does_role('Some::Role')) {
+ if (Role::Tiny::does_role($foo, 'Some::Role')) {
    ...
  }
 
 Returns true if class has been composed with role.
+
+This subroutine is also installed as ->does on any class a Role::Tiny is
+composed into unless that class already has an ->does method, so
+
+  if ($foo->does_role('Some::Role')) {
+    ...
+  }
+
+will work for classes but to test a role, one must use ::does_role directly
 
 =head1 IMPORTED SUBROUTINES
 
