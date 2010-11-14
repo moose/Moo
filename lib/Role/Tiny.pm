@@ -1,13 +1,13 @@
 package Role::Tiny;
 
+sub _getglob { \*{$_[0]} }
+
 use strict;
 use warnings FATAL => 'all';
 
 our %INFO;
 our %APPLIED_TO;
 our %COMPOSED;
-
-sub _getglob { no strict 'refs'; \*{$_[0]} }
 
 sub _load_module {
   return 1 if $_[0]->can('can');

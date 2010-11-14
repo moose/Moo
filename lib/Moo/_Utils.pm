@@ -1,11 +1,11 @@
 package Moo::_Utils;
 
+sub _getglob { \*{$_[0]} }
+
 use strictures 1;
 use base qw(Exporter);
 
 our @EXPORT = qw(_getglob _install_modifier _load_module _maybe_load_module);
-
-sub _getglob { no strict 'refs'; \*{$_[0]} }
 
 sub _install_modifier {
   my ($into, $type, $name, $code) = @_;
