@@ -79,6 +79,10 @@ sub _constructor_maker_for {
 
 =pod
 
+=head1 NAME
+
+Moo - Minimalist Object Orientation (with Moose compatiblity)
+
 =head1 SYNOPSIS
 
  package Cat::Food;
