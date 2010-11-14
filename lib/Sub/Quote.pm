@@ -185,24 +185,32 @@ code.  See the L</SYNOPSIS>'s C<Silly::dagron> for an example using captures.
 =item * no_install
 
 B<Boolean>.  Set this option to not install the generated coderef into the
-passed subroutine.
+passed subroutine name on undefer.
 
 =back
 
 =head2 unquote_sub
 
- my $coderef = unquote_sub 'Foo::bar';
+ my $coderef = unquote_sub $sub;
 
 Forcibly replace subroutine with actual code.  Note that as many subs are
 unquoted at a time for performance reasons.  This means that if you have a
 syntax error in one of your quoted subs you may find out when some other sub
 is unquoted.
 
+If $sub is not a quoted sub, this is a no-op.
+
 =head2 quoted_from_sub
 
- my $coderef = quoted_from_sub 'Foo::bar';
+ my $data = quoted_from_sub $sub;
 
-Returns quoted coderef based on subroutine name.
+ my ($name, $code, $captures, $compiled_sub) = @$data;
+
+Returns original arguments to quote_sub, plus the compiled version if this
+sub has already been unquoted.
+
+Note that $sub can be either the original quoted version or the compiled
+version for convenience.
 
 =head2 inlinify
 
