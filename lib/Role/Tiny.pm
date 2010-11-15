@@ -215,8 +215,8 @@ sub _install_single_modifier {
 }
 
 sub does_role {
-  my ($package, $role) = @_;
-  return exists $APPLIED_TO{$package}{$role};
+  my ($proto, $role) = @_;
+  return exists $APPLIED_TO{ref($proto)||$proto}{$role};
 }
 
 1;
