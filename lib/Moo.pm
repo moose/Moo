@@ -12,6 +12,7 @@ sub import {
   my $target = caller;
   my $class = shift;
   strictures->import;
+  return if $MAKERS{$target}; # already exported into this package
   *{_getglob("${target}::extends")} = sub {
     _load_module($_) for @_;
     *{_getglob("${target}::ISA")} = \@_;

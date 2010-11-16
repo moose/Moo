@@ -11,6 +11,7 @@ our %INFO;
 sub import {
   my $target = caller;
   strictures->import;
+  return if $INFO{$target}; # already exported into this package
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
   *{_getglob "${target}::has"} = sub {
