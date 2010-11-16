@@ -1,0 +1,13 @@
+bump:
+	maint/bump-version
+	rm Makefile
+bumpminor:
+	maint/bump-version minor
+	rm Makefile
+bumpmajor:
+	maint/bump-version major
+	rm Makefile
+readme:
+	pod2text lib/Moo.pm >README
+upload: $(DISTVNAME).tar$(SUFFIX)
+	cpan-upload $<

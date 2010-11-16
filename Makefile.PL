@@ -1,7 +1,8 @@
 use strict;
 use warnings FATAL => 'all';
-use 5.008001;
+use 5.008003;
 use ExtUtils::MakeMaker;
+(do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
 unless (-e 'META.yml') {
   warn "MYMETA.yml is going to be completely wrong. Sorry.\n";
@@ -24,8 +25,6 @@ my $mymeta = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.5702 };
 WriteMakefile(
   NAME => 'Moo',
   VERSION_FROM => 'lib/Moo.pm',
-  ABSTRACT_FROM => 'lib/Moo.pm',
-  AUTHOR => 'Matt S Trout <mst@shadowcat.co.uk>',
   PREREQ_PM => {
     %RUN_DEPS,
     ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
