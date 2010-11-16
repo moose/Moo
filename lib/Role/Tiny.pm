@@ -92,7 +92,7 @@ sub create_class_with_roles {
     die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
   }
 
-  if ($] > 5.010) {
+  if ($] >= 5.010) {
     require mro;
   } else {
     require MRO::Compat;

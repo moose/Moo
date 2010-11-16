@@ -15,7 +15,8 @@ sub import {
   return if $MAKERS{$target}; # already exported into this package
   *{_getglob("${target}::extends")} = sub {
     _load_module($_) for @_;
-    *{_getglob("${target}::ISA")} = \@_;
+    # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
+    @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
   };
   *{_getglob("${target}::with")} = sub {
     require Moo::Role;
