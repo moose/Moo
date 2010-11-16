@@ -51,7 +51,7 @@ BEGIN {
 
 sub try_apply_to {
   my $to = shift;
-  exception { Role::Tiny->apply_role_to_package('MyRole', $to) }
+  exception { Role::Tiny->apply_role_to_package($to, 'MyRole') }
 }
 
 is(try_apply_to('MyClass'), undef, 'role applies cleanly');

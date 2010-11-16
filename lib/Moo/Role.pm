@@ -26,8 +26,8 @@ sub import {
 }
 
 sub apply_role_to_package {
-  my ($me, $role, $to) = @_;
-  $me->SUPER::apply_role_to_package($role, $to);
+  my ($me, $to, $role) = @_;
+  $me->SUPER::apply_role_to_package($to, $role);
   $me->_handle_constructor($to, $INFO{$role}{attributes});
 }
 

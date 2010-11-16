@@ -35,7 +35,7 @@ sub import {
   };
   *{_getglob "${target}::with"} = sub {
     die "Only one role supported at a time by with" if @_ > 1;
-    $me->apply_role_to_package($_[0], $target);
+    $me->apply_role_to_package($target, $_[0]);
   };
   # grab all *non-constant* (ref eq 'SCALAR') subs present
   # in the symbol table and store their refaddrs (no need to forcibly
@@ -49,7 +49,7 @@ sub import {
 }
 
 sub apply_role_to_package {
-  my ($me, $role, $to) = @_;
+  my ($me, $to, $role) = @_;
 
   _load_module($role);
 
@@ -279,7 +279,7 @@ is to be much simpler, hence disallowing composition of multiple roles at once.
 
 =head2 apply_role_to_package
 
- Role::Tiny->apply_role_to_package('Some::Role', 'Some::Package');
+ Role::Tiny->apply_role_to_package('Some::Package', 'Some::Role');
 
 Composes role with package
 
