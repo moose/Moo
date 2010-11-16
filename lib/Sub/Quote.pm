@@ -195,10 +195,10 @@ passed subroutine name on undefer.
 
  my $coderef = unquote_sub $sub;
 
-Forcibly replace subroutine with actual code.  Note that as many subs are
-unquoted at a time for performance reasons.  This means that if you have a
-syntax error in one of your quoted subs you may find out when some other sub
-is unquoted.
+Forcibly replace subroutine with actual code.  Note that for performance
+reasons all quoted subs declared so far will be globally unquoted/parsed in
+a single eval. This means that if you have a syntax error in one of your
+quoted subs you may find out when some other sub is unquoted.
 
 If $sub is not a quoted sub, this is a no-op.
 

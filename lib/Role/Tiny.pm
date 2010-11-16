@@ -272,6 +272,8 @@ from the role.
 If a method that the role L</requires> to be implemented is not implemented,
 role application will fail loudly.
 
+=back
+
 Unlike L<Class::C3>, where the B<last> class inherited from "wins," role
 composition is the other way around, where first wins.  In a more complete
 system (see L<Moose>) roles are checked to see if they clash.  The goal of this
