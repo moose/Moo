@@ -36,8 +36,6 @@ sub defer_sub {
 
 1;
 
-=pod
-
 =head1 NAME
 
 Sub::Defer - defer generation of subroutines until they are first called

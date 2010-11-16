@@ -77,11 +77,19 @@ sub _constructor_maker_for {
 
 1;
 
-=pod
-
 =head1 NAME
 
 Moo - Minimalist Object Orientation (with Moose compatiblity)
+
+=head1 WARNING WARNING WARNING
+
+This is a 0.9 release because we're fairly sure it works. For us. Until it's
+tested in the wild, we make no guarantees it also works for you.
+
+If this module does something unexpected, please submit a failing test.
+
+But if it eats your cat, sleeps with your boyfriend, or pushes grandma down
+the stairs to save her from the terrible secret of space, it's not our fault.
 
 =head1 SYNOPSIS
 
