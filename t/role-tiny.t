@@ -65,8 +65,8 @@ like(try_apply_to('NoMethods'), qr/req1, req2/, 'error for both methods');
 like(try_apply_to('OneMethod'), qr/req2/, 'error for one method');
 
 is exception {
-  Role::Tiny->apply_role_to_package('MyRole', 'IntermediaryRole');
-  Role::Tiny->apply_role_to_package('IntermediaryRole', 'ExtraClass');
+  Role::Tiny->apply_role_to_package('IntermediaryRole', 'MyRole');
+  Role::Tiny->apply_role_to_package('ExtraClass', 'IntermediaryRole');
 }, undef, 'No errors applying roles';
 
 ok(ExtraClass->does('MyRole'), 'ExtraClass does MyRole');
