@@ -133,7 +133,9 @@ sub unquote_sub {
 
 1;
 
-=pod
+=head1 NAME
+
+Sub::Quote - efficient generation of subroutines via string eval
 
 =head1 SYNOPSIS
 

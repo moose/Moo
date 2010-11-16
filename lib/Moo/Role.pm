@@ -73,7 +73,9 @@ sub _handle_constructor {
 
 1;
 
-=pod
+=head1 NAME
+
+Moo::Role - Minimal Object Orientation support for Roles
 
 =head1 SYNOPSIS
 

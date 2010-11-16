@@ -38,6 +38,10 @@ sub defer_sub {
 
 =pod
 
+=head1 NAME
+
+Sub::Defer - defer generation of subroutines until they are first called
+
 =head1 SYNOPSIS
 
  use Sub::Defer;
@@ -47,13 +51,12 @@ sub defer_sub {
     sub { time - $t };
  };
 
-What the above does is set the Logger::time_since_first_log subroutine to be
-the codref that was passed to it, but then after it gets run once, it becomes
-the returned coderef.
+  Logger->time_since_first_log; # returns 0 and replaces itself
+  Logger->time_since_first_log; # returns time - $t
 
 =head1 DESCRIPTION
 
-These subroutines provide the user with a convenient way to defer create of
+These subroutines provide the user with a convenient way to defer creation of
 subroutines and methods until they are first called.
 
 =head1 SUBROUTINES
@@ -62,11 +65,12 @@ subroutines and methods until they are first called.
 
  my $coderef = defer_sub $name => sub { ... };
 
-RIBASUSHI FIX ME PLEASE!!!!
+This subroutine returns a coderef that encapsulates the provided sub - when
+it is first called, the provided sub is called and is -itself- expected to
+return a subroutine which will be goto'ed to on subsequent calls.
 
-Given name to install a subroutine into and a coderef that returns a coderef,
-this function will set up the subroutine such that when it is first called it
-will be replaced with the returned coderef.
+If a name is provided, this also installs the sub as that name - and when
+the subroutine is undeferred will re-install the final version for speed.
 
 =head2 undefer_sub
 

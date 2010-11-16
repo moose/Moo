@@ -222,7 +222,9 @@ sub does_role {
 
 1;
 
-=pod
+=head1 NAME
+
+Role::Tiny - Roles. Like a nouvelle cusine portion size slice of Moose.
 
 =head1 SYNOPSIS
 
