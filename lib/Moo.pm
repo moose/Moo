@@ -147,6 +147,10 @@ or
 
  Foo::Bar->new({ attr1 => 3 });
 
+=head2 BUILDARGS
+
+This feature from Moose is not yet supported.
+
 =head2 BUILDALL
 
 Don't override (or probably even call) this method.  Instead, you can define
@@ -168,7 +172,11 @@ Returns true if the object composes in the passed role.
 
  extends 'Parent::Class';
 
-Declares base class
+Declares base class. Multiple superclasses can be passed for multiple
+inheritance (but please use roles instead).
+
+Calling extends more than once will REPLACE your superclasses, not add to
+them like 'use base' would.
 
 =head2 with
 
@@ -210,6 +218,10 @@ L<Sub::Quote aware|/SUB QUOTE AWARE>
 
 =item * coerce
 
+This Moose feature is not yet supported
+
+=begin hide
+
 Takes a coderef which is meant to coerce the attribute.  The basic idea is to
 do something like the following:
 
@@ -219,29 +231,48 @@ do something like the following:
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
+=end hide
+
 =item * trigger
 
 Takes a coderef which will get called any time the attribute is set. Coderef
 will be invoked against the object with the new value as an argument.
 
+Note that Moose also passes the old value, if any; this feature is not yet
+supported.
+
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
 =item * default
 
-Takes a coderef which will get called to populate an attribute.
+Takes a coderef which will get called with $self as its only argument
+to populate an attribute if no value is supplied to the constructor - or
+if the attribute is lazy, when the attribute is first retrieved if no
+value has yet been provided.
+
+Note that if your default is fired during new() there is no guarantee that
+other attributes have been populated yet so you should not rely on their
+existence.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
 =item * predicate
 
-Takes a method name which will return true if an attribute has been set.
+Takes a method name which will return true if an attribute has a value.
 
 A common example of this would be to call it C<has_$foo>, implying that the
 object has a C<$foo> set.
 
 =item * builder
 
-Takes a method name which will be called to create the attribute.
+Takes a method name which will be called to create the attribute - functions
+exactly like default except that instead of calling
+
+  $default->($self);
+
+Moo will call
+
+  $self->$builder;
 
 =item * clearer
 
@@ -292,14 +323,13 @@ documentation.
 See L<< Class::Method::Modifiers/after method(s) => sub { ... } >> for full
 documentation.
 
-
 =head1 SUB QUOTE AWARE
 
 L<Sub::Quote/quote_sub> allows us to create coderefs that are "inlineable,"
 giving us a handy, XS-free speed boost.  Any option that is L<Sub::Quote>
 aware can take advantage of this.
 
-=head1 INCOMPATIBILITIES
+=head1 INCOMPATIBILITIES WITH MOOSE
 
 You can only compose one role at a time.  If your application is large or
 complex enough to warrant complex composition, you wanted L<Moose>.
@@ -308,12 +338,16 @@ There is no complex type system.  C<isa> is verified with a coderef, if you
 need complex types, just make a library of coderefs, or better yet, functions
 that return quoted subs.
 
-C<initializer> is not supported in core, but with an extension it is supported.
+C<initializer> is not supported in core since the author considers it to be a
+bad idea but may be supported by an extension in future.
 
 There is no meta object.  If you need this level of complexity you wanted
-L<Moose>.
+L<Moose> - Moo succeeds at being small because it explicitly does not
+provide a metaprotocol.
 
-No support for C<super>, C<override>, C<inner>, or C<augment>.
+No support for C<super>, C<override>, C<inner>, or C<augment> - override can
+be handled by around albeit with a little more typing, and the author considers
+augment to be a bad idea.
 
 L</default> only supports coderefs, because doing otherwise is usually a
 mistake anyway.
@@ -321,6 +355,6 @@ mistake anyway.
 C<lazy_build> is not supported per se, but of course it will work if you
 manually set all the options it implies.
 
-C<auto_deref> is not supported.
+C<auto_deref> is not supported since the author considers it a bad idea.
 
-C<documentation> is not supported.
+C<documentation> is not supported since it's a very poor replacement for POD.
