@@ -1,2 +1,4 @@
+  - Make 'perl -Moo' DTRT
+
 0.009001 Tue Nov 16 2010
   - Initial release
