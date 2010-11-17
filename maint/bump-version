@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
 
-use 5.010;
 use strict;
 use warnings FATAL => 'all';
 use autodie;
@@ -13,9 +12,10 @@ my $OLD_DECIMAL = sprintf('%i.%03i%03i', @parts);
 
 my %bump_part = (major => 0, minor => 1, bugfix => 2);
 
-my $bump_this = 
-  $bump_part{$ARGV[0]||'bugfix'}
-    // die "no idea which part to bump - $ARGV[0] means nothing to me";
+my $bump_this = $bump_part{$ARGV[0]||'bugfix'};
+
+die "no idea which part to bump - $ARGV[0] means nothing to me"
+  unless defined($bump_this);
 
 my @new_parts = @parts;
 
@@ -25,7 +25,7 @@ my $NEW_DECIMAL = sprintf('%i.%03i%03i', @new_parts);
 
 warn "Bumping $OLD_DECIMAL -> $NEW_DECIMAL\n";
 
-my $PM_FILE = 'lib/Module/Metadata.pm';
+my $PM_FILE = 'lib/Moo.pm';
 
 my $file = do { local (@ARGV, $/) = ($PM_FILE); <> };
 

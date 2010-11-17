@@ -1,3 +1,4 @@
+  - Add explanation of Moo's existence
   - Change @ISA setting mechanism to deal with a big in 5.10.0's get_linear_isa
   - Change 5.10 checks to >= to not try and load MRO::Compat on 5.10.0
   - Make 'perl -Moo' DTRT

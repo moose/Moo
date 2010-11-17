@@ -146,6 +146,26 @@ thirds of L<Moose>.
 Unlike C<Mouse> this module does not aim at full L<Moose> compatibility.  See
 L</INCOMPATIBILITIES> for more details.
 
+=head1 WHY MOO EXISTS
+
+If you want a full object system with a rich Metaprotocol, L<Moose> is
+already wonderful.
+
+I've tried several times to use L<Mouse> but it's 3x the size of Moo and
+takes longer to load than most of my Moo based CGI scripts take to run.
+
+If you don't want L<Moose>, you don't want "less metaprotocol" like L<Mouse>,
+you want "as little as possible" - which means "no metaprotocol", which is
+what Moo provides.
+
+By Moo 1.0 I intend to have Moo's equivalent of L<Any::Moose> built in -
+if Moose gets loaded, any Moo class or role will act as a Moose equivalent
+if treated as such.
+
+Hence - Moo exists as its name - Minimal Object Orientation - with a pledge
+to make it smooth to upgrade to L<Moose> when you need more than minimal
+features.
+
 =head1 IMPORTED METHODS
 
 =head2 new
