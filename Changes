@@ -1,3 +1,5 @@
+  - Fix _load_module to deal with pre-existing subpackages
+
 0.9.2 Wed Nov 17 2010
   - Add explanation of Moo's existence
   - Change @ISA setting mechanism to deal with a big in 5.10.0's get_linear_isa
