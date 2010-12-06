@@ -1,3 +1,5 @@
+  - Automatic detection on non-Moo superclasses
+
 0.9.3 Sun Dec 5 2010
   - Fix _load_module to deal with pre-existing subpackages
 

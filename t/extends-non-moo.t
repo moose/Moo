@@ -1,0 +1,56 @@
+use strictures 1;
+use Test::More;
+
+{
+    package t::moo::extends_non_moo::base;
+
+    sub new {
+        my ($proto, $args) = @_;
+        bless $args, $proto;
+    }
+
+    sub to_app {
+        (shift)->{app};
+    }
+
+    package t::moo::extends_non_moo::middle;
+    use base qw(t::moo::extends_non_moo::base);
+
+    sub wrap {
+        my($class, $app) = @_;
+        $class->new({app => $app})
+              ->to_app;
+    }
+ 
+    package t::moo::extends_non_moo::moo;
+    use Moo;
+    extends 't::moo::extends_non_moo::middle';
+
+    package t::moo::extends_non_moo::moo_with_attr;
+    use Moo;
+    extends 't::moo::extends_non_moo::middle';
+    has 'attr' => (is=>'ro');
+}
+
+ok my $app = 100,
+  'prepared $app';
+
+ok $app = t::moo::extends_non_moo::middle->wrap($app),
+  '$app from $app';
+
+is $app, 100,
+  '$app still 100';
+
+ok $app = t::moo::extends_non_moo::moo->wrap($app),
+  '$app from $app';
+
+is $app, 100,
+  '$app still 100';
+
+ok $app = t::moo::extends_non_moo::moo_with_attr->wrap($app),
+  '$app from $app';
+
+is $app, 100,
+  '$app still 100';
+
+done_testing();

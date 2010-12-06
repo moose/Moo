@@ -52,27 +52,32 @@ sub _constructor_maker_for {
   return unless $MAKERS{$target};
   $MAKERS{$target}{constructor} ||= do {
     require Method::Generate::Constructor;
+    my $con;
+
+    # using the -last- entry in @ISA means that classes created by
+    # Role::Tiny as N roles + superclass will still get the attributes
+    # from the superclass via the ->register_attribute_specs call later
+
+    if (my $super = do { no strict 'refs'; ${"${target}::ISA"}[-1] }) {
+      $con = $MAKERS{$super}{constructor} if $MAKERS{$super};
+    }
+    my $moo_constructor = !!$con || do {
+      my $t_new = $target->can('new');
+      $t_new and $t_new == Moo::Object->can('new');
+    };
+    require Moo::_mro unless $moo_constructor;
     Method::Generate::Constructor
       ->new(
         package => $target,
         accessor_generator => do {
           require Method::Generate::Accessor;
           Method::Generate::Accessor->new;
-        }
+        },
+        ($moo_constructor ? ()
+          : (construction_string => '$class->next::method(@_)'))
       )
       ->install_delayed
-      ->register_attribute_specs(do {
-        my @spec;
-        # using the -last- entry in @ISA means that classes created by
-        # Role::Tiny as N roles + superclass will still get the attributes
-        # from the superclass
-        if (my $super = do { no strict 'refs'; ${"${target}::ISA"}[-1] }) {
-          if (my $con = $MAKERS{$super}{constructor}) {
-            @spec = %{$con->all_attribute_specs};
-          }
-        }
-        @spec;
-      });
+      ->register_attribute_specs(%{$con?$con->all_attribute_specs:{}})
   }
 }
 

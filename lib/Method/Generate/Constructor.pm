@@ -20,6 +20,11 @@ sub accessor_generator {
   $_[0]->{accessor_generator}
 }
 
+sub construction_string {
+  my ($self) = @_;
+  $self->{construction_string} or 'bless({}, $class);'
+}
+
 sub install_delayed {
   my ($self) = @_;
   my $package = $self->{package};
@@ -40,7 +45,7 @@ sub generate_method {
   my $body = '    my $class = shift;'."\n";
   $body .= $self->_generate_args;
   $body .= $self->_check_required($spec);
-  $body .= '    my $new = bless({}, $class);'."\n";
+  $body .= '    my $new = '.$self->construction_string.";\n";
   $body .= $self->_assign_new($spec);
   if ($into->can('BUILD')) {
     require Method::Generate::BuildAll;
