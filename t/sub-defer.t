@@ -39,4 +39,19 @@ my $three = sub { 'three' };
 
 is(undefer_sub($three), $three, 'undefer non-deferred is a no-op');
 
+my $four_defer = defer_sub 'Foo::four' => sub {
+  sub { 'four' }
+};
+is($four_defer, \&Foo::four, 'four defer installed');
+
+# somebody somewhere wraps up around the deferred installer
+no warnings qw/redefine/;
+my $orig = Foo->can('four');
+*Foo::four = sub {
+  $orig->() . ' with a twist';
+};
+
+is(Foo->four, 'four with a twist', 'around works');
+is(Foo->four, 'four with a twist', 'around has not been destroyed by first invocation');
+
 done_testing;

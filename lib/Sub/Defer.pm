@@ -14,11 +14,14 @@ sub undefer_sub {
     $DEFERRED{$deferred}||return $deferred
   };
   ${$undeferred_ref} = my $made = $maker->();
-  if (defined($target)) {
+
+  # make sure the method slot has not changed since deferral time
+  if (defined($target) && $deferred eq *{_getglob($target)}{CODE}||'') {
     no warnings 'redefine';
     *{_getglob($target)} = $made;
   }
   push @{$DEFERRED{$made} = $DEFERRED{$deferred}}, $made;
+
   return $made;
 }
 
