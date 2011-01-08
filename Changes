@@ -1,3 +1,6 @@
+  - Fix bug where nonMoo is mistakenly detected given a Moo superclass
+    with no attributes (and hence no own constructor)
+
 0.9.4 Mon Dec 13 2010
   - Automatic detection on non-Moo superclasses
 

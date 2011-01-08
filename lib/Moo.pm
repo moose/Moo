@@ -48,22 +48,31 @@ sub import {
 }
 
 sub _constructor_maker_for {
-  my ($class, $target) = @_;
+  my ($class, $target, $select_super) = @_;
   return unless $MAKERS{$target};
   $MAKERS{$target}{constructor} ||= do {
     require Method::Generate::Constructor;
-    my $con;
+    require Sub::Defer;
+    my ($moo_constructor, $con);
 
-    # using the -last- entry in @ISA means that classes created by
-    # Role::Tiny as N roles + superclass will still get the attributes
-    # from the superclass via the ->register_attribute_specs call later
-
-    if (my $super = do { no strict 'refs'; ${"${target}::ISA"}[-1] }) {
-      $con = $MAKERS{$super}{constructor} if $MAKERS{$super};
-    }
-    my $moo_constructor = !!$con || do {
+    if ($select_super && $MAKERS{$select_super}) {
+      $moo_constructor = 1;
+      $con = $MAKERS{$select_super}{constructor};
+    } else {
       my $t_new = $target->can('new');
-      $t_new and $t_new == Moo::Object->can('new');
+      if ($t_new) {
+        if ($t_new == Moo::Object->can('new')) {
+          $moo_constructor = 1;
+        } elsif (my $defer_target = (Sub::Defer::defer_info($t_new)||[])->[0]) {
+          my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
+          if ($MAKERS{$pkg}) {
+            $moo_constructor = 1;
+            $con = $MAKERS{$pkg}{constructor};
+          }
+        }
+      } else {
+        $moo_constructor = 1; # no other constructor, make a Moo one
+      }
     };
     require Moo::_mro unless $moo_constructor;
     Method::Generate::Constructor

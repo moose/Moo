@@ -18,7 +18,13 @@ sub undefer_sub {
     no warnings 'redefine';
     *{_getglob($target)} = $made;
   }
+  push @{$DEFERRED{$made} = $DEFERRED{$deferred}}, $made;
   return $made;
+}
+
+sub defer_info {
+  my ($deferred) = @_;
+  $DEFERRED{$deferred||''};
 }
 
 sub defer_sub {
