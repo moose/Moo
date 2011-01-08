@@ -74,7 +74,6 @@ sub _constructor_maker_for {
         $moo_constructor = 1; # no other constructor, make a Moo one
       }
     };
-    require Moo::_mro unless $moo_constructor;
     Method::Generate::Constructor
       ->new(
         package => $target,
@@ -82,8 +81,11 @@ sub _constructor_maker_for {
           require Method::Generate::Accessor;
           Method::Generate::Accessor->new;
         },
-        ($moo_constructor ? ()
-          : (construction_string => '$class->next::method(@_)'))
+        construction_string => (
+          $moo_constructor
+            ? ($con ? $con->construction_string : undef)
+            : ('$class->'.$target.'::SUPER::new(@_)')
+        )
       )
       ->install_delayed
       ->register_attribute_specs(%{$con?$con->all_attribute_specs:{}})

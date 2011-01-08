@@ -1,3 +1,4 @@
+  - Fix nonMoo constructor firing through multiple layers of Moo
   - Fix bug where nonMoo is mistakenly detected given a Moo superclass
     with no attributes (and hence no own constructor)
 

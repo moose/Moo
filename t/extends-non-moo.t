@@ -30,6 +30,11 @@ use Test::More;
     use Moo;
     extends 't::moo::extends_non_moo::middle';
     has 'attr' => (is=>'ro');
+
+    package t::moo::extends_non_moo::second_level_moo;
+    use Moo;
+    extends 't::moo::extends_non_moo::moo_with_attr';
+    has 'attr2' => (is=>'ro');
 }
 
 ok my $app = 100,
@@ -48,6 +53,12 @@ is $app, 100,
   '$app still 100';
 
 ok $app = t::moo::extends_non_moo::moo_with_attr->wrap($app),
+  '$app from $app';
+
+is $app, 100,
+  '$app still 100';
+
+ok $app = t::moo::extends_non_moo::second_level_moo->wrap($app),
   '$app from $app';
 
 is $app, 100,
