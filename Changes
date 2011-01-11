@@ -1,3 +1,4 @@
+0.9.5 Tue Jan 11 2011
   - Fix clobberage of runtime-installed wrappers by Sub::Defer
   - Fix nonMoo constructor firing through multiple layers of Moo
   - Fix bug where nonMoo is mistakenly detected given a Moo superclass
