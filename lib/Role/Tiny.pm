@@ -84,7 +84,10 @@ sub create_class_with_roles {
 
   die "No roles supplied!" unless @roles;
 
-  my $new_name = join('+', $superclass, my $compose_name = join '+', @roles);
+  my $new_name = join(
+    '__WITH__', $superclass, my $compose_name = join '__AND__', @roles
+  );
+
   return $new_name if $COMPOSED{class}{$new_name};
 
   foreach my $role (@roles) {

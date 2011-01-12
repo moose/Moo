@@ -34,7 +34,10 @@ sub apply_role_to_package {
 sub create_class_with_roles {
   my ($me, $superclass, @roles) = @_;
 
-  my $new_name = join('+', $superclass, my $compose_name = join '+', @roles);
+  my $new_name = join(
+    '__WITH__', $superclass, my $compose_name = join '__AND__', @roles
+  );
+
   return $new_name if $Role::Tiny::COMPOSED{class}{$new_name};
 
   require Sub::Quote;
@@ -44,6 +47,8 @@ sub create_class_with_roles {
   foreach my $role (@roles) {
     die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
   }
+
+  $Moo::MAKERS{$new_name} = {};
 
   $me->_handle_constructor(
     $new_name, { map %{$INFO{$_}{attributes}||{}}, @roles }, $superclass

@@ -1,3 +1,5 @@
+  - Switch composed role names to be a valid package name
+
 0.9.5 Tue Jan 11 2011
   - Fix clobberage of runtime-installed wrappers by Sub::Defer
   - Fix nonMoo constructor firing through multiple layers of Moo
