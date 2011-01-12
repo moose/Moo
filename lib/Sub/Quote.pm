@@ -6,6 +6,7 @@ sub _clean_eval { eval $_[0] }
 
 use Sub::Defer;
 use B 'perlstring';
+use Scalar::Util qw(weaken);
 use base qw(Exporter);
 
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);
@@ -13,6 +14,8 @@ our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);
 our %QUOTE_OUTSTANDING;
 
 our %QUOTED;
+
+our %WEAK_REFS;
 
 sub capture_unroll {
   my ($from, $captures, $indent) = @_;
@@ -117,12 +120,13 @@ sub quote_sub {
   $QUOTE_OUTSTANDING{$outstanding} = $QUOTED{$outstanding} = [
     $name, $code, $captures
   ];
+  weaken($WEAK_REFS{$outstanding} = $deferred);
   return $deferred;
 }
 
 sub quoted_from_sub {
   my ($sub) = @_;
-  $QUOTED{$sub||''};
+  $WEAK_REFS{$sub||''} and $QUOTED{$sub||''};
 }
 
 sub unquote_sub {
