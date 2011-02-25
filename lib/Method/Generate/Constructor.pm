@@ -77,11 +77,14 @@ sub _assign_new {
   my $ag = $self->accessor_generator;
   NAME: foreach my $name (sort keys %$spec) {
     my $attr_spec = $spec->{$name};
-    next NAME unless defined(my $i = $attr_spec->{init_arg});
     unless ($ag->is_simple_attribute($name, $attr_spec)) {
-      $test{$name} = $i;
+      next NAME unless defined($attr_spec->{init_arg})
+                         or (($attr_spec->{default} or $attr_spec->{builder})
+                             and not $attr_spec->{lazy});
+      $test{$name} = $attr_spec->{init_arg};
       next NAME;
     }
+    next NAME unless defined(my $i = $attr_spec->{init_arg});
     push @init, $i;
     push @slots, $name;
   }

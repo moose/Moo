@@ -275,12 +275,15 @@ sub _generate_populate_set {
   if (!$spec->{lazy} and
         ($spec->{default} or $spec->{builder})) {
     my $get_indent = ' ' x ($spec->{isa} ? 6 : 4);
+    my $get_default = $self->_generate_get_default(
+                        '$new', $_, $spec
+                      );
     my $get_value = 
-      "(\n${get_indent}  ${test}\n${get_indent}   ? ${source}\n${get_indent}   : "
-        .$self->_generate_get_default(
-          '$new', $_, $spec
-        )
-        ."\n${get_indent})";
+      defined($spec->{init_arg})
+        ? "(\n${get_indent}  ${test}\n${get_indent}   ? ${source}\n${get_indent}   : "
+            .$get_default
+            ."\n${get_indent})"
+        : $get_default;
     ($spec->{isa}
       ? "    {\n      my \$value = ".$get_value.";\n      "
         .$self->_generate_isa_check(

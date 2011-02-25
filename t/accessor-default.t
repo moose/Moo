@@ -13,6 +13,7 @@ use Test::More;
   has three => (is => 'ro', default => quote_sub q{ {} });
   has four => (is => 'ro', builder => '_build_four');
   sub _build_four { {} }
+  has five => (is => 'ro', init_arg => undef, default => sub { {} });
 }
 
 sub check {
@@ -30,5 +31,7 @@ check two => map Foo->new->two, 1..2;
 check three => map Foo->new->{three}, 1..2;
 
 check four => map Foo->new->{four}, 1..2;
+
+check five => map Foo->new->{five}, 1..2;
 
 done_testing;
