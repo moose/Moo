@@ -403,3 +403,23 @@ manually set all the options it implies.
 C<auto_deref> is not supported since the author considers it a bad idea.
 
 C<documentation> is not supported since it's a very poor replacement for POD.
+
+=head1 AUTHOR
+
+mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
+
+=head1 CONTRIBUTORS
+
+Add yourselves here please, you useless people.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2010-2011 the strictures L</AUTHOR> and L</CONTRIBUTORS>
+as listed above.
+
+=head1 LICENSE
+
+This library is free software and may be distributed under the same terms
+as perl itself.
+
+=cut

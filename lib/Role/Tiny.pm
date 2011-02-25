@@ -360,3 +360,12 @@ documentation.
 See L<< Class::Method::Modifiers/after method(s) => sub { ... } >> for full
 documentation.
 
+=head1 AUTHORS
+
+See L<Moo> for authors.
+
+=head1 COPYRIGHT AND LICENSE
+
+See L<Moo> for the copyright and license.
+
+=cut
