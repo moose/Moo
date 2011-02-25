@@ -3,7 +3,7 @@ package Moo;
 use strictures 1;
 use Moo::_Utils;
 
-our $VERSION = '0.009005'; # 0.9.5
+our $VERSION = '0.009006'; # 0.9.6
 $VERSION = eval $VERSION;
 
 our %MAKERS;
