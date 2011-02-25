@@ -4,10 +4,6 @@ use 5.008003;
 use ExtUtils::MakeMaker;
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
-unless (-e 'META.yml') {
-  warn "MYMETA.yml is going to be completely wrong. Sorry.\n";
-}
-
 my %BUILD_DEPS = (
   'Test::More' => 0.96,
   'Test::Fatal' => 0.003,
