@@ -143,6 +143,11 @@ sub is_simple_set {
   !grep $spec->{$_}, qw(isa trigger weak_ref);
 }
 
+sub has_eager_default {
+  my ($self, $name, $spec) = @_;
+  (!$spec->{lazy} and ($spec->{default} or $spec->{builder}));
+}
+
 sub _generate_get {
   my ($self, $name, $spec) = @_;
   my $simple = $self->_generate_simple_get('$_[0]', $name);
@@ -272,8 +277,7 @@ sub generate_populate_set {
 
 sub _generate_populate_set {
   my ($self, $me, $name, $spec, $source, $test) = @_;
-  if (!$spec->{lazy} and
-        ($spec->{default} or $spec->{builder})) {
+  if ($self->has_eager_default($name, $spec)) {
     my $get_indent = ' ' x ($spec->{isa} ? 6 : 4);
     my $get_default = $self->_generate_get_default(
                         '$new', $_, $spec

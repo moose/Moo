@@ -79,8 +79,7 @@ sub _assign_new {
     my $attr_spec = $spec->{$name};
     unless ($ag->is_simple_attribute($name, $attr_spec)) {
       next NAME unless defined($attr_spec->{init_arg})
-                         or (($attr_spec->{default} or $attr_spec->{builder})
-                             and not $attr_spec->{lazy});
+                         or $ag->has_eager_default($name, $attr_spec);
       $test{$name} = $attr_spec->{init_arg};
       next NAME;
     }
