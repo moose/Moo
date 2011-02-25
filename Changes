@@ -1,3 +1,4 @@
+0.009006 - 2011-02-25
   - handle non-lazy default and builder when init_arg is undef
   - add copyright and license info for downstream packagers
   - weak ref checking for Sub::Quote to avoid bugs on refaddr reuse
