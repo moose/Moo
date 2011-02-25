@@ -410,7 +410,15 @@ mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>
 
 =head1 CONTRIBUTORS
 
-Add yourselves here please, you useless people.
+dg - David Leadbeater (cpan:DGL) <dgl@dgl.cx>
+
+frew - Arthur Axel "fREW" Schmidt (cpan:FREW) <frioux@gmail.com>
+
+hobbs - Andrew Rodland (cpan:ARODLAND) <arodland@cpan.org>
+
+jnap - John Napiorkowski (cpan:JJNAPIORK) <jjn1056@yahoo.com>
+
+ribasushi - Peter Rabbitson (cpan:RIBASUSHI) <ribasushi@cpan.org>
 
 =head1 COPYRIGHT
 
