@@ -173,7 +173,7 @@ This package provides performant ways to generate subroutines from strings.
 
 =head2 quote_sub
 
- my $coderef = quote_sub 'Foo:bar', q{ print $x++ . "\n" }, { '$x' => \0 };
+ my $coderef = quote_sub 'Foo::bar', q{ print $x++ . "\n" }, { '$x' => \0 };
 
 Arguments: ?$name, $code, ?\%captures, ?\%options
 
