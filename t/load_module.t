@@ -1,6 +1,8 @@
-use strictures 1;
-use Test::More;
+# work around RT#67692
 use Moo::_Utils;
+use strictures 1;
+
+use Test::More;
 
 local @INC = (sub {
   return unless $_[1] eq 'Foo/Bar.pm';

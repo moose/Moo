@@ -3,6 +3,13 @@ package Moo::_Utils;
 sub _getglob { \*{$_[0]} }
 sub _getstash { \%{"$_[0]::"} }
 
+BEGIN {
+  *lt_5_8_3 = $] < 5.008003
+    ? sub () { 1 }
+    : sub () { 0 }
+  ;
+}
+
 use strictures 1;
 use base qw(Exporter);
 
