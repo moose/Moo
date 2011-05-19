@@ -52,7 +52,7 @@ run_for 'Bar';
 
   has plus_three => (
     is => 'rw',
-    isa => quote_sub(
+    coerce => quote_sub(
       q{
         my ($value) = @_;
         $value + $plus
@@ -70,9 +70,9 @@ run_for 'Baz';
   use Sub::Quote;
   use Moo;
 
-  has dies => (
+  has plus_three => (
     is => 'rw',
-    isa => quote_sub(
+    coerce => quote_sub(
       q{
         die 'could not add three!'
       },
@@ -80,6 +80,6 @@ run_for 'Baz';
   );
 }
 
-like exception { Biff->new(plus_three => 1) }, 'could not add three!', 'Exception properly thrown';
+like exception { Biff->new(plus_three => 1) }, qr/could not add three!/, 'Exception properly thrown';
 
 done_testing;
