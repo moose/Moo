@@ -263,10 +263,6 @@ L<Sub::Quote aware|/SUB QUOTE AWARE>
 
 =item * coerce
 
-This Moose feature is not yet supported
-
-=begin hide
-
 Takes a coderef which is meant to coerce the attribute.  The basic idea is to
 do something like the following:
 
@@ -274,9 +270,9 @@ do something like the following:
    $_[0] + 1 unless $_[0] % 2
  },
 
-L<Sub::Quote aware|/SUB QUOTE AWARE>
+Coerce does not require C<isa> to be defined.
 
-=end hide
+L<Sub::Quote aware|/SUB QUOTE AWARE>
 
 =item * trigger
 
