@@ -305,6 +305,12 @@ sub _generate_populate_set {
             .$get_default
             ."\n${get_indent})"
         : $get_default;
+    if ( $spec->{coerce} ) {
+        $get_value = $self->_generate_coerce(
+            $name, $me, $get_value,
+            $spec->{coerce}
+          )
+    }
     ($spec->{isa}
       ? "    {\n      my \$value = ".$get_value.";\n      "
         .$self->_generate_isa_check(
