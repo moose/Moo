@@ -14,6 +14,20 @@ sub run_for {
   is($obj->plus_three, 7, 'Value changes after set');
 }
 
+sub run_with_default_for {
+  my $class = shift;
+
+  my $obj = $class->new();
+
+  is($obj->plus_three, 4, "initial value set (${class})");
+
+  $obj->plus_three(4);
+
+  is($obj->plus_three, 7, 'Value changes after set');
+}
+
+
+
 {
   package Foo;
 
@@ -81,5 +95,78 @@ run_for 'Baz';
 }
 
 like exception { Biff->new(plus_three => 1) }, qr/could not add three!/, 'Exception properly thrown';
+
+{
+  package Foo2;
+
+  use Moo;
+
+  has plus_three => (
+    is => 'rw',
+    default => sub { 1 },
+    coerce => sub { $_[0] + 3 }
+  );
+}
+
+run_with_default_for 'Foo2';
+
+{
+  package Bar2;
+
+  use Sub::Quote;
+  use Moo;
+
+  has plus_three => (
+    is => 'rw',
+    default => sub { 1 },
+    coerce => quote_sub q{
+      my ($x) = @_;
+      $x + 3
+    }
+  );
+}
+
+run_with_default_for 'Bar2';
+
+{
+  package Baz2;
+
+  use Sub::Quote;
+  use Moo;
+
+  has plus_three => (
+    is => 'rw',
+    default => sub { 1 },
+    coerce => quote_sub(
+      q{
+        my ($value) = @_;
+        $value + $plus
+      },
+      { '$plus' => \3 }
+    )
+  );
+}
+
+run_with_default_for 'Baz2';
+
+{
+  package Biff2;
+
+  use Sub::Quote;
+  use Moo;
+
+  has plus_three => (
+    is => 'rw',
+    default => sub { 1 },
+    coerce => quote_sub(
+      q{
+        die 'could not add three!'
+      },
+    )
+  );
+}
+
+like exception { Biff2->new() }, qr/could not add three!/, 'Exception properly thrown';
+
 
 done_testing;
