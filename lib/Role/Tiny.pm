@@ -1,6 +1,7 @@
 package Role::Tiny;
 
 sub _getglob { \*{$_[0]} }
+sub _getstash { \%{"$_[0]::"} }
 
 use strict;
 use warnings FATAL => 'all';
@@ -9,9 +10,14 @@ our %INFO;
 our %APPLIED_TO;
 our %COMPOSED;
 
+# inlined from Moo::_Utils - update that first.
+
 sub _load_module {
-  return 1 if $_[0]->can('can');
   (my $proto = $_[0]) =~ s/::/\//g;
+  return 1 if $INC{"${proto}.pm"};
+  # can't just ->can('can') because a sub-package Foo::Bar::Baz
+  # creates a 'Baz::' key in Foo::Bar's symbol table
+  return 1 if grep !/::$/, keys %{_getstash($_[0])||{}};
   require "${proto}.pm";
   return 1;
 }

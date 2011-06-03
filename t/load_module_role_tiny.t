@@ -1,9 +1,7 @@
-# this test is replicated to t/load_module_role_tiny.t for Role::Tiny
+# this test is replicated to t/load_module.t for Moo::_Utils
 
-# work around RT#67692
-use Moo::_Utils;
+use Role::Tiny ();
 use strictures 1;
-
 use Test::More;
 
 local @INC = (sub {
@@ -15,7 +13,7 @@ local @INC = (sub {
 
 { package Foo::Bar::Baz; sub quux { } }
 
-_load_module("Foo::Bar");
+Role::Tiny::_load_module("Foo::Bar");
 
 ok(eval { Foo::Bar->baz }, 'Loaded module ok');
 

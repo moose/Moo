@@ -1,3 +1,4 @@
+  - transfer fix to _load_module to Role::Tiny and make a note it's an inline
   - Bring back 5.8.1 compat
 
 0.009007 - 2011-02-25
