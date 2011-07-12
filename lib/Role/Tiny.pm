@@ -24,7 +24,7 @@ sub _load_module {
 
 sub import {
   my $target = caller;
-  my $me = $_[0];
+  my $me = shift;
   strictures->import;
   return if $INFO{$target}; # already exported into this package
   # get symbol table reference
@@ -230,6 +230,7 @@ sub does_role {
 }
 
 1;
+__END__
 
 =head1 NAME
 
@@ -251,10 +252,10 @@ else where
 
  package Some::Class;
 
- require Role::Tiny;
+ use Role::Tiny::With;
 
  # bar gets imported, but not foo
- Role::Tiny->apply_role_to_package('Some::Role', __PACKAGE__);
+ with 'Some::Role';
 
  sub foo { ... }
 
@@ -294,7 +295,7 @@ is to be much simpler, hence disallowing composition of multiple roles at once.
 
  Role::Tiny->apply_role_to_package('Some::Package', 'Some::Role');
 
-Composes role with package
+Composes role with package.  See also L<Role::Tiny::With>.
 
 =head2 apply_roles_to_object
 
