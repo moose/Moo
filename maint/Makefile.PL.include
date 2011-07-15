@@ -1,4 +1,5 @@
-use lib 'distar/lib';
+BEGIN { -e 'Distar' or system("git clone git://git.shadowcat.co.uk/p5sagit/Distar.git") }
+use lib 'Distar/lib';
 use Distar;
 
 author 'mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>';
