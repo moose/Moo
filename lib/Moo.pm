@@ -420,6 +420,8 @@ jnap - John Napiorkowski (cpan:JJNAPIORK) <jjn1056@yahoo.com>
 
 ribasushi - Peter Rabbitson (cpan:RIBASUSHI) <ribasushi@cpan.org>
 
+chip - Chip Salzenberg (cpan:CHIPS) <chip@pobox.com>
+
 =head1 COPYRIGHT
 
 Copyright (c) 2010-2011 the Moo L</AUTHOR> and L</CONTRIBUTORS>

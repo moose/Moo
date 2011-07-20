@@ -12,7 +12,6 @@ sub with {
 }
 
 1;
-__END__
 
 =head1 NAME
 

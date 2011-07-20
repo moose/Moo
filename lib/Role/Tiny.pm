@@ -230,7 +230,6 @@ sub does_role {
 }
 
 1;
-__END__
 
 =head1 NAME
 

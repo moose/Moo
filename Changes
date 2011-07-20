@@ -1,3 +1,4 @@
+  - add Role::Tiny::With for use in classes
   - automatically generate constructors in subclasses when required so that
     subclasses with a BUILD method but no attributes get it honoured
   - add coerce handling
