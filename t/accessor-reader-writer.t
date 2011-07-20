@@ -33,6 +33,8 @@ is( $foo->get_one, 'lol', 'reader works' );
 $foo->set_one('rofl');
 is( $foo->get_one, 'rofl', 'writer works' );
 
+ok( !eval { $foo->get_one('blah'); 1 }, 'reader dies on write' );
+
 is( $bar->TWO, '...', 'accessor works for reading' );
 $bar->TWO('!!!');
 is( $bar->TWO, '!!!', 'accessor works for writing' );

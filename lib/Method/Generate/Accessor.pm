@@ -7,6 +7,8 @@ use Sub::Quote;
 use B 'perlstring';
 BEGIN {
   our $CAN_HAZ_XS =
+    !$ENV{MOO_XS_DISABLE}
+      &&
     _maybe_load_module('Class::XSAccessor')
       &&
     (Class::XSAccessor->VERSION > 1.06)
@@ -38,7 +40,8 @@ sub generate_method {
       $self->{captures} = {};
       $methods{$reader} =
         quote_sub "${into}::${reader}"
-          => $self->_generate_get($name, $spec)
+          => '    die "'.$reader.' is a read-only accessor" if @_ > 1;'."\n"
+             .$self->_generate_get($name, $spec)
           => delete $self->{captures}
         ;
     }
