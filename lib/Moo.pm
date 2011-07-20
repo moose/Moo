@@ -4,7 +4,7 @@ use strictures 1;
 use Moo::_Utils;
 use B 'perlstring';
 
-our $VERSION = '0.009009'; # 0.9.9
+our $VERSION = '0.009010'; # 0.9.10
 $VERSION = eval $VERSION;
 
 our %MAKERS;
