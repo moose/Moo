@@ -1,3 +1,5 @@
+  - missing new files for Role::Tiny::With
+
 0.009009 - 2011-07-20
   - remove the big scary warning because we seem to be mostly working now
   - perl based getter dies if @_ > 1 (XSAccessor already did)
