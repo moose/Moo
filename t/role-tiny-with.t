@@ -1,6 +1,5 @@
 use strictures 1;
 use Test::More;
-use Test::Fatal;
 
 BEGIN {
   package MyRole;

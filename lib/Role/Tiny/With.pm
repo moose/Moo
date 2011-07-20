@@ -1,4 +1,4 @@
-package Role::Tiny;
+package Role::Tiny::With;
 
 use strict;
 use warnings FATAL => 'all';
