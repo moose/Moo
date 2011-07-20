@@ -2,6 +2,7 @@ package Moo;
 
 use strictures 1;
 use Moo::_Utils;
+use B 'perlstring';
 
 our $VERSION = '0.009008'; # 0.9.8
 $VERSION = eval $VERSION;
@@ -85,7 +86,10 @@ sub _constructor_maker_for {
           $moo_constructor
             ? ($con ? $con->construction_string : undef)
             : ('$class->'.$target.'::SUPER::new(@_)')
-        )
+        ),
+        subconstructor_generator => (
+          $class.'->_constructor_maker_for($class,'.perlstring($target).')'
+        ),
       )
       ->install_delayed
       ->register_attribute_specs(%{$con?$con->all_attribute_specs:{}})

@@ -43,6 +43,7 @@ sub generate_method {
   }
   local $self->{captures} = {};
   my $body = '    my $class = shift;'."\n";
+  $body .= $self->_handle_subconstructor($into, $name);
   $body .= $self->_generate_args;
   $body .= $self->_check_required($spec);
   $body .= '    my $new = '.$self->construction_string.";\n";
@@ -58,6 +59,18 @@ sub generate_method {
     "${into}::${name}" => $body,
     $self->{captures}, $quote_opts||{}
   ;
+}
+
+sub _handle_subconstructor {
+  my ($self, $into, $name) = @_;
+  if (my $gen = $self->{subconstructor_generator}) {
+    '    if ($class ne '.perlstring($into).') {'."\n".
+    '      '.$gen.";\n".
+    '      return $class->'.$name.'(@_)'.";\n".
+    '    }'."\n";
+  } else {
+    ''
+  }
 }
 
 sub _cap_call {

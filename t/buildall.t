@@ -33,6 +33,16 @@ my @ran;
   sub BUILD { push @ran, 'Odd3' }
 }
 
+{
+  package Sub1;
+  use Moo;
+  has 'foo' => (is => 'ro');
+  package Sub2;
+  use Moo;
+  extends 'Sub1';
+  sub BUILD { push @ran, "sub2" }
+}
+
 my $o = Quux->new;
 
 is(ref($o), 'Quux', 'object returned');
@@ -51,5 +61,12 @@ $o = Odd3->new(odd1 => 1, odd3 => 3);
 
 is(ref($o), 'Odd3', 'Odd3 object constructed');
 is_deeply(\@ran, [ qw(Odd1 Odd3) ], 'BUILDs ran in order');
+
+@ran = ();
+
+$o = Sub2->new;
+
+is(ref($o), 'Sub2', 'Sub2 object constructed');
+is_deeply(\@ran, [ qw(sub2) ], 'BUILD ran');
 
 done_testing;
