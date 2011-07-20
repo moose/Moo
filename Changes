@@ -1,3 +1,4 @@
+  - remove the big scary warning because we seem to be mostly working now
   - perl based getter dies if @_ > 1 (XSAccessor already did)
   - add Role::Tiny::With for use in classes
   - automatically generate constructors in subclasses when required so that
