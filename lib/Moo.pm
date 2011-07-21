@@ -323,6 +323,18 @@ another attribute to be set.
 
 B<Boolean>.  Set this if the attribute must be passed on instantiation.
 
+=item * reader
+
+The value of this attribute will be the name of the method to get the value of
+the attribute.  If you like Java style methods, you might set this to
+C<get_foo>
+
+=item * writer
+
+The value of this attribute will be the name of the method to set the value of
+the attribute.  If you like Java style methods, you might set this to
+C<set_foo>
+
 =item * weak_ref
 
 B<Boolean>.  Set this if you want the reference that the attribute contains to
