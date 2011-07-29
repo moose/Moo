@@ -81,7 +81,7 @@ sub _cap_call {
 
 sub _generate_args {
   my ($self) = @_;
-  q{    my $args = ref($_[0]) eq 'HASH' ? $_[0] : { @_ };}."\n";
+  q{    my $args = $class->BUILDARGS(@_);}."\n";
 }
 
 sub _assign_new {

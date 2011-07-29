@@ -97,6 +97,9 @@ sub _constructor_maker_for {
 }
 
 1;
+=pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -188,7 +191,25 @@ or
 
 =head2 BUILDARGS
 
-This feature from Moose is not yet supported.
+ around BUILDARGS => sub {
+   my $orig = shift;
+   my ( $class, @args ) = @_;
+
+   unshift @args, "attr1" if @args % 2 == 1;
+
+   return $class->$orig(@args);
+ };
+
+ Foo::Bar->new( 3 );
+
+The default implementation of this method accepts a hash or hash reference of
+named parameters. If it receives a single argument that isn't a hash reference
+it throws an error.
+
+You can override this method in your class to handle other types of options
+passed to the constructor.
+
+This method should always return a hash reference of named options.
 
 =head2 BUILDALL
 
@@ -423,6 +444,8 @@ jnap - John Napiorkowski (cpan:JJNAPIORK) <jjn1056@yahoo.com>
 ribasushi - Peter Rabbitson (cpan:RIBASUSHI) <ribasushi@cpan.org>
 
 chip - Chip Salzenberg (cpan:CHIPS) <chip@pobox.com>
+
+ajgb - Alex J. G. Burzyński (cpan:AJGB) <ajgb@cpan.org>
 
 =head1 COPYRIGHT
 

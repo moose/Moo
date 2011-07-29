@@ -18,6 +18,25 @@ sub new {
       };
 }
 
+sub BUILDARGS {
+    my $class = shift;
+    if ( scalar @_ == 1 ) {
+        unless ( defined $_[0] && ref $_[0] eq 'HASH' ) {
+            die "Single parameters to new() must be a HASH ref"
+                ." data => ". $_[0];
+        }
+        return { %{ $_[0] } };
+    }
+    elsif ( @_ % 2 ) {
+        warn "The new() method for $class expects a hash reference or a key/value list."
+                . " You passed an odd number of arguments";
+        return { @_, undef };
+    }
+    else {
+        return {@_};
+    }
+}
+
 sub BUILDALL {
   my $self = shift;
   $self->${\(($BUILD_MAKER ||= do {
