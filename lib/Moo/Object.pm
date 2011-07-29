@@ -23,13 +23,13 @@ sub BUILDARGS {
     if ( scalar @_ == 1 ) {
         unless ( defined $_[0] && ref $_[0] eq 'HASH' ) {
             die "Single parameters to new() must be a HASH ref"
-                ." data => ". $_[0];
+                ." data => ". $_[0] ."\n";
         }
         return { %{ $_[0] } };
     }
     elsif ( @_ % 2 ) {
         die "The new() method for $class expects a hash reference or a key/value list."
-                . " You passed an odd number of arguments";
+                . " You passed an odd number of arguments\n";
     }
     else {
         return {@_};
