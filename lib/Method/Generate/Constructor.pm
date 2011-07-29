@@ -44,7 +44,11 @@ sub generate_method {
   local $self->{captures} = {};
   my $body = '    my $class = shift;'."\n";
   $body .= $self->_handle_subconstructor($into, $name);
-  $body .= $self->_generate_args;
+  if ($into->can('BUILDARGS') ) {
+      $body .= $self->_generate_args_via_buildargs;
+  } else {
+      $body .= $self->_generate_args;
+  }
   $body .= $self->_check_required($spec);
   $body .= '    my $new = '.$self->construction_string.";\n";
   $body .= $self->_assign_new($spec);
@@ -79,9 +83,14 @@ sub _cap_call {
   $code;
 }
 
-sub _generate_args {
+sub _generate_args_via_buildargs {
   my ($self) = @_;
   q{    my $args = $class->BUILDARGS(@_);}."\n";
+}
+
+sub _generate_args {
+  my ($self) = @_;
+  q{    my $args = ref($_[0]) eq 'HASH' ? $_[0] : { @_ };}."\n";
 }
 
 sub _assign_new {
