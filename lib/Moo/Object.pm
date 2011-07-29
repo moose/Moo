@@ -28,9 +28,8 @@ sub BUILDARGS {
         return { %{ $_[0] } };
     }
     elsif ( @_ % 2 ) {
-        warn "The new() method for $class expects a hash reference or a key/value list."
+        die "The new() method for $class expects a hash reference or a key/value list."
                 . " You passed an odd number of arguments";
-        return { @_, undef };
     }
     else {
         return {@_};
