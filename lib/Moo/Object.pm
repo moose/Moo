@@ -18,6 +18,7 @@ sub new {
       };
 }
 
+# Inlined into Method::Generate::Constructor::_generate_args() - keep in sync
 sub BUILDARGS {
     my $class = shift;
     if ( scalar @_ == 1 ) {

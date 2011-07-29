@@ -44,7 +44,8 @@ sub generate_method {
   local $self->{captures} = {};
   my $body = '    my $class = shift;'."\n";
   $body .= $self->_handle_subconstructor($into, $name);
-  if ($into->can('BUILDARGS') ) {
+  my $into_buildargs = $into->can('BUILDARGS');
+  if ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS ) {
       $body .= $self->_generate_args_via_buildargs;
   } else {
       $body .= $self->_generate_args;
@@ -88,9 +89,27 @@ sub _generate_args_via_buildargs {
   q{    my $args = $class->BUILDARGS(@_);}."\n";
 }
 
+# inlined from Moo::Object - update that first.
 sub _generate_args {
   my ($self) = @_;
-  q{    my $args = ref($_[0]) eq 'HASH' ? $_[0] : { @_ };}."\n";
+  return <<'_EOA';
+    my $args;
+    if ( scalar @_ == 1 ) {
+        unless ( defined $_[0] && ref $_[0] eq 'HASH' ) {
+            die "Single parameters to new() must be a HASH ref"
+                ." data => ". $_[0] ."\n";
+        }
+        $args = { %{ $_[0] } };
+    }
+    elsif ( @_ % 2 ) {
+        die "The new() method for $class expects a hash reference or a key/value list."
+                . " You passed an odd number of arguments\n";
+    }
+    else {
+        $args = {@_};
+    }
+_EOA
+
 }
 
 sub _assign_new {

@@ -13,6 +13,31 @@ use Test::More;
 
     extends qw(Qux);
 }
+
+{
+    package t::non_moo;
+
+    sub new {
+        my ($class, $arg) = @_;
+        bless { attr => $arg }, $class;
+    }
+
+    sub attr { shift->{attr} }
+
+    package t::ext_non_moo::with_attr;
+    use Moo;
+    extends qw( t::non_moo );
+
+    has 'attr2' => ( is => 'ro' );
+
+    sub BUILDARGS {
+        my ( $class, @args ) = @_;
+        shift @args if @args % 2 == 1;
+        return { @args };
+    }
+}
+
+
 {
     package Foo;
     use Moo;
@@ -96,6 +121,17 @@ foreach my $class (qw(Qux Quux)) {
         "new() requires a list or a HASH ref"
     );
 }
+
+my $non_moo = t::non_moo->new( 'bar' );
+my $ext_non_moo = t::ext_non_moo::with_attr->new( 'bar', attr2 => 'baz' );
+
+is $non_moo->attr, 'bar',
+    "non-moo accepts params";
+is $ext_non_moo->attr, 'bar',
+    "extended non-moo passes params";
+is $ext_non_moo->attr2, 'baz',
+    "extended non-moo has own attributes";
+
 
 done_testing;
 
