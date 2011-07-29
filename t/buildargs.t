@@ -88,6 +88,13 @@ foreach my $class (qw(Qux Quux)) {
     like( $@, qr/Single parameters to new\(\) must be a HASH ref/,
         "new() requires a list or a HASH ref"
     );
+
+    eval {
+        $class->new( bar => 42, baz => 47, 'quux' );
+    };
+    like( $@, qr/You passed an odd number of arguments/,
+        "new() requires a list or a HASH ref"
+    );
 }
 
 done_testing;
