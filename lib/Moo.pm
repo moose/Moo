@@ -218,6 +218,12 @@ a C<BUILD> method on your class and the constructor will automatically call the
 C<BUILD> method from parent down to child after the object has been
 instantiated.  Typically this is used for object validation or possibly logging.
 
+=head2 DESTROY
+
+A default destructor is provided, which calls
+C<< $instance->DEMOLISH($in_global_destruction) >> for each C<DEMOLISH>
+method in the inheritance hierarchy.
+
 =head2 does
 
  if ($foo->does('Some::Role1')) {

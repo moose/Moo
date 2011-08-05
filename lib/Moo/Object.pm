@@ -45,6 +45,39 @@ sub BUILDALL {
   })->generate_method(ref($self)))}(@_);
 }
 
+sub DESTROY {
+    my $self = shift;
+
+    return unless $self->can('DEMOLISH'); # short circuit
+
+    require Moo::_Utils;
+
+    my $e = do {
+        local $?;
+        local $@;
+        eval {
+            # DEMOLISHALL
+
+            # We cannot count on being able to retrieve a previously made
+            # metaclass, _or_ being able to make a new one during global
+            # destruction. However, we should still be able to use mro at
+            # that time (at least tests suggest so ;)
+
+            foreach my $class (@{ Moo::_Utils::_get_linear_isa(ref $self) }) {
+                my $demolish = $class->can('DEMOLISH') || next;
+
+                $self->$demolish($Moo::_Utils::_in_global_destruction);
+            }
+        };
+        $@;
+    };
+
+    no warnings 'misc';
+    die $e if $e; # rethrow
+}
+
+
+
 sub does {
   require Role::Tiny;
   { no warnings 'redefine'; *does = \&Role::Tiny::does_role }
