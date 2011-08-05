@@ -12,8 +12,12 @@ BEGIN {
 
 use strictures 1;
 use base qw(Exporter);
+use Moo::_mro;
 
-our @EXPORT = qw(_getglob _install_modifier _load_module _maybe_load_module);
+our @EXPORT = qw(
+    _getglob _install_modifier _load_module _maybe_load_module
+    _get_linear_isa
+);
 
 sub _install_modifier {
   my ($into, $type, $name, $code) = @_;
@@ -53,5 +57,12 @@ sub _maybe_load_module {
   }
   return $MAYBE_LOADED{$_[0]};
 }
+
+sub _get_linear_isa {
+    return mro::get_linear_isa($_[0]);
+}
+
+our $_in_global_destruction = 0;
+END { $_in_global_destruction = 1 }
 
 1;
