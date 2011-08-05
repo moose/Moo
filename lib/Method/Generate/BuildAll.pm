@@ -3,7 +3,6 @@ package Method::Generate::BuildAll;
 use strictures 1;
 use base qw(Moo::Object);
 use Sub::Quote;
-use Moo::_mro;
 use Moo::_Utils;
 use B 'perlstring';
 
@@ -28,7 +27,7 @@ sub buildall_body_for {
   my @builds =
     grep *{_getglob($_)}{CODE},
     map "${_}::BUILD",
-    reverse @{mro::get_linear_isa($into)};
+    reverse @{Moo::_Utils::_get_linear_isa($into)};
   join '', map qq{    ${me}->${_}(${args});\n}, @builds;
 }
 
