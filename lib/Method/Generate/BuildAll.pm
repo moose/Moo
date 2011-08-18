@@ -5,12 +5,18 @@ use base qw(Moo::Object);
 use Sub::Quote;
 use Moo::_mro;
 use Moo::_Utils;
+use B 'perlstring';
 
 sub generate_method {
   my ($self, $into) = @_;
   quote_sub "${into}::BUILDALL", join '',
     qq{    my \$self = shift;\n},
-    $self->buildall_body_for($into, '$self', '@_'),
+    qq{    my \$class = ref \$self;\n},
+      '    if ('. perlstring($into) ." ne \$class) {\n",
+    qq{        return \$self->\${\\(\$Moo::Object::BUILD_MAKER->generate_method(\$class))}(\@_);\n},
+      "    } else {\n",
+               $self->buildall_body_for($into, '$self', '@_'),
+      "    }\n",
     qq{    return \$self\n};
 }
 
@@ -20,7 +26,7 @@ sub buildall_body_for {
     grep *{_getglob($_)}{CODE},
     map "${_}::BUILD",
     reverse @{mro::get_linear_isa($into)};
-  join '', map qq{    ${me}->${_}(${args});\n}, @builds;
+  join '', map qq{        ${me}->${_}(${args});\n}, @builds;
 }
 
 1;
