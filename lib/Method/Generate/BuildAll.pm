@@ -10,9 +10,9 @@ use B 'perlstring';
 sub generate_method {
   my ($self, $into) = @_;
   quote_sub "${into}::BUILDALL", join '',
-           $self->_handle_subbuild($into),
+    $self->_handle_subbuild($into),
     qq{    my \$self = shift;\n},
-           $self->buildall_body_for($into, '$self', '@_'),
+    $self->buildall_body_for($into, '$self', '@_'),
     qq{    return \$self\n};
 }
 
