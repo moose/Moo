@@ -29,7 +29,7 @@ sub buildall_body_for {
     grep *{_getglob($_)}{CODE},
     map "${_}::BUILD",
     reverse @{mro::get_linear_isa($into)};
-  join '', map qq{        ${me}->${_}(${args});\n}, @builds;
+  join '', map qq{    ${me}->${_}(${args});\n}, @builds;
 }
 
 1;
