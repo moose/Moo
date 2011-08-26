@@ -10,14 +10,17 @@ use B 'perlstring';
 sub generate_method {
   my ($self, $into) = @_;
   quote_sub "${into}::BUILDALL", join '',
+           $self->_handle_subbuild($into),
     qq{    my \$self = shift;\n},
-    qq{    my \$class = ref \$self;\n},
-      '    if ('. perlstring($into) ." ne \$class) {\n",
-    qq{        return \$self->\${\\(\$Moo::Object::BUILD_MAKER->generate_method(\$class))}(\@_);\n},
-      "    } else {\n",
-               $self->buildall_body_for($into, '$self', '@_'),
-      "    }\n",
+           $self->buildall_body_for($into, '$self', '@_'),
     qq{    return \$self\n};
+}
+
+sub _handle_subbuild {
+  my ($self, $into) = @_;
+  '    if (ref($_[0]) ne '.perlstring($into).') {'."\n".
+  '      return shift->Moo::Object::BUILDALL(@_)'.";\n".
+  '    }'."\n";
 }
 
 sub buildall_body_for {
