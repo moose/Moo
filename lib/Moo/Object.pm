@@ -9,6 +9,14 @@ our $DEMOLISH_MAKER;
 
 sub new {
   my $class = shift;
+  unless (exists $NO_DEMOLISH{$class}) {
+    unless ($NO_DEMOLISH{$class} = !$class->can('DEMOLISH')) {
+      ($DEMOLISH_MAKER ||= do {
+        { local $@; require Method::Generate::DemolishAll; }
+        Method::Generate::DemolishAll->new
+      })->generate_method($class);
+    }
+  }
   $NO_BUILD{$class} and
     return bless({ ref($_[0]) eq 'HASH' ? %{$_[0]} : @_ }, $class);
   $NO_BUILD{$class} = !$class->can('BUILD') unless exists $NO_BUILD{$class};
@@ -53,30 +61,6 @@ sub DEMOLISHALL {
     { local $@; require Method::Generate::DemolishAll; }
     Method::Generate::DemolishAll->new
   })->generate_method(ref($self)))}(@_);
-}
-
-sub DESTROY {
-  my $self = shift;
-
-  my $class = ref($self);
-
-  $NO_DEMOLISH{$class} = !$class->can('DEMOLISH')
-    unless exists $NO_DEMOLISH{$class};
-
-  return if $NO_DEMOLISH{$class};
-
-  my $e = do {
-    local $?;
-    local $@;
-    require Moo::_Utils;
-    eval {
-      $self->DEMOLISHALL($Moo::_Utils::_in_global_destruction);
-    };
-    $@;
-  };
-
-  no warnings 'misc';
-  die $e if $e; # rethrow
 }
 
 sub does {

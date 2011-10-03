@@ -60,6 +60,10 @@ sub generate_method {
     );
   }
   $body .= '    return $new;'."\n";
+  if ($into->can('DEMOLISH')) {
+    { local $@; require Method::Generate::DemolishAll; }
+    Method::Generate::DemolishAll->new->generate_method($into);
+  }
   quote_sub
     "${into}::${name}" => $body,
     $self->{captures}, $quote_opts||{}

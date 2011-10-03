@@ -13,6 +13,21 @@ sub generate_method {
     qq{    my \$self = shift;\n},
     $self->demolishall_body_for($into, '$self', '@_'),
     qq{    return \$self\n};
+  quote_sub "${into}::DESTROY", join '',
+    q!    my $self = shift;
+    my $e = do {
+      local $?;
+      local $@;
+      require Moo::_Utils;
+      eval {
+        $self->DEMOLISHALL($Moo::_Utils::_in_global_destruction);
+      };
+      $@;
+    };
+  
+    no warnings 'misc';
+    die $e if $e; # rethrow
+  !;
 }
 
 sub demolishall_body_for {
