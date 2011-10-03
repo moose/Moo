@@ -223,9 +223,14 @@ instantiated.  Typically this is used for object validation or possibly logging.
 
 =head2 DESTROY
 
-A default destructor is provided, which calls
+If you have a C<DEMOLISH> method anywhere in your inheritance hierarchy,
+a C<DESTROY> method is created on first object construction which will call
 C<< $instance->DEMOLISH($in_global_destruction) >> for each C<DEMOLISH>
-method in the inheritance hierarchy.
+method from child upwards to parents.
+
+Note that the C<DESTROY> method is created on first construction of an object
+of your class in order to not add overhead to classes without C<DEMOLISH>
+methods; this may prove slightly surprising if you try and define your own.
 
 =head2 does
 
