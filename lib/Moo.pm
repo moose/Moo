@@ -20,7 +20,7 @@ sub import {
     @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
   };
   *{_getglob("${target}::with")} = sub {
-    require Moo::Role;
+    { local $@; require Moo::Role; }
     die "Only one role supported at a time by with" if @_ > 1;
     Moo::Role->apply_role_to_package($target, $_[0]);
   };
@@ -28,7 +28,7 @@ sub import {
   *{_getglob("${target}::has")} = sub {
     my ($name, %spec) = @_;
     ($MAKERS{$target}{accessor} ||= do {
-      require Method::Generate::Accessor;
+      { local $@; require Method::Generate::Accessor; }
       Method::Generate::Accessor->new
     })->generate_method($target, $name, \%spec);
     $class->_constructor_maker_for($target)
@@ -36,14 +36,14 @@ sub import {
   };
   foreach my $type (qw(before after around)) {
     *{_getglob "${target}::${type}"} = sub {
-      require Class::Method::Modifiers;
+      { local $@; require Class::Method::Modifiers; }
       _install_modifier($target, $type, @_);
     };
   }
   {
     no strict 'refs';
     @{"${target}::ISA"} = do {
-      require Moo::Object; ('Moo::Object');
+      {; local $@; require Moo::Object; } ('Moo::Object');
     } unless @{"${target}::ISA"};
   }
 }
@@ -52,8 +52,11 @@ sub _constructor_maker_for {
   my ($class, $target, $select_super) = @_;
   return unless $MAKERS{$target};
   $MAKERS{$target}{constructor} ||= do {
-    require Method::Generate::Constructor;
-    require Sub::Defer;
+    {
+      local $@;
+      require Method::Generate::Constructor;
+      require Sub::Defer;
+    }
     my ($moo_constructor, $con);
 
     if ($select_super && $MAKERS{$select_super}) {
@@ -79,7 +82,7 @@ sub _constructor_maker_for {
       ->new(
         package => $target,
         accessor_generator => do {
-          require Method::Generate::Accessor;
+          { local $@; require Method::Generate::Accessor; }
           Method::Generate::Accessor->new;
         },
         construction_string => (

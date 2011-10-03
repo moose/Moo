@@ -18,7 +18,7 @@ sub _load_module {
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
   return 1 if grep !/::$/, keys %{_getstash($_[0])||{}};
-  require "${proto}.pm";
+  { local $@; require "${proto}.pm"; }
   return 1;
 }
 
@@ -32,7 +32,7 @@ sub import {
   # install before/after/around subs
   foreach my $type (qw(before after around)) {
     *{_getglob "${target}::${type}"} = sub {
-      require Class::Method::Modifiers;
+      { local $@; require Class::Method::Modifiers; }
       push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
     };
   }
@@ -102,9 +102,9 @@ sub create_class_with_roles {
   }
 
   if ($] >= 5.010) {
-    require mro;
+    { local $@; require mro; }
   } else {
-    require MRO::Compat;
+    { local $@; require MRO::Compat; }
   }
 
   my @composable = map $me->_composable_package_for($_), reverse @roles;
@@ -142,8 +142,11 @@ sub _composable_package_for {
   ) {
     push @mod_base, "sub ${modified} { shift->next::method(\@_) }";
   }
-  eval(my $code = join "\n", "package ${base_name};", @mod_base);
-  die "Evaling failed: $@\nTrying to eval:\n${code}" if $@;
+  {
+    local $@;
+    eval(my $code = join "\n", "package ${base_name};", @mod_base);
+    die "Evaling failed: $@\nTrying to eval:\n${code}" if $@;
+  }
   $me->_install_modifiers($composed_name, $modifiers);
   $COMPOSED{role}{$composed_name} = 1;
   return $composed_name;

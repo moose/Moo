@@ -90,8 +90,11 @@ sub _unquote_all_outstanding {
     $ENV{SUB_QUOTE_DEBUG} && warn $assembled_code;
   }
   $assembled_code .= "\n1;";
-  unless (_clean_eval $assembled_code, \@assembled_captures) {
-    die "Eval went very, very wrong:\n\n${debug_code}\n\n$@";
+  {
+    local $@;
+    unless (_clean_eval $assembled_code, \@assembled_captures) {
+      die "Eval went very, very wrong:\n\n${debug_code}\n\n$@";
+    }
   }
   $ENV{SUB_QUOTE_DEBUG} && warn $debug_code;
   %QUOTE_OUTSTANDING = ();

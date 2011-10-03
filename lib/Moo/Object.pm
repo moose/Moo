@@ -3,6 +3,7 @@ package Moo::Object;
 use strictures 1;
 
 our %NO_BUILD;
+our %NO_DEMOLISH;
 our $BUILD_MAKER;
 our $DEMOLISH_MAKER;
 
@@ -41,43 +42,45 @@ sub BUILDARGS {
 sub BUILDALL {
   my $self = shift;
   $self->${\(($BUILD_MAKER ||= do {
-    require Method::Generate::BuildAll;
+    { local $@; require Method::Generate::BuildAll; }
     Method::Generate::BuildAll->new
   })->generate_method(ref($self)))}(@_);
-}
-
-sub DESTROY {
-    my $self = shift;
-
-    return unless $self->can('DEMOLISH'); # short circuit
-
-    require Moo::_Utils;
-
-    my $e = do {
-        local $?;
-        local $@;
-        eval {
-            # DEMOLISHALL
-
-            $self->DEMOLISHALL($Moo::_Utils::_in_global_destruction);
-        };
-        $@;
-    };
-
-    no warnings 'misc';
-    die $e if $e; # rethrow
 }
 
 sub DEMOLISHALL {
   my $self = shift;
   $self->${\(($DEMOLISH_MAKER ||= do {
-    require Method::Generate::DemolishAll;
+    { local $@; require Method::Generate::DemolishAll; }
     Method::Generate::DemolishAll->new
   })->generate_method(ref($self)))}(@_);
 }
 
+sub DESTROY {
+  my $self = shift;
+
+  my $class = ref($self);
+
+  $NO_DEMOLISH{$class} = !$class->can('DEMOLISH')
+    unless exists $NO_DEMOLISH{$class};
+
+  return if $NO_DEMOLISH{$class};
+
+  my $e = do {
+    local $?;
+    local $@;
+    require Moo::_Utils;
+    eval {
+      $self->DEMOLISHALL($Moo::_Utils::_in_global_destruction);
+    };
+    $@;
+  };
+
+  no warnings 'misc';
+  die $e if $e; # rethrow
+}
+
 sub does {
-  require Role::Tiny;
+  { local $@; require Role::Tiny; }
   { no warnings 'redefine'; *does = \&Role::Tiny::does_role }
   goto &Role::Tiny::does_role;
 }
