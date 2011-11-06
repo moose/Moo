@@ -43,12 +43,12 @@ sub import {
     die "Only one role supported at a time by with" if @_ > 1;
     $me->apply_role_to_package($target, $_[0]);
   };
-  # grab all *non-constant* (ref eq 'SCALAR') subs present
+  # grab all *non-constant* (ref eq 'SCALAR'/'REF') subs present
   # in the symbol table and store their refaddrs (no need to forcibly
   # inflate constant subs into real subs) - also add '' to here (this
   # is used later)
   @{$INFO{$target}{not_methods}={}}{
-    '', map { *$_{CODE}||() } grep !(ref eq 'SCALAR'), values %$stash
+    '', map { *$_{CODE}||() } grep !(ref =~ /^(?:SCALAR|REF)$/), values %$stash
   } = ();
   # a role does itself
   $APPLIED_TO{$target} = { $target => undef };
@@ -177,7 +177,7 @@ sub _concrete_methods_of {
         my $code = *{$stash->{$_}}{CODE};
         # rely on the '' key we added in import for "no code here"
         exists $not_methods->{$code||''} ? () : ($_ => $code)
-      } grep !(ref($stash->{$_}) eq 'SCALAR'), keys %$stash
+      } grep !(ref($stash->{$_}) =~ /^(?:SCALAR|REF)$/), keys %$stash
     };
   };
 }
@@ -201,7 +201,7 @@ sub _install_methods {
   # determine already extant methods of target
   my %has_methods;
   @has_methods{grep
-    +((ref($stash->{$_}) eq 'SCALAR') || (*{$stash->{$_}}{CODE})),
+    +((ref($stash->{$_}) =~ /^(?:SCALAR|REF)$/) || (*{$stash->{$_}}{CODE})),
     keys %$stash
   } = ();
 

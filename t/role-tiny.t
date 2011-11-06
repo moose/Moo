@@ -19,6 +19,9 @@ BEGIN {
 BEGIN {
   package MyClass;
 
+  use constant SIMPLE => 'simple';
+  use constant REF_CONST => [ 'ref_const' ];
+
   sub req1 { }
   sub req2 { }
   sub foo { 'class foo' }
