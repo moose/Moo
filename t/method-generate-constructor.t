@@ -57,4 +57,10 @@ is(
   'hashrefs also supported'
 );
 
+is(
+  exception { $first->new(one => 1, THREE => 3) },
+  undef,
+  'calling ->new on an object works'
+);
+
 done_testing;

@@ -42,7 +42,8 @@ sub generate_method {
     $spec->{$no_init}{init_arg} = $no_init;
   }
   local $self->{captures} = {};
-  my $body = '    my $class = shift;'."\n";
+  my $body = '    my $class = shift;'."\n"
+            .'    $class = ref($class) if ref($class);'."\n";
   $body .= $self->_handle_subconstructor($into, $name);
   my $into_buildargs = $into->can('BUILDARGS');
   if ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS ) {
