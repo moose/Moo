@@ -22,6 +22,11 @@ sub _load_module {
   return 1;
 }
 
+{ # \[] is REF, not SCALAR. \v1 is VSTRING (thanks to doy for that one)
+  my %reftypes = map +($_ => 1), qw(SCALAR REF VSTRING);
+  sub _is_scalar_ref { $reftypes{ref($_[0])} }
+}
+
 sub import {
   my $target = caller;
   my $me = shift;
@@ -43,12 +48,12 @@ sub import {
     die "Only one role supported at a time by with" if @_ > 1;
     $me->apply_role_to_package($target, $_[0]);
   };
-  # grab all *non-constant* (ref eq 'SCALAR'/'REF') subs present
+  # grab all *non-constant* (stash slot is not a scalarref) subs present
   # in the symbol table and store their refaddrs (no need to forcibly
   # inflate constant subs into real subs) - also add '' to here (this
   # is used later)
   @{$INFO{$target}{not_methods}={}}{
-    '', map { *$_{CODE}||() } grep !(ref =~ /^(?:SCALAR|REF)$/), values %$stash
+    '', map { *$_{CODE}||() } grep !_is_scalar_ref($_), values %$stash
   } = ();
   # a role does itself
   $APPLIED_TO{$target} = { $target => undef };
@@ -177,7 +182,7 @@ sub _concrete_methods_of {
         my $code = *{$stash->{$_}}{CODE};
         # rely on the '' key we added in import for "no code here"
         exists $not_methods->{$code||''} ? () : ($_ => $code)
-      } grep !(ref($stash->{$_}) =~ /^(?:SCALAR|REF)$/), keys %$stash
+      } grep !_is_scalar_ref($stash->{$_}), keys %$stash
     };
   };
 }
@@ -201,7 +206,7 @@ sub _install_methods {
   # determine already extant methods of target
   my %has_methods;
   @has_methods{grep
-    +((ref($stash->{$_}) =~ /^(?:SCALAR|REF)$/) || (*{$stash->{$_}}{CODE})),
+    +(_is_scalar_ref($stash->{$_}) || *{$stash->{$_}}{CODE}),
     keys %$stash
   } = ();
 
