@@ -1,7 +1,5 @@
-#!/usr/bin/env perl
-
-use strict;
-use warnings;
+use strictures 1;
+use lib 'lib';
 no warnings 'once'; # work around 5.6.2
 
 {
@@ -12,7 +10,7 @@ no warnings 'once'; # work around 5.6.2
         my $self = shift;
         my ($igd) = @_;
 
-        print $igd || 0, "\n";
+        print $igd ? "true" : "false", "\n";
     }
 }
 

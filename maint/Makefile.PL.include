@@ -4,4 +4,6 @@ use Distar;
 
 author 'mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>';
 
+manifest_include t => 'global-destruction-helper.pl';
+
 1;

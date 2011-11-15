@@ -21,9 +21,11 @@ use Test::Fatal;
     my $foo = Foo->new;
 }
 
-ok(
-    $_,
+chomp(my $out = `$^X t/global-destruction-helper.pl`);
+
+is(
+    $out, 'true',
     'in_global_destruction state is passed to DEMOLISH properly (true)'
-) for split //, `$^X t/global-destruction-helper.pl`;
+);
 
 done_testing;
