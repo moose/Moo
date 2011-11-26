@@ -303,6 +303,22 @@ Coerce does not require C<isa> to be defined.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
+=item * handles
+
+Takes a string
+
+  handles => 'Robot'
+
+Takes a list of methods
+
+ handles => [ qw( one two ) ]
+
+Takes a hashref
+
+ handles => {
+   un => 'one',
+ }
+
 =item * trigger
 
 Takes a coderef which will get called any time the attribute is set. Coderef
