@@ -11,7 +11,7 @@ BEGIN {
       &&
     _maybe_load_module('Class::XSAccessor')
       &&
-    (Class::XSAccessor->VERSION > 1.06)
+    (eval { Class::XSAccessor->VERSION('1.07') })
   ;
 }
 

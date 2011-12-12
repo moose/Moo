@@ -10,7 +10,7 @@ my %BUILD_DEPS = (
 );
 
 my %RUN_DEPS = (
-  'Class::Method::Modifiers' => 1.05,
+  'Class::Method::Modifiers' => 1.07,
   'strictures' => 1.001001,
 );
 
