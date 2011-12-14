@@ -307,7 +307,10 @@ L<Sub::Quote aware|/SUB QUOTE AWARE>
 
 Takes a string
 
-  handles => 'Robot'
+  handles => 'RobotRole'
+
+Where C<RobotRole> is a role (L<Moo::Role>) that defines an interface which
+becomes the list of methods to handle.
 
 Takes a list of methods
 
@@ -456,6 +459,27 @@ manually set all the options it implies.
 C<auto_deref> is not supported since the author considers it a bad idea.
 
 C<documentation> is not supported since it's a very poor replacement for POD.
+
+Handling of warnings: when you C<use Moo> we enable FATAL warnings.  The nearest
+similar invocation for L<Moose> would be:
+
+  use Moose;
+  use warnings FATAL => "all";
+
+Additionally, L<Moo> supports a set of attribute option shortcuts intended to
+reduce common boilerplate.  The set of shortcuts is the same as in the L<Moose>
+module L<MooseX::AttributeShortcuts>.  So if you:
+
+    package MyClass;
+    use Moo;
+
+The nearest L<Moose> invocation would be:
+
+    package MyClass;
+
+    use Moose;
+    use warnings FATAL => "all";
+    use MooseX::AttributeShortcuts;
 
 =head1 AUTHOR
 
