@@ -154,10 +154,10 @@ Sub::Quote - efficient generation of subroutines via string eval
 
  quote_sub 'Silly::doggy', q{ print "woof" };
 
- my $sound; $$sound = 0;
+ my $sound = 0;
 
  quote_sub 'Silly::dagron',
-   q{ print ++$$sound % 2 ? 'burninate' : 'roar' },
+   q{ print ++$sound % 2 ? 'burninate' : 'roar' },
    { '$sound' => \$sound };
 
 And elsewhere:
