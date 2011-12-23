@@ -214,14 +214,14 @@ passed to the constructor.
 
 This method should always return a hash reference of named options.
 
-=head2 BUILDALL
+=head2 BUILD
 
-Don't override (or probably even call) this method.  Instead, you can define
-a C<BUILD> method on your class and the constructor will automatically call the
-C<BUILD> method from parent down to child after the object has been
-instantiated.  Typically this is used for object validation or possibly logging.
+Define a C<BUILD> method on your class and the constructor will automatically
+call the C<BUILD> method from parent down to child after the object has
+been instantiated.  Typically this is used for object validation or possibly
+logging.
 
-=head2 DESTROY
+=head2 DEMOLISH
 
 If you have a C<DEMOLISH> method anywhere in your inheritance hierarchy,
 a C<DESTROY> method is created on first object construction which will call
