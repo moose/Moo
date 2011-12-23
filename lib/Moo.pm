@@ -43,7 +43,7 @@ sub import {
   {
     no strict 'refs';
     @{"${target}::ISA"} = do {
-      {; local $@; require Moo::Object; } ('Moo::Object');
+      { local $@; require Moo::Object; } ('Moo::Object');
     } unless @{"${target}::ISA"};
   }
 }
