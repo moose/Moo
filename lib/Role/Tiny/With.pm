@@ -2,6 +2,7 @@ package Role::Tiny::With;
 
 use strict;
 use warnings FATAL => 'all';
+use Role::Tiny ();
 
 use Exporter 'import';
 our @EXPORT = qw( with );
