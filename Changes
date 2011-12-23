@@ -1,3 +1,6 @@
+  - fix up Class::XSAccessor version check to be more robust
+  - improved documentation
+
 0.009012 - 2011-11-15
   - make Method::Generate::Constructor handle $obj->new
   - fix bug where constants containing a reference weren't handled correctly
