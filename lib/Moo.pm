@@ -325,8 +325,9 @@ Takes a hashref
 
 =item * trigger
 
-Takes a coderef which will get called any time the attribute is set. Coderef
-will be invoked against the object with the new value as an argument.
+Takes a coderef which will get called any time the attribute is set. This
+includes the constructor. Coderef will be invoked against the object with the
+new value as an argument.
 
 Note that Moose also passes the old value, if any; this feature is not yet
 supported.
