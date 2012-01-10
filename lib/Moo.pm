@@ -458,7 +458,8 @@ API will encourage the use of other type systems as well, since it's
 probably the weakest part of Moose design-wise.
 
 C<initializer> is not supported in core since the author considers it to be a
-bad idea but may be supported by an extension in future.
+bad idea but may be supported by an extension in future. Meanwhile C<trigger> or
+C<coerce> are more likely to be able to fulfill your needs.
 
 There is no meta object.  If you need this level of complexity you wanted
 L<Moose> - Moo succeeds at being small because it explicitly does not
