@@ -17,7 +17,7 @@ sub import {
   *{_getglob "${target}::has"} = sub {
     my ($name, %spec) = @_;
     ($INFO{$target}{accessor_maker} ||= do {
-      { local $@; require Method::Generate::Accessor; }
+      require Method::Generate::Accessor;
       Method::Generate::Accessor->new
     })->generate_method($target, $name, \%spec);
     $INFO{$target}{attributes}{$name} = \%spec;
@@ -40,7 +40,7 @@ sub create_class_with_roles {
 
   return $new_name if $Role::Tiny::COMPOSED{class}{$new_name};
 
-  { local $@; require Sub::Quote; }
+  require Sub::Quote;
 
   $me->SUPER::create_class_with_roles($superclass, @roles);
 

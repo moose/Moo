@@ -53,7 +53,7 @@ sub import {
   # inflate constant subs into real subs) - also add '' to here (this
   # is used later)
   @{$INFO{$target}{not_methods}={}}{
-    '', map { *$_{CODE}||() } grep !_is_scalar_ref($_), values %$stash
+    '', map { *$_{CODE}||() } grep !ref($_), values %$stash
   } = ();
   # a role does itself
   $APPLIED_TO{$target} = { $target => undef };
@@ -182,7 +182,7 @@ sub _concrete_methods_of {
         my $code = *{$stash->{$_}}{CODE};
         # rely on the '' key we added in import for "no code here"
         exists $not_methods->{$code||''} ? () : ($_ => $code)
-      } grep !_is_scalar_ref($stash->{$_}), keys %$stash
+      } grep !ref($stash->{$_}), keys %$stash
     };
   };
 }
@@ -206,7 +206,7 @@ sub _install_methods {
   # determine already extant methods of target
   my %has_methods;
   @has_methods{grep
-    +(_is_scalar_ref($stash->{$_}) || *{$stash->{$_}}{CODE}),
+    +(ref($stash->{$_}) || *{$stash->{$_}}{CODE}),
     keys %$stash
   } = ();
 

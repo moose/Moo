@@ -1,3 +1,4 @@
+  - Revert 'local $@' around require calls to avoid triggering Unknown Error
   - Explicitly require Role::Tiny in Role::Tiny::With (RT#70446)
 
 0.009013 - 2011-12-23

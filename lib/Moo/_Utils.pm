@@ -40,7 +40,7 @@ sub _load_module {
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
   return 1 if grep !/::$/, keys %{_getstash($_[0])||{}};
-  { local $@; require "${proto}.pm"; }
+  { require "${proto}.pm"; }
   return 1;
 }
 
