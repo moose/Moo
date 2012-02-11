@@ -22,11 +22,6 @@ sub _load_module {
   return 1;
 }
 
-{ # \[] is REF, not SCALAR. \v1 is VSTRING (thanks to doy for that one)
-  my %reftypes = map +($_ => 1), qw(SCALAR REF VSTRING);
-  sub _is_scalar_ref { $reftypes{ref($_[0])} }
-}
-
 sub import {
   my $target = caller;
   my $me = shift;
