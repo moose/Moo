@@ -12,7 +12,7 @@ sub new {
   unless (exists $NO_DEMOLISH{$class}) {
     unless ($NO_DEMOLISH{$class} = !$class->can('DEMOLISH')) {
       ($DEMOLISH_MAKER ||= do {
-        { local $@; require Method::Generate::DemolishAll; }
+        require Method::Generate::DemolishAll;
         Method::Generate::DemolishAll->new
       })->generate_method($class);
     }
@@ -50,7 +50,7 @@ sub BUILDARGS {
 sub BUILDALL {
   my $self = shift;
   $self->${\(($BUILD_MAKER ||= do {
-    { local $@; require Method::Generate::BuildAll; }
+    require Method::Generate::BuildAll;
     Method::Generate::BuildAll->new
   })->generate_method(ref($self)))}(@_);
 }
@@ -58,13 +58,13 @@ sub BUILDALL {
 sub DEMOLISHALL {
   my $self = shift;
   $self->${\(($DEMOLISH_MAKER ||= do {
-    { local $@; require Method::Generate::DemolishAll; }
+    require Method::Generate::DemolishAll;
     Method::Generate::DemolishAll->new
   })->generate_method(ref($self)))}(@_);
 }
 
 sub does {
-  { local $@; require Role::Tiny; }
+  require Role::Tiny;
   { no warnings 'redefine'; *does = \&Role::Tiny::does_role }
   goto &Role::Tiny::does_role;
 }

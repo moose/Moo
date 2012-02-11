@@ -23,7 +23,7 @@ sub _install_modifier {
   my ($into, $type, $name, $code) = @_;
 
   if (my $to_modify = $into->can($name)) { # CMM will throw for us if not
-    { local $@; require Sub::Defer; }
+    require Sub::Defer;
     Sub::Defer::undefer_sub($to_modify);
   }
 

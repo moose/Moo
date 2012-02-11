@@ -18,7 +18,7 @@ sub _load_module {
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
   return 1 if grep !/::$/, keys %{_getstash($_[0])||{}};
-  { local $@; require "${proto}.pm"; }
+  require "${proto}.pm";
   return 1;
 }
 
@@ -32,7 +32,7 @@ sub import {
   # install before/after/around subs
   foreach my $type (qw(before after around)) {
     *{_getglob "${target}::${type}"} = sub {
-      { local $@; require Class::Method::Modifiers; }
+      require Class::Method::Modifiers;
       push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
     };
   }
@@ -102,9 +102,9 @@ sub create_class_with_roles {
   }
 
   if ($] >= 5.010) {
-    { local $@; require mro; }
+    require mro;
   } else {
-    { local $@; require MRO::Compat; }
+    require MRO::Compat;
   }
 
   my @composable = map $me->_composable_package_for($_), reverse @roles;
