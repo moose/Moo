@@ -11,8 +11,6 @@ use base qw(Exporter);
 
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);
 
-our %QUOTE_OUTSTANDING;
-
 our %QUOTED;
 
 our %WEAK_REFS;
@@ -43,63 +41,6 @@ sub inlinify {
   }
 }
 
-sub _unquote_all_outstanding {
-  return unless %QUOTE_OUTSTANDING;
-  my ($assembled_code, @assembled_captures, @localize_these) = '';
-  # we sort the keys in order to make debugging more predictable
-  foreach my $outstanding (sort keys %QUOTE_OUTSTANDING) {
-    my ($name, $code, $captures) = @{$QUOTE_OUTSTANDING{$outstanding}};
-
-    push @localize_these, $name if $name;
-
-    my $make_sub = "{\n";
-
-    if (keys %$captures) {
-      my $ass_cap_count = @assembled_captures;
-      $make_sub .= capture_unroll("\$_[1][${ass_cap_count}]", $captures, 2);
-      push @assembled_captures, $captures;
-    }
-
-    my $o_quoted = perlstring $outstanding;
-    $make_sub .= (
-      $name
-          # disable the 'variable $x will not stay shared' warning since
-          # we're not letting it escape from this scope anyway so there's
-          # nothing trying to share it
-        ? "  no warnings 'closure';\n  sub ${name} {\n"
-        : "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = sub {\n"
-    );
-    $make_sub .= $code;
-    $make_sub .= "  }".($name ? '' : ';')."\n";
-    if ($name) {
-      $make_sub .= "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = \\&${name}\n";
-    }
-    $make_sub .= "}\n";
-    $assembled_code .= $make_sub;
-  }
-  my $debug_code = $assembled_code;
-  if (@localize_these) {
-    $debug_code =
-      "# localizing: ".join(', ', @localize_these)."\n"
-      .$assembled_code;
-    $assembled_code = join("\n",
-      (map { "local *${_};" } @localize_these),
-      'eval '.perlstring($assembled_code).'; die $@ if $@;'
-    );
-  } else {
-    $ENV{SUB_QUOTE_DEBUG} && warn $assembled_code;
-  }
-  $assembled_code .= "\n1;";
-  {
-    local $@;
-    unless (_clean_eval $assembled_code, \@assembled_captures) {
-      die "Eval went very, very wrong:\n\n${debug_code}\n\n$@";
-    }
-  }
-  $ENV{SUB_QUOTE_DEBUG} && warn $debug_code;
-  %QUOTE_OUTSTANDING = ();
-}
-
 sub quote_sub {
   # HOLY DWIMMERY, BATMAN!
   # $name => $code => \%captures => \%options
@@ -120,9 +61,7 @@ sub quote_sub {
     unquote_sub($outstanding);
   };
   $outstanding = "$deferred";
-  $QUOTE_OUTSTANDING{$outstanding} = $QUOTED{$outstanding} = [
-    $name, $code, $captures
-  ];
+  $QUOTED{$outstanding} = [ $name, $code, $captures ];
   weaken($WEAK_REFS{$outstanding} = $deferred);
   return $deferred;
 }
@@ -134,7 +73,40 @@ sub quoted_from_sub {
 
 sub unquote_sub {
   my ($sub) = @_;
-  _unquote_all_outstanding;
+  unless ($QUOTED{$sub}[3]) {
+    my ($name, $code, $captures) = @{$QUOTED{$sub}};
+
+    my $make_sub = "{\n";
+
+    if (keys %$captures) {
+      $make_sub .= capture_unroll("\$_[1]", $captures, 2);
+    }
+
+    my $o_quoted = perlstring $sub;
+    $make_sub .= (
+      $name
+          # disable the 'variable $x will not stay shared' warning since
+          # we're not letting it escape from this scope anyway so there's
+          # nothing trying to share it
+        ? "  no warnings 'closure';\n  sub ${name} {\n"
+        : "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = sub {\n"
+    );
+    $make_sub .= $code;
+    $make_sub .= "  }".($name ? '' : ';')."\n";
+    if ($name) {
+      $make_sub .= "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = \\&${name}\n";
+    }
+    $make_sub .= "}\n1;\n";
+    $ENV{SUB_QUOTE_DEBUG} && warn $make_sub;
+    {
+      local $@;
+      no strict 'refs';
+      local *{$name} if $name;
+      unless (_clean_eval $make_sub, $captures) {
+        die "Eval went very, very wrong:\n\n${make_sub}\n\n$@";
+      }
+    }
+  }
   $QUOTED{$sub}[3];
 }
 

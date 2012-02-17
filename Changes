@@ -1,3 +1,5 @@
+  - Remove Sub::Quote's outstanding queue since it doesn't actually slow
+    things down to do it this way and makes debugging easier.
   - Revert 'local $@' around require calls to avoid triggering Unknown Error
   - Explicitly require Role::Tiny in Role::Tiny::With (RT#70446)
 

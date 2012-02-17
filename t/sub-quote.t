@@ -21,8 +21,8 @@ ok(!keys %EVALED, 'Nothing evaled yet');
 my $u_one = unquote_sub $one;
 
 is_deeply(
-  [ sort keys %EVALED ], [ qw(one two) ],
-  'Both subs evaled'
+  [ sort keys %EVALED ], [ qw(one) ],
+  'subs one evaled'
 );
 
 is($one->(), 42, 'One (quoted version)');
