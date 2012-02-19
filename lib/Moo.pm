@@ -538,6 +538,8 @@ ajgb - Alex J. G. Burzyński (cpan:AJGB) <ajgb@cpan.org>
 
 doy - Jesse Luehrs (cpan:DOY) <doy at tozt dot net>
 
+perigrin - Chris Prather (cpan:PERIGRIN) <chris@prather.org>
+
 =head1 COPYRIGHT
 
 Copyright (c) 2010-2011 the Moo L</AUTHOR> and L</CONTRIBUTORS>
