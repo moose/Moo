@@ -464,6 +464,10 @@ No support for C<super>, C<override>, C<inner>, or C<augment> - override can
 be handled by around albeit with a little more typing, and the author considers
 augment to be a bad idea.
 
+The C<dump> method is not provided by default. The author suggests loading 
+L<Devel::Dwarn> into C<main::> (via C<perl -MDevel::Dwarn ...> for example) and
+using C<$obj-E<gt>$::Dwarn()> instead.
+
 L</default> only supports coderefs, because doing otherwise is usually a
 mistake anyway.
 
