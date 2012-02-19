@@ -1,3 +1,4 @@
+  - Update incompatibilities with Moose documentation
   - Remove Sub::Quote's outstanding queue since it doesn't actually slow
     things down to do it this way and makes debugging easier.
   - Revert 'local $@' around require calls to avoid triggering Unknown Error

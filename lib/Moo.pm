@@ -430,11 +430,28 @@ aware can take advantage of this.
 =head1 INCOMPATIBILITIES WITH MOOSE
 
 You can only compose one role at a time.  If your application is large or
-complex enough to warrant complex composition, you wanted L<Moose>.
+complex enough to warrant complex composition, you wanted L<Moose>.  Note that
+this does not mean you can only compose one role per class -
 
-There is no complex type system.  C<isa> is verified with a coderef, if you
+  with 'FirstRole';
+  with 'SecondRole';
+
+is absolutely fine, there's just currently no equivalent of Moose's
+
+  with 'FirstRole', 'SecondRole';
+
+which composes the two roles together, and then applies them.
+
+There is no built in type system.  C<isa> is verified with a coderef, if you
 need complex types, just make a library of coderefs, or better yet, functions
-that return quoted subs.
+that return quoted subs. L<MooX::Types::MooseLike> provides a similar API
+to L<MooseX::Types::Moose> so that you can write
+
+  has days_to_live => (is => 'ro', isa => Int);
+
+and have it work with both; it is hoped that providing only subrefs as an
+API will encourage the use of other type systems as well, since it's
+probably the weakest part of Moose design-wise.
 
 C<initializer> is not supported in core since the author considers it to be a
 bad idea but may be supported by an extension in future.
@@ -477,6 +494,23 @@ The nearest L<Moose> invocation would be:
     use Moose;
     use warnings FATAL => "all";
     use MooseX::AttributeShortcuts;
+
+or, if you're inheriting from a non-Moose class,
+
+    package MyClass;
+
+    use Moose;
+    use MooseX::NonMoose;
+    use warnings FATAL => "all";
+    use MooseX::AttributeShortcuts;
+
+Finally, Moose requires you to call
+
+    __PACKAGE__->meta->make_immutable;
+
+at the end of your class to get an inlined (i.e. not horribly slow)
+constructor. Moo does it automatically the first time ->new is called
+on your class.
 
 =head1 AUTHOR
 
