@@ -5,6 +5,7 @@
     things down to do it this way and makes debugging easier.
   - Revert 'local $@' around require calls to avoid triggering Unknown Error
   - Explicitly require Role::Tiny in Role::Tiny::With (RT#70446)
+  - Fix spurious 'once' warnings under perl -w
 
 0.009013 - 2011-12-23
   - fix up Class::XSAccessor version check to be more robust
