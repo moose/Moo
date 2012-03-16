@@ -12,6 +12,7 @@ my %BUILD_DEPS = (
 my %RUN_DEPS = (
   'Class::Method::Modifiers' => 1.07,
   'strictures' => 1.001001,
+  'Module::Runtime' => 0.013,
 );
 
 # have to do this since old EUMM dev releases miss the eval $VERSION line

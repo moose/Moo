@@ -10,15 +10,27 @@ our %INFO;
 our %APPLIED_TO;
 our %COMPOSED;
 
-# inlined from Moo::_Utils - update that first.
+# Module state workaround totally stolen from Zefram's Module::Runtime.
+
+BEGIN {
+  *_WORK_AROUND_BROKEN_MODULE_STATE = "$]" < 5.009 ? sub(){1} : sub(){0};
+}
+
+sub Role::Tiny::__GUARD__::DESTROY {
+  delete $INC{$_[0]->[0]} if @{$_[0]};
+}
 
 sub _load_module {
   (my $proto = $_[0]) =~ s/::/\//g;
-  return 1 if $INC{"${proto}.pm"};
+  $proto .= '.pm';
+  return 1 if $INC{$proto};
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
   return 1 if grep !/::$/, keys %{_getstash($_[0])||{}};
-  require "${proto}.pm";
+  my $guard = _WORK_AROUND_BROKEN_MODULE_STATE
+    && bless([ $proto ], 'Role::Tiny::__GUARD__');
+  require $proto;
+  pop @$guard if _WORK_AROUND_BROKEN_MODULE_STATE;
   return 1;
 }
 

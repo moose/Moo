@@ -1,3 +1,5 @@
+  - Switch Moo::Utils to using Module::Runtime, and add the 5.8 %INC
+    leakage fix into Role::Tiny's _load_module to provide partial parity
   - Update incompatibilities with Moose documentation
   - Remove Sub::Quote's outstanding queue since it doesn't actually slow
     things down to do it this way and makes debugging easier.
