@@ -62,4 +62,35 @@ run_for 'Bar';
 
 run_for 'Baz';
 
+{
+  package Default;
+
+  use Sub::Quote;
+  use Moo;
+
+  has one => (
+    is => 'rw',
+    trigger => quote_sub(q{ push @{$tr}, $_[1] }, { '$tr' => \\@::tr }),
+    default => sub { 0 }
+  );
+}
+
+run_for 'Default';
+
+{
+  package LazyDefault;
+
+  use Sub::Quote;
+  use Moo;
+
+  has one => (
+    is => 'rw',
+    trigger => quote_sub(q{ push @{$tr}, $_[1] }, { '$tr' => \\@::tr }),
+    default => sub { 0 },
+    lazy => 1
+  );
+}
+
+run_for 'LazyDefault';
+
 done_testing;
