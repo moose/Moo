@@ -168,5 +168,38 @@ run_with_default_for 'Baz2';
 
 like exception { Biff2->new() }, qr/could not add three!/, 'Exception properly thrown';
 
+{
+  package Foo3;
+
+  use Moo;
+
+  has plus_three => (
+    is => 'rw',
+    default => sub { 1 },
+    coerce => sub { $_[0] + 3 },
+    lazy => 1,
+  );
+}
+
+run_with_default_for 'Foo3';
+
+{
+  package Bar3;
+
+  use Sub::Quote;
+  use Moo;
+
+  has plus_three => (
+    is => 'rw',
+    default => sub { 1 },
+    coerce => quote_sub q{
+      my ($x) = @_;
+      $x + 3
+    },
+    lazy => 1,
+  );
+}
+
+run_with_default_for 'Bar3';
 
 done_testing;
