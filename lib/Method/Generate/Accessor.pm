@@ -178,8 +178,15 @@ sub generate_get_default {
 
 sub _generate_use_default {
   my ($self, $me, $name, $spec, $test) = @_;
+  my $get_value = $self->_generate_get_default($me, $name, $spec);
+  if ($spec->{coerce}) {
+    $get_value = $self->_generate_coerce(
+      $name, $me, $get_value,
+      $spec->{coerce}
+    )
+  }
   $self->_generate_simple_set(
-    $me, $name, $spec, $self->_generate_get_default($me, $name, $spec)
+    $me, $name, $spec, $get_value
   ).' unless '.$test;
 }
 

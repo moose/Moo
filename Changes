@@ -1,3 +1,4 @@
+  - Fix a bug where coercions weren't called on lazy default/builder returns
   - Switch Moo::Utils to using Module::Runtime, and add the 5.8 %INC
     leakage fix into Role::Tiny's _load_module to provide partial parity
   - Update incompatibilities with Moose documentation
