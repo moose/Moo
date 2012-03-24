@@ -192,10 +192,10 @@ run_with_default_for 'Foo3';
   has plus_three => (
     is => 'rw',
     default => sub { 1 },
-    coerce => quote_sub q{
+    coerce => quote_sub(q{
       my ($x) = @_;
       $x + 3
-    },
+    }),
     lazy => 1,
   );
 }
