@@ -181,7 +181,7 @@ sub _generate_use_default {
   my $get_value = $self->_generate_get_default($me, $name, $spec);
   if ($spec->{coerce}) {
     $get_value = $self->_generate_coerce(
-      $name, $me, $get_value,
+      $name, $get_value,
       $spec->{coerce}
     )
   }
@@ -219,7 +219,7 @@ sub _generate_set {
     if ($coerce) {
       $code .=
         "        \$value = "
-        .$self->_generate_coerce($name, '$self', '$value', $coerce).";\n";
+        .$self->_generate_coerce($name, '$value', $coerce).";\n";
     }
     if ($isa_check) {
       $code .= 
@@ -246,7 +246,7 @@ sub generate_coerce {
 }
 
 sub _generate_coerce {
-  my ($self, $name, $obj, $value, $coerce) = @_;
+  my ($self, $name, $value, $coerce) = @_;
   $self->_generate_call_code($name, 'coerce', "${value}", $coerce);
 }
  
@@ -315,11 +315,11 @@ sub _generate_populate_set {
             .$get_default
             ."\n${get_indent})"
         : $get_default;
-    if ( $spec->{coerce} ) {
-        $get_value = $self->_generate_coerce(
-            $name, $me, $get_value,
-            $spec->{coerce}
-          )
+    if ($spec->{coerce}) {
+      $get_value = $self->_generate_coerce(
+        $name, $get_value,
+        $spec->{coerce}
+      )
     }
     ($spec->{isa}
       ? "    {\n      my \$value = ".$get_value.";\n      "
@@ -343,7 +343,7 @@ sub _generate_populate_set {
       .($spec->{coerce}
         ? "      $source = "
           .$self->_generate_coerce(
-            $name, $me, $source,
+            $name, $source,
             $spec->{coerce}
           ).";\n"
         : ""
