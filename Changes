@@ -1,3 +1,4 @@
+0.009014 - 2012-03-29
   - Split Role::Tiny out into its own dist
   - Fix a bug where coercions weren't called on lazy default/builder returns
   - Switch Moo::Utils to using Module::Runtime, and add the 5.8 %INC
