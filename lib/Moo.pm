@@ -46,6 +46,9 @@ sub import {
       require Moo::Object; ('Moo::Object');
     } unless @{"${target}::ISA"};
   }
+  if ($INC{'Moo/HandleMoose.pm'}) {
+    Moo::HandleMoose::inject_fake_metaclass_for($target);
+  }
 }
 
 sub _constructor_maker_for {

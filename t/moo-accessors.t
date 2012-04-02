@@ -48,4 +48,4 @@ is_deeply(
   'subclass with role ok'
 );
 
-done_testing;
+done_testing unless caller;

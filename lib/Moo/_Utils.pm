@@ -19,7 +19,7 @@ use Moo::_mro;
 
 our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
-    _get_linear_isa
+    _get_linear_isa _getstash
 );
 
 sub _install_modifier {
