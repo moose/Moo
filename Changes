@@ -1,3 +1,6 @@
+  - Introduce Moo::HandleMoose, which should allow Moo classes and roles
+    to be treated as Moose classes/roles
+
 0.009014 - 2012-03-29
   - Split Role::Tiny out into its own dist
   - Fix a bug where coercions weren't called on lazy default/builder returns
