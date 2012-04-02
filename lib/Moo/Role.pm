@@ -22,6 +22,9 @@ sub import {
     })->generate_method($target, $name, \%spec);
     $INFO{$target}{attributes}{$name} = \%spec;
   };
+  if ($INC{'Moo/HandleMoose.pm'}) {
+    Moo::HandleMoose::inject_fake_metaclass_for($target);
+  }
   goto &Role::Tiny::import;
 }
 

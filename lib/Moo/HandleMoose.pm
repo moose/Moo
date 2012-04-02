@@ -8,6 +8,7 @@ sub import { inject_all() }
 sub inject_all {
   require Class::MOP;
   inject_fake_metaclass_for($_) for grep $_ ne 'Moo::Object', keys %Moo::MAKERS;
+  inject_fake_metaclass_for($_) for keys %Moo::Role::INFO;
 }
 
 sub inject_fake_metaclass_for {
@@ -25,12 +26,12 @@ sub inject_real_metaclass_for {
   return Class::MOP::get_metaclass_by_name($name) if $DID_INJECT{$name};
   require Moose; require Moo; require Moo::Role;
   Class::MOP::remove_metaclass_by_name($name);
-  my ($meta, $attr_specs) = do {
+  my ($am_role, $meta, $attr_specs) = do {
     if (my $info = $Moo::Role::INFO{$name}) {
-      (Moose::Meta::Role->initialize($name), $info->{attributes})
+      (1, Moose::Meta::Role->initialize($name), $info->{attributes})
     } else {
       my $specs = Moo->_constructor_maker_for($name)->all_attribute_specs;
-      (Moose::Meta::Class->initialize($name), $specs);
+      (0, Moose::Meta::Class->initialize($name), $specs);
     }
   };
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
@@ -41,9 +42,11 @@ sub inject_real_metaclass_for {
       push @attrs, $meta->add_attribute($name => %{$attr_specs->{$name}});
     }
   }
-  foreach my $attr (@attrs) {
-    foreach my $method (@{$attr->associated_methods}) {
-      $method->{body} = $name->can($method->name);
+  unless ($am_role) {
+    foreach my $attr (@attrs) {
+      foreach my $method (@{$attr->associated_methods}) {
+        $method->{body} = $name->can($method->name);
+      }
     }
   }
   $DID_INJECT{$name} = 1;
