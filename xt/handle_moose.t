@@ -1,4 +1,5 @@
 use strictures 1;
+use Test::Exception;
 
 BEGIN { require "t/moo-accessors.t"; }
 
@@ -23,5 +24,27 @@ Moose::Util::apply_all_roles($meta, 'Bar');
 my $spoon = Spoon->new(four => 4);
 
 is($spoon->four, 4, 'Role application ok');
+
+{
+   package MooRequiresFour;
+
+   use Moo::Role;
+
+   requires 'four';
+
+   package MooRequiresGunDog;
+
+   use Moo::Role;
+
+   requires 'gun_dog';
+}
+
+lives_ok {
+   Moose::Util::apply_all_roles($meta, 'MooRequiresFour');
+} 'apply role with satisified requirement';
+
+dies_ok {
+   Moose::Util::apply_all_roles($meta, 'MooRequiresGunDog');
+} 'apply role with unsatisified requirement';
 
 done_testing;
