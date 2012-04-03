@@ -4,7 +4,7 @@ use Test::More;
 use Moo::HandleMoose;
 
 {
-   package ModifyFoo;
+   package FooAttr;
    use Moo::Role;
 
    our $before_ran = 0;
@@ -21,6 +21,7 @@ use Moo::HandleMoose;
 
    package Bar;
    use Moose;
+   with 'FooAttr';
 
    sub foo { }
 }
