@@ -16,7 +16,7 @@ use Moo::HandleMoose;
    around foo => sub {
       my ($orig, $self, @rest) = @_;
       $self->$orig(@rest);
-      $after_ran = 1;
+      $around_ran = 1;
    };
 
    package Bar;

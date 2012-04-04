@@ -46,7 +46,12 @@ sub inject_real_metaclass_for {
     }
   }
   if ($am_role) {
-    $meta->add_required_methods(@{$Moo::Role::INFO{$name}{requires}});
+    my $info = $Moo::Role::INFO{$name};
+    $meta->add_required_methods(@{$info->{requires}});
+    foreach my $modifier (@{$info->{modifiers}}) {
+      my ($type, @args) = @$modifier;
+      $meta->${\"add_${type}_method_modifier"}(@args);
+    }
   } else {
     foreach my $attr (@attrs) {
       foreach my $method (@{$attr->associated_methods}) {
