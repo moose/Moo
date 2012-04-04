@@ -26,9 +26,9 @@ use Moo::HandleMoose;
    has frew => (
       is => 'rw',
       default => quote_sub(q{
-         $quoted_default_ran = 1;
+         $$quoted_default_ran = 1;
          'test frew'
-      }, { '$quoted_default_ran' => \$quoted_default_ran }),
+      }, { '$quoted_default_ran' => \\$quoted_default_ran }),
       lazy => 1,
    );
 
