@@ -37,12 +37,17 @@ sub inject_real_metaclass_for {
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
   my @attrs;
   {
+    # This local is completely not required for roles but harmless
     local @{_getstash($name)}{keys %methods};
     foreach my $name (keys %$attr_specs) {
-      push @attrs, $meta->add_attribute($name => %{$attr_specs->{$name}});
+      my %spec = %{$attr_specs->{$name}};
+      $spec{is} = 'ro' if $spec{is} eq 'lazy';
+      push @attrs, $meta->add_attribute($name => %spec);
     }
   }
-  unless ($am_role) {
+  if ($am_role) {
+    $meta->add_required_methods(@{$Moo::Role::INFO{$name}{requires}});
+  } else {
     foreach my $attr (@attrs) {
       foreach my $method (@{$attr->associated_methods}) {
         $method->{body} = $name->can($method->name);

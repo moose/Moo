@@ -1,5 +1,7 @@
   - Introduce Moo::HandleMoose, which should allow Moo classes and roles
-    to be treated as Moose classes/roles
+    to be treated as Moose classes/roles. Supported so far:
+    - Some level of attributes and methods for both classes and roles
+    - Required methods in roles
 
 0.009014 - 2012-03-29
   - Split Role::Tiny out into its own dist
