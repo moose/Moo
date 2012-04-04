@@ -47,8 +47,7 @@ sub inject_real_metaclass_for {
       if (my $isa = $spec{isa}) {
         $spec{isa} = do {
           if (my $mapped = $TYPE_MAP{$isa}) {
-            _load_module($mapped->[1]) if $mapped->[1];
-            Moose::Util::TypeConstraints::find_type_constraint($mapped->[0])
+            $mapped->();
           } else {
             Moose::Meta::TypeConstraint->new(
               constraint => sub { eval { &$isa; 1 } }
