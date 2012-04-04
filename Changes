@@ -3,6 +3,7 @@
     - Some level of attributes and methods for both classes and roles
     - Required methods in roles
     - Method modifiers in roles (they're already applied in classes)
+    - Type constraints
 
 0.009014 - 2012-03-29
   - Split Role::Tiny out into its own dist

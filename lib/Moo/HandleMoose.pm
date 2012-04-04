@@ -3,6 +3,8 @@ package Moo::HandleMoose;
 use strictures 1;
 use Moo::_Utils;
 
+our %TYPE_MAP;
+
 sub import { inject_all() }
 
 sub inject_all {
@@ -42,6 +44,18 @@ sub inject_real_metaclass_for {
     foreach my $name (keys %$attr_specs) {
       my %spec = %{$attr_specs->{$name}};
       $spec{is} = 'ro' if $spec{is} eq 'lazy';
+      if (my $isa = $spec{isa}) {
+        $spec{isa} = do {
+          if (my $mapped = $TYPE_MAP{$isa}) {
+            _load_module($mapped->[1]) if $mapped->[1];
+            Moose::Util::TypeConstraints::find_type_constraint($mapped->[0])
+          } else {
+            Moose::Meta::TypeConstraint->new(
+              constraint => sub { eval { &$isa; 1 } }
+            );
+          }
+        };
+      }
       push @attrs, $meta->add_attribute($name => %spec);
     }
   }
