@@ -5,7 +5,9 @@ use Moo::_Utils;
 
 our %TYPE_MAP;
 
-sub import { inject_all() }
+our $SETUP_DONE;
+
+sub import { return if $SETUP_DONE; inject_all(); $SETUP_DONE = 1; }
 
 sub inject_all {
   require Class::MOP;
@@ -72,6 +74,8 @@ sub inject_real_metaclass_for {
       }
     }
   }
+  $meta->add_role(Class::MOP::class_of($_))
+    for keys %{$Role::Tiny::APPLIED_TO{$name}};
   $DID_INJECT{$name} = 1;
   $meta;
 }
