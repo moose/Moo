@@ -100,7 +100,7 @@ run_for 'LazyDefault';
 
   has one => (is => 'rw', trigger => 1 );
 
-  sub _one_trigger { push @::tr, $_[1] }
+  sub _trigger_one { push @::tr, $_[1] }
 }
 
 run_for 'Shaz';

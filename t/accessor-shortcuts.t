@@ -30,20 +30,14 @@ my $foo = Foo->new;
 {
   is $foo->{lazy}, undef, "lazy value storage is undefined";
   is $foo->lazy, $test, "lazy value returns test value when called";
-  like exception { $foo->lazy($test) }, qr/Usage: Foo::lazy\(self\)/, "lazy is read_only";
-
-  my $foo_with_args = Foo->new(lazy => $test);
-  is $foo_with_args->{lazy}, undef, "lazy ignores constructor value";
+  ok exception { $foo->lazy($test) }, "lazy is read_only";
 }
 
 # lazy + default
 {
   is $foo->{lazy_default}, undef, "lazy_default value storage is undefined";
   is $foo->lazy_default, $lazy_default, "lazy_default value returns test value when called";
-  like exception { $foo->lazy_default($test) }, qr/Usage: Foo::lazy\(self\)/, "lazy_default is read_only";
-
-  my $foo_with_args = Foo->new(lazy_default => $test);
-  is $foo_with_args->{lazy_default}, undef, "lazy_default ignores constructor value";
+  ok exception { $foo->lazy_default($test) }, "lazy_default is read_only";
 }
 
 done_testing;

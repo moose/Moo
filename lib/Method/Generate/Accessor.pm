@@ -23,12 +23,24 @@ sub generate_method {
   } elsif ($is eq 'rw') {
     $spec->{accessor} = $name unless exists $spec->{accessor};
   } elsif ($is eq 'lazy') {
-    $spec->{init_arg} = undef unless exists $spec->{init_arg};
     $spec->{reader} = $name unless exists $spec->{reader};
     $spec->{lazy} = 1;
     $spec->{builder} ||= '_build_'.$name unless $spec->{default};
+  } elsif ($is eq 'rwp') {
+    $spec->{reader} = $name unless exists $spec->{reader};
+    $spec->{writer} = "_set_${name}" unless exists $spec->{writer};
   } elsif ($is ne 'bare') {
     die "Unknown is ${is}";
+  }
+  $spec->{builder} = '_build_'.$name if ($spec->{builder}||0) eq 1;
+  if (($spec->{predicate}||0) eq 1) {
+    $spec->{predicate} = $name =~ /^_/ ? "_has${name}" : "has_${name}";
+  }
+  if (($spec->{clearer}||0) eq 1) {
+    $spec->{clearer} = $name =~ /^_/ ? "_clear${name}" : "clear_${name}";
+  }
+  if (($spec->{trigger}||0) eq 1) {
+    $spec->{trigger} = quote_sub('shift->_trigger_'.$name.'(@_)');
   }
   my %methods;
   if (my $reader = $spec->{reader}) {

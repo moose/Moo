@@ -1,3 +1,4 @@
+  - Complete support for MooseX::AttributeShortcuts 0.009
   - Allow Moo classes to compose Moose roles
   - Introduce Moo::HandleMoose, which should allow Moo classes and roles
     to be treated as Moose classes/roles. Supported so far:
