@@ -28,8 +28,55 @@ sub import {
   goto &Role::Tiny::import;
 }
 
+sub _inhale_if_moose {
+  my ($self, $role) = @_;
+  _load_module($role);
+  if (!$INFO{$role} and $INC{"Moose.pm"}) {
+    if (my $meta = Class::MOP::class_of($role)) {
+      $INFO{$role}{methods} = {
+        map +($_ => $role->can($_)), $meta->get_method_list
+      };
+      $Role::Tiny::APPLIED_TO{$role} = {
+        map +($_->name => 1), $meta->calculate_all_roles
+      };
+      $INFO{$role}{requires} = [ $meta->get_required_method_list ];
+      $INFO{$role}{attributes} = {
+        map +($_ => $meta->get_attribute($_)), $meta->get_attribute_list
+      };
+      my $mods = $INFO{$role}{modifiers} = [];
+      foreach my $type (qw(before after around)) {
+        my $map = $meta->${\"get_${type}_method_modifiers_map"};
+        foreach my $method (keys %$map) {
+          foreach my $mod (@{$map->{$method}}) {
+            push @$mods, [ $type => $method => $mod ];
+          }
+        }
+      }
+      require Class::Method::Modifiers if @$mods;
+      $INFO{$role}{inhaled_from_moose} = 1;
+    }
+  }
+}
+
+sub _make_accessors_if_moose {
+  my ($self, $role, $target) = @_;
+  if ($INFO{$role}{inhaled_from_moose}) {
+    if (my $attrs = $INFO{$role}{attributes}) {
+      my $acc_gen = ($Moo::MAKERS{$target}{accessor} ||= do {
+        require Method::Generate::Accessor;
+        Method::Generate::Accessor->new
+      });
+      foreach my $name (keys %{$attrs}) {
+        $acc_gen->generate_method($target, $name, $attrs->{$name});
+      }
+    }
+  }
+}
+
 sub apply_role_to_package {
   my ($me, $to, $role) = @_;
+  $me->_inhale_if_moose($role);
+  $me->_make_accessors_if_moose($role, $to);
   $me->SUPER::apply_role_to_package($to, $role);
   $me->_handle_constructor($to, $INFO{$role}{attributes});
 }
@@ -42,6 +89,8 @@ sub create_class_with_roles {
   );
 
   return $new_name if $Role::Tiny::COMPOSED{class}{$new_name};
+
+  $me->_inhale_if_moose($_) for @roles;
 
   require Sub::Quote;
 
@@ -58,6 +107,14 @@ sub create_class_with_roles {
   );
 
   return $new_name;
+}
+
+sub _composable_package_for {
+  my ($self, $role) = @_;
+  my $composed_name = 'Role::Tiny::_COMPOSABLE::'.$role;
+  return $composed_name if $Role::Tiny::COMPOSED{role}{$composed_name};
+  $self->_make_accessors_if_moose($role, $composed_name);
+  $self->SUPER::_composable_package_for($role);
 }
 
 sub _install_single_modifier {
