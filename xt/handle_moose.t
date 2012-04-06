@@ -3,7 +3,7 @@ use Test::Exception;
 
 BEGIN { require "t/moo-accessors.t"; }
 
-use Moo::HandleMoose;
+require Moose;
 
 my $meta = Class::MOP::get_metaclass_by_name('Foo');
 
