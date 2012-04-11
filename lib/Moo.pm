@@ -33,8 +33,7 @@ sub import {
   };
   *{_getglob("${target}::with")} = sub {
     require Moo::Role;
-    die "Only one role supported at a time by with" if @_ > 1;
-    Moo::Role->apply_role_to_package($target, $_[0]);
+    Moo::Role->apply_roles_to_package($target, $_[0]);
   };
   $MAKERS{$target} = {};
   *{_getglob("${target}::has")} = sub {

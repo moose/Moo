@@ -73,11 +73,11 @@ sub _make_accessors_if_moose {
   }
 }
 
-sub apply_role_to_package {
+sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
   $me->_inhale_if_moose($role);
   $me->_make_accessors_if_moose($role, $to);
-  $me->SUPER::apply_role_to_package($to, $role);
+  $me->SUPER::apply_single_role_to_package($to, $role);
   $me->_handle_constructor($to, $INFO{$role}{attributes});
 }
 
