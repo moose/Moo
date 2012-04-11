@@ -7,17 +7,7 @@ use B 'perlstring';
 our $VERSION = '0.009014'; # 0.9.13
 $VERSION = eval $VERSION;
 
-sub Moo::HandleMoose::AuthorityHack::DESTROY {
-  require Moo::HandleMoose;
-  Moo::HandleMoose->import;
-}
-
-if ($INC{"Moose.pm"}) {
-  require Moo::HandleMoose;
-  Moo::HandleMoose->import;
-} else {
-  $Moose::AUTHORITY = bless({}, 'Moo::HandleMoose::AuthorityHack');
-}
+require Moo::sification;
 
 our %MAKERS;
 
