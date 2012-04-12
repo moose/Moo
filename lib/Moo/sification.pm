@@ -2,9 +2,13 @@ package Moo::sification;
 
 use strictures 1;
 
+END { our $sky_falling = 1 }
+
 sub Moo::HandleMoose::AuthorityHack::DESTROY {
-  require Moo::HandleMoose;
-  Moo::HandleMoose->import;
+  unless (our $sky_falling) {
+    require Moo::HandleMoose;
+    Moo::HandleMoose->import;
+  }
 }
 
 if ($INC{"Moose.pm"}) {
