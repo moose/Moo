@@ -1,3 +1,4 @@
+0.009_016 - 2012-04-12
   - don't accidentally load Moo::HandleMoose during global destruction
   - better docs for trigger (and initializer's absence)
 
