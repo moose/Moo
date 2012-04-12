@@ -1,3 +1,5 @@
+  - better docs for trigger (and initializer's absence)
+
 0.009_015 - 2012-04-11
   - Complete support for MooseX::AttributeShortcuts 0.009
   - Allow Moo classes to compose Moose roles
