@@ -91,8 +91,11 @@ sub _constructor_maker_for {
             ? ($con ? $con->construction_string : undef)
             : ('$class->'.$target.'::SUPER::new(@_)')
         ),
-        subconstructor_generator => (
-          $class.'->_constructor_maker_for($class,'.perlstring($target).')'
+        subconstructor_handler => (
+          '      if ($Moo::MAKERS{$class}) {'."\n"
+          .'        '.$class.'->_constructor_maker_for($class,'.perlstring($target).');'."\n"
+          .'        return $class->new(@_)'.";\n"
+          .'      }'."\n"
         ),
       )
       ->install_delayed

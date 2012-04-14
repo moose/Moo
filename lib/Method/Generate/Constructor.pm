@@ -73,10 +73,9 @@ sub generate_method {
 
 sub _handle_subconstructor {
   my ($self, $into, $name) = @_;
-  if (my $gen = $self->{subconstructor_generator}) {
+  if (my $gen = $self->{subconstructor_handler}) {
     '    if ($class ne '.perlstring($into).') {'."\n".
-    '      '.$gen.";\n".
-    '      return $class->'.$name.'(@_)'.";\n".
+    $gen.
     '    }'."\n";
   } else {
     ''
