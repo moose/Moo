@@ -1,3 +1,4 @@
+  - mangle constructor meta-method on inflation so make_immutable works
   - fix possible infinite loop caused by subconstructor code
 
 0.009_016 - 2012-04-12

@@ -13,6 +13,8 @@ sub inject_all {
   require Class::MOP;
   inject_fake_metaclass_for($_) for grep $_ ne 'Moo::Object', keys %Moo::MAKERS;
   inject_fake_metaclass_for($_) for keys %Moo::Role::INFO;
+  require Moose::Meta::Method::Constructor;
+  @Moo::HandleMoose::FakeConstructor::ISA = 'Moose::Meta::Method::Constructor';
 }
 
 sub inject_fake_metaclass_for {
@@ -24,6 +26,13 @@ sub inject_fake_metaclass_for {
 }
 
 our %DID_INJECT;
+
+{
+  package Moo::HandleMoose::FakeConstructor;
+
+  sub _uninlined_body { \&Moose::Object::new }
+}
+    
 
 sub inject_real_metaclass_for {
   my ($name) = @_;
@@ -74,6 +83,10 @@ sub inject_real_metaclass_for {
         $method->{body} = $name->can($method->name);
       }
     }
+    bless(
+      $meta->find_method_by_name('new'),
+      'Moo::HandleMoose::FakeConstructor',
+    );
   }
   $meta->add_role(Class::MOP::class_of($_))
     for keys %{$Role::Tiny::APPLIED_TO{$name}};
