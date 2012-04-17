@@ -73,12 +73,9 @@ sub inject_real_metaclass_for {
         my $attr = perlstring($name);
         my $tc = Moose::Meta::TypeConstraint->new(
                    constraint => sub { die "This is not going to work" },
-                   inlined => sub { 'my $res = $_[42]{'.$attr.'}; $_[42]{'.$attr.'} = 1; $res' },
-                   #coercion => Moose::Meta::TypeCoercion->new(
-                   #  type_coercion_map => [
-                   #    'Item', $coerce
-                   #  ]
-                   #)
+                   inlined => sub {
+                      'my $r = $_[42]{'.$attr.'}; $_[42]{'.$attr.'} = 1; $r'
+                   },
                  );
          $tc->coercion(Moose::Meta::TypeCoercion->new)
             ->_compiled_type_coercion($coerce);
