@@ -22,6 +22,23 @@ use Moo::HandleMoose;
    package Bar;
    use Moose;
    with 'FrewWithIsa';
+
+   package OffByOne;
+   use Moo::Role;
+
+   has off_by_one => (is => 'rw', coerce => sub { $_[0] + 1 });
+
+   package Baz;
+   use Moo;
+
+   with 'OffByOne';
+
+   package Quux;
+   use Moose;
+
+   with 'OffByOne';
+
+   __PACKAGE__->meta->make_immutable;
 }
 
 lives_ok {
@@ -35,5 +52,20 @@ dies_ok {
 dies_ok {
    Bar->new(frooh => 1, frew => 'goose');
 } 'creation of invalid Bar validated by quoted sub';
+
+sub test_off_by_one {
+  my ($class, $type) = @_;
+
+  my $obo = $class->new(off_by_one => 1);
+
+  is($obo->off_by_one, 2, "Off by one (new) ($type)");
+
+  $obo->off_by_one(41);
+
+  is($obo->off_by_one, 42, "Off by one (set) ($type)");
+}
+
+test_off_by_one('Baz', 'Moo');
+test_off_by_one('Quux', 'Moose');
 
 done_testing;

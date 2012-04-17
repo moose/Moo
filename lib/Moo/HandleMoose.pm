@@ -2,6 +2,7 @@ package Moo::HandleMoose;
 
 use strictures 1;
 use Moo::_Utils;
+use B qw(perlstring);
 
 our %TYPE_MAP;
 
@@ -11,7 +12,8 @@ sub import { return if $SETUP_DONE; inject_all(); $SETUP_DONE = 1; }
 
 sub inject_all {
   require Class::MOP;
-  inject_fake_metaclass_for($_) for grep $_ ne 'Moo::Object', keys %Moo::MAKERS;
+  inject_fake_metaclass_for($_)
+    for grep $_ ne 'Moo::Object', do { no warnings 'once'; keys %Moo::MAKERS };
   inject_fake_metaclass_for($_) for keys %Moo::Role::INFO;
   require Moose::Meta::Method::Constructor;
   @Moo::HandleMoose::FakeConstructor::ISA = 'Moose::Meta::Method::Constructor';
@@ -66,6 +68,22 @@ sub inject_real_metaclass_for {
             );
           }
         };
+        die "Aaaargh" if $spec{coerce};
+      } elsif (my $coerce = $spec{coerce}) {
+        my $attr = perlstring($name);
+        my $tc = Moose::Meta::TypeConstraint->new(
+                   constraint => sub { die "This is not going to work" },
+                   inlined => sub { 'my $res = $_[42]{'.$attr.'}; $_[42]{'.$attr.'} = 1; $res' },
+                   #coercion => Moose::Meta::TypeCoercion->new(
+                   #  type_coercion_map => [
+                   #    'Item', $coerce
+                   #  ]
+                   #)
+                 );
+         $tc->coercion(Moose::Meta::TypeCoercion->new)
+            ->_compiled_type_coercion($coerce);
+         $spec{isa} = $tc;
+         $spec{coerce} = 1;
       }
       push @attrs, $meta->add_attribute($name => %spec);
     }
@@ -89,7 +107,7 @@ sub inject_real_metaclass_for {
     );
   }
   $meta->add_role(Class::MOP::class_of($_))
-    for keys %{$Role::Tiny::APPLIED_TO{$name}};
+    for do { no warnings 'once'; keys %{$Role::Tiny::APPLIED_TO{$name}} };
   $DID_INJECT{$name} = 1;
   $meta;
 }
