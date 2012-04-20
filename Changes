@@ -1,3 +1,6 @@
+  - fix bug in _load_module where global vars could cause mis-detection
+    of the module already being loaded
+
 0.009_017 - 2012-04-16
   - mangle constructor meta-method on inflation so make_immutable works
   - fix possible infinite loop caused by subconstructor code
