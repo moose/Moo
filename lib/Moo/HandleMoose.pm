@@ -50,6 +50,8 @@ sub inject_real_metaclass_for {
     }
   };
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
+  # needed to ensure the method body is stable and get things named
+  Sub::Defer::undefer_sub($_) for grep defined, values %methods;
   my @attrs;
   {
     # This local is completely not required for roles but harmless
