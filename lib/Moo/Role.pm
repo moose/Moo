@@ -14,7 +14,7 @@ sub import {
   return if $INFO{$target}; # already exported into this package
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
-  *{_getglob "${target}::has"} = sub {
+  _install_coderef "${target}::has" => sub {
     my ($name, %spec) = @_;
     ($INFO{$target}{accessor_maker} ||= do {
       require Method::Generate::Accessor;

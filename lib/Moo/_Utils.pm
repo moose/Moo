@@ -5,12 +5,8 @@ no warnings 'once'; # guard against -w
 sub _getglob { \*{$_[0]} }
 sub _getstash { \%{"$_[0]::"} }
 
-BEGIN {
-  *lt_5_8_3 = $] < 5.008003
-    ? sub () { 1 }
-    : sub () { 0 }
-  ;
-}
+use constant lt_5_8_3 => ( $] < 5.008003 ) ? 1 : 0;
+use constant can_haz_subname => eval { require Sub::Name };
 
 use strictures 1;
 use Module::Runtime qw(require_module);
@@ -19,7 +15,7 @@ use Moo::_mro;
 
 our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
-    _get_linear_isa _getstash
+    _get_linear_isa _getstash _install_coderef _name_coderef
 );
 
 sub _install_modifier {
@@ -62,7 +58,15 @@ sub _maybe_load_module {
 }
 
 sub _get_linear_isa {
-    return mro::get_linear_isa($_[0]);
+  return mro::get_linear_isa($_[0]);
+}
+
+sub _install_coderef {
+  *{_getglob($_[0])} = _name_coderef(@_);
+}
+
+sub _name_coderef {
+  can_haz_subname ? Sub::Name::subname(@_) : $_[1];
 }
 
 our $_in_global_destruction = 0;

@@ -18,6 +18,9 @@ sub undefer_sub {
   # make sure the method slot has not changed since deferral time
   if (defined($target) && $deferred eq *{_getglob($target)}{CODE}||'') {
     no warnings 'redefine';
+
+    # I believe $maker already evals with the right package/name, so that
+    # _install_coderef calls are not necessary --ribasushi
     *{_getglob($target)} = $made;
   }
   push @{$DEFERRED{$made} = $DEFERRED{$deferred}}, $made;
@@ -39,7 +42,7 @@ sub defer_sub {
   };
   $deferred_string = "$deferred";
   $DEFERRED{$deferred} = [ $target, $maker, \$undeferred ];
-  *{_getglob $target} = $deferred if defined($target);
+  _install_coderef $target => $deferred if defined $target;
   return $deferred;
 }
 
