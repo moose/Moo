@@ -1,3 +1,4 @@
+  - make extends after has work
   - name subs if Sub::Name is available for better stracktraces
   - undefer all subs before creating a concrete Moose metaclass
   - fix bug in _load_module where global vars could cause mis-detection
