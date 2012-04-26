@@ -1,3 +1,4 @@
+  - better error message for broken BUILDARGS
   - provide 'no Moo::sification' to forcibly disable metaclass inflation
   - switch to Devel::GlobalDestruction to correctly disarm the
     Moo::sification trigger under threads

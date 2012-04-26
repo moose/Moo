@@ -1,5 +1,6 @@
 use strictures 1;
 use Test::More;
+use Test::Fatal;
 
 {
     package Foo;
@@ -15,7 +16,11 @@ use Test::More;
     }
 }
 
-my $f = Foo->new({ bar => 1, baz => 1 });
+like(
+  exception { Foo->new({ bar => 1, baz => 1 }) },
+  qr/BUILDARGS did not return a hashref/,
+  'Sensible error message'
+);
 
 done_testing;
 

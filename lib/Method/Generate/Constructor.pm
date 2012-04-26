@@ -90,7 +90,9 @@ sub _cap_call {
 
 sub _generate_args_via_buildargs {
   my ($self) = @_;
-  q{    my $args = $class->BUILDARGS(@_);}."\n";
+  q{    my $args = $class->BUILDARGS(@_);}."\n"
+  .q{    die "BUILDARGS did not return a hashref" unless ref($args) eq 'HASH';}
+  ."\n";
 }
 
 # inlined from Moo::Object - update that first.
