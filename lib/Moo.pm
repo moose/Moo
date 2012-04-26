@@ -203,13 +203,12 @@ or
 
 =head2 BUILDARGS
 
- around BUILDARGS => sub {
-   my $orig = shift;
+ sub BUILDARGS {
    my ( $class, @args ) = @_;
 
    unshift @args, "attr1" if @args % 2 == 1;
 
-   return $class->$orig(@args);
+   return { @args };
  };
 
  Foo::Bar->new( 3 );
@@ -478,7 +477,7 @@ No support for C<super>, C<override>, C<inner>, or C<augment> - override can
 be handled by around albeit with a little more typing, and the author considers
 augment to be a bad idea.
 
-The C<dump> method is not provided by default. The author suggests loading 
+The C<dump> method is not provided by default. The author suggests loading
 L<Devel::Dwarn> into C<main::> (via C<perl -MDevel::Dwarn ...> for example) and
 using C<$obj-E<gt>$::Dwarn()> instead.
 
