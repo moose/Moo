@@ -10,6 +10,7 @@ use constant can_haz_subname => eval { require Sub::Name };
 
 use strictures 1;
 use Module::Runtime qw(require_module);
+use Devel::GlobalDestruction;
 use base qw(Exporter);
 use Moo::_mro;
 
@@ -69,9 +70,6 @@ sub _name_coderef {
   can_haz_subname ? Sub::Name::subname(@_) : $_[1];
 }
 
-our $_in_global_destruction = 0;
-END { $_in_global_destruction = 1 }
-
 sub STANDARD_DESTROY {
   my $self = shift;
 
@@ -79,7 +77,7 @@ sub STANDARD_DESTROY {
     local $?;
     local $@;
     eval {
-      $self->DEMOLISHALL($_in_global_destruction);
+      $self->DEMOLISHALL(in_global_destruction);
     };
     $@;
   };

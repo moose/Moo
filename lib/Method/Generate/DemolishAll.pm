@@ -2,6 +2,7 @@ package Method::Generate::DemolishAll;
 
 use strictures 1;
 use base qw(Moo::Object);
+use Devel::GlobalDestruction ();
 use Sub::Quote;
 use Moo::_Utils;
 use B qw(perlstring);
@@ -20,7 +21,7 @@ sub generate_method {
       local $@;
       require Moo::_Utils;
       eval {
-        $self->DEMOLISHALL($Moo::_Utils::_in_global_destruction);
+        $self->DEMOLISHALL(Devel::GlobalDestruction::in_global_destruction);
       };
       $@;
     };
