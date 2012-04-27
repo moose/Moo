@@ -191,6 +191,27 @@ Hence - Moo exists as its name - Minimal Object Orientation - with a pledge
 to make it smooth to upgrade to L<Moose> when you need more than minimal
 features.
 
+=head1 Moo and Moose - NEW, EXPERIMENTAL
+
+If L<Moo> detects L<Moose> being loaded, it will automatically register
+metaclasses for your L<Moo> and L<Moo::Role> packages, so you should be able
+to use them in L<Moose> code without it ever realising you aren't using
+L<Moose> everywhere.
+
+Extending a L<Moose> class or consuming a L<Moose::Role> should also work.
+
+However, these features are new as of 0.91.0 (0.091000) so they may not
+be 100% yet; please do report bugs.
+
+If you need to disable the metaclass creation, add:
+
+  no Moo::sification;
+
+to your code before Moose is loaded, but bear in mind that this switch is
+currently global and turns the mechanism off entirely, so don't put this
+in library code, only in a top level script as a temporary measure while
+you send a bug report.
+
 =head1 IMPORTED METHODS
 
 =head2 new
