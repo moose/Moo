@@ -4,7 +4,7 @@ use strictures 1;
 use Moo::_Utils;
 use B 'perlstring';
 
-our $VERSION = '0.009_017'; # 0.9.17
+our $VERSION = '0.091000'; # 0.91.0
 $VERSION = eval $VERSION;
 
 require Moo::sification;
