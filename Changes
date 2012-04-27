@@ -1,3 +1,4 @@
+0.091000 - 2012-04-27
   - document MX::AttributeShortcuts 009+ support
   - documentation for the metaclass inflation code
   - better error message for broken BUILDARGS
