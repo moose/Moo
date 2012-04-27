@@ -200,8 +200,11 @@ L<Moose> everywhere.
 
 Extending a L<Moose> class or consuming a L<Moose::Role> should also work.
 
-However, these features are new as of 0.91.0 (0.091000) so they may not
-be 100% yet; please do report bugs.
+This means that there is no need for anything like L<Any::Moose> for Moo
+code - Moo and Moose code should simply interoperate without problem.
+
+However, these features are new as of 0.91.0 (0.091000) so while serviceable,
+they are absolutely certain to not be 100% yet; please do report bugs.
 
 If you need to disable the metaclass creation, add:
 
@@ -549,6 +552,10 @@ Finally, Moose requires you to call
 at the end of your class to get an inlined (i.e. not horribly slow)
 constructor. Moo does it automatically the first time ->new is called
 on your class.
+
+=head1 SUPPORT
+
+IRC: #web-simple on irc.perl.org
 
 =head1 AUTHOR
 
