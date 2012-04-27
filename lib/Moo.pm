@@ -520,7 +520,7 @@ similar invocation for L<Moose> would be:
 
 Additionally, L<Moo> supports a set of attribute option shortcuts intended to
 reduce common boilerplate.  The set of shortcuts is the same as in the L<Moose>
-module L<MooseX::AttributeShortcuts>.  So if you:
+module L<MooseX::AttributeShortcuts> as of its version 0.009+.  So if you:
 
     package MyClass;
     use Moo;
