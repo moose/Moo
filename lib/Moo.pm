@@ -33,12 +33,10 @@ sub import {
   $MAKERS{$target} = {};
   _install_coderef "${target}::has" => sub {
     my ($name, %spec) = @_;
-    ($MAKERS{$target}{accessor} ||= do {
-      require Method::Generate::Accessor;
-      Method::Generate::Accessor->new
-    })->generate_method($target, $name, \%spec);
     $class->_constructor_maker_for($target)
           ->register_attribute_specs($name, \%spec);
+    $class->_accessor_maker_for($target)
+          ->generate_method($target, $name, \%spec);
   };
   foreach my $type (qw(before after around)) {
     _install_coderef "${target}::${type}" => sub {
@@ -54,6 +52,31 @@ sub import {
   }
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
+  }
+}
+
+sub _accessor_maker_for {
+  my ($class, $target) = @_;
+  return unless $MAKERS{$target};
+  $MAKERS{$target}{accessor} ||= do {
+    my $maker_class = do {
+      if (my $m = do {
+            if (my $defer_target = 
+                  (Sub::Defer::defer_info($target->can('new'))||[])->[0]
+              ) {
+              my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
+              $MAKERS{$pkg} && $MAKERS{$pkg}{accessor};
+            } else {
+              undef;
+            }
+          }) {
+        ref($m);
+      } else {
+        require Method::Generate::Accessor;
+        'Method::Generate::Accessor'
+      }
+    };
+    $maker_class->new;
   }
 }
 
@@ -84,13 +107,10 @@ sub _constructor_maker_for {
         $moo_constructor = 1; # no other constructor, make a Moo one
       }
     };
-    Method::Generate::Constructor
+    ($con ? ref($con) : 'Method::Generate::Constructor')
       ->new(
         package => $target,
-        accessor_generator => do {
-          require Method::Generate::Accessor;
-          Method::Generate::Accessor->new;
-        },
+        accessor_generator => $class->_accessor_maker_for($target),
         construction_string => (
           $moo_constructor
             ? ($con ? $con->construction_string : undef)

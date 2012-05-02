@@ -7,8 +7,13 @@ use Sub::Defer;
 use B 'perlstring';
 
 sub register_attribute_specs {
-  my ($self, %spec) = @_;
-  @{$self->{attribute_specs}||={}}{keys %spec} = values %spec;
+  my ($self, @new_specs) = @_;
+  my $specs = $self->{attribute_specs}||={};
+  while (my ($name, $new_spec) = splice @new_specs, 0, 2) {
+    $new_spec->{index} = scalar keys %$specs
+      unless exists $new_spec->{index};
+    $specs->{$name} = $new_spec;
+  }
   $self;
 }
 
@@ -22,7 +27,10 @@ sub accessor_generator {
 
 sub construction_string {
   my ($self) = @_;
-  $self->{construction_string} or 'bless({}, $class);'
+  $self->{construction_string}
+    or 'bless('
+       .$self->accessor_generator->default_construction_string
+       .', $class);'
 }
 
 sub install_delayed {

@@ -102,7 +102,7 @@ sub generate_method {
   if (my $cl = $spec->{clearer}) {
     $methods{$cl} =
       quote_sub "${into}::${cl}" => 
-        "    delete \$_[0]->{${\perlstring $name}}\n"
+        $self->_generate_simple_clear('$_[0]', $name)."\n"
       ;
   }
   if (my $hspec = $spec->{handles}) {
@@ -179,6 +179,11 @@ sub _generate_get {
 sub _generate_simple_has {
   my ($self, $me, $name) = @_;
   "exists ${me}->{${\perlstring $name}}";
+}
+
+sub _generate_simple_clear {
+  my ($self, $me, $name) = @_;
+  "    delete ${me}->{${\perlstring $name}}\n"
 }
 
 sub generate_get_default {
@@ -450,5 +455,7 @@ sub _generate_xs {
   );
   $into->can($name);
 }
+
+sub default_construction_string { '{}' }
 
 1;
