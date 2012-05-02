@@ -58,6 +58,7 @@ sub inject_real_metaclass_for {
     local @{_getstash($name)}{keys %methods};
     foreach my $name (keys %$attr_specs) {
       my %spec = %{$attr_specs->{$name}};
+      delete $spec{index};
       $spec{is} = 'ro' if $spec{is} eq 'lazy' or $spec{is} eq 'rwp';
       delete $spec{asserter};
       if (my $isa = $spec{isa}) {
