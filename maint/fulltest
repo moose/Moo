@@ -1,0 +1,4 @@
+#!/bin/sh
+
+prove -l t xt;
+MOO_XS_DISABLE=1 prove -l t xt
