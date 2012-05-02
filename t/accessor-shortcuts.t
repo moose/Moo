@@ -21,7 +21,7 @@ my $foo = Foo->new;
 # rwp
 {
   is $foo->rwp, undef, "rwp value starts out undefined";
-  like exception { $foo->rwp($test) }, qr/Usage: Foo::rwp\(self\)/, "rwp is read_only";
+  ok exception { $foo->rwp($test) }, "rwp is read_only";
   is exception { $foo->_set_rwp($test) }, undef, "rwp can be set by writer";
   is $foo->rwp, $test, "rwp value was set by writer";
 }
