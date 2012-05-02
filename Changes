@@ -1,3 +1,4 @@
+0.091001 - 2012-05-02
   - bump Role::Tiny dependency to require de-strictures-ed version
   - fix test failure where Class::XSAccessor is not available
 
