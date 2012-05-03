@@ -106,6 +106,15 @@ sub create_class_with_roles {
 
   $me->_inhale_if_moose($_) for @roles;
 
+  my $m;
+  if ($m = Moo->_accessor_maker_for($superclass)
+      and ref($m) ne 'Method::Generate::Accessor') {
+    # old fashioned way time.
+    *{_getglob("${new_name}::ISA")} = [ $superclass ];
+    $me->apply_roles_to_package($new_name, @roles);
+    return $new_name;
+  }
+
   require Sub::Quote;
 
   $me->SUPER::create_class_with_roles($superclass, @roles);
