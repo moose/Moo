@@ -20,7 +20,7 @@ sub import {
       require Method::Generate::Accessor;
       Method::Generate::Accessor->new
     })->generate_method($target, $name, \%spec);
-    $INFO{$target}{attributes}{$name} = \%spec;
+    push @{$INFO{$target}{attributes}||=[]}, $name, \%spec;
   };
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
@@ -40,9 +40,9 @@ sub _inhale_if_moose {
         map +($_->name => 1), $meta->calculate_all_roles
       };
       $INFO{$role}{requires} = [ $meta->get_required_method_list ];
-      $INFO{$role}{attributes} = {
+      $INFO{$role}{attributes} = [
         map +($_ => $meta->get_attribute($_)), $meta->get_attribute_list
-      };
+      ];
       my $mods = $INFO{$role}{modifiers} = [];
       foreach my $type (qw(before after around)) {
         my $map = $meta->${\"get_${type}_method_modifiers_map"};
@@ -61,13 +61,13 @@ sub _inhale_if_moose {
 sub _make_accessors_if_moose {
   my ($self, $role, $target) = @_;
   if ($INFO{$role}{inhaled_from_moose}) {
-    if (my $attrs = $INFO{$role}{attributes}) {
+    if (my @attrs = @{$INFO{$role}{attributes}||[]}) {
       my $acc_gen = ($Moo::MAKERS{$target}{accessor} ||= do {
         require Method::Generate::Accessor;
         Method::Generate::Accessor->new
       });
-      foreach my $name (keys %{$attrs}) {
-        $acc_gen->generate_method($target, $name, $attrs->{$name});
+      while (my ($name, $spec) = splice @attrs, 0, 2) {
+        $acc_gen->generate_method($target, $name, $spec);
       }
     }
   }
@@ -103,7 +103,7 @@ sub create_class_with_roles {
   $Moo::MAKERS{$new_name} = {};
 
   $me->_handle_constructor(
-    $new_name, { map %{$INFO{$_}{attributes}||{}}, @roles }, $superclass
+    $new_name, [ map @{$INFO{$_}{attributes}||{}}, @roles ], $superclass
   );
 
   return $new_name;
@@ -124,14 +124,14 @@ sub _install_single_modifier {
 
 sub _handle_constructor {
   my ($me, $to, $attr_info, $superclass) = @_;
-  return unless $attr_info && keys %$attr_info;
+  return unless $attr_info && @$attr_info;
   if ($INFO{$to}) {
-    @{$INFO{$to}{attributes}||={}}{keys %$attr_info} = values %$attr_info;
+    push @{$INFO{$to}{attributes}||=[]}, @$attr_info;
   } else {
     # only fiddle with the constructor if the target is a Moo class
     if ($INC{"Moo.pm"}
         and my $con = Moo->_constructor_maker_for($to, $superclass)) {
-      $con->register_attribute_specs(%$attr_info);
+      $con->register_attribute_specs(map ref() ? { %$_ } : $_, @$attr_info);
     }
   }
 }

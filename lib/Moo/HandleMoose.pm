@@ -41,12 +41,18 @@ sub inject_real_metaclass_for {
   return Class::MOP::get_metaclass_by_name($name) if $DID_INJECT{$name};
   require Moose; require Moo; require Moo::Role;
   Class::MOP::remove_metaclass_by_name($name);
-  my ($am_role, $meta, $attr_specs) = do {
+  my ($am_role, $meta, $attr_specs, $attr_order) = do {
     if (my $info = $Moo::Role::INFO{$name}) {
-      (1, Moose::Meta::Role->initialize($name), $info->{attributes})
+      my @attr_info = @{$info->{attributes}||[]};
+      (1, Moose::Meta::Role->initialize($name),
+       { @attr_info },
+       [ @attr_info[grep !($_ % 2), 0..$#attr_info] ]
+      )
     } else {
       my $specs = Moo->_constructor_maker_for($name)->all_attribute_specs;
-      (0, Moose::Meta::Class->initialize($name), $specs);
+      (0, Moose::Meta::Class->initialize($name), $specs,
+       [ sort { $specs->{$a}{index} <=> $specs->{$b}{index} } keys %$specs ]
+      );
     }
   };
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
@@ -56,7 +62,7 @@ sub inject_real_metaclass_for {
   {
     # This local is completely not required for roles but harmless
     local @{_getstash($name)}{keys %methods};
-    foreach my $name (keys %$attr_specs) {
+    foreach my $name (@$attr_order) {
       my %spec = %{$attr_specs->{$name}};
       delete $spec{index};
       $spec{is} = 'ro' if $spec{is} eq 'lazy' or $spec{is} eq 'rwp';

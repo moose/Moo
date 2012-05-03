@@ -1,3 +1,4 @@
+  - preserve attribute ordering
   - factor out accessor generation code a bit more to enable extension
 
 0.091001 - 2012-05-02

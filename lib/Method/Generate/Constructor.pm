@@ -11,7 +11,7 @@ sub register_attribute_specs {
   my $specs = $self->{attribute_specs}||={};
   while (my ($name, $new_spec) = splice @new_specs, 0, 2) {
     $new_spec->{index} = scalar keys %$specs
-      unless exists $new_spec->{index};
+      unless defined $new_spec->{index};
     $specs->{$name} = $new_spec;
   }
   $self;
