@@ -96,13 +96,13 @@ sub generate_method {
   if (my $pred = $spec->{predicate}) {
     $methods{$pred} =
       quote_sub "${into}::${pred}" =>
-        '    '.$self->_generate_simple_has('$_[0]', $name)."\n"
+        '    '.$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
       ;
   }
   if (my $cl = $spec->{clearer}) {
     $methods{$cl} =
       quote_sub "${into}::${cl}" => 
-        $self->_generate_simple_clear('$_[0]', $name)."\n"
+        $self->_generate_simple_clear('$_[0]', $name, $spec)."\n"
       ;
   }
   if (my $hspec = $spec->{handles}) {
@@ -165,13 +165,13 @@ sub has_eager_default {
 
 sub _generate_get {
   my ($self, $name, $spec) = @_;
-  my $simple = $self->_generate_simple_get('$_[0]', $name);
+  my $simple = $self->_generate_simple_get('$_[0]', $name, $spec);
   if ($self->is_simple_get($name, $spec)) {
     $simple;
   } else {
     'do { '.$self->_generate_use_default(
       '$_[0]', $name, $spec,
-      $self->_generate_simple_has('$_[0]', $name),
+      $self->_generate_simple_has('$_[0]', $name, $spec),
     ).'; '.$simple.' }';
   }
 }
@@ -350,7 +350,7 @@ sub _generate_populate_set {
     .($spec->{trigger}
       ? '    '
         .$self->_generate_trigger(
-          $name, $me, $self->_generate_simple_get($me, $name),
+          $name, $me, $self->_generate_simple_get($me, $name, $spec),
           $spec->{trigger}
         )." if ${test};\n"
       : ''
@@ -376,7 +376,7 @@ sub _generate_populate_set {
       .($spec->{trigger}
         ? "      "
           .$self->_generate_trigger(
-            $name, $me, $self->_generate_simple_get($me, $name),
+            $name, $me, $self->_generate_simple_get($me, $name, $spec),
             $spec->{trigger}
           ).";\n"
         : ""

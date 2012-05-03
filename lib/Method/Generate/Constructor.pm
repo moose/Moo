@@ -146,7 +146,7 @@ sub _assign_new {
   join '', (
     @init
       ? '    '.$self->_cap_call($ag->generate_multi_set(
-          '$new', [ @slots ], '@{$args}{qw('.join(' ',@init).')}'
+          '$new', [ @slots ], '@{$args}{qw('.join(' ',@init).')}', $spec
         )).";\n"
       : ''
   ), map {
@@ -205,7 +205,7 @@ sub _fire_triggers {
     my ($init, $trigger) = @{$spec->{$name}}{qw(init_arg trigger)};
     next unless $init && $trigger;
     my ($code, $add_captures) = $acc->generate_trigger(
-      $name, '$new', $acc->generate_simple_get('$new', $name), $trigger
+      $name, '$new', $acc->generate_simple_get('$new', $name, $spec), $trigger
     );
     @{$captures}{keys %$add_captures} = values %$add_captures;
     $fire .= "    ${code} if exists \$args->{${\perlstring $init}};\n";
