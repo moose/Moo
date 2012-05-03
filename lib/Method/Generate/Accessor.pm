@@ -399,7 +399,7 @@ sub _generate_core_set {
 sub _generate_simple_set {
   my ($self, $me, $name, $spec, $value) = @_;
   my $name_str = perlstring $name;
-  my $simple = $self->_generate_core_set($self, $me, $name, $spec, $value);
+  my $simple = $self->_generate_core_set($me, $name, $spec, $value);
 
   if ($spec->{weak_ref}) {
     require Scalar::Util;
