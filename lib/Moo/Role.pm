@@ -58,27 +58,41 @@ sub _inhale_if_moose {
   }
 }
 
+sub _maybe_make_accessors {
+  my ($self, $role, $target) = @_;
+  my $m;
+  if ($INFO{$role}{inhaled_from_moose}
+      or $m = Moo->_accessor_maker_for($target)
+      and ref($m) ne 'Method::Generate::Accessor') {
+    $self->_make_accessors($role, $target);
+  }
+}
+
 sub _make_accessors_if_moose {
   my ($self, $role, $target) = @_;
   if ($INFO{$role}{inhaled_from_moose}) {
-    if (my @attrs = @{$INFO{$role}{attributes}||[]}) {
-      my $acc_gen = ($Moo::MAKERS{$target}{accessor} ||= do {
-        require Method::Generate::Accessor;
-        Method::Generate::Accessor->new
-      });
-      while (my ($name, $spec) = splice @attrs, 0, 2) {
-        $acc_gen->generate_method($target, $name, $spec);
-      }
-    }
+    $self->_make_accessors($role, $target);
+  }
+}
+
+sub _make_accessors {
+  my ($self, $role, $target) = @_;
+  my $acc_gen = ($Moo::MAKERS{$target}{accessor} ||= do {
+    require Method::Generate::Accessor;
+    Method::Generate::Accessor->new
+  });
+  my @attrs = @{$INFO{$role}{attributes}||[]};
+  while (my ($name, $spec) = splice @attrs, 0, 2) {
+    $acc_gen->generate_method($target, $name, $spec);
   }
 }
 
 sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
   $me->_inhale_if_moose($role);
-  $me->_make_accessors_if_moose($role, $to);
-  $me->SUPER::apply_single_role_to_package($to, $role);
   $me->_handle_constructor($to, $INFO{$role}{attributes});
+  $me->_maybe_make_accessors($role, $to);
+  $me->SUPER::apply_single_role_to_package($to, $role);
 }
 
 sub create_class_with_roles {
@@ -131,6 +145,7 @@ sub _handle_constructor {
     # only fiddle with the constructor if the target is a Moo class
     if ($INC{"Moo.pm"}
         and my $con = Moo->_constructor_maker_for($to, $superclass)) {
+      # shallow copy of the specs since the constructor will assign an index
       $con->register_attribute_specs(map ref() ? { %$_ } : $_, @$attr_info);
     }
   }

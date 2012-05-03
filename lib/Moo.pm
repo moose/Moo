@@ -3,6 +3,7 @@ package Moo;
 use strictures 1;
 use Moo::_Utils;
 use B 'perlstring';
+use Sub::Defer ();
 
 our $VERSION = '0.091001'; # 0.91.1
 $VERSION = eval $VERSION;
