@@ -117,7 +117,7 @@ sub create_class_with_roles {
   $Moo::MAKERS{$new_name} = {};
 
   $me->_handle_constructor(
-    $new_name, [ map @{$INFO{$_}{attributes}||{}}, @roles ], $superclass
+    $new_name, [ map @{$INFO{$_}{attributes}||[]}, @roles ], $superclass
   );
 
   return $new_name;

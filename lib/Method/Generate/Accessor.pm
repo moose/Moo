@@ -46,7 +46,7 @@ sub generate_method {
   if (my $reader = $spec->{reader}) {
     if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
       $methods{$reader} = $self->_generate_xs(
-        getters => $into, $reader, $name
+        getters => $into, $reader, $name, $spec
       );
     } else {
       $self->{captures} = {};
@@ -65,7 +65,7 @@ sub generate_method {
       && $self->is_simple_set($name, $spec)
     ) {
       $methods{$accessor} = $self->_generate_xs(
-        accessors => $into, $accessor, $name
+        accessors => $into, $accessor, $name, $spec
       );
     } else {
       $self->{captures} = {};
@@ -82,7 +82,7 @@ sub generate_method {
       && $self->is_simple_set($name, $spec)
     ) {
       $methods{$writer} = $self->_generate_xs(
-        setters => $into, $writer, $name
+        setters => $into, $writer, $name, $spec
       );
     } else {
       $self->{captures} = {};
@@ -390,10 +390,16 @@ sub generate_multi_set {
   "\@{${me}}{qw(${\join ' ', @$to_set})} = $from";
 }
 
+sub _generate_core_set {
+  my ($self, $me, $name, $spec, $value) = @_;
+  my $name_str = perlstring $name;
+  "${me}->{${name_str}} = ${value}";
+}
+
 sub _generate_simple_set {
   my ($self, $me, $name, $spec, $value) = @_;
   my $name_str = perlstring $name;
-  my $simple = "${me}->{${name_str}} = ${value}";
+  my $simple = $self->_generate_core_set($self, $me, $name, $spec, $value);
 
   if ($spec->{weak_ref}) {
     require Scalar::Util;
