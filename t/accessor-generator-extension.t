@@ -42,19 +42,21 @@ BEGIN {
   }
 
   sub default_construction_string { '[]' }
+
+  sub MooX::ArrayRef::import { 
+    Moo::Role->apply_roles_to_object(
+      Moo->_accessor_maker_for(scalar caller),
+      'Method::Generate::Accessor::Role::ArrayRefInstance'
+    );
+  }
+  $INC{"MooX/ArrayRef.pm"} = 1;
 }
 
 {
   package ArrayTest1;
 
   use Moo;
-
-  BEGIN {
-     Moo::Role->apply_roles_to_object(
-       Moo->_accessor_maker_for(__PACKAGE__),
-      'Method::Generate::Accessor::Role::ArrayRefInstance'
-     )
-  }
+  use MooX::ArrayRef;
 
   has one => (is => 'ro');
   has two => (is => 'ro');
