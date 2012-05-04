@@ -81,4 +81,24 @@ $o = ArrayTest2->new(one => 1, two => 2, three => 3, four => 4);
 
 is_deeply([ @$o ], [ 1, 2, 3, 4 ], 'Subclass object ok');
 
+{
+  package ArrayTestRole;
+
+  use Moo::Role;
+
+  has four => (is => 'ro');
+
+  package ArrayTest3;
+
+  use Moo;
+
+  extends 'ArrayTest1';
+
+  with 'ArrayTestRole';
+}
+
+$o = ArrayTest3->new(one => 1, two => 2, three => 3, four => 4);
+
+is_deeply([ @$o ], [ 1, 2, 3, 4 ], 'Subclass object w/role');
+
 done_testing;

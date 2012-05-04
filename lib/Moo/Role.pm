@@ -83,8 +83,13 @@ sub _make_accessors {
     require Method::Generate::Accessor;
     Method::Generate::Accessor->new
   });
+  my $con_gen = $Moo::MAKERS{$target}{constructor};
   my @attrs = @{$INFO{$role}{attributes}||[]};
   while (my ($name, $spec) = splice @attrs, 0, 2) {
+    # needed to ensure we got an index for an arrayref based generator
+    if ($con_gen) {
+      $spec = $con_gen->all_attribute_specs->{$name};
+    }
     $acc_gen->generate_method($target, $name, $spec);
   }
 }
