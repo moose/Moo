@@ -4,6 +4,8 @@ use strictures 1;
 use Moo::_Utils;
 use base qw(Role::Tiny);
 
+require Moo::sification;
+
 BEGIN { *INFO = \%Role::Tiny::INFO }
 
 our %INFO;
