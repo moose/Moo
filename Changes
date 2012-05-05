@@ -1,3 +1,4 @@
+0.091002 - 2012-05-05
   - exclude union roles and same-role-as-self from metaclass inflation
   - inhale Moose roles before checking for composition conflicts
   - enable Moo::sification if only Moo::Role is loaded and not Moo
