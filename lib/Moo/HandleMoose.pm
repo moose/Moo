@@ -113,7 +113,7 @@ sub inject_real_metaclass_for {
     );
   }
   $meta->add_role(Class::MOP::class_of($_))
-    for grep $_ ne $name,
+    for grep !/\|/ && $_ ne $name, # reject Foo|Bar and same-role-as-self
       do { no warnings 'once'; keys %{$Role::Tiny::APPLIED_TO{$name}} };
   $DID_INJECT{$name} = 1;
   $meta;

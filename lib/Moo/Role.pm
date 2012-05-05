@@ -36,7 +36,9 @@ sub _inhale_if_moose {
   if (!$INFO{$role} and $INC{"Moose.pm"}) {
     if (my $meta = Class::MOP::class_of($role)) {
       $INFO{$role}{methods} = {
-        map +($_ => $role->can($_)), $meta->get_method_list
+        map +($_ => $role->can($_)),
+          grep !$meta->get_method($_)->isa('Class::MOP::Method::Meta'),
+            $meta->get_method_list
       };
       $Role::Tiny::APPLIED_TO{$role} = {
         map +($_->name => 1), $meta->calculate_all_roles
