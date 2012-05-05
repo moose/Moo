@@ -94,6 +94,12 @@ sub _make_accessors {
   }
 }
 
+sub apply_roles_to_package {
+  my ($me, $to, @roles) = @_;
+  $me->_inhale_if_moose($_) for @roles;
+  $me->SUPER::apply_roles_to_package($to, @roles);
+}
+
 sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
   $me->_inhale_if_moose($role);

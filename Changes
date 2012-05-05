@@ -1,3 +1,4 @@
+  - inhale Moose roles before checking for composition conflicts
   - enable Moo::sification if only Moo::Role is loaded and not Moo
   - preserve attribute ordering
   - factor out accessor generation code a bit more to enable extension
