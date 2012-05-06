@@ -330,9 +330,24 @@ The options for C<has> are as follows:
 
 =item * is
 
-B<required>, must be C<ro> or C<rw>.  Unsurprisingly, C<ro> generates an
-accessor that will not respond to arguments; to be clear: a getter only. C<rw>
-will create a perlish getter/setter.
+B<required>, may be C<ro>, C<rw>, C<lazy> or C<rwp>.
+
+C<ro> generates an accessor that dies if you attempt to write to it - i.e.
+a getter only - by defaulting C<reader> to the name of the attribute.
+
+C<rw> generates a normal getter/setter by defauting C<accessor> to the
+name of the attribute.
+
+C<lazy> generates a reader like C<ro>, but also sets C<lazy> to 1 and
+C<builder> to C<_build_${attribute_name}> to allow on-demand generated
+attributes.  This feature was my attempt to fix my incompetence when
+originally designing C<lazy_build>, and is also implemented by
+L<MooseX::AttributeShortcuts>.
+
+C<rwp> generates a reader like C<ro>, but also sets C<writer> to
+C<_set_${attribute_name}> for attributes that are designed to be written
+from inside of the class, but read-only from outside.
+This feature comes from L<MooseX::AttributeShortcuts>.
 
 =item * isa
 
@@ -346,6 +361,22 @@ one should do
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
+If you want L<MooseX::Types> style named types, look at
+L<MooX::Types::MooseLike>.
+
+To cause your C<isa> entries to be automatically mapped to named
+L<Moose::Meta::TypeConstraint> objects (rather than the default behaviour
+of creating an anonymous type), set:
+
+  $Moo::HandleMoose::TYPE_MAP{$isa_coderef} = sub {
+    require MooseX::Types::Something;
+    return MooseX::Types::Something::TypeName();
+  };
+
+Note that this example is purely illustrative; anything that returns a
+L<Moose::Meta::TypeConstraint> object or something similar enough to it to
+make L<Moose> happy is fine.
+
 =item * coerce
 
 Takes a coderef which is meant to coerce the attribute.  The basic idea is to
@@ -355,7 +386,9 @@ do something like the following:
    $_[0] + 1 unless $_[0] % 2
  },
 
-Coerce does not require C<isa> to be defined.
+Coerce does not require C<isa> to be defined, but since L<Moose> does
+require it, the metaclass inflation for coerce-alone is a trifle insane
+and if you attempt to subtype the result will almost certainly break.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
@@ -384,6 +417,10 @@ Takes a coderef which will get called any time the attribute is set. This
 includes the constructor. Coderef will be invoked against the object with the
 new value as an argument.
 
+If you set this to just C<1>, it generates a trigger which calls the
+C<_trigger_${attr_name}> method on C<$self>. This feature comes from
+L<MooseX::AttributeShortcuts>.
+
 Note that Moose also passes the old value, if any; this feature is not yet
 supported.
 
@@ -406,8 +443,10 @@ L<Sub::Quote aware|/SUB QUOTE AWARE>
 
 Takes a method name which will return true if an attribute has a value.
 
-A common example of this would be to call it C<has_$foo>, implying that the
-object has a C<$foo> set.
+If you set this to just C<1>, the predicate is automatically named
+C<has_${attr_name}> if your attribute's name does not start with an
+underscore, or <_has_${attr_name_without_the_underscore}> if it does.
+This feature comes from L<MooseX::AttributeShortcuts>.
 
 =item * builder
 
@@ -420,9 +459,17 @@ Moo will call
 
   $self->$builder;
 
+If you set this to just C<1>, the predicate is automatically named
+C<_build_${attr_name}>.  This feature comes from L<MooseX::AttributeShortcuts>.
+
 =item * clearer
 
 Takes a method name which will clear the attribute.
+
+If you set this to just C<1>, the clearer is automatically named
+C<clear_${attr_name}> if your attribute's name does not start with an
+underscore, or <_clear_${attr_name_without_the_underscore}> if it does.
+This feature comes from L<MooseX::AttributeShortcuts>.
 
 =item * lazy
 
@@ -457,6 +504,7 @@ leaks.
 Takes the name of the key to look for at instantiation time of the object.  A
 common use of this is to make an underscored attribute have a non-underscored
 initialization name. C<undef> means that passing the value in on instantiation
+is ignored.
 
 =back
 
