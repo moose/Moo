@@ -308,10 +308,13 @@ them like 'use base' would.
 =head2 with
 
  with 'Some::Role1';
- with 'Some::Role2';
 
-Composes a L<Role::Tiny> into current class.  Only one role may be composed in
-at a time to allow the code to remain as simple as possible.
+or
+
+ with 'Some::Role1', 'Some::Role2';
+
+Composes one or more L<Moo::Role> (or L<Role::Tiny>) roles into the current
+class.  An error will be raised if these roles have conflicting methods.
 
 =head2 has
 
@@ -486,19 +489,6 @@ aware can take advantage of this.
 
 =head1 INCOMPATIBILITIES WITH MOOSE
 
-You can only compose one role at a time.  If your application is large or
-complex enough to warrant complex composition, you wanted L<Moose>.  Note that
-this does not mean you can only compose one role per class -
-
-  with 'FirstRole';
-  with 'SecondRole';
-
-is absolutely fine, there's just currently no equivalent of Moose's
-
-  with 'FirstRole', 'SecondRole';
-
-which composes the two roles together, and then applies them.
-
 There is no built in type system.  C<isa> is verified with a coderef, if you
 need complex types, just make a library of coderefs, or better yet, functions
 that return quoted subs. L<MooX::Types::MooseLike> provides a similar API
@@ -516,7 +506,11 @@ C<coerce> are more likely to be able to fulfill your needs.
 
 There is no meta object.  If you need this level of complexity you wanted
 L<Moose> - Moo succeeds at being small because it explicitly does not
-provide a metaprotocol.
+provide a metaprotocol. However, if you load L<Moose>, then
+
+  Class::MOP::class_of($moo_class_or_role)
+
+will return an appropriate metaclass pre-populated by L<Moo>.
 
 No support for C<super>, C<override>, C<inner>, or C<augment> - override can
 be handled by around albeit with a little more typing, and the author considers
@@ -529,12 +523,14 @@ using C<$obj-E<gt>$::Dwarn()> instead.
 L</default> only supports coderefs, because doing otherwise is usually a
 mistake anyway.
 
-C<lazy_build> is not supported per se, but of course it will work if you
-manually set all the options it implies.
+C<lazy_build> is not supported; you are instead encouraged to use the
+C<is => 'lazy'> option supported by L<Moo> and L<MooseX::AttributeShortcuts>.
 
 C<auto_deref> is not supported since the author considers it a bad idea.
 
-C<documentation> is not supported since it's a very poor replacement for POD.
+C<documentation> will show up in a L<Moose> metaclass created from your class
+but is otherwise ignored. Then again, L<Moose> ignors it as well, so this
+is arguably not an incompatibility.
 
 Handling of warnings: when you C<use Moo> we enable FATAL warnings.  The nearest
 similar invocation for L<Moose> would be:
