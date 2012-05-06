@@ -1,3 +1,4 @@
+0.091003 - 2012-05-06
   - improve attribute option documentation
   - update the incompatibilities section since we're less incompatible now
   - fix coderef naming to avoid confusing autoclean
