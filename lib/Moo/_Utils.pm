@@ -67,6 +67,7 @@ sub _install_coderef {
 }
 
 sub _name_coderef {
+  shift if @_ > 2;
   can_haz_subname ? Sub::Name::subname(@_) : $_[1];
 }
 

@@ -17,7 +17,7 @@ sub import {
   my $class = shift;
   strictures->import;
   return if $MAKERS{$target}; # already exported into this package
-  _install_coderef "${target}::extends" => sub {
+  _install_coderef "${target}::extends" => "Moo::extends" => sub {
     _load_module($_) for @_;
     # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
     @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
@@ -27,12 +27,12 @@ sub import {
          ->register_attribute_specs(%{$old->all_attribute_specs});
     }
   };
-  _install_coderef "${target}::with" => sub {
+  _install_coderef "${target}::with" => "Moo::with" => sub {
     require Moo::Role;
     Moo::Role->apply_roles_to_package($target, $_[0]);
   };
   $MAKERS{$target} = {};
-  _install_coderef "${target}::has" => sub {
+  _install_coderef "${target}::has" => "Moo::has" => sub {
     my ($name, %spec) = @_;
     $class->_constructor_maker_for($target)
           ->register_attribute_specs($name, \%spec);
@@ -40,7 +40,7 @@ sub import {
           ->generate_method($target, $name, \%spec);
   };
   foreach my $type (qw(before after around)) {
-    _install_coderef "${target}::${type}" => sub {
+    _install_coderef "${target}::${type}" => "Moo::${type}" => sub {
       require Class::Method::Modifiers;
       _install_modifier($target, $type, @_);
     };
