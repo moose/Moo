@@ -99,7 +99,8 @@ sub _maybe_make_accessors {
   my ($self, $role, $target) = @_;
   my $m;
   if ($INFO{$role}{inhaled_from_moose}
-      or $m = Moo->_accessor_maker_for($target)
+      or $INC{"Moo.pm"}
+      and $m = Moo->_accessor_maker_for($target)
       and ref($m) ne 'Method::Generate::Accessor') {
     $self->_make_accessors($role, $target);
   }
@@ -155,7 +156,8 @@ sub create_class_with_roles {
   $me->_inhale_if_moose($_) for @roles;
 
   my $m;
-  if ($m = Moo->_accessor_maker_for($superclass)
+  if ($INC{"Moo.pm"}
+      and $m = Moo->_accessor_maker_for($superclass)
       and ref($m) ne 'Method::Generate::Accessor') {
     # old fashioned way time.
     *{_getglob("${new_name}::ISA")} = [ $superclass ];
