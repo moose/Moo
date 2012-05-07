@@ -1,3 +1,4 @@
+  - clarify how isa and coerce interact
   - support isa and coerce together for Moose
   - guard _accessor_maker_for calls in Moo::Role in case Moo isn't loaded
   - reset handlemoose state on mutation in case somebody reified the

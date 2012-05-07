@@ -371,6 +371,12 @@ one should do
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
+Since L<Moo> does B<not> run the C<isa> check before C<coerce> if a coercion
+subroutine has been supplied, C<isa> checks are not structural to your code
+and can, if desired, be omitted on non-debug builds (although if this results
+in an uncaught bug causing your program to break, the L<Moo> authors guarantee
+nothing except that you get to keep both halves).
+
 If you want L<MooseX::Types> style named types, look at
 L<MooX::Types::MooseLike>.
 
@@ -396,9 +402,10 @@ do something like the following:
    $_[0] + 1 unless $_[0] % 2
  },
 
-Coerce does not require C<isa> to be defined, but since L<Moose> does
-require it, the metaclass inflation for coerce-alone is a trifle insane
-and if you attempt to subtype the result will almost certainly break.
+Note that L<Moo> will always fire your coercion - this is to permit
+isa entries to be used purely for bug trapping, whereas coercions are
+always structural to your code. We do, however, apply any supplied C<isa>
+check after the coercion has run to ensure that it returned a valid value.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
@@ -587,8 +594,12 @@ C<is => 'lazy'> option supported by L<Moo> and L<MooseX::AttributeShortcuts>.
 C<auto_deref> is not supported since the author considers it a bad idea.
 
 C<documentation> will show up in a L<Moose> metaclass created from your class
-but is otherwise ignored. Then again, L<Moose> ignors it as well, so this
+but is otherwise ignored. Then again, L<Moose> ignores it as well, so this
 is arguably not an incompatibility.
+
+Since C<coerce> does not require C<isa> to be defined but L<Moose> does
+require it, the metaclass inflation for coerce-alone is a trifle insane
+and if you attempt to subtype the result will almost certainly break.
 
 Handling of warnings: when you C<use Moo> we enable FATAL warnings.  The nearest
 similar invocation for L<Moose> would be:
