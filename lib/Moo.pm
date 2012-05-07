@@ -26,6 +26,9 @@ sub import {
       Moo->_constructor_maker_for($target)
          ->register_attribute_specs(%{$old->all_attribute_specs});
     }
+    $Moo::HandleMoose::MOUSE{$target} = [
+      grep defined, map Mouse::Util::find_meta($_), @_
+    ] if $INC{"Mouse.pm"};
     $class->_maybe_reset_handlemoose($target);
   };
   _install_coderef "${target}::with" => "Moo::with" => sub {
@@ -231,8 +234,13 @@ L<Moose> everywhere.
 
 Extending a L<Moose> class or consuming a L<Moose::Role> should also work.
 
+So should extending a L<Mouse> class or consuming a L<Mouse::Role>.
+
 This means that there is no need for anything like L<Any::Moose> for Moo
-code - Moo and Moose code should simply interoperate without problem.
+code - Moo and Moose code should simply interoperate without problem. To
+handle L<Mouse> code, you'll likely need an empty Moo role or class consuming
+or extending the L<Mouse> stuff since it doesn't register true L<Moose>
+metaclasses like we do.
 
 However, these features are new as of 0.91.0 (0.091000) so while serviceable,
 they are absolutely certain to not be 100% yet; please do report bugs.

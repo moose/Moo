@@ -62,6 +62,7 @@ sub inject_real_metaclass_for {
       );
     }
   };
+    
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
   # needed to ensure the method body is stable and get things named
   Sub::Defer::undefer_sub($_) for grep defined, values %methods;
@@ -69,7 +70,9 @@ sub inject_real_metaclass_for {
   {
     # This local is completely not required for roles but harmless
     local @{_getstash($name)}{keys %methods};
+    my %seen_name;
     foreach my $name (@$attr_order) {
+      $seen_name{$name} = 1;
       my %spec = %{$attr_specs->{$name}};
       delete $spec{index};
       $spec{is} = 'ro' if $spec{is} eq 'lazy' or $spec{is} eq 'rwp';
@@ -103,6 +106,18 @@ sub inject_real_metaclass_for {
         $spec{coerce} = 1;
       }
       push @attrs, $meta->add_attribute($name => %spec);
+    }
+    foreach my $mouse (do { our %MOUSE; @{$MOUSE{$name}||[]} }) {
+      foreach my $attr ($mouse->get_all_attributes) {
+        my %spec = %{$attr};
+        delete @spec{qw(
+          associated_class associated_methods __METACLASS__
+          provides curries
+        )};
+        my $name = delete $spec{name};
+        next if $seen_name{$name}++;
+        push @attrs, $meta->add_attribute($name => %spec);
+      }
     }
   }
   if ($am_role) {

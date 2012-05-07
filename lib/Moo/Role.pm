@@ -66,32 +66,45 @@ sub _maybe_reset_handlemoose {
 sub _inhale_if_moose {
   my ($self, $role) = @_;
   _load_module($role);
-  if (!$INFO{$role} and $INC{"Moose.pm"}) {
-    if (my $meta = Class::MOP::class_of($role)) {
-      $INFO{$role}{methods} = {
-        map +($_ => $role->can($_)),
-          grep !$meta->get_method($_)->isa('Class::MOP::Method::Meta'),
-            $meta->get_method_list
-      };
-      $Role::Tiny::APPLIED_TO{$role} = {
-        map +($_->name => 1), $meta->calculate_all_roles
-      };
-      $INFO{$role}{requires} = [ $meta->get_required_method_list ];
-      $INFO{$role}{attributes} = [
-        map +($_ => $meta->get_attribute($_)), $meta->get_attribute_list
-      ];
-      my $mods = $INFO{$role}{modifiers} = [];
-      foreach my $type (qw(before after around)) {
-        my $map = $meta->${\"get_${type}_method_modifiers_map"};
-        foreach my $method (keys %$map) {
-          foreach my $mod (@{$map->{$method}}) {
-            push @$mods, [ $type => $method => $mod ];
-          }
+  my $meta;
+  if (!$INFO{$role}
+      and (
+        $INC{"Moose.pm"}
+        and $meta = Class::MOP::class_of($role)
+      )
+      or (
+        $INC{"Mouse.pm"}
+        and $meta = Mouse::Util::find_meta($role)
+     )
+  ) {
+    $INFO{$role}{methods} = {
+      map +($_ => $role->can($_)),
+        grep !$meta->get_method($_)->isa('Class::MOP::Method::Meta'),
+          $meta->get_method_list
+    };
+    $Role::Tiny::APPLIED_TO{$role} = {
+      map +($_->name => 1), $meta->calculate_all_roles
+    };
+    $INFO{$role}{requires} = [ $meta->get_required_method_list ];
+    $INFO{$role}{attributes} = [
+      map +($_ => $meta->get_attribute($_)), $meta->get_attribute_list
+    ];
+    my $mods = $INFO{$role}{modifiers} = [];
+    foreach my $type (qw(before after around)) {
+      # Mouse pokes its own internals so we have to fall back to doing
+      # the same thing in the absence of the Moose API method
+      my $map = $meta->${\(
+        $meta->can("get_${type}_method_modifiers_map")
+        or sub { shift->{"${type}_method_modifiers"} }
+      )};
+      foreach my $method (keys %$map) {
+        foreach my $mod (@{$map->{$method}}) {
+          push @$mods, [ $type => $method => $mod ];
         }
       }
-      require Class::Method::Modifiers if @$mods;
-      $INFO{$role}{inhaled_from_moose} = 1;
     }
+    require Class::Method::Modifiers if @$mods;
+    $INFO{$role}{inhaled_from_moose} = 1;
   }
 }
 
