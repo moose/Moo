@@ -19,6 +19,14 @@ sub inject_all {
   @Moo::HandleMoose::FakeConstructor::ISA = 'Moose::Meta::Method::Constructor';
 }
 
+sub maybe_reinject_fake_metaclass_for {
+  my ($name) = @_;
+  our %DID_INJECT;
+  if (delete $DID_INJECT{$name}) {
+    inject_fake_metaclass_for($name);
+  }
+}
+
 sub inject_fake_metaclass_for {
   my ($name) = @_;
   require Class::MOP;
@@ -26,8 +34,6 @@ sub inject_fake_metaclass_for {
     $name, bless({ name => $name }, 'Moo::HandleMoose::FakeMetaClass')
   );
 }
-
-our %DID_INJECT;
 
 {
   package Moo::HandleMoose::FakeConstructor;
@@ -38,6 +44,7 @@ our %DID_INJECT;
 
 sub inject_real_metaclass_for {
   my ($name) = @_;
+  our %DID_INJECT;
   return Class::MOP::get_metaclass_by_name($name) if $DID_INJECT{$name};
   require Moose; require Moo; require Moo::Role;
   Class::MOP::remove_metaclass_by_name($name);

@@ -12,6 +12,7 @@ our %INFO;
 
 sub import {
   my $target = caller;
+  my ($me) = @_;
   strictures->import;
   return if $INFO{$target}; # already exported into this package
   # get symbol table reference
@@ -23,11 +24,43 @@ sub import {
       Method::Generate::Accessor->new
     })->generate_method($target, $name, \%spec);
     push @{$INFO{$target}{attributes}||=[]}, $name, \%spec;
+    $me->_maybe_reset_handlemoose($target);
   };
+  # install before/after/around subs
+  foreach my $type (qw(before after around)) {
+    *{_getglob "${target}::${type}"} = sub {
+      require Class::Method::Modifiers;
+      push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
+      $me->_maybe_reset_handlemoose($target);
+    };
+  }
+  *{_getglob "${target}::requires"} = sub {
+    push @{$INFO{$target}{requires}||=[]}, @_;
+    $me->_maybe_reset_handlemoose($target);
+  };
+  *{_getglob "${target}::with"} = sub {
+    $me->apply_roles_to_package($target, @_);
+    $me->_maybe_reset_handlemoose($target);
+  };
+  # grab all *non-constant* (stash slot is not a scalarref) subs present
+  # in the symbol table and store their refaddrs (no need to forcibly
+  # inflate constant subs into real subs) - also add '' to here (this
+  # is used later) with a map to the coderefs in case of copying or re-use
+  my @not_methods = ('', map { *$_{CODE}||() } grep !ref($_), values %$stash);
+  @{$INFO{$target}{not_methods}={}}{@not_methods} = @not_methods;
+  # a role does itself
+  $Role::Tiny::APPLIED_TO{$target} = { $target => undef };
+
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
-  goto &Role::Tiny::import;
+}
+
+sub _maybe_reset_handlemoose {
+  my ($class, $target) = @_;
+  if ($INC{"Moo/HandleMoose.pm"}) {
+    Moo::HandleMoose::maybe_reinject_fake_metaclass_for($target);
+  }
 }
 
 sub _inhale_if_moose {

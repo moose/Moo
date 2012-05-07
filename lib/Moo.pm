@@ -26,10 +26,12 @@ sub import {
       Moo->_constructor_maker_for($target)
          ->register_attribute_specs(%{$old->all_attribute_specs});
     }
+    $class->_maybe_reset_handlemoose($target);
   };
   _install_coderef "${target}::with" => "Moo::with" => sub {
     require Moo::Role;
     Moo::Role->apply_roles_to_package($target, $_[0]);
+    $class->_maybe_reset_handlemoose($target);
   };
   $MAKERS{$target} = {};
   _install_coderef "${target}::has" => "Moo::has" => sub {
@@ -38,6 +40,7 @@ sub import {
           ->register_attribute_specs($name, \%spec);
     $class->_accessor_maker_for($target)
           ->generate_method($target, $name, \%spec);
+    $class->_maybe_reset_handlemoose($target);
   };
   foreach my $type (qw(before after around)) {
     _install_coderef "${target}::${type}" => "Moo::${type}" => sub {
@@ -53,6 +56,13 @@ sub import {
   }
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
+  }
+}
+
+sub _maybe_reset_handlemoose {
+  my ($class, $target) = @_;
+  if ($INC{"Moo/HandleMoose.pm"}) {
+    Moo::HandleMoose::maybe_reinject_fake_metaclass_for($target);
   }
 }
 
