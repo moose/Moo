@@ -28,14 +28,19 @@ use Test::Fatal;
 
     has output_to => (
         isa => quote_sub(q{
-            use Scalar::Util qw/ blessed /;
-            die $_[0] . "Does not have a ->consume method" unless blessed($_[0]) && $_[0]->can('consume'); }),
+            use Scalar::Util ();
+            die $_[0] . "Does not have a ->consume method" unless Scalar::Util::blessed($_[0]) && $_[0]->can('consume'); }),
         is => 'ro',
         required => 1,
         coerce => quote_sub(q{
-            my %stuff = %{$_[0]};
-            my $class = delete($stuff{class});
-            $class->new(%stuff);
+            use Scalar::Util ();
+            if (Scalar::Util::blessed($_[0]) && $_[0]->can('consume')) {
+              $_[0];
+            } else {
+              my %stuff = %{$_[0]};
+              my $class = delete($stuff{class});
+              $class->new(%stuff);
+            }
         }),
     );
 }

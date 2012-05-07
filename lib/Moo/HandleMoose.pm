@@ -75,7 +75,7 @@ sub inject_real_metaclass_for {
       $spec{is} = 'ro' if $spec{is} eq 'lazy' or $spec{is} eq 'rwp';
       delete $spec{asserter};
       if (my $isa = $spec{isa}) {
-        $spec{isa} = do {
+        my $tc = $spec{isa} = do {
           if (my $mapped = $TYPE_MAP{$isa}) {
             $mapped->();
           } else {
@@ -84,7 +84,11 @@ sub inject_real_metaclass_for {
             );
           }
         };
-        die "Aaaargh" if $spec{coerce};
+        if (my $coerce = $spec{coerce}) {
+          $tc->coercion(Moose::Meta::TypeCoercion->new)
+             ->_compiled_type_coercion($coerce);
+          $spec{coerce} = 1;
+        }
       } elsif (my $coerce = $spec{coerce}) {
         my $attr = perlstring($name);
         my $tc = Moose::Meta::TypeConstraint->new(
@@ -93,10 +97,10 @@ sub inject_real_metaclass_for {
                       'my $r = $_[42]{'.$attr.'}; $_[42]{'.$attr.'} = 1; $r'
                    },
                  );
-         $tc->coercion(Moose::Meta::TypeCoercion->new)
-            ->_compiled_type_coercion($coerce);
-         $spec{isa} = $tc;
-         $spec{coerce} = 1;
+        $tc->coercion(Moose::Meta::TypeCoercion->new)
+           ->_compiled_type_coercion($coerce);
+        $spec{isa} = $tc;
+        $spec{coerce} = 1;
       }
       push @attrs, $meta->add_attribute($name => %spec);
     }
