@@ -351,13 +351,10 @@ The options for C<has> are as follows:
 
 =item * is
 
-B<required>, may be C<ro>, C<rw>, C<lazy> or C<rwp>.
+B<required>, may be C<ro>, C<lazy>, C<rwp> or C<rw>.
 
 C<ro> generates an accessor that dies if you attempt to write to it - i.e.
 a getter only - by defaulting C<reader> to the name of the attribute.
-
-C<rw> generates a normal getter/setter by defaulting C<accessor> to the
-name of the attribute.
 
 C<lazy> generates a reader like C<ro>, but also sets C<lazy> to 1 and
 C<builder> to C<_build_${attribute_name}> to allow on-demand generated
@@ -369,6 +366,9 @@ C<rwp> generates a reader like C<ro>, but also sets C<writer> to
 C<_set_${attribute_name}> for attributes that are designed to be written
 from inside of the class, but read-only from outside.
 This feature comes from L<MooseX::AttributeShortcuts>.
+
+C<rw> generates a normal getter/setter by defaulting C<accessor> to the
+name of the attribute.
 
 =item * isa
 
