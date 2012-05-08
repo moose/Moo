@@ -353,7 +353,7 @@ B<required>, may be C<ro>, C<rw>, C<lazy> or C<rwp>.
 C<ro> generates an accessor that dies if you attempt to write to it - i.e.
 a getter only - by defaulting C<reader> to the name of the attribute.
 
-C<rw> generates a normal getter/setter by defauting C<accessor> to the
+C<rw> generates a normal getter/setter by defaulting C<accessor> to the
 name of the attribute.
 
 C<lazy> generates a reader like C<ro>, but also sets C<lazy> to 1 and
