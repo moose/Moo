@@ -1,3 +1,6 @@
+  - add an explicit return to all exported subs so people don't accidentally
+    rely on the return value
+
 0.091004 - 2012-05-07
   - also inhale from Mouse
   - clarify how isa and coerce interact

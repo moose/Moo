@@ -30,6 +30,7 @@ sub import {
       grep defined, map Mouse::Util::find_meta($_), @_
     ] if $INC{"Mouse.pm"};
     $class->_maybe_reset_handlemoose($target);
+    return;
   };
   _install_coderef "${target}::with" => "Moo::with" => sub {
     require Moo::Role;
@@ -44,11 +45,13 @@ sub import {
     $class->_accessor_maker_for($target)
           ->generate_method($target, $name, \%spec);
     $class->_maybe_reset_handlemoose($target);
+    return;
   };
   foreach my $type (qw(before after around)) {
     _install_coderef "${target}::${type}" => "Moo::${type}" => sub {
       require Class::Method::Modifiers;
       _install_modifier($target, $type, @_);
+      return;
     };
   }
   {
