@@ -21,7 +21,7 @@ sub generate_method {
       local $@;
       require Moo::_Utils;
       eval {
-        $self->DEMOLISHALL(Devel::GlobalDestruction::in_global_destruction);
+        $self->DEMOLISHALL(Moo::_Utils::_in_global_destruction);
       };
       $@;
     };
