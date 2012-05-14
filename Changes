@@ -1,3 +1,4 @@
+  - a weakened value should still be returned on set (fixes lazy + weak_ref)
   - add an explicit return to all exported subs so people don't accidentally
     rely on the return value
 
