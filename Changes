@@ -1,5 +1,6 @@
   - temporary switch to an inlined in_global_destruction to avoid needing
     to fatpack Sub::Exporter for features we don't use
+  - re-order is documentation to give readonly styles more prominence
   - a weakened value should still be returned on set (fixes lazy + weak_ref)
   - add an explicit return to all exported subs so people don't accidentally
     rely on the return value
