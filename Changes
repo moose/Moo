@@ -1,3 +1,5 @@
+  - drop a couple of dependencies by minor releases we don't strictly need
+
 0.091005 - 2012-05-14
   - temporary switch to an inlined in_global_destruction to avoid needing
     to fatpack Sub::Exporter for features we don't use

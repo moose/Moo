@@ -10,9 +10,9 @@ my %BUILD_DEPS = (
 );
 
 my %RUN_DEPS = (
-  'Class::Method::Modifiers' => 1.07,
+  'Class::Method::Modifiers' => 1.04,
   'strictures' => 1.001001,
-  'Module::Runtime' => 0.013,
+  'Module::Runtime' => 0.012,
   'Role::Tiny' => 1.001001,
 );
 
