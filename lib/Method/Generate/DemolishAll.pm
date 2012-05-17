@@ -2,7 +2,6 @@ package Method::Generate::DemolishAll;
 
 use strictures 1;
 use base qw(Moo::Object);
-use Devel::GlobalDestruction ();
 use Sub::Quote;
 use Moo::_Utils;
 use B qw(perlstring);
