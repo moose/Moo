@@ -2,6 +2,12 @@ use strictures 1;
 use Test::More;
 
 BEGIN {
+  package Ker;
+
+  use Moo::Role;
+}
+
+BEGIN {
   package Splat;
 
   use Moose::Role;
@@ -57,7 +63,32 @@ BEGIN {
   sub jab { 3 }
 }
 
-foreach my $s (Splattered->new, Splattered2->new) {
+BEGIN {
+  package Ker::Splattered;
+
+  use Moo;
+
+  sub monkey { 'WHAT' }
+
+  with qw/ Ker Splat /;
+
+  sub jab { 3 }
+}
+
+BEGIN {
+  package Ker::Splattered2;
+
+  use Moo;
+
+  sub monkey { 'WHAT' }
+
+  with qw/ Ker Splat2 /;
+
+  sub jab { 3 }
+}
+
+
+foreach my $s (Splattered->new, Splattered2->new, Ker::Splattered->new, Ker::Splattered2->new) {
   is($s->punch, 1, 'punch');
   is($s->jab, 3, 'jab');
   is($s->monkey, 'OW', 'monkey');
