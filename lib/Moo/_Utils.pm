@@ -19,7 +19,7 @@ our @EXPORT = qw(
     _in_global_destruction
 );
 
-sub _in_global_destruction;
+sub _in_global_destruction ();
 
 sub _install_modifier {
   my ($into, $type, $name, $code) = @_;
@@ -89,14 +89,16 @@ sub STANDARD_DESTROY {
   die $e if $e; # rethrow
 }
 
-if (defined ${^GLOBAL_PHASE}) {
-    eval 'sub _in_global_destruction () { ${^GLOBAL_PHASE} eq q[DESTRUCT] }';
+if (eval { require_module('Devel::GlobalDestruction') }) {
+  *_in_global_destruction = \&Devel::GlobalDestruction::in_global_destruction;
+} elsif (defined ${^GLOBAL_PHASE}) {
+  eval 'sub _in_global_destruction () { ${^GLOBAL_PHASE} eq q[DESTRUCT] }';
 } else {
   eval <<'PP_IGD' or die $@;
 
 my ($in_global_destruction, $before_is_installed);
 
-sub _in_global_destruction { $in_global_destruction }
+sub _in_global_destruction () { $in_global_destruction }
 
 END {
   # SpeedyCGI runs END blocks every cycle but somehow keeps object instances
