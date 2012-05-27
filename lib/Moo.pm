@@ -588,9 +588,21 @@ provide a metaprotocol. However, if you load L<Moose>, then
 
 will return an appropriate metaclass pre-populated by L<Moo>.
 
-No support for C<super>, C<override>, C<inner>, or C<augment> - override can
-be handled by around albeit with a little more typing, and the author considers
-augment to be a bad idea.
+No support for C<super>, C<override>, C<inner>, or C<augment> - the author
+considers augment to be a bad idea, and override can be translated:
+
+  override foo => sub {
+    ...
+    super();
+    ...
+  };
+
+  around foo => sub {
+    my ($orig, $self) = (shift, shift);
+    ...
+    $self->$orig(@_);
+    ...
+  };
 
 The C<dump> method is not provided by default. The author suggests loading
 L<Devel::Dwarn> into C<main::> (via C<perl -MDevel::Dwarn ...> for example) and

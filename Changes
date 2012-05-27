@@ -1,3 +1,4 @@
+  - document override -> around translation
   - use D::GD if installed rather than re-adding it as a requirement
 
 0.091007 - 2012-05-17
