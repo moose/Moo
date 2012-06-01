@@ -34,7 +34,7 @@ sub import {
   };
   _install_coderef "${target}::with" => "Moo::with" => sub {
     require Moo::Role;
-    Moo::Role->apply_roles_to_package($target, $_[0]);
+    Moo::Role->apply_roles_to_package($target, @_);
     $class->_maybe_reset_handlemoose($target);
   };
   $MAKERS{$target} = {};
