@@ -45,15 +45,13 @@ sub generate_method {
   }
   if (exists $spec->{default}) {
     my $default = $spec->{default};
-    require Scalar::Util;
-    unless (
-      ref $default
-      and (
-        Scalar::Util::reftype $default eq 'CODE'
-        or Scalar::Util::blessed $default and $default->can('(&{}')
-      )
-    ) {
+    unless (ref $default) {
       die "Invalid default $default";
+    }
+    if (ref $default ne 'CODE') {
+      unless (eval { \&$default }) {
+        die "Invalid default $default";
+      }
     }
   }
 
