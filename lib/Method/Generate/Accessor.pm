@@ -44,12 +44,18 @@ sub generate_method {
     $spec->{trigger} = quote_sub('shift->_trigger_'.$name.'(@_)');
   }
   if (exists $spec->{default}) {
-    if (not ref $spec->{default}) {
-      die "Invalid default $spec->{default}";
+    my $default = $spec->{default};
+    require Scalar::Util;
+    if (not ref $default) {
+      die "Invalid default $default";
     }
-    elsif (ref $spec->{default} ne 'CODE') {
-      require Scalar::Util;
-      die "Invalid default $spec->{default}" unless Scalar::Util::blessed $spec->{default};
+    elsif (Scalar::Util::reftype $default ne 'CODE') {
+      if (Scalar::Util::blessed $default) {
+        die "Invalid default $default" unless $default->can('(&{}');
+      }
+      else {
+        die "Invalid default $default";
+      }
     }
   }
 

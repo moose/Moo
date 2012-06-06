@@ -27,22 +27,38 @@ like(
 
 like(
   exception { $gen->generate_method('Foo' => 'four' => { is => 'ro', default => 5 }) },
-  qr/Invalid default/, 'default scalar rejected'
+  qr/Invalid default/, 'default - scalar rejected'
 );
 
 like(
   exception { $gen->generate_method('Foo' => 'five' => { is => 'ro', default => [] }) },
-  qr/Invalid default/, 'default arrayref rejected'
+  qr/Invalid default/, 'default - arrayref rejected'
 );
 
 is(
   exception { $gen->generate_method('Foo' => 'six' => { is => 'ro', default => sub { 5 } }) },
-  undef, 'default coderef accepted'
+  undef, 'default - coderef accepted'
 );
 
 is(
   exception { $gen->generate_method('Foo' => 'seven' => { is => 'ro', default => bless sub { 5 } => 'Blah' }) },
-  undef, 'default blessed sub accepted'
+  undef, 'default - blessed sub accepted'
+);
+
+{
+  package WithOverload;
+  use overload '&{}' => sub { sub { 5 } };
+  sub new { bless {} }
+}
+
+is(
+  exception { $gen->generate_method('Foo' => 'eight' => { is => 'ro', default => WithOverload->new }) },
+  undef, 'default - object with overloaded ->() accepted'
+);
+
+like(
+  exception { $gen->generate_method('Foo' => 'nine' => { is => 'ro', default => bless {} => 'Blah' }) },
+  qr/Invalid default/, 'default - object rejected'
 );
 
 my $foo = Foo->new(one => 1);
