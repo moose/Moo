@@ -43,6 +43,16 @@ sub generate_method {
   if (($spec->{trigger}||0) eq 1) {
     $spec->{trigger} = quote_sub('shift->_trigger_'.$name.'(@_)');
   }
+  if (exists $spec->{default}) {
+    if (not ref $spec->{default}) {
+      die "Invalid default $spec->{default}";
+    }
+    elsif (ref $spec->{default} ne 'CODE') {
+      require Scalar::Util;
+      die "Invalid default $spec->{default}" unless Scalar::Util::blessed $spec->{default};
+    }
+  }
+
   my %methods;
   if (my $reader = $spec->{reader}) {
     if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {

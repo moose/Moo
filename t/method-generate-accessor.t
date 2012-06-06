@@ -25,6 +25,26 @@ like(
   qr/Unknown is purple/, 'is purple rejected'
 );
 
+like(
+  exception { $gen->generate_method('Foo' => 'four' => { is => 'ro', default => 5 }) },
+  qr/Invalid default/, 'default scalar rejected'
+);
+
+like(
+  exception { $gen->generate_method('Foo' => 'five' => { is => 'ro', default => [] }) },
+  qr/Invalid default/, 'default arrayref rejected'
+);
+
+is(
+  exception { $gen->generate_method('Foo' => 'six' => { is => 'ro', default => sub { 5 } }) },
+  undef, 'default coderef accepted'
+);
+
+is(
+  exception { $gen->generate_method('Foo' => 'seven' => { is => 'ro', default => bless sub { 5 } => 'Blah' }) },
+  undef, 'default blessed sub accepted'
+);
+
 my $foo = Foo->new(one => 1);
 
 is($foo->one, 1, 'ro reads');
