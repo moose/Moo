@@ -17,6 +17,7 @@ BEGIN {
 
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
+  $name =~ s/^\+//;
   die "Must have an is" unless my $is = $spec->{is};
   if ($is eq 'ro') {
     $spec->{reader} = $name unless exists $spec->{reader};
@@ -460,7 +461,8 @@ sub _generate_xs {
   my ($self, $type, $into, $name, $slot) = @_;
   Class::XSAccessor->import(
     class => $into,
-    $type => { $name => $slot }
+    $type => { $name => $slot },
+    replace => 1,
   );
   $into->can($name);
 }

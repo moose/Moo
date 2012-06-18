@@ -10,6 +10,14 @@ sub register_attribute_specs {
   my ($self, @new_specs) = @_;
   my $specs = $self->{attribute_specs}||={};
   while (my ($name, $new_spec) = splice @new_specs, 0, 2) {
+    if ($name =~ s/^\+//) {
+      die "has '+${name}' given but no ${name} attribute already exists"
+        unless my $old_spec = $specs->{$name};
+      foreach my $key (keys %$old_spec) {
+        $new_spec->{$key} = $old_spec->{$key}
+          unless exists $new_spec->{$key};
+        }
+      }
     $new_spec->{index} = scalar keys %$specs
       unless defined $new_spec->{index};
     $specs->{$name} = $new_spec;
