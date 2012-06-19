@@ -1,3 +1,4 @@
+  - bump Role::Tiny dependency to get working modifiers under composition
   - handle "has '+foo'" for attrs from superclass or consumed role
   - document override -> around translation
   - use D::GD if installed rather than re-adding it as a requirement
