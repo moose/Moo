@@ -65,6 +65,7 @@ sub _get_linear_isa {
 }
 
 sub _install_coderef {
+  no warnings 'redefine';
   *{_getglob($_[0])} = _name_coderef(@_);
 }
 

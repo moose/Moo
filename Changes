@@ -1,3 +1,5 @@
+  - squelch redefine warnings in the coderef installation code
+
 0.091008 - 2012-06-19
   - bump Role::Tiny dependency to get working modifiers under composition
   - handle "has '+foo'" for attrs from superclass or consumed role
