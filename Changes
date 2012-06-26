@@ -1,3 +1,5 @@
+  - subconstructor handling for Moose classes
+
 0.091009 - 2012-06-20
   - squelch redefine warnings in the coderef installation code
 
