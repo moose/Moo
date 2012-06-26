@@ -20,6 +20,12 @@ my %RUN_DEPS = (
 my $mymeta_works = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.5707 };
 my $mymeta = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.5702 };
 
+my %extra_info = (
+  resources => {
+    repository => 'git://git.shadowcat.co.uk/gitmo/Moo.git'
+  }
+);
+
 WriteMakefile(
   NAME => 'Moo',
   VERSION_FROM => 'lib/Moo.pm',
@@ -31,12 +37,13 @@ WriteMakefile(
   ($mymeta_works
     ? ( # BUILD_REQUIRES makes MYMETA right, requires stops META being wrong
         BUILD_REQUIRES => \%BUILD_DEPS,
-        META_ADD => { requires => \%RUN_DEPS }
+        META_ADD => { requires => \%RUN_DEPS, %extra_info }
       )
     : ( # META_ADD both to get META right - only Makefile written
         META_ADD => {
           requires => \%RUN_DEPS,
           build_requires => \%BUILD_DEPS,
+          %extra_info,
         }
       )
   ),
