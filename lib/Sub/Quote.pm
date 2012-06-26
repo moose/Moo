@@ -220,3 +220,34 @@ arguments.
 Generates a snippet of code which is suitable to be used as a prelude for
 L</inlinify>.  The keys are the names of the variables and the values are (duh)
 the values.  Note that references work as values.
+
+=head1 CAVEATS
+
+Much of this is just string-based code-generation, and as a result, a few caveats
+apply.
+
+=head2 return
+
+Calling C<return> from a quote_sub'ed sub will not likely do what you intend.
+Instead of returning from the code you defined in C<quote_sub>, it will return
+from the overall function it is composited into.
+
+So when you pass in:
+
+   quote_sub q{  return 1 if $condition; $morecode }
+
+It might turn up in the intended context as follows:
+
+  sub foo {
+
+    <important code a>
+    do {
+      return 1 if $condition;
+      $morecode
+    };
+    <important code b>
+
+  }
+
+Which will obviously return from foo, when all you meant to do was return from
+the code context in quote_sub and proceed with running important code b.

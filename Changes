@@ -1,3 +1,4 @@
+  - additional quote_sub docs
   - remove multi-populate code to fix exists/defined new() bug
   - document move to #moose and include repository metadata
   - no Moo and no Moo::Role
