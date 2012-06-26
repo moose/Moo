@@ -185,7 +185,12 @@ sub _generate_get {
     'do { '.$self->_generate_use_default(
       '$_[0]', $name, $spec,
       $self->_generate_simple_has('$_[0]', $name, $spec),
-    ).'; '.$simple.' }';
+    ).'; '
+    .($spec->{isa}
+      ?($self->_generate_isa_check($name, $simple, $spec->{isa}).'; ')
+      :''
+    )
+    .$simple.' }';
   }
 }
 

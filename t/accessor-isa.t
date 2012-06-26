@@ -84,4 +84,23 @@ run_for 'Bar';
 
 run_for 'Baz';
 
+{
+  package LazyFoo;
+
+  use Moo;
+
+  has less_than_three => (
+    is => 'lazy',
+    isa => sub { die "$_[0] is not less than three" unless $_[0] < 3 }
+  );
+
+  sub _build_less_than_three { 4 }
+}
+
+like(
+  exception { LazyFoo->new->less_than_three },
+  qr/4 is not less than three/,
+  "exception thrown on bad builder return value (LazyFoo)"
+);
+
 done_testing;
