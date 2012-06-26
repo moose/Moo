@@ -26,6 +26,7 @@ sub import {
       Moo->_constructor_maker_for($target)
          ->register_attribute_specs(%{$old->all_attribute_specs});
     }
+    no warnings 'once'; # piss off. -- mst
     $Moo::HandleMoose::MOUSE{$target} = [
       grep defined, map Mouse::Util::find_meta($_), @_
     ] if $INC{"Mouse.pm"};
