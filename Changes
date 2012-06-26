@@ -1,3 +1,4 @@
+  - no Moo and no Moo::Role
   - squelch used only once warnings for $Moo::HandleMoose::MOUSE
   - MooClass->meta
   - subconstructor handling for Moose classes

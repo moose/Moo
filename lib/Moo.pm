@@ -12,12 +12,19 @@ require Moo::sification;
 
 our %MAKERS;
 
+sub _install_tracked {
+  my ($target, $name, $code) = @_;
+  $MAKERS{$target}{exports}{$name} = $code;
+  _install_coderef "${target}::${name}" => "Moo::${name}" => $code;
+}
+
 sub import {
   my $target = caller;
   my $class = shift;
   strictures->import;
   return if $MAKERS{$target}; # already exported into this package
-  _install_coderef "${target}::extends" => "Moo::extends" => sub {
+  $MAKERS{$target} = {};
+  _install_tracked $target => extends => sub {
     _load_module($_) for @_;
     # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
     @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
@@ -33,13 +40,12 @@ sub import {
     $class->_maybe_reset_handlemoose($target);
     return;
   };
-  _install_coderef "${target}::with" => "Moo::with" => sub {
+  _install_tracked $target => with => sub {
     require Moo::Role;
     Moo::Role->apply_roles_to_package($target, @_);
     $class->_maybe_reset_handlemoose($target);
   };
-  $MAKERS{$target} = {};
-  _install_coderef "${target}::has" => "Moo::has" => sub {
+  _install_tracked $target => has => sub {
     my ($name, %spec) = @_;
     $class->_constructor_maker_for($target)
           ->register_attribute_specs($name, \%spec);
@@ -49,7 +55,7 @@ sub import {
     return;
   };
   foreach my $type (qw(before after around)) {
-    _install_coderef "${target}::${type}" => "Moo::${type}" => sub {
+    _install_tracked $target => $type => sub {
       require Class::Method::Modifiers;
       _install_modifier($target, $type, @_);
       return;
@@ -64,6 +70,11 @@ sub import {
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
+}
+
+sub unimport {
+  my $target = caller;
+  _unimport_coderefs($target, $MAKERS{$target});
 }
 
 sub _maybe_reset_handlemoose {

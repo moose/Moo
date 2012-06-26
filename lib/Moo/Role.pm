@@ -10,14 +10,21 @@ BEGIN { *INFO = \%Role::Tiny::INFO }
 
 our %INFO;
 
+sub _install_tracked {
+  my ($target, $name, $code) = @_;
+  $INFO{$target}{exports}{$name} = $code;
+  _install_coderef "${target}::${name}" => "Moo::Role::${name}" => $code;
+}
+
 sub import {
   my $target = caller;
   my ($me) = @_;
   strictures->import;
   return if $INFO{$target}; # already exported into this package
+  $INFO{$target} = {};
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
-  _install_coderef "${target}::has" => "Moo::Role::has" => sub {
+  _install_tracked $target => has => sub {
     my ($name, %spec) = @_;
     ($INFO{$target}{accessor_maker} ||= do {
       require Method::Generate::Accessor;
@@ -28,17 +35,17 @@ sub import {
   };
   # install before/after/around subs
   foreach my $type (qw(before after around)) {
-    *{_getglob "${target}::${type}"} = sub {
+    _install_tracked $target => $type => sub {
       require Class::Method::Modifiers;
       push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
       $me->_maybe_reset_handlemoose($target);
     };
   }
-  *{_getglob "${target}::requires"} = sub {
+  _install_tracked $target => requires => sub {
     push @{$INFO{$target}{requires}||=[]}, @_;
     $me->_maybe_reset_handlemoose($target);
   };
-  *{_getglob "${target}::with"} = sub {
+  _install_tracked $target => with => sub {
     $me->apply_roles_to_package($target, @_);
     $me->_maybe_reset_handlemoose($target);
   };
@@ -54,6 +61,11 @@ sub import {
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
+}
+
+sub unimport {
+  my $target = caller;
+  _unimport_coderefs($target, $INFO{$target});
 }
 
 sub _maybe_reset_handlemoose {

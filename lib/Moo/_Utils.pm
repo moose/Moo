@@ -16,7 +16,7 @@ use Moo::_mro;
 our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
     _get_linear_isa _getstash _install_coderef _name_coderef
-    _in_global_destruction
+    _unimport_coderefs _in_global_destruction
 );
 
 sub _in_global_destruction ();
@@ -73,6 +73,21 @@ sub _name_coderef {
   shift if @_ > 2; # three args is (target, name, sub)
   can_haz_subname ? Sub::Name::subname(@_) : $_[1];
 }
+
+sub _unimport_coderefs {
+  my ($target, $info) = @_;
+  return unless $info and my $exports = $info->{exports};
+  my %rev = reverse %$exports;
+  my $stash = _getstash($target);
+  foreach my $name (keys %$exports) {
+    if ($stash->{$name} and defined(&{$stash->{$name}})) {
+      if ($rev{$target->can($name)}) {
+        delete $stash->{$name};
+      }
+    }
+  }
+}
+
 
 sub STANDARD_DESTROY {
   my $self = shift;
