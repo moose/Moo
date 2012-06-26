@@ -398,11 +398,6 @@ sub _generate_populate_set {
   }
 }
 
-sub generate_multi_set {
-  my ($self, $me, $to_set, $from) = @_;
-  "\@{${me}}{qw(${\join ' ', @$to_set})} = $from";
-}
-
 sub _generate_core_set {
   my ($self, $me, $name, $spec, $value) = @_;
   my $name_str = perlstring $name;

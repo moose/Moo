@@ -136,28 +136,15 @@ _EOA
 
 sub _assign_new {
   my ($self, $spec) = @_;
-  my (@init, @slots, %test);
   my $ag = $self->accessor_generator;
+  my %test;
   NAME: foreach my $name (sort keys %$spec) {
     my $attr_spec = $spec->{$name};
-    unless ($ag->is_simple_attribute($name, $attr_spec)) {
-      next NAME unless defined($attr_spec->{init_arg})
-                         or $ag->has_eager_default($name, $attr_spec);
-      $test{$name} = $attr_spec->{init_arg};
-      next NAME;
-    }
-    next NAME unless defined(my $i = $attr_spec->{init_arg});
-    push @init, $i;
-    push @slots, $name;
+    next NAME unless defined($attr_spec->{init_arg})
+                       or $ag->has_eager_default($name, $attr_spec);
+    $test{$name} = $attr_spec->{init_arg};
   }
-  return '' unless @init or %test;
-  join '', (
-    @init
-      ? '    '.$self->_cap_call($ag->generate_multi_set(
-          '$new', [ @slots ], '@{$args}{qw('.join(' ',@init).')}', $spec
-        )).";\n"
-      : ''
-  ), map {
+  join '', map {
     my $arg_key = perlstring($test{$_});
     my $test = "exists \$args->{$arg_key}";
     my $source = "\$args->{$arg_key}";
