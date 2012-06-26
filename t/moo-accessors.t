@@ -48,4 +48,7 @@ is_deeply(
   'subclass with role ok'
 );
 
+ok(eval { Foo->meta->make_immutable }, 'make_immutable returns true');
+ok(!$INC{"Moose.pm"}, "Didn't load Moose");
+
 done_testing unless caller;

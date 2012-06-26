@@ -15,6 +15,11 @@ is($attr->get_read_method_ref->body, Foo->can('one'), 'Right method');
 
 is(Foo->new(one => 1, THREE => 3)->one, 1, 'Accessor still works');
 
+is(
+  Foo->meta->get_attribute('one')->get_read_method, 'one',
+  'Method name via ->meta'
+);
+
 $meta = Moose::Meta::Class->initialize('Spoon');
 
 $meta->superclasses('Moose::Object');

@@ -30,6 +30,7 @@ sub maybe_reinject_fake_metaclass_for {
 sub inject_fake_metaclass_for {
   my ($name) = @_;
   require Class::MOP;
+  require Moo::HandleMoose::FakeMetaClass;
   Class::MOP::store_metaclass_by_name(
     $name, bless({ name => $name }, 'Moo::HandleMoose::FakeMetaClass')
   );
@@ -143,23 +144,6 @@ sub inject_real_metaclass_for {
       do { no warnings 'once'; keys %{$Role::Tiny::APPLIED_TO{$name}} };
   $DID_INJECT{$name} = 1;
   $meta;
-}
-
-{
-  package Moo::HandleMoose::FakeMetaClass;
-
-  sub DESTROY { }
-
-  sub AUTOLOAD {
-    my ($meth) = (our $AUTOLOAD =~ /([^:]+)$/);
-    Moo::HandleMoose::inject_real_metaclass_for((shift)->{name})->$meth(@_)
-  }
-  sub can {
-    Moo::HandleMoose::inject_real_metaclass_for((shift)->{name})->can(@_)
-  }
-  sub isa {
-    Moo::HandleMoose::inject_real_metaclass_for((shift)->{name})->isa(@_)
-  }
 }
 
 1;

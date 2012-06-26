@@ -69,4 +69,10 @@ sub does {
   goto &Role::Tiny::does_role;
 }
 
+sub meta {
+  require Moo::HandleMoose::FakeMetaClass;
+  my $class = ref($_[0])||$_[0];
+  bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
+}
+
 1;

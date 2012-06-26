@@ -21,10 +21,26 @@ use Test::Fatal;
         default => 'MooseChild',
     );
 }
+{
+    package MooseChild2;
+    use Moose;
+    extends 'MooParent';
+
+    has '+foo' => (
+        default => 'MooseChild2',
+    );
+    __PACKAGE__->meta->make_immutable
+}
 
 is(
     MooseChild->new->foo,
     'MooseChild',
+    'default value in Moose child'
+);
+
+is(
+    MooseChild2->new->foo,
+    'MooseChild2',
     'default value in Moose child'
 );
 
