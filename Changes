@@ -1,4 +1,5 @@
   - re-add #web-simple as development IRC
+  - don't assume Scalar::Util is imported into the current package
 
 0.091010 - 2012-06-26
   - isa checks on builders

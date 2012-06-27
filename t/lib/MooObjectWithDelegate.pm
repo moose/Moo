@@ -1,11 +1,12 @@
 package MooObjectWithDelegate;
 use ClassicObject;
+use Scalar::Util ();
 use Moo;
 
 has 'delegated' => (
   is => 'ro',
   isa => sub {
-    do { $_[0] && blessed($_[0]) }
+    do { $_[0] && Scalar::Util::blessed($_[0]) }
       or die "Not an Object!";
   },
   lazy => 1,
