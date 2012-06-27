@@ -678,7 +678,9 @@ on your class.
 
 =head1 SUPPORT
 
-IRC: #moose on irc.perl.org
+Users' IRC: #moose on irc.perl.org
+
+Development and contribution IRC: #web-simple on irc.perl.org
 
 =head1 AUTHOR
 
