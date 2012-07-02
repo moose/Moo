@@ -45,14 +45,9 @@ sub generate_method {
   }
   if (exists $spec->{default}) {
     my $default = $spec->{default};
-    unless (ref $default) {
-      die "Invalid default $default";
-    }
-    if (ref $default ne 'CODE') {
-      unless (eval { \&$default }) {
-        die "Invalid default $default";
-      }
-    }
+    # default can be either a coderef or an overloaded object
+    die "Invalid default $default" unless ref $default
+      and ( ref $default eq 'CODE' or eval { \&$default } );
   }
 
   my %methods;
