@@ -35,6 +35,11 @@ like(
   qr/Invalid default/, 'default - arrayref rejected'
 );
 
+like(
+  exception { $gen->generate_method('Foo' => 'five' => { is => 'ro', default => Foo->new }) },
+  qr/Invalid default/, 'default - non-code-convertible object rejected'
+);
+
 is(
   exception { $gen->generate_method('Foo' => 'six' => { is => 'ro', default => sub { 5 } }) },
   undef, 'default - coderef accepted'

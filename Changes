@@ -1,3 +1,5 @@
+  - useful and detailed errors for default checker in attrib generation
+
 0.091011 - 2012-06-27
   - re-add #web-simple as development IRC
   - don't assume Scalar::Util is imported into the current package
