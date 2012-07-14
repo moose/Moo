@@ -67,20 +67,26 @@ sub unimport {
 }
 
 sub _set_superclasses {
-    my $class = shift;
-    my $target = shift;
-    _load_module($_) for @_;
-    # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
-    @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
-    if (my $old = delete $Moo::MAKERS{$target}{constructor}) {
-      delete _getstash($target)->{new};
-      Moo->_constructor_maker_for($target)
-         ->register_attribute_specs(%{$old->all_attribute_specs});
+  my $class = shift;
+  my $target = shift;
+  for (@_) {
+    _load_module($_);
+    if ($INC{"Role/Tiny.pm"} && $Role::Tiny::INFO{$_}) {
+      require Carp;
+      Carp::croak("Can't extend role '$_'");
     }
-    no warnings 'once'; # piss off. -- mst
-    $Moo::HandleMoose::MOUSE{$target} = [
-      grep defined, map Mouse::Util::find_meta($_), @_
-    ] if $INC{"Mouse.pm"};
+  }
+  # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
+  @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
+  if (my $old = delete $Moo::MAKERS{$target}{constructor}) {
+    delete _getstash($target)->{new};
+    Moo->_constructor_maker_for($target)
+       ->register_attribute_specs(%{$old->all_attribute_specs});
+  }
+  no warnings 'once'; # piss off. -- mst
+  $Moo::HandleMoose::MOUSE{$target} = [
+    grep defined, map Mouse::Util::find_meta($_), @_
+  ] if $INC{"Mouse.pm"};
 }
 
 sub _maybe_reset_handlemoose {

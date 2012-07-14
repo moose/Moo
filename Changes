@@ -1,4 +1,5 @@
   - useful and detailed errors for default checker in attrib generation
+  - throw an error when trying to extend a role
 
 0.091011 - 2012-06-27
   - re-add #web-simple as development IRC
