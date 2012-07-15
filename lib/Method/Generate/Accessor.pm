@@ -44,14 +44,16 @@ sub generate_method {
   if (($spec->{trigger}||0) eq 1) {
     $spec->{trigger} = quote_sub('shift->_trigger_'.$name.'(@_)');
   }
-  if (exists $spec->{default}) {
-    my $default = $spec->{default};
-    my $invalid = "Invalid default '" . overload::StrVal($default)
+
+  for my $setting (qw( default coerce )) {
+    next if !exists $spec->{$setting};
+    my $value = $spec->{$setting};
+    my $invalid = "Invalid $setting '" . overload::StrVal($value)
       . "' for $into->$name - not a coderef";
     die "$invalid or code-convertible object"
-      unless ref $default and (ref $default eq 'CODE' or blessed($default));
+      unless ref $value and (ref $value eq 'CODE' or blessed($value));
     die "$invalid and could not be converted to a coderef: $@"
-      if !eval { \&$default };
+      if !eval { \&$value };
   }
 
   my %methods;
