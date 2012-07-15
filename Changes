@@ -1,3 +1,5 @@
+  - load overload.pm explicitly for overload::StrVal
+
 0.091013 - 2012-07-15
   - useful and detailed errors for coerce in attrib generation
 

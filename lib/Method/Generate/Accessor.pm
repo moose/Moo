@@ -6,6 +6,7 @@ use base qw(Moo::Object);
 use Sub::Quote;
 use B 'perlstring';
 use Scalar::Util 'blessed';
+use overload ();
 BEGIN {
   our $CAN_HAZ_XS =
     !$ENV{MOO_XS_DISABLE}
