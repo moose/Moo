@@ -1,3 +1,4 @@
+0.091012 - 2012-07-15
   - useful and detailed errors for default checker in attrib generation
   - throw an error when trying to extend a role
 
