@@ -720,6 +720,8 @@ perigrin - Chris Prather (cpan:PERIGRIN) <chris@prather.org>
 
 Mithaldu - Christian Walde (cpan:MITHALDU) <walde.christian@googlemail.com>
 
+ilmari - Dagfinn Ilmari Mannsåker (cpan:ILMARI) <ilmari@ilmari.org>
+
 =head1 COPYRIGHT
 
 Copyright (c) 2010-2011 the Moo L</AUTHOR> and L</CONTRIBUTORS>
