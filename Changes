@@ -1,3 +1,4 @@
+0.091014 - 2012-07-16
   - load overload.pm explicitly for overload::StrVal
 
 0.091013 - 2012-07-15
