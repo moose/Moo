@@ -1,3 +1,5 @@
+  - clear method cache after metaclass generation to fix autoclean bug
+
 0.091014 - 2012-07-16
   - load overload.pm explicitly for overload::StrVal
 

@@ -65,6 +65,14 @@ sub inject_real_metaclass_for {
   };
     
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
+
+  # if stuff gets added afterwards, _maybe_reset_handlemoose should
+  # trigger the recreation of the metaclass but we need to ensure the
+  # Role::Tiny cache is cleared so we don't confuse Moo itself.
+  if (my $info = $Role::Tiny::INFO{$name}) {
+    delete $info->{methods};
+  }
+
   # needed to ensure the method body is stable and get things named
   Sub::Defer::undefer_sub($_) for grep defined, values %methods;
   my @attrs;
