@@ -1,3 +1,4 @@
+  - convert isa and coerce info from external role attributes 
   - clear method cache after metaclass generation to fix autoclean bug
 
 0.091014 - 2012-07-16

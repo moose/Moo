@@ -99,7 +99,19 @@ sub _inhale_if_moose {
     };
     $INFO{$role}{requires} = [ $meta->get_required_method_list ];
     $INFO{$role}{attributes} = [
-      map +($_ => $meta->get_attribute($_)), $meta->get_attribute_list
+      map +($_ => do {
+        my $spec = { %{$meta->get_attribute($_)} };
+        if ($spec->{isa}) {
+          require Moose::Util::TypeConstraints;
+          my $tc = Moose::Util::TypeConstraints::find_or_create_isa_type_constraint($spec->{isa});
+          my $check = $tc->_compiled_type_constraint;
+          $spec->{isa} = sub { &$check or die "Type constraint failed for $_[0]" };
+          if ($spec->{coerce}) {
+             $spec->{coerce} = $tc->coercion->_compiled_type_coercion;
+          }
+        }
+        $spec;
+      }), $meta->get_attribute_list
     ];
     my $mods = $INFO{$role}{modifiers} = [];
     foreach my $type (qw(before after around)) {
