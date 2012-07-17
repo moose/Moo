@@ -254,16 +254,19 @@ Hence - Moo exists as its name - Minimal Object Orientation - with a pledge
 to make it smooth to upgrade to L<Moose> when you need more than minimal
 features.
 
-=head1 Moo and Moose - NEW, EXPERIMENTAL
+=head1 Moo and Moose
 
 If L<Moo> detects L<Moose> being loaded, it will automatically register
 metaclasses for your L<Moo> and L<Moo::Role> packages, so you should be able
-to use them in L<Moose> code without it ever realising you aren't using
+to use them in L<Moose> code without anybody ever noticing you aren't using
 L<Moose> everywhere.
 
-Extending a L<Moose> class or consuming a L<Moose::Role> should also work.
+Extending a L<Moose> class or consuming a L<Moose::Role> will also work.
 
-So should extending a L<Mouse> class or consuming a L<Mouse::Role>.
+So will extending a L<Mouse> class or consuming a L<Mouse::Role> - but note
+that we don't provide L<Mouse> metaclasses or metaroles so the other way
+around doesn't work. This feature exists for L<Any::Moose> users porting to
+L<Moo>, enabling L<Mouse> users to use L<Moo> classes is not a priority for us.
 
 This means that there is no need for anything like L<Any::Moose> for Moo
 code - Moo and Moose code should simply interoperate without problem. To
@@ -271,17 +274,13 @@ handle L<Mouse> code, you'll likely need an empty Moo role or class consuming
 or extending the L<Mouse> stuff since it doesn't register true L<Moose>
 metaclasses like we do.
 
-However, these features are new as of 0.91.0 (0.091000) so while serviceable,
-they are absolutely certain to not be 100% yet; please do report bugs.
-
 If you need to disable the metaclass creation, add:
 
   no Moo::sification;
 
 to your code before Moose is loaded, but bear in mind that this switch is
-currently global and turns the mechanism off entirely, so don't put this
-in library code, only in a top level script as a temporary measure while
-you send a bug report.
+currently global and turns the mechanism off entirely so don't put this
+in library code.
 
 =head1 IMPORTED METHODS
 
