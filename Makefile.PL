@@ -47,6 +47,11 @@ WriteMakefile(
         }
       )
   ),
+  META_MERGE => {
+    no_index => {
+      directory => [ 'xt' ]
+    }
+  },
   ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),
   LICENSE => 'perl',
 );
