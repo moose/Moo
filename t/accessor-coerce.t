@@ -94,7 +94,7 @@ run_for 'Baz';
   );
 }
 
-like exception { Biff->new(plus_three => 1) }, qr/could not add three!/, 'Exception properly thrown';
+like exception { Biff->new(plus_three => 1) }, qr/coercion for "plus_three" failed: could not add three!/, 'Exception properly thrown';
 
 {
   package Foo2;

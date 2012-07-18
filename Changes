@@ -1,3 +1,4 @@
+  - error prefixes for isa and coerce exceptions
   - unmark Moo and Moose as experimental since it's relatively solid now
   - convert isa and coerce info from external role attributes 
   - clear method cache after metaclass generation to fix autoclean bug
