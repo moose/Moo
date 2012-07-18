@@ -11,7 +11,8 @@ sub run_for {
 
   like(
     exception { $obj->less_than_three(4) },
-    qr/4 is not less than three/, "exception thrown on bad set (${class})"
+    qr/isa check for "less_than_three" failed: 4 is not less than three/,
+    "exception thrown on bad set (${class})"
   );
 
   is($obj->less_than_three, 1, "initial value remains after bad set (${class})");
@@ -29,7 +30,7 @@ sub run_for {
   is(exception { $class->new }, undef, "no exception with no value (${class})");
   like(
     exception { $class->new(less_than_three => 12) },
-    qr/12 is not less than three/,
+    qr/isa check for "less_than_three" failed: 12 is not less than three/,
     "exception thrown on bad constructor arg (${class})"
   );
 }
@@ -99,7 +100,7 @@ run_for 'Baz';
 
 like(
   exception { LazyFoo->new->less_than_three },
-  qr/4 is not less than three/,
+  qr/isa check for "less_than_three" failed: 4 is not less than three/,
   "exception thrown on bad builder return value (LazyFoo)"
 );
 
