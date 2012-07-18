@@ -226,18 +226,29 @@ and else where
 
 =head1 DESCRIPTION
 
-This module is an extremely light-weight, high-performance L<Moose> replacement.
+This module is an extremely light-weight subset of L<Moose> optimised for
+rapid startup and pay for what you use.
+
 It also avoids depending on any XS modules to allow simple deployments.  The
 name C<Moo> is based on the idea that it provides almost -but not quite- two
 thirds of L<Moose>.
 
-Unlike C<Mouse> this module does not aim at full L<Moose> compatibility.  See
-L</INCOMPATIBILITIES> for more details.
+Unlike C<Mouse> this module does not aim at full compatibility with
+L<Moose>'s surface syntax, preferring instead of provide full interoperability
+via the metaclass inflation capabilites described in L</MOO AND MOOSE>.
+
+For a full list of the minor differences between L<Moose> and L<Moo>'s surface
+syntax, see L</INCOMPATIBILITIES>.
 
 =head1 WHY MOO EXISTS
 
 If you want a full object system with a rich Metaprotocol, L<Moose> is
 already wonderful.
+
+However, sometimes you're writing a command line script or a CGI script
+where fast startup is essential, or code designed to be deployed as a single
+file via L<App::FatPacker>, or you're writing a CPAN module and you want it
+to be usable by people with those constraints.
 
 I've tried several times to use L<Mouse> but it's 3x the size of Moo and
 takes longer to load than most of my Moo based CGI scripts take to run.
@@ -246,15 +257,15 @@ If you don't want L<Moose>, you don't want "less metaprotocol" like L<Mouse>,
 you want "as little as possible" - which means "no metaprotocol", which is
 what Moo provides.
 
-By Moo 1.0 I intend to have Moo's equivalent of L<Any::Moose> built in -
-if Moose gets loaded, any Moo class or role will act as a Moose equivalent
-if treated as such.
+Better still, if you install and load L<Moose>, we set up metaclasses for your
+L<Moo> classes and L<Moo::Role> roles, so you can use them in L<Moose> code
+without ever noticing that some of your codebase is using L<Moo>.
 
 Hence - Moo exists as its name - Minimal Object Orientation - with a pledge
 to make it smooth to upgrade to L<Moose> when you need more than minimal
 features.
 
-=head1 Moo and Moose
+=head1 MOO AND MOOSE
 
 If L<Moo> detects L<Moose> being loaded, it will automatically register
 metaclasses for your L<Moo> and L<Moo::Role> packages, so you should be able
@@ -272,7 +283,13 @@ This means that there is no need for anything like L<Any::Moose> for Moo
 code - Moo and Moose code should simply interoperate without problem. To
 handle L<Mouse> code, you'll likely need an empty Moo role or class consuming
 or extending the L<Mouse> stuff since it doesn't register true L<Moose>
-metaclasses like we do.
+metaclasses like L<Moo> does.
+
+If you want types to be upgraded to the L<Moose> types, use
+L<MooX::Types::MooseLike> and install the L<MooseX::Types> library to
+match the L<MooX::Types::MooseLike> library you're using - L<Moo> will
+load the L<MooseX::Types> library and use that type for the newly created
+metaclass.
 
 If you need to disable the metaclass creation, add:
 
