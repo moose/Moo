@@ -1,3 +1,5 @@
+  - ensure constructor gets regenerated if forced early by metaclass inflation
+
 1.000000 - 2012-07-18
   - clean up doc language and expand on Moo and Moose
   - error prefixes for isa and coerce exceptions

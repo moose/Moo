@@ -23,6 +23,9 @@ sub maybe_reinject_fake_metaclass_for {
   my ($name) = @_;
   our %DID_INJECT;
   if (delete $DID_INJECT{$name}) {
+    unless ($Moo::Role::INFO{$name}) {
+      Moo->_constructor_maker_for($name)->install_delayed;
+    }
     inject_fake_metaclass_for($name);
   }
 }
