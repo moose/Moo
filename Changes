@@ -1,3 +1,4 @@
+  - localize @_ when inlining quote_sub'ed isa checks (fixes lazy+isa+default)
   - ensure constructor gets regenerated if forced early by metaclass inflation
 
 1.000000 - 2012-07-18

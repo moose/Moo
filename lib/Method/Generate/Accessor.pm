@@ -332,15 +332,14 @@ sub _generate_call_code {
   my ($self, $name, $type, $values, $sub) = @_;
   if (my $quoted = quoted_from_sub($sub)) {
     my $code = $quoted->[1];
-    my $at_ = '@_ = ('.$values.');';
     if (my $captures = $quoted->[2]) {
       my $cap_name = qq{\$${type}_captures_for_${name}};
       $self->{captures}->{$cap_name} = \$captures;
       Sub::Quote::inlinify(
-        $code, $values, Sub::Quote::capture_unroll($cap_name, $captures, 6)
+        $code, $values, Sub::Quote::capture_unroll($cap_name, $captures, 6), 1
       );
     } else {
-      Sub::Quote::inlinify($code, $values);
+      Sub::Quote::inlinify($code, $values, undef, 1);
     }
   } else {
     my $cap_name = qq{\$${type}_for_${name}};

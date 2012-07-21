@@ -85,23 +85,32 @@ run_for 'Bar';
 
 run_for 'Baz';
 
+my $lt3;
+
 {
   package LazyFoo;
 
+  use Sub::Quote;
   use Moo;
 
   has less_than_three => (
     is => 'lazy',
-    isa => sub { die "$_[0] is not less than three" unless $_[0] < 3 }
+    isa => quote_sub(q{ die "$_[0] is not less than three" unless $_[0] < 3 })
   );
 
-  sub _build_less_than_three { 4 }
+  sub _build_less_than_three { $lt3 }
 }
+
+$lt3 = 4;
 
 like(
   exception { LazyFoo->new->less_than_three },
   qr/isa check for "less_than_three" failed: 4 is not less than three/,
   "exception thrown on bad builder return value (LazyFoo)"
 );
+
+$lt3 = 2;
+
+is(LazyFoo->new->less_than_three, 2, 'Correct builder value returned ok');
 
 done_testing;
