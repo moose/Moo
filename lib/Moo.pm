@@ -185,7 +185,6 @@ Moo - Minimalist Object Orientation (with Moose compatiblity)
  package Cat::Food;
 
  use Moo;
- use Sub::Quote;
 
  sub feed_lion {
    my $self = shift;
@@ -207,7 +206,7 @@ Moo - Minimalist Object Orientation (with Moose compatiblity)
 
  has pounds => (
    is  => 'rw',
-   isa => quote_sub q{ die "$_[0] is too much cat food!" unless $_[0] < 15 },
+   isa => sub { die "$_[0] is too much cat food!" unless $_[0] < 15 },
  );
 
  1;
@@ -418,7 +417,7 @@ Takes a coderef which is meant to validate the attribute.  Unlike L<Moose> Moo
 does not include a basic type system, so instead of doing C<< isa => 'Num' >>,
 one should do
 
- isa => quote_sub q{
+ isa => sub {
    die "$_[0] is not a number!" unless looks_like_number $_[0]
  },
 
@@ -451,7 +450,7 @@ make L<Moose> happy is fine.
 Takes a coderef which is meant to coerce the attribute.  The basic idea is to
 do something like the following:
 
- coerce => quote_sub q{
+ coerce => sub {
    $_[0] + 1 unless $_[0] % 2
  },
 
@@ -604,6 +603,38 @@ documentation.
 L<Sub::Quote/quote_sub> allows us to create coderefs that are "inlineable,"
 giving us a handy, XS-free speed boost.  Any option that is L<Sub::Quote>
 aware can take advantage of this.
+
+To do this, you can write
+
+  use Moo;
+  use Sub::Quote;
+
+  has foo => (
+    is => quote_sub(q{ die "Not <3" unless $_[0] < 3 })
+  );
+
+which will be inlined as
+
+  do {
+    local @_ = ($_[0]->{foo});
+    die "Not <3" unless $_[0] < 3;
+  }
+
+or to avoid localizing @_,
+
+  has foo => (
+    is => quote_sub(q{ my ($val) = @_; die "Not <3" unless $val < 3 })
+  );
+
+which will be inlined as
+
+  do {
+    my ($val) = ($_[0]->{foo});
+    die "Not <3" unless $val < 3;
+  }
+
+See L<Sub::Quote> for more information, including how to pass lexical
+captures that will also be compiled in to the subroutine.
 
 =head1 INCOMPATIBILITIES WITH MOOSE
 

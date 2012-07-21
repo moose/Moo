@@ -1,3 +1,4 @@
+  - remove quote_sub from SYNOPSIS and has docs, expand Sub::Quote section
   - localize @_ when inlining quote_sub'ed isa checks (fixes lazy+isa+default)
   - ensure constructor gets regenerated if forced early by metaclass inflation
 
