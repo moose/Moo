@@ -16,6 +16,7 @@ use Test::More;
   has five => (is => 'ro', init_arg => undef, default => sub { {} });
   has six => (is => 'ro', builder => 1);
   sub _build_six { {} }
+  has seven => (is => 'ro', required => 1, default => quote_sub q{ {} });
 }
 
 sub check {
@@ -37,5 +38,7 @@ check four => map Foo->new->{four}, 1..2;
 check five => map Foo->new->{five}, 1..2;
 
 check six => map Foo->new->{six}, 1..2;
+
+check seven => map Foo->new->{seven}, 1..2;
 
 done_testing;

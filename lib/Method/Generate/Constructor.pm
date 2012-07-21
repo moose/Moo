@@ -159,8 +159,10 @@ sub _check_required {
   my ($self, $spec) = @_;
   my @required_init =
     map $spec->{$_}{init_arg},
-      grep $spec->{$_}{required},
-        sort keys %$spec;
+      grep {
+        my %s = %{$spec->{$_}}; # ignore required if default or builder set
+        $s{required} and not($s{builder} or $s{default})
+      } sort keys %$spec;
   return '' unless @required_init;
   '    if (my @missing = grep !exists $args->{$_}, qw('
     .join(' ',@required_init).')) {'."\n"
