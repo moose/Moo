@@ -298,6 +298,25 @@ to your code before Moose is loaded, but bear in mind that this switch is
 currently global and turns the mechanism off entirely so don't put this
 in library code.
 
+=head1 MOO VERSUS ANY::MOOSE
+
+L<Any::Moose> will load L<Mouse> normally, and L<Moose> in a program using
+L<Moose> - which theoretically allows you to get the startup time of L<Mouse>
+without disadvantaging L<Moose> users.
+
+Sadly, this doesn't entirely work, since the selection is load order dependent
+- L<Moo>'s metaclass inflation system explained above in L</MOO AND MOOSE> is
+significantly more reliable.
+
+So if you want to write a CPAN module that loads fast or has only pure perl
+dependencies but is also fully usable by L<Moose> users, you should be using
+L<Moo>.
+
+For a full explanation, see the article
+L<http://shadow.cat/blog/matt-s-trout/moo-versus-any-moose> which explains
+the differing strategies in more detail and provides a direct example of
+where L<Moo> succeeds and L<Any::Moose> fails.
+
 =head1 IMPORTED METHODS
 
 =head2 new
