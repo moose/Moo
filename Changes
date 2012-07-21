@@ -1,3 +1,4 @@
+1.000001 - 2012-07-21
   - documentation tweaks and cleanup
   - ignore required when default or builder is present
   - document Moo versus Any::Moose in brief with article link
