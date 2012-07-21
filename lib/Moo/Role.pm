@@ -286,7 +286,7 @@ Moo::Role - Minimal Object Orientation support for Roles
 
  1;
 
-else where
+And elsewhere:
 
  package Some::Class;
 
