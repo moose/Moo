@@ -105,7 +105,7 @@ sub STANDARD_DESTROY {
   die $e if $e; # rethrow
 }
 
-if (eval { require_module('Devel::GlobalDestruction') }) {
+if (eval { use_module('Devel::GlobalDestruction', 0.07) }) {
   *_in_global_destruction = \&Devel::GlobalDestruction::in_global_destruction;
 } elsif (defined ${^GLOBAL_PHASE}) {
   eval 'sub _in_global_destruction () { ${^GLOBAL_PHASE} eq q[DESTRUCT] }';

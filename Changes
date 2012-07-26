@@ -1,3 +1,4 @@
+  - require D::GD 0.07 to avoid prototype mismatch errors
   - fix stupid typo in new Sub::Quote section
 
 1.000001 - 2012-07-21
