@@ -1,3 +1,4 @@
+  - throw an error on non-string builder (RT#78479)
   - require D::GD 0.07 to avoid prototype mismatch errors
   - fix stupid typo in new Sub::Quote section
 

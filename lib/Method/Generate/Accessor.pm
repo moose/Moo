@@ -36,6 +36,8 @@ sub generate_method {
     die "Unknown is ${is}";
   }
   $spec->{builder} = '_build_'.$name if ($spec->{builder}||0) eq 1;
+  die "Invalid builder for $into->$name - not a string"
+    if exists $spec->{builder} and ref $spec->{builder};
   if (($spec->{predicate}||0) eq 1) {
     $spec->{predicate} = $name =~ /^_/ ? "_has${name}" : "has_${name}";
   }

@@ -68,6 +68,16 @@ for my $setting (qw( default coerce )) {
   );
 }
 
+is(
+  exception { $gen->generate_method('Foo' => 'ten' => { is => 'ro', builder => '_build_ten' }) },
+  undef, 'builder - string accepted',
+);
+
+like(
+  exception { $gen->generate_method('Foo' => 'eleven' => { is => 'ro', builder => sub {} }) },
+  qr/Invalid builder/, 'builder - coderef rejected'
+);
+
 my $foo = Foo->new(one => 1);
 
 is($foo->one, 1, 'ro reads');
