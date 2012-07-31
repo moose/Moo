@@ -78,6 +78,16 @@ like(
   qr/Invalid builder/, 'builder - coderef rejected'
 );
 
+like(
+  exception { $gen->generate_method('Foo' => 'twelve' => { is => 'ro', builder => 'build:twelve' }) },
+  qr/Invalid builder/, 'builder - invalid name rejected',
+);
+
+is(
+  exception { $gen->generate_method('Foo' => 'thirteen' => { is => 'ro', builder => 'build::thirteen' }) },
+  undef, 'builder - fully-qualified name accepted',
+);
+
 my $foo = Foo->new(one => 1);
 
 is($foo->one, 1, 'ro reads');
