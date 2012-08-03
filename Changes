@@ -1,3 +1,4 @@
+  - honour BUILDARGS when calling $meta->new_object on behalf of Moose
   - throw an error on invalid builder (RT#78479)
   - require D::GD 0.07 to avoid prototype mismatch errors
   - fix stupid typo in new Sub::Quote section

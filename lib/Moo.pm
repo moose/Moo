@@ -162,7 +162,7 @@ sub _constructor_maker_for {
           .'        '.$class.'->_constructor_maker_for($class,'.perlstring($target).');'."\n"
           .'        return $class->new(@_)'.";\n"
           .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
-          .'        return $meta->new_object(@_);'."\n"
+          .'        return $meta->new_object($class->BUILDARGS(@_));'."\n"
           .'      }'."\n"
         ),
       )
