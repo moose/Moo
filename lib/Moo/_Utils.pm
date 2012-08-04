@@ -10,6 +10,7 @@ use constant can_haz_subname => eval { require Sub::Name };
 
 use strictures 1;
 use Module::Runtime qw(require_module);
+use Devel::GlobalDestruction ();
 use base qw(Exporter);
 use Moo::_mro;
 
@@ -20,6 +21,7 @@ our @EXPORT = qw(
 );
 
 sub _in_global_destruction ();
+*_in_global_destruction = \&Devel::GlobalDestruction::in_global_destruction;
 
 sub _install_modifier {
   my ($into, $type, $name, $code) = @_;
@@ -88,7 +90,6 @@ sub _unimport_coderefs {
   }
 }
 
-
 sub STANDARD_DESTROY {
   my $self = shift;
 
@@ -103,54 +104,6 @@ sub STANDARD_DESTROY {
 
   no warnings 'misc';
   die $e if $e; # rethrow
-}
-
-if (eval { use_module('Devel::GlobalDestruction', 0.07) }) {
-  *_in_global_destruction = \&Devel::GlobalDestruction::in_global_destruction;
-} elsif (defined ${^GLOBAL_PHASE}) {
-  eval 'sub _in_global_destruction () { ${^GLOBAL_PHASE} eq q[DESTRUCT] }';
-} else {
-  eval <<'PP_IGD' or die $@;
-
-my ($in_global_destruction, $before_is_installed);
-
-sub _in_global_destruction () { $in_global_destruction }
-
-END {
-  # SpeedyCGI runs END blocks every cycle but somehow keeps object instances
-  # hence lying about it seems reasonable...ish
-  $in_global_destruction = 1 unless $CGI::SpeedyCGI::i_am_speedy;
-}
-
-# threads do not execute the global ENDs (it would be stupid). However
-# one can register a new END via simple string eval within a thread, and
-# achieve the same result. A logical place to do this would be CLONE, which
-# is claimed to run in the context of the new thread. However this does
-# not really seem to be the case - any END evaled in a CLONE is ignored :(
-# Hence blatantly hooking threads::create
-
-if ($INC{'threads.pm'}) {
-  my $orig_create = threads->can('create');
-  no warnings 'redefine';
-  *threads::create = sub {
-    { local $@; eval 'END { $in_global_destruction = 1 }' };
-    goto $orig_create;
-  };
-  $before_is_installed = 1;
-}
-
-# just in case threads got loaded after us (silly)
-sub CLONE {
-  unless ($before_is_installed) {
-    require Carp;
-    Carp::croak("You must load the 'threads' module before @{[ __PACKAGE__ ]}");
-  }
-}
-
-1;  # keep eval happy
-
-PP_IGD
-
 }
 
 1;

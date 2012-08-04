@@ -1,6 +1,7 @@
+  - remove Devel::GlobalDestruction fallback inlining because we can now
+    depend on 0.08 which uses Sub::Exporter::Progressive
   - honour BUILDARGS when calling $meta->new_object on behalf of Moose
   - throw an error on invalid builder (RT#78479)
-  - require D::GD 0.07 to avoid prototype mismatch errors
   - fix stupid typo in new Sub::Quote section
 
 1.000001 - 2012-07-21
