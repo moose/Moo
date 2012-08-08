@@ -6,27 +6,30 @@ use Test::More;
 
   use Moo;
 
-  has one => (is => 'ro', weak_ref => 1);
+  has one => (is => 'rw', weak_ref => 1);
 
   package Foo2;
 
   use Moo;
 
-  has one => (is => 'lazy', weak_ref => 1, default => sub { {} });
+  has one => (is => 'rw', lazy => 1, weak_ref => 1, default => sub { {} });
 }
 
 my $ref = {};
 my $foo = Foo->new(one => $ref);
 is($foo->one, $ref, 'value present');
 ok(Scalar::Util::isweak($foo->{one}), 'value weakened');
+is($foo->one($ref), $ref, 'value returned from setter');
 undef $ref;
 ok(!defined $foo->{one}, 'weak value gone');
 
 my $foo2 = Foo2->new;
 ok(my $ref2 = $foo2->one, 'value returned');
 ok(Scalar::Util::isweak($foo2->{one}), 'value weakened');
+is($foo2->one($ref2), $ref2, 'value returned from setter');
 undef $ref2;
 ok(!defined $foo->{one}, 'weak value gone');
+
 
 # test readonly SVs
 sub mk_ref { \ 'yay' };

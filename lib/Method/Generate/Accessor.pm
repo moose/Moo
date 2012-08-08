@@ -448,7 +448,7 @@ sub _generate_simple_set {
     #
     # but requires XS and is just too damn crazy
     # so simply throw a better exception
-    my $weak_simple = "my \$preserve; Scalar::Util::weaken(${simple})";
+    my $weak_simple = "my \$preserve; Scalar::Util::weaken(${simple}); no warnings 'void'; \$preserve";
     Moo::_Utils::lt_5_8_3() ? <<"EOC" : $weak_simple;
 
       my \$preserve;
