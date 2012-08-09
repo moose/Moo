@@ -8,6 +8,7 @@ BEGIN {
 
 (my $real_test = __FILE__) =~ s/-pre-5_8_3//;
 
-do $real_test;
-die $@ if $@;
-die $! if $!;
+unless (defined do $real_test) {
+    die "$real_test: $@" if $@;
+    die "$real_test: $!" if $!;
+}

@@ -13,7 +13,7 @@ my $gen = Method::Generate::Accessor->new;
 
 {
   package WithOverload;
-  use overload '&{}' => sub { sub { 5 } };
+  use overload '&{}' => sub { sub { 5 } }, fallback => 1;
   sub new { bless {} }
 }
 
