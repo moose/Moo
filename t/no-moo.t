@@ -69,6 +69,19 @@ use Test::More;
   main::is_deeply(\%stash, \%stash2, "stash of non-Moo role remains untouched");
 }
 
+{
+  package GlobalConflict2;
+
+  use Moo;
+
+  no warnings 'redefine';
+
+  our $after = "has!";
+  sub has { $after }
+
+  no Moo;
+}
+
 ok(!Spoon->can('extends'), 'extends cleaned');
 is(Spoon->has, "has!", 'has left alone');
 
@@ -86,5 +99,12 @@ is(GlobalConflict->has, "has!", 'has left alone');
 
 ok(RollerTiny->can('around'), 'around left alone');
 is(RollerTiny->with, "with!", 'with left alone');
+
+ok(!GlobalConflict2->can('extends'), 'extends cleaned');
+is(GlobalConflict2->has, "has!", 'has left alone');
+{
+  no warnings 'once';
+  is($GlobalConflict2::after, "has!", 'package global left alone');
+}
 
 done_testing;
