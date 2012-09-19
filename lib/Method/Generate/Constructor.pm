@@ -16,8 +16,8 @@ sub register_attribute_specs {
       foreach my $key (keys %$old_spec) {
         $new_spec->{$key} = $old_spec->{$key}
           unless exists $new_spec->{$key};
-        }
       }
+    }
     $new_spec->{index} = scalar keys %$specs
       unless defined $new_spec->{index};
     $specs->{$name} = $new_spec;
