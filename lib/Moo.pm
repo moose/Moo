@@ -35,12 +35,18 @@ sub import {
     $class->_maybe_reset_handlemoose($target);
   };
   _install_tracked $target => has => sub {
-    my ($name, %spec) = @_;
-    $class->_constructor_maker_for($target)
-          ->register_attribute_specs($name, \%spec);
-    $class->_accessor_maker_for($target)
-          ->generate_method($target, $name, \%spec);
-    $class->_maybe_reset_handlemoose($target);
+    my ($name_proto, %spec) = @_;
+    my $name_isref = ref $name_proto eq 'ARRAY';
+    foreach my $name ($name_isref ? @$name_proto : $name_proto) {
+      # Note that when $name_proto is an arrayref, each attribute
+      # needs a separate \%specs hashref
+      my $spec_ref = $name_isref ? +{%spec} : \%spec;
+      $class->_constructor_maker_for($target)
+            ->register_attribute_specs($name, $spec_ref);
+      $class->_accessor_maker_for($target)
+            ->generate_method($target, $name, $spec_ref);
+      $class->_maybe_reset_handlemoose($target);
+    }
     return;
   };
   foreach my $type (qw(before after around)) {
@@ -789,6 +795,8 @@ perigrin - Chris Prather (cpan:PERIGRIN) <chris@prather.org>
 Mithaldu - Christian Walde (cpan:MITHALDU) <walde.christian@googlemail.com>
 
 ilmari - Dagfinn Ilmari Mannsåker (cpan:ILMARI) <ilmari@ilmari.org>
+
+tobyink - Toby Inkster (cpan:TOBYINK) <tobyink@cpan.org>
 
 =head1 COPYRIGHT
 

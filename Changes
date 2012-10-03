@@ -1,3 +1,5 @@
+  - allow 'has \@attributes' like Moose does
+
 1.000003 - 2012-08-09
   - make setter for weak_ref attributes return the value
 

@@ -25,13 +25,17 @@ sub import {
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
   _install_tracked $target => has => sub {
-    my ($name, %spec) = @_;
-    ($INFO{$target}{accessor_maker} ||= do {
-      require Method::Generate::Accessor;
-      Method::Generate::Accessor->new
-    })->generate_method($target, $name, \%spec);
-    push @{$INFO{$target}{attributes}||=[]}, $name, \%spec;
-    $me->_maybe_reset_handlemoose($target);
+    my ($name_proto, %spec) = @_;
+    my $name_isref = ref $name_proto eq 'ARRAY';
+    foreach my $name ($name_isref ? @$name_proto : $name_proto) {
+      my $spec_ref = $name_isref ? +{%spec} : \%spec;
+      ($INFO{$target}{accessor_maker} ||= do {
+        require Method::Generate::Accessor;
+        Method::Generate::Accessor->new
+      })->generate_method($target, $name, $spec_ref);
+      push @{$INFO{$target}{attributes}||=[]}, $name, $spec_ref;
+      $me->_maybe_reset_handlemoose($target);
+    }
   };
   # install before/after/around subs
   foreach my $type (qw(before after around)) {
