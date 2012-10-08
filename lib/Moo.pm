@@ -240,7 +240,7 @@ thirds of L<Moose>.
 
 Unlike L<Mouse> this module does not aim at full compatibility with
 L<Moose>'s surface syntax, preferring instead of provide full interoperability
-via the metaclass inflation capabilites described in L</MOO AND MOOSE>.
+via the metaclass inflation capabilities described in L</MOO AND MOOSE>.
 
 For a full list of the minor differences between L<Moose> and L<Moo>'s surface
 syntax, see L</INCOMPATIBILITIES>.
