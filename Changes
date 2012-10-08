@@ -1,4 +1,5 @@
   - fix POD typo (RT#80060)
+  - include init_arg name in constructor errors (RT#79596)
 
 1.000004 - 2012-10-03
   - allow 'has \@attributes' like Moose does

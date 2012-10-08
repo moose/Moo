@@ -285,10 +285,16 @@ sub generate_coerce {
   ($code, delete $self->{captures});
 }
 
+sub _attr_desc {
+  my ($name, $init_arg) = @_;
+  return perlstring($name) if !defined($init_arg) or $init_arg eq $name;
+  return perlstring($name).' (constructor argument: '.perlstring($init_arg).')';
+}
+
 sub _generate_coerce {
-  my ($self, $name, $value, $coerce) = @_;
+  my ($self, $name, $value, $coerce, $init_arg) = @_;
   $self->_generate_die_prefix(
-    "coercion for ${\perlstring($name)} failed: ",
+    "coercion for ${\_attr_desc($name, $init_arg)} failed: ",
     $self->_generate_call_code($name, 'coerce', "${value}", $coerce)
   );
 }
@@ -324,9 +330,9 @@ sub _generate_die_prefix {
 }
 
 sub _generate_isa_check {
-  my ($self, $name, $value, $check) = @_;
+  my ($self, $name, $value, $check, $init_arg) = @_;
   $self->_generate_die_prefix(
-    "isa check for ${\perlstring($name)} failed: ",
+    "isa check for ${\_attr_desc($name, $init_arg)} failed: ",
     $self->_generate_call_code($name, 'isa_check', $value, $check)
   );
 }
@@ -359,7 +365,7 @@ sub generate_populate_set {
 }
 
 sub _generate_populate_set {
-  my ($self, $me, $name, $spec, $source, $test) = @_;
+  my ($self, $me, $name, $spec, $source, $test, $init_arg) = @_;
   if ($self->has_eager_default($name, $spec)) {
     my $get_indent = ' ' x ($spec->{isa} ? 6 : 4);
     my $get_default = $self->_generate_get_default(
@@ -374,13 +380,13 @@ sub _generate_populate_set {
     if ($spec->{coerce}) {
       $get_value = $self->_generate_coerce(
         $name, $get_value,
-        $spec->{coerce}
+        $spec->{coerce}, $init_arg
       )
     }
     ($spec->{isa}
       ? "    {\n      my \$value = ".$get_value.";\n      "
         .$self->_generate_isa_check(
-          $name, '$value', $spec->{isa}
+          $name, '$value', $spec->{isa}, $init_arg
         ).";\n"
         .'      '.$self->_generate_simple_set($me, $name, $spec, '$value').";\n"
         ."    }\n"
@@ -400,14 +406,14 @@ sub _generate_populate_set {
         ? "      $source = "
           .$self->_generate_coerce(
             $name, $source,
-            $spec->{coerce}
+            $spec->{coerce}, $init_arg
           ).";\n"
         : ""
       )
       .($spec->{isa}
         ? "      "
           .$self->_generate_isa_check(
-            $name, $source, $spec->{isa}
+            $name, $source, $spec->{isa}, $init_arg
           ).";\n"
         : ""
       )

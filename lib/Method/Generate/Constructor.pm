@@ -150,7 +150,7 @@ sub _assign_new {
     my $source = "\$args->{$arg_key}";
     my $attr_spec = $spec->{$_};
     $self->_cap_call($ag->generate_populate_set(
-      '$new', $_, $attr_spec, $source, $test
+      '$new', $_, $attr_spec, $source, $test, $test{$_},
     ));
   } sort keys %test;
 }
