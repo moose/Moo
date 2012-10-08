@@ -170,44 +170,4 @@ sub _check_required {
     ."    }\n";
 }
 
-sub _check_isa {
-  my ($self, $spec) = @_;
-  my $acc = $self->accessor_generator;
-  my $captures = $self->{captures};
-  my $check = '';
-  foreach my $name (sort keys %$spec) {
-    my ($init, $isa) = @{$spec->{$name}}{qw(init_arg isa)};
-    next unless $init and $isa;
-    my $init_str = perlstring($init);
-    my ($code, $add_captures) = $acc->generate_isa_check(
-      $name, "\$args->{${init_str}}", $isa
-    );
-    @{$captures}{keys %$add_captures} = values %$add_captures;
-    $check .= "    ${code}".(
-      (not($spec->{lazy}) and ($spec->{default} or $spec->{builder})
-        ? ";\n"
-        : "if exists \$args->{${init_str}};\n"
-      )
-    );
-  }
-  return $check;
-}
-
-sub _fire_triggers {
-  my ($self, $spec) = @_;
-  my $acc = $self->accessor_generator;
-  my $captures = $self->{captures};
-  my $fire = '';
-  foreach my $name (sort keys %$spec) {
-    my ($init, $trigger) = @{$spec->{$name}}{qw(init_arg trigger)};
-    next unless $init && $trigger;
-    my ($code, $add_captures) = $acc->generate_trigger(
-      $name, '$new', $acc->generate_simple_get('$new', $name, $spec), $trigger
-    );
-    @{$captures}{keys %$add_captures} = values %$add_captures;
-    $fire .= "    ${code} if exists \$args->{${\perlstring $init}};\n";
-  }
-  return $fire;
-}
-
 1;
