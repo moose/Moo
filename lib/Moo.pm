@@ -243,7 +243,7 @@ L<Moose>'s surface syntax, preferring instead of provide full interoperability
 via the metaclass inflation capabilities described in L</MOO AND MOOSE>.
 
 For a full list of the minor differences between L<Moose> and L<Moo>'s surface
-syntax, see L</INCOMPATIBILITIES>.
+syntax, see L</INCOMPATIBILITIES WITH MOOSE>.
 
 =head1 WHY MOO EXISTS
 
