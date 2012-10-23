@@ -1,5 +1,6 @@
   - fix POD typo (RT#80060)
   - include init_arg name in constructor errors (RT#79596)
+  - bump Class::Method::Modifiers dependency to avoid warnings on 5.8
 
 1.000004 - 2012-10-03
   - allow 'has \@attributes' like Moose does
