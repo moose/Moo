@@ -5,8 +5,14 @@ use Test::Exception;
 use Moo::HandleMoose;
 
 {
+   package MooParentRole;
+   use Moo::Role;
+   sub parent_role_method { 1 };
+
    package MooRole;
    use Moo::Role;
+   with 'MooParentRole';
+   sub role_method { 1 };
 
    package MooRoledMooClass;
    use Moo;
@@ -37,10 +43,14 @@ use Moo::HandleMoose;
 
 for my $parent (qw(MooseParent MooParent)) {
    for my $child (qw(MooRoledMooClass MooRoledMooseClass)) {
-      lives_ok {
-         $parent->new(
+      lives_and {
+         my $o = $parent->new(
             e => $child->new(),
          );
+         ok( $o->e->does("MooParentRole"), "$child does parent MooRole" );
+         can_ok( $o->e, "role_method" );
+         local $TODO = "multi-level roles are broken with moose" if $child eq "MooRoledMooseClass";
+         can_ok( $o->e, "parent_role_method" );
       } "$parent instantiated with a $child delegate that does a MooRole";
    }
 }
