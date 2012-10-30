@@ -43,15 +43,12 @@ use Moo::HandleMoose;
 
 for my $parent (qw(MooseParent MooParent)) {
    for my $child (qw(MooRoledMooClass MooRoledMooseClass)) {
-      lives_and {
-         my $o = $parent->new(
-            e => $child->new(),
-         );
-         ok( $o->e->does("MooParentRole"), "$child does parent MooRole" );
-         can_ok( $o->e, "role_method" );
-         local $TODO = "multi-level roles are broken with moose" if $child eq "MooRoledMooseClass";
-         can_ok( $o->e, "parent_role_method" );
-      } "$parent instantiated with a $child delegate that does a MooRole";
+       my $o = $parent->new(
+          e => $child->new(),
+       );
+       ok( $o->e->does("MooParentRole"), "$child does parent MooRole" );
+       can_ok( $o->e, "role_method" );
+       can_ok( $o->e, "parent_role_method" );
    }
 }
 

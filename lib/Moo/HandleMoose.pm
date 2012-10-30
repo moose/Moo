@@ -66,8 +66,12 @@ sub inject_real_metaclass_for {
       );
     }
   };
-    
+
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
+
+  while (my ($meth_name, $meth_code) = each %methods) {
+    $meta->add_method($meth_name, $meth_code) if $meth_code;
+  }
 
   # if stuff gets added afterwards, _maybe_reset_handlemoose should
   # trigger the recreation of the metaclass but we need to ensure the
