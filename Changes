@@ -1,5 +1,4 @@
-
-
+  - Correctly handle methods dragged along by role composition
   - Die if Moo and Moo::Role are imported into the same package
 
 1.000006 - 2012-11-16

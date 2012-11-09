@@ -43,12 +43,14 @@ use Moo::HandleMoose;
 
 for my $parent (qw(MooseParent MooParent)) {
    for my $child (qw(MooRoledMooClass MooRoledMooseClass)) {
-       my $o = $parent->new(
-          e => $child->new(),
-       );
-       ok( $o->e->does("MooParentRole"), "$child does parent MooRole" );
-       can_ok( $o->e, "role_method" );
-       can_ok( $o->e, "parent_role_method" );
+      lives_and {
+         my $o = $parent->new(
+            e => $child->new(),
+         );
+         ok( $o->e->does("MooParentRole"), "$child does parent MooRole" );
+         can_ok( $o->e, "role_method" );
+         can_ok( $o->e, "parent_role_method" );
+      };
    }
 }
 
