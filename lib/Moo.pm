@@ -75,11 +75,11 @@ sub unimport {
 sub _set_superclasses {
   my $class = shift;
   my $target = shift;
-  for (@_) {
-    _load_module($_);
-    if ($INC{"Role/Tiny.pm"} && $Role::Tiny::INFO{$_}) {
+  foreach my $superclass (@_) {
+    _load_module($superclass);
+    if ($INC{"Role/Tiny.pm"} && $Role::Tiny::INFO{$superclass}) {
       require Carp;
-      Carp::croak("Can't extend role '$_'");
+      Carp::croak("Can't extend role '$superclass'");
     }
   }
   # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA

@@ -1,3 +1,5 @@
+  - Don't use $_ as loop variable when calling arbitrary code (RT#81072)
+
 1.000005 - 2012-10-23
   - fix POD typo (RT#80060)
   - include init_arg name in constructor errors (RT#79596)

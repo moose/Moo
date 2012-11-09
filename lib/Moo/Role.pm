@@ -190,7 +190,9 @@ sub _make_accessors {
 
 sub apply_roles_to_package {
   my ($me, $to, @roles) = @_;
-  $me->_inhale_if_moose($_) for @roles;
+  foreach my $role (@roles) {
+      $me->_inhale_if_moose($role);
+  }
   $me->SUPER::apply_roles_to_package($to, @roles);
 }
 
@@ -211,7 +213,9 @@ sub create_class_with_roles {
 
   return $new_name if $Role::Tiny::COMPOSED{class}{$new_name};
 
-  $me->_inhale_if_moose($_) for @roles;
+  foreach my $role (@roles) {
+      $me->_inhale_if_moose($role);
+  }
 
   my $m;
   if ($INC{"Moo.pm"}
