@@ -84,7 +84,14 @@ sub _unimport_coderefs {
   foreach my $name (keys %$exports) {
     if ($stash->{$name} and defined(&{$stash->{$name}})) {
       if ($rev{$target->can($name)}) {
-        delete $stash->{$name};
+        my $old = delete $stash->{$name};
+        my $full_name = join('::',$target,$name);
+        # Copy everything except the code slot back into place (e.g. $has)
+        foreach my $type (qw(SCALAR HASH ARRAY IO)) {
+          next unless defined(*{$old}{$type});
+          no strict 'refs';
+          *$full_name = *{$old}{$type};
+        }
       }
     }
   }
