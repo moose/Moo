@@ -1,4 +1,5 @@
   - Don't use $_ as loop variable when calling arbitrary code (RT#81072)
+  - Bump Role::Tiny prereq to fix method modifier breakage on 5.10.0
 
 1.000005 - 2012-10-23
   - fix POD typo (RT#80060)
