@@ -5,7 +5,7 @@ use Moo::_Utils;
 use B 'perlstring';
 use Sub::Defer ();
 
-our $VERSION = '1.000005'; # 1.0.5
+our $VERSION = '1.000006'; # 1.0.6
 $VERSION = eval $VERSION;
 
 require Moo::sification;
