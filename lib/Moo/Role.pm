@@ -20,8 +20,11 @@ sub import {
   my $target = caller;
   my ($me) = @_;
   strictures->import;
+  if ($Moo::MAKERS{$target} and $Moo::MAKERS{$target}{is_class}) {
+    die "Cannot import Moo::Role into a Moo class";
+  }
   return if $INFO{$target}; # already exported into this package
-  $INFO{$target} = {};
+  $INFO{$target} = { is_role => 1 };
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
   _install_tracked $target => has => sub {
