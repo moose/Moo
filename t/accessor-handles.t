@@ -74,4 +74,17 @@ is $bar->eat_curry, 'Curry!', 'handles works for currying';
 is $bar->foobot, 'beep', 'asserter checks for existence not truth, on false value';
 
 is $bar->foobar, 'bar', 'asserter checks for existence not truth, on undef ';
+
+{
+	local $@;
+	ok !eval q{
+		package Baz;
+		use Moo;
+		has foo => ( is => 'ro', handles => 'Robot' );
+		sub smash { 1 };
+		1;
+	}, 'handles will not overwrite locally defined method';
+	like $@, qr{You cannot overwrite a locally defined method \(smash\) with a delegation};
+}
+
 done_testing;

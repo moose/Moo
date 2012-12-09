@@ -166,6 +166,9 @@ sub generate_method {
     foreach my $spec (@specs) {
       my ($proxy, $target, @args) = @$spec;
       $self->{captures} = {};
+      if ( *{_getglob("${into}::${proxy}")}{CODE} ) {
+        die "You cannot overwrite a locally defined method ($proxy) with a delegation";
+      }
       $methods{$proxy} =
         quote_sub "${into}::${proxy}" =>
           $self->_generate_delegation($asserter, $target, \@args),
