@@ -765,6 +765,9 @@ at the end of your class to get an inlined (i.e. not horribly slow)
 constructor. Moo does it automatically the first time ->new is called
 on your class.
 
+An extension L<MooX::late> exists to ease translating Moose packages
+to Moo by providing a more Moose-like interface.
+
 =head1 SUPPORT
 
 Users' IRC: #moose on irc.perl.org
