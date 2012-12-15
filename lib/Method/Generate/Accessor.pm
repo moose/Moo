@@ -18,6 +18,13 @@ BEGIN {
   ;
 }
 
+sub _check_overwrite
+{
+  my ($pkg, $method, $type) = @_;
+  *{_getglob("${pkg}::${method}")}{CODE} and
+    die "You cannot overwrite a locally defined method ($method) with a @{[ $type || 'accessor' ]}";
+}
+
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
   $name =~ s/^\+//;
@@ -85,6 +92,7 @@ sub generate_method {
 
   my %methods;
   if (my $reader = $spec->{reader}) {
+    _check_overwrite($into, $reader, 'reader');
     if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
       $methods{$reader} = $self->_generate_xs(
         getters => $into, $reader, $name, $spec
@@ -100,6 +108,7 @@ sub generate_method {
     }
   }
   if (my $accessor = $spec->{accessor}) {
+    _check_overwrite($into, $accessor, 'accessor');
     if (
       our $CAN_HAZ_XS
       && $self->is_simple_get($name, $spec)
@@ -118,6 +127,7 @@ sub generate_method {
     }
   }
   if (my $writer = $spec->{writer}) {
+    _check_overwrite($into, $writer, 'writer');
     if (
       our $CAN_HAZ_XS
       && $self->is_simple_set($name, $spec)
@@ -135,6 +145,7 @@ sub generate_method {
     }
   }
   if (my $pred = $spec->{predicate}) {
+    _check_overwrite($into, $pred, 'predicate');
     $methods{$pred} =
       quote_sub "${into}::${pred}" =>
         '    '.$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
@@ -144,6 +155,7 @@ sub generate_method {
     _install_coderef( "${into}::$spec->{builder}" => $spec->{builder_sub} );
   }
   if (my $cl = $spec->{clearer}) {
+    _check_overwrite($into, $cl, 'clearer');
     $methods{$cl} =
       quote_sub "${into}::${cl}" => 
         $self->_generate_simple_clear('$_[0]', $name, $spec)."\n"
@@ -165,10 +177,8 @@ sub generate_method {
     };
     foreach my $spec (@specs) {
       my ($proxy, $target, @args) = @$spec;
+      _check_overwrite($into, $proxy, 'delegation');
       $self->{captures} = {};
-      if ( *{_getglob("${into}::${proxy}")}{CODE} ) {
-        die "You cannot overwrite a locally defined method ($proxy) with a delegation";
-      }
       $methods{$proxy} =
         quote_sub "${into}::${proxy}" =>
           $self->_generate_delegation($asserter, $target, \@args),
