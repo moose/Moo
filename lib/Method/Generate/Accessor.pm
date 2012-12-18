@@ -18,16 +18,15 @@ BEGIN {
   ;
 }
 
-sub _check_overwrite
+sub _die_overwrite
 {
   my ($pkg, $method, $type) = @_;
-  *{_getglob("${pkg}::${method}")}{CODE} and
-    die "You cannot overwrite a locally defined method ($method) with a @{[ $type || 'accessor' ]}";
+  die "You cannot overwrite a locally defined method ($method) with @{[ $type || 'an accessor' ]}";
 }
 
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
-  $name =~ s/^\+//;
+  $spec->{allow_overwrite}++ if $name =~ s/^\+//;
   die "Must have an is" unless my $is = $spec->{is};
   if ($is eq 'ro') {
     $spec->{reader} = $name unless exists $spec->{reader};
@@ -92,7 +91,8 @@ sub generate_method {
 
   my %methods;
   if (my $reader = $spec->{reader}) {
-    _check_overwrite($into, $reader, 'reader');
+    _die_overwrite($into, $reader, 'a reader')
+      if !$spec->{allow_overwrite} && *{_getglob("${into}::${reader}")}{CODE};
     if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
       $methods{$reader} = $self->_generate_xs(
         getters => $into, $reader, $name, $spec
@@ -108,7 +108,8 @@ sub generate_method {
     }
   }
   if (my $accessor = $spec->{accessor}) {
-    _check_overwrite($into, $accessor, 'accessor');
+    _die_overwrite($into, $accessor, 'an accessor')
+      if !$spec->{allow_overwrite} && *{_getglob("${into}::${accessor}")}{CODE};
     if (
       our $CAN_HAZ_XS
       && $self->is_simple_get($name, $spec)
@@ -127,7 +128,8 @@ sub generate_method {
     }
   }
   if (my $writer = $spec->{writer}) {
-    _check_overwrite($into, $writer, 'writer');
+    _die_overwrite($into, $writer, 'a writer')
+      if !$spec->{allow_overwrite} && *{_getglob("${into}::${writer}")}{CODE};
     if (
       our $CAN_HAZ_XS
       && $self->is_simple_set($name, $spec)
@@ -145,7 +147,8 @@ sub generate_method {
     }
   }
   if (my $pred = $spec->{predicate}) {
-    _check_overwrite($into, $pred, 'predicate');
+    _die_overwrite($into, $pred, 'a predicate')
+      if !$spec->{allow_overwrite} && *{_getglob("${into}::${pred}")}{CODE};
     $methods{$pred} =
       quote_sub "${into}::${pred}" =>
         '    '.$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
@@ -155,7 +158,8 @@ sub generate_method {
     _install_coderef( "${into}::$spec->{builder}" => $spec->{builder_sub} );
   }
   if (my $cl = $spec->{clearer}) {
-    _check_overwrite($into, $cl, 'clearer');
+    _die_overwrite($into, $cl, 'a clearer')
+      if !$spec->{allow_overwrite} && *{_getglob("${into}::${cl}")}{CODE};
     $methods{$cl} =
       quote_sub "${into}::${cl}" => 
         $self->_generate_simple_clear('$_[0]', $name, $spec)."\n"
@@ -177,7 +181,8 @@ sub generate_method {
     };
     foreach my $spec (@specs) {
       my ($proxy, $target, @args) = @$spec;
-      _check_overwrite($into, $proxy, 'delegation');
+      _die_overwrite($into, $proxy, 'a delegation')
+        if !$spec->{allow_overwrite} && *{_getglob("${into}::${proxy}")}{CODE};
       $self->{captures} = {};
       $methods{$proxy} =
         quote_sub "${into}::${proxy}" =>
