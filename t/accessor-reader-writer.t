@@ -14,6 +14,8 @@ my @result;
     reader => 'get_one',
     writer => 'set_one',
   );
+
+  sub one {'sub'}
 }
 
 {
@@ -33,6 +35,7 @@ my $bar = Bar->new(two => '...');
 is( $foo->get_one, 'lol', 'reader works' );
 $foo->set_one('rofl');
 is( $foo->get_one, 'rofl', 'writer works' );
+is( $foo->one, 'sub', 'reader+writer = no accessor' );
 
 ok( exception { $foo->get_one('blah') }, 'reader dies on write' );
 

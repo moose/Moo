@@ -24,7 +24,8 @@ sub generate_method {
   if ($is eq 'ro') {
     $spec->{reader} = $name unless exists $spec->{reader};
   } elsif ($is eq 'rw') {
-    $spec->{accessor} = $name unless exists $spec->{accessor};
+    $spec->{accessor} = $name unless exists $spec->{accessor}
+      or ( $spec->{reader} and $spec->{writer} );
   } elsif ($is eq 'lazy') {
     $spec->{reader} = $name unless exists $spec->{reader};
     $spec->{lazy} = 1;

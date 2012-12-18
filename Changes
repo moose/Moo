@@ -1,3 +1,4 @@
+  - Don't generate an accessor for rw attributes if reader+writer both set
   - Support builder => sub {} ala MooseX::AttributeShortcuts
   - Fix 'no Moo;' to preserve non-sub package variables
   - Switch to testing for Mouse::Util->can('find_meta') to avoid
