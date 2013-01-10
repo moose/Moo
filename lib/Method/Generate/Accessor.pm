@@ -35,10 +35,19 @@ sub generate_method {
   } elsif ($is ne 'bare') {
     die "Unknown is ${is}";
   }
-  $spec->{builder} = '_build_'.$name if ($spec->{builder}||0) eq 1;
-  die "Invalid builder for $into->$name - not a valid method name"
-    if exists $spec->{builder} and (ref $spec->{builder}
-      or $spec->{builder} !~ /\A[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)*\z/);
+  if (exists $spec->{builder}) {
+    if(ref $spec->{builder}) {
+      die "Invalid builder for $into->$name - not a method name, coderef or"
+        . " code-convertible object"
+        unless ref $spec->{builder} eq 'CODE'
+        or (blessed($spec->{builder}) and eval { \&{$spec->{builder}} });
+      $spec->{builder_sub} = $spec->{builder};
+      $spec->{builder} = 1;
+    }
+    $spec->{builder} = '_build_'.$name if ($spec->{builder}||0) eq 1;
+    die "Invalid builder for $into->$name - not a valid method name"
+      if $spec->{builder} !~ /\A[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)*\z/;
+  }
   if (($spec->{predicate}||0) eq 1) {
     $spec->{predicate} = $name =~ /^_/ ? "_has${name}" : "has_${name}";
   }
@@ -116,6 +125,9 @@ sub generate_method {
       quote_sub "${into}::${pred}" =>
         '    '.$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
       ;
+  }
+  if (my $pred = $spec->{builder_sub}) {
+    _install_coderef( "${into}::$spec->{builder}" => $spec->{builder_sub} );
   }
   if (my $cl = $spec->{clearer}) {
     $methods{$cl} =

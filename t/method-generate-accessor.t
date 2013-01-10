@@ -3,6 +3,7 @@ use Test::More;
 use Test::Fatal;
 
 use Method::Generate::Accessor;
+use Sub::Quote 'quote_sub';
 
 my $gen = Method::Generate::Accessor->new;
 
@@ -73,9 +74,9 @@ is(
   undef, 'builder - string accepted',
 );
 
-like(
+is(
   exception { $gen->generate_method('Foo' => 'eleven' => { is => 'ro', builder => sub {} }) },
-  qr/Invalid builder/, 'builder - coderef rejected'
+  undef, 'builder - coderef accepted'
 );
 
 like(
@@ -88,6 +89,16 @@ is(
   undef, 'builder - fully-qualified name accepted',
 );
 
+is(
+  exception { $gen->generate_method('Foo' => 'fifteen' => { is => 'lazy', builder => sub {15} }) },
+  undef, 'builder - coderef accepted'
+);
+
+is(
+  exception { $gen->generate_method('Foo' => 'sixteen' => { is => 'lazy', builder => quote_sub q{ 16 } }) },
+  undef, 'builder - quote_sub accepted'
+);
+
 my $foo = Foo->new(one => 1);
 
 is($foo->one, 1, 'ro reads');
@@ -97,5 +108,10 @@ is($foo->one, 1, 'ro does not write');
 is($foo->two, undef, 'rw reads');
 $foo->two(-3);
 is($foo->two, -3, 'rw writes');
+
+is($foo->fifteen, 15, 'builder installs code sub');
+is($foo->_build_fifteen, 15, 'builder installs code sub under the correct name');
+
+is($foo->sixteen, 16, 'builder installs quote_sub');
 
 done_testing;

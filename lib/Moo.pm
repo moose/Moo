@@ -556,8 +556,14 @@ Moo will call
 
   $self->$builder;
 
+The following features come from L<MooseX::AttributeShortcuts>:
+
 If you set this to just C<1>, the builder is automatically named
-C<_build_${attr_name}>.  This feature comes from L<MooseX::AttributeShortcuts>.
+C<_build_${attr_name}>.
+
+If you set this to a coderef or code-convertible object, that variable will be
+installed under C<$class::_build_${attr_name}> and the builder set to the same
+name.
 
 =item * C<clearer>
 
