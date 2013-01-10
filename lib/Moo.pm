@@ -556,7 +556,7 @@ Moo will call
 
   $self->$builder;
 
-If you set this to just C<1>, the predicate is automatically named
+If you set this to just C<1>, the builder is automatically named
 C<_build_${attr_name}>.  This feature comes from L<MooseX::AttributeShortcuts>.
 
 =item * C<clearer>
