@@ -42,7 +42,7 @@ sub defer_sub {
   };
   $deferred_string = "$deferred";
   $DEFERRED{$deferred} = [ $target, $maker, \$undeferred ];
-  _install_coderef $target => $deferred if defined $target;
+  _install_coderef($target => $deferred) if defined $target;
   return $deferred;
 }
 
