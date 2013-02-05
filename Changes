@@ -1,3 +1,5 @@
+  - Switch to testing for Mouse::Util->can('find_meta') to avoid
+    exploding on ancient Mouse installs
   - Fix loading order bug that results in _install_coderef being treated
     as indirect object notation
 

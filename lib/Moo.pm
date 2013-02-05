@@ -95,7 +95,7 @@ sub _set_superclasses {
   no warnings 'once'; # piss off. -- mst
   $Moo::HandleMoose::MOUSE{$target} = [
     grep defined, map Mouse::Util::find_meta($_), @_
-  ] if $INC{"Mouse.pm"};
+  ] if Mouse::Util->can('find_meta');
 }
 
 sub _maybe_reset_handlemoose {

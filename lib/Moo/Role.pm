@@ -92,7 +92,7 @@ sub _inhale_if_moose {
         and $meta = Class::MOP::class_of($role)
       )
       or (
-        $INC{"Mouse.pm"}
+        Mouse::Util->can('find_meta')
         and $meta = Mouse::Util::find_meta($role)
      )
   ) {
