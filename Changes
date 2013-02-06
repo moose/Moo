@@ -1,3 +1,4 @@
+  - Fix 'no Moo;' to preserve non-sub package variables
   - Switch to testing for Mouse::Util->can('find_meta') to avoid
     exploding on ancient Mouse installs
   - Fix loading order bug that results in _install_coderef being treated
