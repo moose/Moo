@@ -23,8 +23,7 @@ sub import {
   if ($Moo::MAKERS{$target} and $Moo::MAKERS{$target}{is_class}) {
     die "Cannot import Moo::Role into a Moo class";
   }
-  return if $INFO{$target}; # already exported into this package
-  $INFO{$target} = { is_role => 1 };
+  $INFO{$target} ||= {};
   # get symbol table reference
   my $stash = do { no strict 'refs'; \%{"${target}::"} };
   _install_tracked $target => has => sub {
@@ -56,6 +55,9 @@ sub import {
     $me->apply_roles_to_package($target, @_);
     $me->_maybe_reset_handlemoose($target);
   };
+  return if $INFO{$target}{is_role}; # already exported into this package
+  $INFO{$target}{is_role} = 1;
+  *{_getglob("${target}::meta")} = $me->can('meta');
   # grab all *non-constant* (stash slot is not a scalarref) subs present
   # in the symbol table and store their refaddrs (no need to forcibly
   # inflate constant subs into real subs) - also add '' to here (this
@@ -68,6 +70,13 @@ sub import {
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
+}
+
+# duplicate from Moo::Object
+sub meta {
+  require Moo::HandleMoose::FakeMetaClass;
+  my $class = ref($_[0])||$_[0];
+  bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
 }
 
 sub unimport {

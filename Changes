@@ -1,3 +1,5 @@
+  - Re-export on 'use Moo' after 'no Moo'
+  - Export meta() into roles (but mark as non-method to avoid composing it)
   - Don't generate an accessor for rw attributes if reader+writer both set
   - Support builder => sub {} ala MooseX::AttributeShortcuts
   - Fix 'no Moo;' to preserve non-sub package variables

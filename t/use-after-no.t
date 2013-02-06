@@ -21,17 +21,17 @@ ok eval q{
 
 ok eval q{
   package Roller;
-  use Moo;
+  use Moo::Role;
 
   has foo => ( is => 'ro' );
 
-  no Moo;
+  no Moo::Role;
 
-  use Moo;
+  use Moo::Role;
 
   has foo2 => ( is => 'ro' );
 
-  no Moo;
+  no Moo::Role;
 
   1;
 }, "subs imported on 'use Moo::Role;' after 'no Moo::Role;'"
