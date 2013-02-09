@@ -37,6 +37,12 @@ sub inject_fake_metaclass_for {
   Class::MOP::store_metaclass_by_name(
     $name, bless({ name => $name }, 'Moo::HandleMoose::FakeMetaClass')
   );
+  require Moose::Util::TypeConstraints;
+  if ($Moo::Role::INFO{$name}) {
+    Moose::Util::TypeConstraints::find_or_create_does_type_constraint($name);
+  } else {
+    Moose::Util::TypeConstraints::find_or_create_isa_type_constraint($name);
+  }
 }
 
 {
