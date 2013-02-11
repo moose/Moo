@@ -1,12 +1,21 @@
 use strictures 1;
 use Test::More;
 
+use lib "t/lib";
+
+{
+  package Baz;
+  use Moo;
+  sub beep {'beep'}
+}
+
 {
   package Robot;
 
   use Moo::Role;
 
   requires 'smash';
+  $INC{"Robot.pm"} = 1;
 
 }
 
@@ -34,10 +43,12 @@ use Test::More;
   has foo4 => ( is => 'ro', handles => {
      eat_curry => [ yum => 'Curry!' ],
   });
+  has foo5 => ( is => 'ro', handles => 'ExtRobot' );
 }
 
 my $bar = Bar->new(
-  foo => Foo->new, foo2 => Foo->new, foo3 => Foo->new, foo4 => Foo->new
+  foo => Foo->new, foo2 => Foo->new, foo3 => Foo->new, foo4 => Foo->new,
+  foo5 => Baz->new
 );
 
 is $bar->one, 1, 'handles works';
@@ -46,6 +57,8 @@ is $bar->two, 2, 'handles works for more than one method';
 is $bar->un, 1, 'handles works for aliasing a method';
 
 is $bar->smash, 'smash', 'handles works for a role';
+
+is $bar->beep, 'beep', 'handles loads roles';
 
 is $bar->eat_curry, 'Curry!', 'handles works for currying';
 

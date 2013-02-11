@@ -7,6 +7,7 @@ use Sub::Quote;
 use B 'perlstring';
 use Scalar::Util 'blessed';
 use overload ();
+use Module::Runtime qw(use_module);
 BEGIN {
   our $CAN_HAZ_XS =
     !$ENV{MOO_XS_DISABLE}
@@ -145,7 +146,7 @@ sub generate_method {
         map [ $_ => ref($hspec->{$_}) ? @{$hspec->{$_}} : $hspec->{$_} ],
           keys %$hspec;
       } elsif (!ref($hspec)) {
-        map [ $_ => $_ ], Role::Tiny->methods_provided_by($hspec);
+        map [ $_ => $_ ], use_module('Role::Tiny')->methods_provided_by(use_module($hspec))
       } else {
         die "You gave me a handles of ${hspec} and I have no idea why";
       }

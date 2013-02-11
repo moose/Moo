@@ -1,3 +1,5 @@
+  - handles => "RoleName" tries to load the module
+
 1.000008 - 2013-02-06
   - Re-export on 'use Moo' after 'no Moo'
   - Export meta() into roles (but mark as non-method to avoid composing it)
