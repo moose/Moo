@@ -430,7 +430,9 @@ C<lazy> generates a reader like C<ro>, but also sets C<lazy> to 1 and
 C<builder> to C<_build_${attribute_name}> to allow on-demand generated
 attributes.  This feature was my attempt to fix my incompetence when
 originally designing C<lazy_build>, and is also implemented by
-L<MooseX::AttributeShortcuts>.
+L<MooseX::AttributeShortcuts>. There is, however, nothing to stop you
+using C<lazy> and C<builder> yourself with C<rwp> or C<rw> - it's just that
+this isn't generally a good idea so we don't provide a shortcut for it.
 
 C<rwp> generates a reader like C<ro>, but also sets C<writer> to
 C<_set_${attribute_name}> for attributes that are designed to be written

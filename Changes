@@ -1,3 +1,5 @@
+  - expand is => 'lazy' doc to make it clear that you can make rw lazy
+    attributes if you really want to
   - handles => "RoleName" tries to load the module
 
 1.000008 - 2013-02-06
