@@ -179,8 +179,8 @@ sub generate_method {
         die "You gave me a handles of ${hspec} and I have no idea why";
       }
     };
-    foreach my $spec (@specs) {
-      my ($proxy, $target, @args) = @$spec;
+    foreach my $delegation_spec (@specs) {
+      my ($proxy, $target, @args) = @$delegation_spec;
       _die_overwrite($into, $proxy, 'a delegation')
         if !$spec->{allow_overwrite} && *{_getglob("${into}::${proxy}")}{CODE};
       $self->{captures} = {};
