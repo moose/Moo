@@ -1,3 +1,5 @@
+  - has will refuse to overwrite locally defined subs with generated
+    accessors.
   - added more meta resources and added more support relevant links into
     the POD documentation
   - clarify in docs that default and built values won't call triggers
