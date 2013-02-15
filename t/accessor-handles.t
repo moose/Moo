@@ -7,6 +7,8 @@ use lib "t/lib";
   package Baz;
   use Moo;
   sub beep {'beep'}
+
+  sub is_passed_undefined { !defined($_[0]) ? 'bar' : 'fail' }
 }
 
 {
@@ -44,6 +46,13 @@ use lib "t/lib";
      eat_curry => [ yum => 'Curry!' ],
   });
   has foo5 => ( is => 'ro', handles => 'ExtRobot' );
+  has foo6 => ( is => 'rw',
+                handles => { foobot => '${\\Baz->can("beep")}'},
+                default => sub { 0 } );
+  has foo7 => ( is => 'rw',
+                handles => { foobar => '${\\Baz->can("is_passed_undefined")}'},
+                default => sub { undef } );
+
 }
 
 my $bar = Bar->new(
@@ -62,4 +71,7 @@ is $bar->beep, 'beep', 'handles loads roles';
 
 is $bar->eat_curry, 'Curry!', 'handles works for currying';
 
+is $bar->foobot, 'beep', 'asserter checks for existence not truth, on false value';
+
+is $bar->foobar, 'bar', 'asserter checks for existence not truth, on undef ';
 done_testing;

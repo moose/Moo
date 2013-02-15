@@ -3,6 +3,7 @@
   - expand is => 'lazy' doc to make it clear that you can make rw lazy
     attributes if you really want to
   - handles => "RoleName" tries to load the module
+  - fix delegation to false/undef attributes (RT#83361)
 
 1.000008 - 2013-02-06
   - Re-export on 'use Moo' after 'no Moo'
