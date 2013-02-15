@@ -815,6 +815,8 @@ tobyink - Toby Inkster (cpan:TOBYINK) <tobyink@cpan.org>
 
 haarg - Graham Knop (cpan:HAARG) <haarg@cpan.org>
 
+mattp - Matt Phillips (cpan:MATTP) <mattp@cpan.org>
+
 =head1 COPYRIGHT
 
 Copyright (c) 2010-2011 the Moo L</AUTHOR> and L</CONTRIBUTORS>
