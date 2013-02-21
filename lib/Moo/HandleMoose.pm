@@ -75,10 +75,6 @@ sub inject_real_metaclass_for {
 
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
 
-  while (my ($meth_name, $meth_code) = each %methods) {
-    $meta->add_method($meth_name, $meth_code) if $meth_code;
-  }
-
   # if stuff gets added afterwards, _maybe_reset_handlemoose should
   # trigger the recreation of the metaclass but we need to ensure the
   # Role::Tiny cache is cleared so we don't confuse Moo itself.
@@ -144,6 +140,10 @@ sub inject_real_metaclass_for {
       }
     }
   }
+  while (my ($meth_name, $meth_code) = each %methods) {
+    $meta->add_method($meth_name, $meth_code) if $meth_code;
+  }
+
   if ($am_role) {
     my $info = $Moo::Role::INFO{$name};
     $meta->add_required_methods(@{$info->{requires}});
