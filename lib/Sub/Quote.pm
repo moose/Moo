@@ -128,7 +128,7 @@ Sub::Quote - efficient generation of subroutines via string eval
 
  my $sound = 0;
 
- quote_sub 'Silly::dragon',
+ quote_sub 'Silly::dagron',
    q{ print ++$sound % 2 ? 'burninate' : 'roar' },
    { '$sound' => \$sound };
 
@@ -136,9 +136,9 @@ And elsewhere:
 
  Silly->kitty;  # meow
  Silly->doggy;  # woof
- Silly->dragon; # burninate
- Silly->dragon; # roar
- Silly->dragon; # burninate
+ Silly->dagron; # burninate
+ Silly->dagron; # roar
+ Silly->dagron; # burninate
 
 =head1 DESCRIPTION
 
@@ -157,7 +157,7 @@ C<$name> is the subroutine where the coderef will be installed.
 C<$code> is a string that will be turned into code.
 
 C<\%captures> is a hashref of variables that will be made available to the
-code.  See the L</SYNOPSIS>'s C<Silly::dragon> for an example using captures.
+code.  See the L</SYNOPSIS>'s C<Silly::dagron> for an example using captures.
 
 =head3 options
 
