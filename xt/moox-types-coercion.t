@@ -1,5 +1,6 @@
 use strictures 1;
 use Test::More;
+use Test::Fatal;
 
 {
   package ClassWithTypes;
@@ -9,6 +10,7 @@ use Test::More;
 
   has split_comma => (is => 'ro', isa => ArrayRef, coerce => sub { [ split /,/, $_[0] ] } );
   has split_space => (is => 'ro', isa => ArrayRef, coerce => sub { [ split / /, $_[0] ] } );
+  has bad_coerce => (is => 'ro', isa => ArrayRef, coerce => sub { $_[0] } );
 }
 
 my $o = ClassWithTypes->new(split_comma => 'a,b c,d', split_space => 'a,b c,d');
@@ -24,5 +26,10 @@ is_deeply $o->split_space, ['a,b','c,d'], ' ... and with different coercion on s
 my $o2 = MooseSubclassWithTypes->new(split_comma => 'a,b c,d', split_space => 'a,b c,d');
 is_deeply $o2->split_comma, ['a','b c','d'], 'moose subclass has correct coercion';
 is_deeply $o2->split_space, ['a,b','c,d'], ' ... and with different coercion on same type';
+
+like
+  exception { MooseSubclassWithTypes->new(bad_coerce => 1) },
+  qr/Validation failed for 'ArrayRef' with value/,
+  'inflated type has correct name';
 
 done_testing;
