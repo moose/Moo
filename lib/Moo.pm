@@ -165,7 +165,7 @@ sub _constructor_maker_for {
         construction_string => (
           $moo_constructor
             ? ($con ? $con->construction_string : undef)
-            : ('$class->'.$target.'::SUPER::new(@_)')
+            : ('$class->'.$target.'::SUPER::new($class->can(q[FOREIGNBUILDARGS]) ? $class->FOREIGNBUILDARGS(@_) : @_)')
         ),
         subconstructor_handler => (
           '      if ($Moo::MAKERS{$class}) {'."\n"
