@@ -511,11 +511,11 @@ Takes a hashref
    un => 'one',
  }
 
-=item * trigger
+=item * C<trigger>
 
 Takes a coderef which will get called any time the attribute is set. This
-includes the constructor. Coderef will be invoked against the object with the
-new value as an argument.
+includes the constructor, but not default or built values. Coderef will be
+invoked against the object with the new value as an argument.
 
 If you set this to just C<1>, it generates a trigger which calls the
 C<_trigger_${attr_name}> method on C<$self>. This feature comes from
