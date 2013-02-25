@@ -1,3 +1,5 @@
+  - clarify in docs that default and built values won't call triggers
+    (RT#82310)
   - expand is => 'lazy' doc to make it clear that you can make rw lazy
     attributes if you really want to
   - handles => "RoleName" tries to load the module
