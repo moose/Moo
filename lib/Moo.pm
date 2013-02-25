@@ -212,7 +212,7 @@ Moo - Minimalist Object Orientation (with Moose compatiblity)
    isa => sub {
      die "Only SWEET-TREATZ supported!" unless $_[0] eq 'SWEET-TREATZ'
    },
-);
+ );
 
  has pounds => (
    is  => 'rw',
