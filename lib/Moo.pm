@@ -415,6 +415,15 @@ class.  An error will be raised if these roles have conflicting methods.
 
 Declares an attribute for the class.
 
+ package Bar;
+ extends 'Foo'; # Foo has an 'attr' attribute
+
+ has '+attr' => (
+   default => sub { "blah" },
+ );
+
+Using the C<+> notation, it's possible to override an attribute.
+
 The options for C<has> are as follows:
 
 =over 2
