@@ -415,9 +415,15 @@ class.  An error will be raised if these roles have conflicting methods.
 
 Declares an attribute for the class.
 
- package Bar;
- extends 'Foo'; # Foo has an 'attr' attribute
+ package Foo;
+ use Moo;
+ has 'attr' => (
+   is => 'ro'
+ );
 
+ package Bar;
+ use Moo;
+ extends 'Foo';
  has '+attr' => (
    default => sub { "blah" },
  );
