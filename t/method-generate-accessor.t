@@ -32,12 +32,18 @@ like(
   qr/Unknown is purple/, 'is purple rejected'
 );
 
-for my $setting (qw( default coerce )) {
-  like(
-    exception { $gen->generate_method('Foo' => 'four' => { is => 'ro', $setting => 5 }) },
-    qr/Invalid $setting/, "$setting - scalar rejected"
-  );
+like(
+  exception { $gen->generate_method('Foo' => 'four' => { is => 'ro', coerce => 5 }) },
+  qr/Invalid coerce/, "coerce - scalar rejected"
+);
 
+is(
+  exception { $gen->generate_method('Foo' => 'four' => { is => 'ro', default => 5 }) },
+  undef, "default - non-ref scalar accepted"
+);
+
+
+for my $setting (qw( default coerce )) {
   like(
     exception { $gen->generate_method('Foo' => 'five' => { is => 'ro', $setting => [] }) },
     qr/Invalid $setting/, "$setting - arrayref rejected"

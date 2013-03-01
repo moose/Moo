@@ -60,16 +60,28 @@ sub generate_method {
     $spec->{trigger} = quote_sub('shift->_trigger_'.$name.'(@_)');
   }
 
-  for my $setting (qw( default coerce )) {
-    next if !exists $spec->{$setting};
-    my $value = $spec->{$setting};
-    my $invalid = "Invalid $setting '" . overload::StrVal($value)
+  if (exists $spec->{coerce}) {
+    my $value = $spec->{coerce};
+    my $invalid = "Invalid coerce '" . overload::StrVal($value)
       . "' for $into->$name - not a coderef";
     die "$invalid or code-convertible object"
       unless ref $value and (ref $value eq 'CODE' or blessed($value));
     die "$invalid and could not be converted to a coderef: $@"
       if !eval { \&$value };
   }
+
+  if (exists $spec->{default}) {
+    my $value = $spec->{default};
+    if (!defined $value || ref $value) {
+      my $invalid = "Invalid default '" . overload::StrVal($value)
+        . "' for $into->$name - not a coderef or non-ref";
+      die "$invalid or code-convertible object"
+        unless ref $value and (ref $value eq 'CODE' or blessed($value));
+      die "$invalid and could not be converted to a coderef: $@"
+        if !eval { \&$value };
+    }
+  }
+
 
   my %methods;
   if (my $reader = $spec->{reader}) {
@@ -254,9 +266,14 @@ sub _generate_use_default {
 
 sub _generate_get_default {
   my ($self, $me, $name, $spec) = @_;
-  $spec->{default}
-    ? $self->_generate_call_code($name, 'default', $me, $spec->{default})
-    : "${me}->${\$spec->{builder}}"
+  if (exists $spec->{default}) {
+    ref $spec->{default}
+      ? $self->_generate_call_code($name, 'default', $me, $spec->{default})
+      : perlstring $spec->{default};
+  }
+  else {
+    "${me}->${\$spec->{builder}}"
+  }
 }
 
 sub generate_simple_get {
