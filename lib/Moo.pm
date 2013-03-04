@@ -779,9 +779,15 @@ to Moo by providing a more Moose-like interface.
 
 =head1 SUPPORT
 
-Users' IRC: #moose on irc.perl.org
+Users' IRC: #moose on irc.perl.org L<Click here for instant chatroom via mibbit|http://chat.mibbit.com/#moose@irc.perl.org>
 
-Development and contribution IRC: #web-simple on irc.perl.org
+Development and contribution IRC: #web-simple on irc.perl.org L<Click here for instant chatroom via mibbit|http://chat.mibbit.com/#web-simple@irc.perl.org>
+
+Bugtracker: L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Moo>
+
+Git repository: L<git://git.shadowcat.co.uk/gitmo/Moo.git>
+
+Git web access: L<http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=gitmo/Moo.git>
 
 =head1 AUTHOR
 
@@ -825,6 +831,6 @@ as listed above.
 =head1 LICENSE
 
 This library is free software and may be distributed under the same terms
-as perl itself.
+as perl itself. See L<http://dev.perl.org/licenses/>.
 
 =cut

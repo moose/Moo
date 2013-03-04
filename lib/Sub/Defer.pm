@@ -90,3 +90,15 @@ If the passed coderef has been L<deferred|/defer_sub> this will "undefer" it.
 If the passed coderef has not been deferred, this will just return it.
 
 If this is confusing, take a look at the example in the L</SYNOPSIS>.
+
+=head1 SUPPORT
+
+See L<Moo> for support and contact informations.
+
+=head1 AUTHORS
+
+See L<Moo> for authors.
+
+=head1 COPYRIGHT AND LICENSE
+
+See L<Moo> for the copyright and license.

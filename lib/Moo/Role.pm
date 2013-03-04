@@ -339,6 +339,10 @@ imported by this module.
 Declares an attribute for the class to be composed into.  See
 L<Moo/has> for all options.
 
+=head1 SUPPORT
+
+See L<Moo> for support and contact informations.
+
 =head1 AUTHORS
 
 See L<Moo> for authors.
@@ -346,5 +350,3 @@ See L<Moo> for authors.
 =head1 COPYRIGHT AND LICENSE
 
 See L<Moo> for the copyright and license.
-
-=cut

@@ -23,7 +23,10 @@ my $mymeta = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.5702 };
 
 my %extra_info = (
   resources => {
-    repository => 'git://git.shadowcat.co.uk/gitmo/Moo.git'
+    repository => 'git://git.shadowcat.co.uk/gitmo/Moo.git',
+    IRC => 'irc://irc.perl.org/#moose',
+    bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Moo',
+    license => 'http://dev.perl.org/licenses/',
   }
 );
 

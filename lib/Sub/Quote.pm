@@ -251,3 +251,15 @@ It might turn up in the intended context as follows:
 
 Which will obviously return from foo, when all you meant to do was return from
 the code context in quote_sub and proceed with running important code b.
+
+=head1 SUPPORT
+
+See L<Moo> for support and contact informations.
+
+=head1 AUTHORS
+
+See L<Moo> for authors.
+
+=head1 COPYRIGHT AND LICENSE
+
+See L<Moo> for the copyright and license.
