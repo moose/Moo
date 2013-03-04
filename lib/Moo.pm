@@ -779,9 +779,13 @@ to Moo by providing a more Moose-like interface.
 
 =head1 SUPPORT
 
-Users' IRC: #moose on irc.perl.org L<Click here for instant chatroom via mibbit|http://chat.mibbit.com/#moose@irc.perl.org>
+Users' IRC: #moose on irc.perl.org
 
-Development and contribution IRC: #web-simple on irc.perl.org L<Click here for instant chatroom via mibbit|http://chat.mibbit.com/#web-simple@irc.perl.org>
+=for html <a href="http://chat.mibbit.com/#moose@irc.perl.org">(click for instant chatroom login)</a>
+
+Development and contribution IRC: #web-simple on irc.perl.org
+
+=for html <a href="http://chat.mibbit.com/#web-simple@irc.perl.org">(click for instant chatroom login)</a>
 
 Bugtracker: L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Moo>
 
