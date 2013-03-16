@@ -548,6 +548,10 @@ to populate an attribute if no value is supplied to the constructor - or
 if the attribute is lazy, when the attribute is first retrieved if no
 value has yet been provided.
 
+If a simple scalar is provided, it will be inlined as a string. Any non-code
+reference (hash, array) will result in an error - for that case instead use
+a code reference that returns the desired value.
+
 Note that if your default is fired during new() there is no guarantee that
 other attributes have been populated yet so you should not rely on their
 existence.
@@ -704,7 +708,7 @@ API will encourage the use of other type systems as well, since it's
 probably the weakest part of Moose design-wise.
 
 C<initializer> is not supported in core since the author considers it to be a
-bad idea but may be supported by an extension in future. Meanwhile C<trigger> or
+bad idea and Moose best practices recommend avoiding it. Meanwhile C<trigger> or
 C<coerce> are more likely to be able to fulfill your needs.
 
 There is no meta object.  If you need this level of complexity you wanted
@@ -735,13 +739,15 @@ The C<dump> method is not provided by default. The author suggests loading
 L<Devel::Dwarn> into C<main::> (via C<perl -MDevel::Dwarn ...> for example) and
 using C<$obj-E<gt>$::Dwarn()> instead.
 
-L</default> only supports coderefs, because doing otherwise is usually a
-mistake anyway.
+L</default> only supports coderefs and plain scalars, because passing a hash
+or array reference as a default is almost always incorrect since the value is
+then shared between all objects using that default.
 
 C<lazy_build> is not supported; you are instead encouraged to use the
 C<< is => 'lazy' >> option supported by L<Moo> and L<MooseX::AttributeShortcuts>.
 
-C<auto_deref> is not supported since the author considers it a bad idea.
+C<auto_deref> is not supported since the author considers it a bad idea and
+it has been considered best practice to avoid it for some time.
 
 C<documentation> will show up in a L<Moose> metaclass created from your class
 but is otherwise ignored. Then again, L<Moose> ignores it as well, so this
