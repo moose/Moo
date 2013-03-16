@@ -1,3 +1,4 @@
+1.001000 - 2013-03-16
   - has will refuse to overwrite locally defined subs with generated
     accessors.
   - added more meta resources and added more support relevant links into
