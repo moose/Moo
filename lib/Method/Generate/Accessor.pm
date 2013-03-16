@@ -194,16 +194,9 @@ sub generate_method {
   if (my $asserter = $spec->{asserter}) {
     $self->{captures} = {};
 
-    my $code = "do {\n"
-               ."  my \$val = ".$self->_generate_get($name, $spec).";\n"
-               ."  unless (".$self->_generate_simple_has('$_[0]', $name).") {\n"
-               .qq!    die "Attempted to access '${name}' but it is not set";\n!
-               ."  }\n"
-               ."  \$val;\n"
-               ."}\n";
 
     $methods{$asserter} =
-      quote_sub "${into}::${asserter}" => $code,
+      quote_sub "${into}::${asserter}" => $self->_generate_asserter($name, $spec),
         delete $self->{captures}
       ;
   }
@@ -540,6 +533,17 @@ sub _generate_getset {
     ."\n      : ".$self->_generate_get($name, $spec)."\n    )";
 }
 
+sub _generate_asserter {
+  my ($self, $name, $spec) = @_;
+
+  "do {\n"
+   ."  my \$val = ".$self->_generate_get($name, $spec).";\n"
+   ."  unless (".$self->_generate_simple_has('$_[0]', $name).") {\n"
+   .qq!    die "Attempted to access '${name}' but it is not set";\n!
+   ."  }\n"
+   ."  \$val;\n"
+   ."}\n";
+}
 sub _generate_delegation {
   my ($self, $asserter, $target, $args) = @_;
   my $arg_string = do {
