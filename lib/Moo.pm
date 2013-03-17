@@ -564,7 +564,7 @@ Takes a method name which will return true if an attribute has a value.
 
 If you set this to just C<1>, the predicate is automatically named
 C<has_${attr_name}> if your attribute's name does not start with an
-underscore, or <_has_${attr_name_without_the_underscore}> if it does.
+underscore, or C<_has_${attr_name_without_the_underscore}> if it does.
 This feature comes from L<MooseX::AttributeShortcuts>.
 
 =item * C<builder>
