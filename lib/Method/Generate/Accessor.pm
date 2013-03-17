@@ -538,7 +538,7 @@ sub _generate_asserter {
 
   "do {\n"
    ."  my \$val = ".$self->_generate_get($name, $spec).";\n"
-   ."  unless (".$self->_generate_simple_has('$_[0]', $name).") {\n"
+   ."  unless (".$self->_generate_simple_has('$_[0]', $name, $spec).") {\n"
    .qq!    die "Attempted to access '${name}' but it is not set";\n!
    ."  }\n"
    ."  \$val;\n"
