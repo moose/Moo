@@ -362,6 +362,13 @@ passed to the constructor.
 
 This method should always return a hash reference of named options.
 
+=head2 FOREIGNBUILDARGS
+
+If you are inheriting from a non-Moo class, the arguments passed to the parent
+class constructor can be manipulated by defining a C<FOREIGNBUILDARGS> method.
+It will recieve the same arguments as C<BUILDARGS>, and should return a list
+of arguments to pass to the parent class constructor.
+
 =head2 BUILD
 
 Define a C<BUILD> method on your class and the constructor will automatically
