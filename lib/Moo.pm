@@ -793,7 +793,7 @@ Finally, Moose requires you to call
 
 at the end of your class to get an inlined (i.e. not horribly slow)
 constructor. Moo does it automatically the first time ->new is called
-on your class.
+on your class. (C<make_immutable> is a no-op in Moo to ease migration.)
 
 An extension L<MooX::late> exists to ease translating Moose packages
 to Moo by providing a more Moose-like interface.
