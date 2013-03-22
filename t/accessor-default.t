@@ -23,6 +23,9 @@ my $c_ran;
   has nine => (is => 'lazy', coerce => sub { $c_ran = 1; $_[0] });
   sub _build_nine { {} }
   has ten => (is => 'lazy', default => 5 );
+  has eleven => (is => 'ro', default => 5 );
+  has twelve => (is => 'lazy', default => 0 );
+  has thirteen => (is => 'ro', default => 0 );
 }
 
 sub check {
@@ -56,5 +59,8 @@ check nine => map Foo->new->nine, 1..2;
 ok($c_ran, 'coerce lazy default');
 
 is(Foo->new->ten, 5, 'non-ref default');
+is(Foo->new->eleven, 5, 'eager non-ref default');
+is(Foo->new->twelve, 0, 'false non-ref default');
+is(Foo->new->thirteen, 0, 'eager false non-ref default');
 
 done_testing;
