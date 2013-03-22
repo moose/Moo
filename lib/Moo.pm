@@ -645,6 +645,15 @@ common use of this is to make an underscored attribute have a non-underscored
 initialization name. C<undef> means that passing the value in on instantiation
 is ignored.
 
+=item * C<moosify>
+
+Takes either a coderef or array of coderefs which is meant to transform the
+given attributes specifications if necessary when upgrading to a Moose role or
+class. You shouldn't need this by default, but is provided as a means of
+possible extensibility.
+
+L<Sub::Quote aware|/SUB QUOTE AWARE>
+
 =back
 
 =head2 before

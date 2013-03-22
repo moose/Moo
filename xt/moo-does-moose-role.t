@@ -137,6 +137,44 @@ BEGIN {
   sub jab { 3 }
 }
 
+BEGIN {
+  package Plunk;
+
+  use Moo::Role;
+
+  has pp => (is => 'rw', moosify => sub {
+    my $spec = shift;
+    $spec->{documentation} = 'moosify';
+  });
+}
+
+BEGIN {
+  package Plank;
+
+  use Moo;
+  use Sub::Quote;
+
+  has vv => (is => 'rw', moosify => [quote_sub(q|
+    $_[0]->{documentation} = 'moosify';
+  |), sub { $_[0]->{documentation} = $_[0]->{documentation}.' foo'; }]);
+}
+
+BEGIN {
+  package Plunker;
+
+  use Moose;
+
+  with 'Plunk';
+}
+
+BEGIN {
+  package Planker;
+
+  use Moose;
+
+  extends 'Plank';
+}
+
 foreach my $s (
     Splattered->new,
     Splattered2->new,
@@ -165,5 +203,9 @@ foreach my $c (qw/
   ok $c->can('has_splat');
 }
 
-done_testing;
+foreach my $c (Plunker->new) {
+  is(Plunker->meta->find_attribute_by_name('pp')->documentation, 'moosify', 'moosify modifies attr specs');
+  is(Planker->meta->find_attribute_by_name('vv')->documentation, 'moosify foo', 'moosify modifies attr specs as array');
+}
 
+done_testing;

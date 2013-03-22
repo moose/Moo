@@ -66,28 +66,26 @@ sub generate_method {
     $spec->{trigger} = quote_sub('shift->_trigger_'.$name.'(@_)');
   }
 
-  if (exists $spec->{coerce}) {
-    my $value = $spec->{coerce};
-    my $invalid = "Invalid coerce '" . overload::StrVal($value)
-      . "' for $into->$name - not a coderef";
-    die "$invalid or code-convertible object"
-      unless ref $value and (ref $value eq 'CODE' or blessed($value));
-    die "$invalid and could not be converted to a coderef: $@"
-      if !eval { \&$value };
+  for my $setting (qw( isa coerce )) {
+    next if !exists $spec->{$setting};
+    $self->_validate_codulatable($setting, $spec->{$setting}, "$into->$name");
   }
 
   if (exists $spec->{default}) {
-    my $value = $spec->{default};
-    if (!defined $value || ref $value) {
-      my $invalid = "Invalid default '" . overload::StrVal($value)
-        . "' for $into->$name - not a coderef or non-ref";
-      die "$invalid or code-convertible object"
-        unless ref $value and (ref $value eq 'CODE' or blessed($value));
-      die "$invalid and could not be converted to a coderef: $@"
-        if !eval { \&$value };
+    if (!defined $spec->{default} || ref $spec->{default}) {
+      $self->_validate_codulatable('default', $spec->{default}, "$into->$name", 'or a non-ref');
     }
   }
 
+  if (exists $spec->{moosify}) {
+    if (ref $spec->{moosify} ne 'ARRAY') {
+      $spec->{moosify} = [$spec->{moosify}];
+    }
+
+    for my $spec (@{$spec->{moosify}}) {
+      $self->_validate_codulatable('moosify', $spec, "$into->$name");
+    }
+  }
 
   my %methods;
   if (my $reader = $spec->{reader}) {
@@ -569,5 +567,17 @@ sub _generate_xs {
 }
 
 sub default_construction_string { '{}' }
+
+sub _validate_codulatable {
+  my ($self, $setting, $value, $into, $appended) = @_;
+  $appended ||= '';
+  my $invalid = "Invalid $setting '" . overload::StrVal($value)
+    . "' for $into not a coderef $appended";
+  die "$invalid or code-convertible object"
+    unless ref $value and (ref $value eq 'CODE' or blessed($value));
+  die "$invalid and could not be converted to a coderef: $@"
+    if !eval { \&$value };
+  1;
+}
 
 1;

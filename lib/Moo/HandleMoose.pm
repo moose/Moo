@@ -73,6 +73,12 @@ sub inject_real_metaclass_for {
     }
   };
 
+  for my $spec (values %$attr_specs) {
+    if (my $inflators = delete $spec->{moosify}) {
+      $_->($spec) for @$inflators;
+    }
+  }
+
   my %methods = %{Role::Tiny->_concrete_methods_of($name)};
 
   # if stuff gets added afterwards, _maybe_reset_handlemoose should
