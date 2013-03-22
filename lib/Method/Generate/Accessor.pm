@@ -221,7 +221,7 @@ sub is_simple_set {
 
 sub has_eager_default {
   my ($self, $name, $spec) = @_;
-  (!$spec->{lazy} and ($spec->{default} or $spec->{builder}));
+  (!$spec->{lazy} and (exists $spec->{default} or $spec->{builder}));
 }
 
 sub _generate_get {
