@@ -1,3 +1,6 @@
+  - document Moose type constraint creation for roles and classes
+    (actually fixed in 1.001000)
+
 1.001000 - 2013-03-16
   - has will refuse to overwrite locally defined subs with generated
     accessors.

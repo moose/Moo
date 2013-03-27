@@ -281,6 +281,10 @@ metaclasses for your L<Moo> and L<Moo::Role> packages, so you should be able
 to use them in L<Moose> code without anybody ever noticing you aren't using
 L<Moose> everywhere.
 
+L<Moo> will also create L<Moose type constraints|Moose::Manual::Types> for
+classes and roles, so that C<< isa => 'MyClass' >> and C<< isa => 'MyRole' >>
+work the same as for L<Moose> classes and roles.
+
 Extending a L<Moose> class or consuming a L<Moose::Role> will also work.
 
 So will extending a L<Mouse> class or consuming a L<Mouse::Role> - but note
@@ -466,6 +470,9 @@ one should do
  isa => sub {
    die "$_[0] is not a number!" unless looks_like_number $_[0]
  },
+
+Note that the return value is ignored, only whether the sub lives or
+dies matters.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
