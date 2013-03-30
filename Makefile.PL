@@ -4,7 +4,9 @@ use 5.008001;
 use ExtUtils::MakeMaker;
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
-my %BUILD_DEPS = (
+my %BUILD_DEPS = ();
+
+my %TEST_DEPS = (
   'Test::More' => 0.96,
   'Test::Fatal' => 0.003,
 );
@@ -20,6 +22,14 @@ my %RUN_DEPS = (
 # have to do this since old EUMM dev releases miss the eval $VERSION line
 my $mymeta_works = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.5707 };
 my $mymeta = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.5702 };
+
+my $has_test_requires = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.63_03 };
+
+if (not $has_test_requires)
+{
+    %BUILD_DEPS = (%BUILD_DEPS, %TEST_DEPS);
+    %TEST_DEPS = ();
+}
 
 my %extra_info = (
   resources => {
@@ -41,12 +51,14 @@ WriteMakefile(
   ($mymeta_works
     ? ( # BUILD_REQUIRES makes MYMETA right, requires stops META being wrong
         BUILD_REQUIRES => \%BUILD_DEPS,
+        $has_test_requires ? ( TEST_REQUIRES => \%TEST_DEPS ) : (),
         META_ADD => { requires => \%RUN_DEPS, %extra_info }
       )
     : ( # META_ADD both to get META right - only Makefile written
         META_ADD => {
           requires => \%RUN_DEPS,
           build_requires => \%BUILD_DEPS,
+          test_requires => \%TEST_DEPS,
           %extra_info,
         }
       )
@@ -59,3 +71,4 @@ WriteMakefile(
   ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),
   LICENSE => 'perl',
 );
+
