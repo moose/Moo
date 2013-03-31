@@ -1,3 +1,4 @@
+  - fix false default values used with non-lazy accessors
   - stop built values that fail isa checks still getting stored in the object
   - stop lazy+weak_ref accessors re-building their value on every call
   - make lazy+weak_ref accessors return undef if built value isn't already
@@ -10,6 +11,7 @@
 
 1.001000 - 2013-03-16
   - add support for FOREIGNBUILDARGS when inheriting from non-Moo classes
+  - non-ref default values are allowed without using a sub
   - has will refuse to overwrite locally defined subs with generated
     accessors.
   - added more meta resources and added more support relevant links into
