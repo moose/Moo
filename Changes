@@ -2,6 +2,7 @@
     (actually fixed in 1.001000)
 
 1.001000 - 2013-03-16
+  - add support for FOREIGNBUILDARGS when inheriting from non-Moo classes
   - has will refuse to overwrite locally defined subs with generated
     accessors.
   - added more meta resources and added more support relevant links into
