@@ -389,6 +389,7 @@ sub _generate_isa_check {
 
 sub _generate_call_code {
   my ($self, $name, $type, $values, $sub) = @_;
+  $sub = \&{$sub} if blessed($sub);  # coderef if blessed
   if (my $quoted = quoted_from_sub($sub)) {
     my $code = $quoted->[1];
     if (my $captures = $quoted->[2]) {
