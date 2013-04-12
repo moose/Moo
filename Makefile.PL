@@ -16,7 +16,7 @@ my %RUN_DEPS = (
   'strictures' => 1.004003,
   'Module::Runtime' => 0.012,
   'Role::Tiny' => 1.002004,
-  'Devel::GlobalDestruction' => 0.09,
+  'Devel::GlobalDestruction' => 0.11,
 );
 
 # have to do this since old EUMM dev releases miss the eval $VERSION line

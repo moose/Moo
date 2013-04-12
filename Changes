@@ -1,3 +1,5 @@
+  - bump Devel::GlobalDestruction dependency to fix warning on cleanup
+    when run under -c (RT#78617)
   - document Moose type constraint creation for roles and classes
     (actually fixed in 1.001000)
 
