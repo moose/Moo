@@ -302,22 +302,27 @@ sub _generate_set {
     $self->_generate_simple_set('$_[0]', $name, $spec, '$_[1]');
   } else {
     my ($coerce, $trigger, $isa_check) = @{$spec}{qw(coerce trigger isa)};
-    my $simple = $self->_generate_simple_set('$self', $name, $spec, '$value');
-    my $code = "do { my (\$self, \$value) = \@_;\n";
+    my $value_store = '$_[0]';
+    my $code;
     if ($coerce) {
-      $code .=
-        "        \$value = "
-        .$self->_generate_coerce($name, '$value', $coerce).";\n";
+      $value_store = '$value';
+      $code = "do { my (\$self, \$value) = \@_;\n"
+        ."        \$value = "
+        .$self->_generate_coerce($name, $value_store, $coerce).";\n";
+    }
+    else {
+      $code = "do { my \$self = shift;\n";
     }
     if ($isa_check) {
       $code .= 
-        "        ".$self->_generate_isa_check($name, '$value', $isa_check).";\n";
+        "        ".$self->_generate_isa_check($name, $value_store, $isa_check).";\n";
     }
+    my $simple = $self->_generate_simple_set('$self', $name, $spec, $value_store);
     if ($trigger) {
-      my $fire = $self->_generate_trigger($name, '$self', '$value', $trigger);
+      my $fire = $self->_generate_trigger($name, '$self', $value_store, $trigger);
       $code .=
         "        ".$simple.";\n        ".$fire.";\n"
-        ."        \$value;\n";
+        ."        $value_store;\n";
     } else {
       $code .= "        ".$simple.";\n";
     }
