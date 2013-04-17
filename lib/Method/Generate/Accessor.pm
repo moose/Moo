@@ -232,15 +232,10 @@ sub _generate_get {
   if ($self->is_simple_get($name, $spec)) {
     $simple;
   } else {
-    'do { '.$self->_generate_use_default(
+    $self->_generate_use_default(
       '$_[0]', $name, $spec,
       $self->_generate_simple_has('$_[0]', $name, $spec),
-    ).'; '
-    .($spec->{isa}
-      ?($self->_generate_isa_check($name, $simple, $spec->{isa}).'; ')
-      :''
-    )
-    .$simple.' }';
+    );
   }
 }
 
@@ -270,9 +265,14 @@ sub _generate_use_default {
       $spec->{coerce}
     )
   }
-  $self->_generate_simple_set(
-    $me, $name, $spec, $get_value
-  ).' unless '.$test;
+  $test." ? \n"
+  .$self->_generate_simple_get($me, $name, $spec)."\n:"
+  .($spec->{isa}
+    ? "    do {\n      my \$value = ".$get_value.";\n"
+      ."      ".$self->_generate_isa_check($name, '$value', $spec->{isa}).";\n"
+      ."      ".$self->_generate_simple_set($me, $name, $spec, '$value')."\n"
+      ."    }\n"
+    : '    '.$self->_generate_simple_set($me, $name, $spec, $get_value)."\n");
 }
 
 sub _generate_get_default {
