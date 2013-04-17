@@ -63,6 +63,8 @@ sub quote_sub {
   undef($captures) if $captures && !keys %$captures;
   my $code = pop;
   my $name = $_[0];
+  my $context = caller;
+  $code = "package $context;\n$code";
   my $quoted_info;
   my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
     unquote_sub($quoted_info->[4]);
