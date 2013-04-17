@@ -1,3 +1,8 @@
+  - stop built values that fail isa checks still getting stored in the object
+  - stop lazy+weak_ref accessors re-building their value on every call
+  - make lazy+weak_ref accessors return undef if built value isn't already
+    stored elsewhere (Moose compatibility)
+  - stop isa checks being called on every access for lazy attributes
   - bump Devel::GlobalDestruction dependency to fix warning on cleanup
     when run under -c (RT#78617)
   - document Moose type constraint creation for roles and classes
