@@ -389,15 +389,20 @@ sub _generate_call_code {
   my ($self, $name, $type, $values, $sub) = @_;
   $sub = \&{$sub} if blessed($sub);  # coderef if blessed
   if (my $quoted = quoted_from_sub($sub)) {
+    my $local = 1;
+    if ($values eq '@_' || $values eq '$_[0]') {
+      $local = 0;
+      $values = '@_';
+    }
     my $code = $quoted->[1];
     if (my $captures = $quoted->[2]) {
       my $cap_name = qq{\$${type}_captures_for_${name}};
       $self->{captures}->{$cap_name} = \$captures;
       Sub::Quote::inlinify(
-        $code, $values, Sub::Quote::capture_unroll($cap_name, $captures, 6), 1
+        $code, $values, Sub::Quote::capture_unroll($cap_name, $captures, 6), $local
       );
     } else {
-      Sub::Quote::inlinify($code, $values, undef, 1);
+      Sub::Quote::inlinify($code, $values, undef, $local);
     }
   } else {
     my $cap_name = qq{\$${type}_for_${name}};

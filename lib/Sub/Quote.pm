@@ -37,7 +37,11 @@ sub inlinify {
       $do.'my ('.$code_args.') = ('.$args.'); '.$body.' }';
     }
   } else {
-    $do.($local ? 'local ' : '').'@_ = ('.$args.'); '.$code.' }';
+    my $assign = '';
+    if ($local || $args ne '@_') {
+      $assign = ($local ? 'local ' : '').'@_ = ('.$args.'); ';
+    }
+    $do.$assign.$code.' }';
   }
 }
 
