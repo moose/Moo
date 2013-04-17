@@ -103,13 +103,20 @@ my $lt3;
 
 $lt3 = 4;
 
+my $lazyfoo = LazyFoo->new;
 like(
-  exception { LazyFoo->new->less_than_three },
+  exception { $lazyfoo->less_than_three },
   qr/isa check for "less_than_three" failed: 4 is not less than three/,
   "exception thrown on bad builder return value (LazyFoo)"
 );
 
 $lt3 = 2;
+
+is(
+  exception { $lazyfoo->less_than_three },
+  undef,
+  'Corrected builder value on existing object returned ok'
+);
 
 is(LazyFoo->new->less_than_three, 2, 'Correct builder value returned ok');
 
