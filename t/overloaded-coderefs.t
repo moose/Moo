@@ -2,10 +2,11 @@ use strict;
 use warnings;
 use Test::More;
 
+my $codified = 0;
 {
 	package Dark::Side;
 	use overload
-		q[&{}]   => sub { shift->to_code },
+		q[&{}]   => sub { $codified++; shift->to_code },
 		fallback => 1;
 	sub new {
 		my $class = shift;
@@ -37,13 +38,16 @@ is($theforce->(6), 12, 'check The::Force coderef');
 {
 	package Doubleena;
 	use Moo;
-	has a => (is => "ro", coerce => $darkside, isa => sub { 1 });
-	has b => (is => "ro", coerce => $theforce, isa => The::Force->new('my $z = "I am your father"'));
+	has a => (is => "rw", coerce => $darkside, isa => sub { 1 });
+	has b => (is => "rw", coerce => $theforce, isa => The::Force->new('my $z = "I am your father"'));
 }
 
 my $o = Doubleena->new(a => 11, b => 12);
 is($o->a, 22, 'non-Sub::Quoted inlined coercion overload works');
 is($o->b, 24, 'Sub::Quoted inlined coercion overload works');
+my $codified_before = $codified;
+$o->a(5);
+is($codified_before, $codified, "repeated calls to accessor don't re-trigger overload");
 
 use B::Deparse;
 my $constructor = B::Deparse->new->coderef2text(Doubleena->can('new'));
