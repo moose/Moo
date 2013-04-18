@@ -12,23 +12,32 @@ use Test::More;
 
   use Moo;
 
-  has one => (is => 'rw', lazy => 1, weak_ref => 1, default => sub { {} });
+  our $preexist = {};
+  has one => (is => 'rw', lazy => 1, weak_ref => 1, default => sub { $preexist });
+  has two => (is => 'rw', lazy => 1, weak_ref => 1, default => sub { {} });
 }
 
 my $ref = {};
 my $foo = Foo->new(one => $ref);
 is($foo->one, $ref, 'value present');
 ok(Scalar::Util::isweak($foo->{one}), 'value weakened');
-is($foo->one($ref), $ref, 'value returned from setter');
 undef $ref;
 ok(!defined $foo->{one}, 'weak value gone');
 
 my $foo2 = Foo2->new;
-ok(my $ref2 = $foo2->one, 'value returned');
+ok(my $ref2 = $foo2->one, 'external value returned');
+is($foo2->one, $ref2, 'value maintained');
 ok(Scalar::Util::isweak($foo2->{one}), 'value weakened');
 is($foo2->one($ref2), $ref2, 'value returned from setter');
 undef $ref2;
 ok(!defined $foo->{one}, 'weak value gone');
+
+is($foo2->two, undef, 'weak+lazy ref not returned');
+is($foo2->{two}, undef, 'internal value not set');
+my $ref3 = {};
+is($foo2->two($ref3), $ref3, 'value returned from setter');
+undef $ref3;
+ok(!defined $foo->{two}, 'weak value gone');
 
 
 # test readonly SVs

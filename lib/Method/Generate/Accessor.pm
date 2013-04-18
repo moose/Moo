@@ -489,11 +489,11 @@ sub _generate_core_set {
 sub _generate_simple_set {
   my ($self, $me, $name, $spec, $value) = @_;
   my $name_str = perlstring $name;
+  my $simple = $self->_generate_core_set($me, $name, $spec, $value);
 
   if ($spec->{weak_ref}) {
-    $value = '$preserve = '.$value;
-    my $simple = $self->_generate_core_set($me, $name, $spec, $value);
     require Scalar::Util;
+    my $get = $self->_generate_simple_get($me, $name, $spec);
 
     # Perl < 5.8.3 can't weaken refs to readonly vars
     # (e.g. string constants). This *can* be solved by:
@@ -504,12 +504,10 @@ sub _generate_simple_set {
     #
     # but requires XS and is just too damn crazy
     # so simply throw a better exception
-    my $weak_simple = "my \$preserve; Scalar::Util::weaken(${simple}); no warnings 'void'; \$preserve";
+    my $weak_simple = "do { Scalar::Util::weaken(${simple}); no warnings 'void'; $get }";
     Moo::_Utils::lt_5_8_3() ? <<"EOC" : $weak_simple;
-
-      my \$preserve;
       eval { Scalar::Util::weaken($simple); 1 }
-        ? do { no warnings 'void'; \$preserve; }
+        ? do { no warnings 'void'; $get }
         : do {
           if( \$@ =~ /Modification of a read-only value attempted/) {
             require Carp;
@@ -523,7 +521,7 @@ sub _generate_simple_set {
         }
 EOC
   } else {
-    $self->_generate_core_set($me, $name, $spec, $value);
+    $simple;
   }
 }
 
