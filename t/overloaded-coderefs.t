@@ -9,7 +9,8 @@ use Test::More;
 		fallback => 1;
 	sub new {
 		my $class = shift;
-		bless \$_[0], $class;
+		my $code = shift;
+		bless \$code, $class;
 	}
 	sub to_code {
 		my $self = shift;
