@@ -35,11 +35,12 @@ is($darkside->(6), 12, 'check Dark::Side coderef');
 my $theforce = The::Force->new('my $dummy = "use the force Luke"; $_[0] * 2');
 is($theforce->(6), 12, 'check The::Force coderef');
 
+my $luke = The::Force->new('my $z = "I am your father"');
 {
 	package Doubleena;
 	use Moo;
 	has a => (is => "rw", coerce => $darkside, isa => sub { 1 });
-	has b => (is => "rw", coerce => $theforce, isa => The::Force->new('my $z = "I am your father"'));
+	has b => (is => "rw", coerce => $theforce, isa => $luke);
 }
 
 my $o = Doubleena->new(a => 11, b => 12);
@@ -55,5 +56,21 @@ my $constructor = B::Deparse->new->coderef2text(Doubleena->can('new'));
 like($constructor, qr{use the force Luke}, 'Sub::Quoted coercion got inlined');
 unlike($constructor, qr{join the dark side}, 'non-Sub::Quoted coercion was not inlined');
 like($constructor, qr{I am your father}, 'Sub::Quoted isa got inlined');
+
+require Scalar::Util;
+is(
+	Scalar::Util::refaddr($luke),
+	Scalar::Util::refaddr(
+		Moo->_constructor_maker_for("Doubleena")->all_attribute_specs->{"b"}{"isa"}
+	),
+	'$spec->{isa} reference is not mutated',
+);
+is(
+	Scalar::Util::refaddr($theforce),
+	Scalar::Util::refaddr(
+		Moo->_constructor_maker_for("Doubleena")->all_attribute_specs->{"b"}{"coerce"}
+	),
+	'$spec->{coerce} reference is not mutated',
+);
 
 done_testing;
