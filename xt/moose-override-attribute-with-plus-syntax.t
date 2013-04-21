@@ -31,6 +31,15 @@ use Test::Fatal;
     );
     __PACKAGE__->meta->make_immutable
 }
+{
+    package MooChild;
+    use Moo;
+    extends 'MooParent';
+
+    has '+foo' => (
+        default => sub { 'MooChild' },
+    );
+}
 
 is(
     MooseChild->new->foo,
@@ -43,6 +52,11 @@ is(
     'MooseChild2',
     'default value in Moose child'
 );
+
+is(exception {
+    local $SIG{__WARN__} = sub { die $_[0] };
+    ok(MooChild->meta->has_attribute('foo'), 'inflated metaclass has overridden attribute');
+}, undef, 'metaclass inflation of plus override works without warnings');
 
 done_testing;
 

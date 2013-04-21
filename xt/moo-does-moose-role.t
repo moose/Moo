@@ -191,6 +191,12 @@ BEGIN {
     $spec->{documentation} .= 'child';
   });
 }
+BEGIN{
+  local $SIG{__WARN__} = sub { fail "warning: $_[0]" };
+  package SplatteredMoose;
+  use Moose;
+  extends 'Splattered';
+}
 
 foreach my $s (
     Splattered->new,
@@ -199,14 +205,15 @@ foreach my $s (
     Ker::Splattered2->new,
     KerSplattered->new,
     KerSplattered2->new,
+    SplatteredMoose->new
 ) {
-  ok($s->can('punch'))
+  can_ok($s, 'punch')
     and is($s->punch, 1, 'punch');
-  ok($s->can('jab'))
+  can_ok($s, 'jab')
     and is($s->jab, 3, 'jab');
-  ok($s->can('monkey'))
+  can_ok($s, 'monkey')
     and is($s->monkey, 'OW', 'monkey');
-  ok($s->can('trap'))
+  can_ok($s, 'trap')
     and is($s->trap, -1, 'trap');
 }
 
@@ -216,8 +223,8 @@ foreach my $c (qw/
     KerSplattered
     KerSplattered2
 /) {
-  ok $c->can('has_ker');
-  ok $c->can('has_splat');
+  can_ok($c, 'has_ker');
+  can_ok($c, 'has_splat');
 }
 
 is(Plunker->meta->find_attribute_by_name('pp')->documentation, 'moosify', 'moosify modifies attr specs');

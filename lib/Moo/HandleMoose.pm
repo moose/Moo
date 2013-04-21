@@ -95,15 +95,18 @@ sub inject_real_metaclass_for {
   Sub::Defer::undefer_sub($_) for grep defined, values %methods;
   my @attrs;
   {
+    my %spec_map = (
+      map { $_->name => $_->init_arg }
+      grep { $_->has_init_arg }
+      $meta->attribute_metaclass->meta->get_all_attributes
+    );
     # This local is completely not required for roles but harmless
     local @{_getstash($name)}{keys %methods};
     my %seen_name;
     foreach my $name (@$attr_order) {
       $seen_name{$name} = 1;
       my %spec = %{$attr_specs->{$name}};
-      delete $spec{index};
       $spec{is} = 'ro' if $spec{is} eq 'lazy' or $spec{is} eq 'rwp';
-      delete $spec{asserter};
       my $coerce = $spec{coerce};
       if (my $isa = $spec{isa}) {
         my $tc = $spec{isa} = do {
@@ -136,6 +139,10 @@ sub inject_real_metaclass_for {
         $spec{isa} = $tc;
         $spec{coerce} = 1;
       }
+      %spec =
+        map { $spec_map{$_} => $spec{$_} }
+        grep { exists $spec_map{$_} }
+        keys %spec;
       push @attrs, $meta->add_attribute($name => %spec);
     }
     foreach my $mouse (do { our %MOUSE; @{$MOUSE{$name}||[]} }) {
