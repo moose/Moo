@@ -65,11 +65,14 @@ sub inject_real_metaclass_for {
        { @attr_info },
        [ @attr_info[grep !($_ % 2), 0..$#attr_info] ]
       )
-    } else {
-      my $specs = Moo->_constructor_maker_for($name)->all_attribute_specs;
+    } elsif ( my $cmaker = Moo->_constructor_maker_for($name) ) {
+      my $specs = $cmaker->all_attribute_specs;
       (0, Moose::Meta::Class->initialize($name), $specs,
        [ sort { $specs->{$a}{index} <=> $specs->{$b}{index} } keys %$specs ]
       );
+    } else {
+       # This codepath is used if $name does not exist in $Moo::MAKERS
+       (0, Moose::Meta::Class->initialize($name), {}, [] )
     }
   };
 
