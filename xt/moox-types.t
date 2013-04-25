@@ -39,4 +39,20 @@ is(
   'External (MooseX::Types type) ok'
 );
 
+local $@;
+eval q {
+  package Fooble;
+  use Moo;
+  my $isa = sub { 1 };
+  $Moo::HandleMoose::TYPE_MAP{$isa} = sub { $isa };
+  has barble => (is => "ro", isa => $isa);
+  __PACKAGE__->meta->get_attribute("barble");
+};
+
+like(
+  $@,
+  qr{^error inflating attribute 'barble' for package 'Fooble': \$TYPE_MAP\{CODE\(\w+?\)\} did not return a valid type constraint},
+  'error message for incorrect type constraint inflation',
+);
+
 done_testing;

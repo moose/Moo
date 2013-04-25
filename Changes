@@ -1,3 +1,4 @@
+  - throw a useful exception when typemap doesn't return a value
   - avoid localising @_ when not required for Sub::Quote
   - successfully inflate a metaclass for attributeless classes (RT#86415)
   - fix false default values used with non-lazy accessors
