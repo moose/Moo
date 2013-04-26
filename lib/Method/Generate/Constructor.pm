@@ -16,9 +16,13 @@ sub register_attribute_specs {
       foreach my $key (keys %$old_spec) {
         if (!exists $new_spec->{$key}) {
           $new_spec->{$key} = $old_spec->{$key}
+            unless $key eq 'handles';
         }
         elsif ($key eq 'moosify') {
-          $new_spec->{$key} = [map { ref $_ eq 'ARRAY' ? @$_ : $_ } ($old_spec->{$key}, $new_spec->{$key})];
+          $new_spec->{$key} = [
+            map { ref $_ eq 'ARRAY' ? @$_ : $_ }
+              ($old_spec->{$key}, $new_spec->{$key})
+          ];
         }
       }
     }
