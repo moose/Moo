@@ -570,13 +570,18 @@ sub default_construction_string { '{}' }
 
 sub _validate_codulatable {
   my ($self, $setting, $value, $into, $appended) = @_;
-  $appended ||= '';
   my $invalid = "Invalid $setting '" . overload::StrVal($value)
-    . "' for $into not a coderef $appended";
-  die "$invalid or code-convertible object"
-    unless ref $value and (ref $value eq 'CODE' or blessed($value));
-  die "$invalid and could not be converted to a coderef: $@"
-    if !eval { \&$value };
+    . "' for $into not a coderef";
+  $invalid .= " $appended" if $appended;
+
+  unless (ref $value and (ref $value eq 'CODE' or blessed($value))) {
+    die "$invalid or code-convertible object";
+  }
+
+  unless (eval { \&$value }) {
+    die "$invalid and could not be converted to a coderef: $@";
+  }
+
   1;
 }
 

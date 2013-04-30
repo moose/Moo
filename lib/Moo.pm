@@ -652,8 +652,6 @@ given attributes specifications if necessary when upgrading to a Moose role or
 class. You shouldn't need this by default, but is provided as a means of
 possible extensibility.
 
-L<Sub::Quote aware|/SUB QUOTE AWARE>
-
 =back
 
 =head2 before
