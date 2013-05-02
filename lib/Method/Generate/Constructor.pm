@@ -14,8 +14,12 @@ sub register_attribute_specs {
       die "has '+${name}' given but no ${name} attribute already exists"
         unless my $old_spec = $specs->{$name};
       foreach my $key (keys %$old_spec) {
-        $new_spec->{$key} = $old_spec->{$key}
-          unless exists $new_spec->{$key};
+        if (!exists $new_spec->{$key}) {
+          $new_spec->{$key} = $old_spec->{$key}
+        }
+        elsif ($key eq 'moosify') {
+          $new_spec->{$key} = [map { ref $_ eq 'ARRAY' ? @$_ : $_ } ($old_spec->{$key}, $new_spec->{$key})];
+        }
       }
     }
     $new_spec->{index} = scalar keys %$specs

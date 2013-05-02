@@ -175,6 +175,23 @@ BEGIN {
   extends 'Plank';
 }
 
+BEGIN {
+  package Plonk;
+  use Moo;
+  has kk => (is => 'rw', moosify => [sub {
+    $_[0]->{documentation} = 'parent';
+  }]);
+}
+BEGIN {
+  package Plonker;
+  use Moo;
+  extends 'Plonk';
+  has '+kk' => (moosify => sub {
+    my $spec = shift;
+    $spec->{documentation} .= 'child';
+  });
+}
+
 foreach my $s (
     Splattered->new,
     Splattered2->new,
@@ -203,9 +220,11 @@ foreach my $c (qw/
   ok $c->can('has_splat');
 }
 
-foreach my $c (Plunker->new) {
-  is(Plunker->meta->find_attribute_by_name('pp')->documentation, 'moosify', 'moosify modifies attr specs');
-  is(Planker->meta->find_attribute_by_name('vv')->documentation, 'moosify foo', 'moosify modifies attr specs as array');
-}
+is(Plunker->meta->find_attribute_by_name('pp')->documentation, 'moosify', 'moosify modifies attr specs');
+is(Planker->meta->find_attribute_by_name('vv')->documentation, 'moosify foo', 'moosify modifies attr specs as array');
+
+is( Plonker->meta->find_attribute_by_name('kk')->documentation,
+    'parentchild',
+    'moosify applies for overridden attributes with roles');
 
 done_testing;
