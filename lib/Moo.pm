@@ -188,7 +188,7 @@ sub _constructor_maker_for {
 
 =head1 NAME
 
-Moo - Minimalist Object Orientation (with Moose compatiblity)
+Moo - Minimalist Object Orientation (with Moose compatibility)
 
 =head1 SYNOPSIS
 
