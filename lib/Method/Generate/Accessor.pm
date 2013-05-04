@@ -270,7 +270,7 @@ sub _generate_use_default {
       ."      ".$self->_generate_isa_check($name, '$value', $spec->{isa}).";\n"
       ."      ".$self->_generate_simple_set($me, $name, $spec, '$value')."\n"
       ."    }\n"
-    : '    '.$self->_generate_simple_set($me, $name, $spec, $get_value)."\n");
+    : '    ('.$self->_generate_simple_set($me, $name, $spec, $get_value).")\n");
 }
 
 sub _generate_get_default {
