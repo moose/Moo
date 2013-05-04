@@ -51,7 +51,7 @@ eval q {
 
 like(
   $@,
-  qr{^error inflating attribute 'barble' for package 'Fooble': \$TYPE_MAP\{CODE\(\w+?\)\} did not return a valid type constraint},
+  qr/^error inflating attribute 'barble' for package 'Fooble': \$TYPE_MAP\{CODE\(\w+?\)\} did not return a valid type constraint/,
   'error message for incorrect type constraint inflation',
 );
 
