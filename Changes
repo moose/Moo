@@ -1,3 +1,4 @@
+  - add 'moosify' attribute key to provide code for inflating to Moose
   - fix warnings about unknown attribute parameters on metaclass inflation
   - don't pass 'handles' down when doing 'has +' to avoid unDWIMmy explosions
   - throw a useful exception when typemap doesn't return a value
