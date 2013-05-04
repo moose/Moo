@@ -1,5 +1,9 @@
 use strictures 1;
 use Test::More;
+use Moo::_Utils;
+
+ok(Moo::_Utils::lt_5_8_3, "pretending to be pre-5.8.3")
+    if $ENV{MOO_TEST_PRE_583};
 
 {
   package Foo;

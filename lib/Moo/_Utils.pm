@@ -5,7 +5,7 @@ no warnings 'once'; # guard against -w
 sub _getglob { \*{$_[0]} }
 sub _getstash { \%{"$_[0]::"} }
 
-use constant lt_5_8_3 => ( $] < 5.008003 ) ? 1 : 0;
+use constant lt_5_8_3 => ( $] < 5.008003 or $ENV{MOO_TEST_PRE_583} ) ? 1 : 0;
 use constant can_haz_subname => eval { require Sub::Name };
 
 use strictures 1;
