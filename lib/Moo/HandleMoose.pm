@@ -95,17 +95,30 @@ sub inject_real_metaclass_for {
   Sub::Defer::undefer_sub($_) for grep defined, values %methods;
   my @attrs;
   {
-    my %spec_map = (
-      map { $_->name => $_->init_arg }
-      grep { $_->has_init_arg }
-      $meta->attribute_metaclass->meta->get_all_attributes
-    );
     # This local is completely not required for roles but harmless
     local @{_getstash($name)}{keys %methods};
     my %seen_name;
     foreach my $name (@$attr_order) {
       $seen_name{$name} = 1;
       my %spec = %{$attr_specs->{$name}};
+      my %spec_map = (
+        map { $_->name => $_->init_arg }
+        grep { $_->has_init_arg }
+        $meta->attribute_metaclass->meta->get_all_attributes
+      );
+      for my $trait (@{$spec{traits}||[]}) {
+        my $trait_meta = Moose::Util::resolve_metatrait_alias('Attribute', $trait)->meta;
+        my @trait_attrs =
+          map { $trait_meta->get_attribute($_) }
+          $trait_meta->get_attribute_list;
+        for my $trait_attr (@trait_attrs) {
+          my $orig = $trait_attr->original_options;
+          my $init_arg = (exists $orig->{init_arg} ? $orig->{init_arg} : $trait_attr->name)
+            or next;
+          $spec_map{$trait_attr->name} = $init_arg;
+        }
+      }
+
       $spec{is} = 'ro' if $spec{is} eq 'lazy' or $spec{is} eq 'rwp';
       my $coerce = $spec{coerce};
       if (my $isa = $spec{isa}) {
