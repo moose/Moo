@@ -106,7 +106,7 @@ sub inject_real_metaclass_for {
         (
           (grep { $_->has_init_arg }
              $meta->attribute_metaclass->meta->get_all_attributes),
-          grep { $_->has_init_arg ? defined($_->init_arg) : 1 }
+          grep { exists($_->{init_arg}) ? defined($_->init_arg) : 1 }
           map {
             my $meta = Moose::Util::resolve_metatrait_alias('Attribute', $_)
                          ->meta;
