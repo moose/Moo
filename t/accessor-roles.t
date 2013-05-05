@@ -12,6 +12,10 @@ use Sub::Quote;
 
   package One::P2; use Moo::Role;
   has three => (is => 'ro', default => sub { 'three' });
+  has four => (is => 'ro', lazy => 1, default => sub { 'four' }, predicate => 1);
+
+  package One::P3; use Moo::Role;
+  has '+three' => (is => 'ro', default => sub { 'three' });
 }
 
 my $combined = Moo::Role->create_class_with_roles('One', qw(One::P1 One::P2));
@@ -38,5 +42,14 @@ is $c->three, "three", "attr default set from role";
 }
 
 is(Two->new->two, 'II', "overwriting accessors using +attr works");
+
+my $o = One->new;
+Moo::Role->apply_roles_to_object($o, 'One::P2');
+is($o->three, 'three', 'attr default set from role applied to object');
+ok(!$o->has_four, 'lazy attr default not set on apply');
+
+$o = $combined->new(three => '3');
+Moo::Role->apply_roles_to_object($o, 'One::P3');
+is($o->three, '3', 'attr default not used when already set when role applied to object');
 
 done_testing;
