@@ -239,16 +239,28 @@ is( Plonker->meta->find_attribute_by_name('kk')->documentation,
   use Moose::Role;
 
   has 'extra_attr' => (is => 'ro');
+  has 'extra_attr_noinit' => (is => 'ro', init_arg => undef);
 }
 
 {
+  local $SIG{__WARN__} = sub { fail "warning: $_[0]" };
   package UsingMooseTrait;
   use Moo;
 
-  has one => (is => 'ro', traits => ['MooseAttrTrait'], extra_attr => 'one');
+  has one => (
+    is => 'ro',
+    traits => ['MooseAttrTrait'],
+    extra_attr => 'one',
+    extra_attr_noinit => 'two',
+  );
 }
 
-ok(UsingMooseTrait->meta->find_attribute_by_name('one')->can('extra_attr'), 'trait was properly applied');
-is(UsingMooseTrait->meta->find_attribute_by_name('one')->extra_attr, 'one', 'trait attributes maintain values');
+ok( UsingMooseTrait->meta
+      ->find_attribute_by_name('one')->can('extra_attr'),
+    'trait was properly applied');
+is( UsingMooseTrait->meta->find_attribute_by_name('one')
+      ->extra_attr,
+    'one',
+    'trait attributes maintain values');
 
 done_testing;
