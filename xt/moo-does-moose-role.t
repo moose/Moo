@@ -234,4 +234,21 @@ is( Plonker->meta->find_attribute_by_name('kk')->documentation,
     'parentchild',
     'moosify applies for overridden attributes with roles');
 
+{
+  package MooseAttrTrait;
+  use Moose::Role;
+
+  has 'extra_attr' => (is => 'ro');
+}
+
+{
+  package UsingMooseTrait;
+  use Moo;
+
+  has one => (is => 'ro', traits => ['MooseAttrTrait'], extra_attr => 'one');
+}
+
+ok(UsingMooseTrait->meta->find_attribute_by_name('one')->can('extra_attr'), 'trait was properly applied');
+is(UsingMooseTrait->meta->find_attribute_by_name('one')->extra_attr, 'one', 'trait attributes maintain values');
+
 done_testing;
