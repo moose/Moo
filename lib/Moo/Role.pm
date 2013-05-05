@@ -119,12 +119,14 @@ sub _inhale_if_moose {
     $INFO{$role}{requires} = [ $meta->get_required_method_list ];
     $INFO{$role}{attributes} = [
       map +($_ => do {
-        my $spec = { %{$meta->get_attribute($_)} };
+        my $attr = $meta->get_attribute($_);
+        my $is_mouse = $meta->isa('Mouse::Meta::Role');
+        my $spec = { %{ $is_mouse ? $attr : $attr->original_options } };
 
         if ($spec->{isa}) {
 
           my $get_constraint = do {
-            my $pkg = $meta->isa('Mouse::Meta::Role')
+            my $pkg = $is_mouse
                         ? 'Mouse::Util::TypeConstraints'
                         : 'Moose::Util::TypeConstraints';
             _load_module($pkg);
