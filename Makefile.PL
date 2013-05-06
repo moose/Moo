@@ -72,7 +72,10 @@ WriteMakefile(
   META_MERGE => {
     no_index => {
       directory => [ 'xt' ]
-    }
+    },
+    x_breaks => {
+      # enter conflicting data here, *and* in Moo::Conflicts
+    },
   },
   ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),
   LICENSE => 'perl',
