@@ -75,6 +75,7 @@ WriteMakefile(
     },
     x_breaks => {
       # enter conflicting data here, *and* in Moo::Conflicts
+      'HTML::Restrict' => '2.1.5',
     },
   },
   ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),

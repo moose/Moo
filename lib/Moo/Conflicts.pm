@@ -9,7 +9,7 @@ use Dist::CheckConflicts
     -conflicts => {
         # enter conflicting downstream deps here, with the version indicating
         # the last *broken* version that *does not work*.
-
+        'HTML::Restrict' => '2.1.5',
     },
 
     # these dists' ::Conflicts modules (if they exist) are also checked for
