@@ -1,3 +1,5 @@
+  - properly die when composing a module that isn't a Role
+
 1.002000 - 2013-05-04
   - add 'moosify' attribute key to provide code for inflating to Moose
   - fix warnings about unknown attribute parameters on metaclass inflation

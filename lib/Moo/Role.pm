@@ -99,10 +99,12 @@ sub _inhale_if_moose {
       and (
         $INC{"Moose.pm"}
         and $meta = Class::MOP::class_of($role)
+        and $meta->isa('Moose::Meta::Role')
       )
       or (
         Mouse::Util->can('find_meta')
         and $meta = Mouse::Util::find_meta($role)
+        and $meta->isa('Mouse::Meta::Role')
      )
   ) {
     $INFO{$role}{methods} = {
@@ -210,6 +212,7 @@ sub apply_roles_to_package {
 
 sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
+  die "${role} is not a Moo::Role" unless my $info = $INFO{$role};
   $me->_inhale_if_moose($role);
   $me->_handle_constructor($to, $INFO{$role}{attributes});
   $me->_maybe_make_accessors($role, $to);
