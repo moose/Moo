@@ -22,6 +22,9 @@ use Test::DependentModules qw( test_modules );
 use MetaCPAN::API;
 use List::Util ();
 
+# avoid any modules that depend on these
+my @bad_prereqs = qw(Gtk2 Padre Wx);
+
 my $mcpan = MetaCPAN::API->new;
 my $res = $mcpan->post(
   '/search/reverse_dependencies/Moo' => {
@@ -32,20 +35,26 @@ my $res = $mcpan->post(
           and => [
             { term => { 'release.status' => 'latest' } },
             { term => { 'release.authorized' => \1 } },
+            { not => { filter => {
+              or => [
+                map { { term => { 'dependency.module' => $_ } } } @bad_prereqs,
+              ],
+            } } }
           ],
         },
       },
     },
     size => 5000,
-    fields => ['distribution', 'provides'],
+    fields => ['distribution', 'provides', 'metadata.provides'],
   },
 );
 
 my %bad_module;
 foreach my $line (<DATA>) {
   chomp $line;
-  if ($line =~ /^\s*(\S+)\s*(#|$)/) {
-    $bad_module{$1}++;
+  if ($line =~ /^\s*(\S+)?\s*(#|$)/) {
+    $bad_module{$1}++
+      if $1;
   }
   else {
     die "Invalid entry in DATA section: $line";
@@ -55,6 +64,9 @@ foreach my $line (<DATA>) {
 my @modules = sort grep !/^(?:Task|Bundle|Acme)::/, grep !$bad_module{$_}, map {
   if (my $provides = $_->{fields}{provides}) {
     ref $provides ? (sort @$provides)[0] : $provides;
+  }
+  elsif (my $provides = $_->{fields}{'metadata.provides'}) {
+    (sort keys %$provides)[0];
   }
   else {
     my $dist = $_->{fields}{distribution};
@@ -86,5 +98,47 @@ plan tests => scalar @modules;
 test_modules(@modules);
 
 __DATA__
+# no tests
+CPAN::Mirror::Finder
+Catmandu::AlephX
+Device::Hue
+Novel::Robot
+Novel::Robot::Browser
+Novel::Robot::Parser
+Thrift::API::HiveClient
+Tiezi::Robot::Parser
+
 # broken
+App::Presto
+Catmandu::Store::Lucy
+Dancer2::Session::Sereal
+Data::Localize
+HTML::Zoom::Parser::HH5P
+Message::Passing::ZeroMQ
+Tak
+
+# broken tests
+Template::Flute
+Uninets::Check::Modules::HTTP
+Uninets::Check::Modules::MongoDB
+Uninets::Check::Modules::Redis
+
+# missing prereqs
+Catmandu::Z3950
+Tiezi::Robot
+
+# bad prereq version listed
+Dancer2::Session::Cookie
+Dancer2::Session::JSON
+
+# broken, pending release
+Hg::Lib
+P9Y::ProcessTable
+Net::Easypost
+
+# OS specific
+Linux::AtaSmart
+
+# broken by Moo change, reported rt#84035
+Math::Rational::Approx
 
