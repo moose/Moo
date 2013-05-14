@@ -49,11 +49,11 @@ my $res = $mcpan->post(
   },
 );
 
-my %bad_module;
+my %bad_dist;
 foreach my $line (<DATA>) {
   chomp $line;
   if ($line =~ /^\s*(\S+)?\s*(#|$)/) {
-    $bad_module{$1}++
+    $bad_dist{$1}++
       if $1;
   }
   else {
@@ -61,18 +61,20 @@ foreach my $line (<DATA>) {
   }
 }
 
-my @modules = sort grep !/^(?:Task|Bundle|Acme)::/, grep !$bad_module{$_}, map {
-  if (my $provides = $_->{fields}{provides}) {
-    ref $provides ? (sort @$provides)[0] : $provides;
-  }
-  elsif (my $provides = $_->{fields}{'metadata.provides'}) {
-    (sort keys %$provides)[0];
-  }
-  else {
-    my $dist = $_->{fields}{distribution};
-    $dist =~ s/-/::/g;
-    $dist;
-  }
+my @modules = sort grep !/^(?:Task|Bundle|Acme)::/, map {
+  my $dist = $_->{fields}{distribution};
+  $bad_dist{$dist} ? () : (sort { length $a <=> length $b || $a cmp $b } do {
+    if (my $provides = $_->{fields}{provides}) {
+      ref $provides ? @$provides : ($provides);
+    }
+    elsif (my $provides = $_->{fields}{'metadata.provides'}) {
+      keys %$provides;
+    }
+    else {
+      (my $module = $dist) =~ s/-/::/g;
+      ($module);
+    }
+  })[0]
 } @{ $res->{hits}{hits} };
 
 if ( $ENV{MOO_TEST_MD} eq 'MooX' ) {
@@ -94,51 +96,58 @@ elsif ( $ENV{MOO_TEST_MD} ne 'all' ) {
   @modules = @chosen;
 }
 
+if (grep { $_ eq '--show' } @ARGV) {
+  print "Dependencies:\n";
+  print "  $_\n" for @modules;
+  exit;
+}
+
 plan tests => scalar @modules;
 test_modules(@modules);
 
 __DATA__
 # no tests
-CPAN::Mirror::Finder
-Catmandu::AlephX
-Device::Hue
-Novel::Robot
-Novel::Robot::Browser
-Novel::Robot::Parser
-Thrift::API::HiveClient
-Tiezi::Robot::Parser
+CPAN-Mirror-Finder
+Catmandu-AlephX
+Device-Hue
+Novel-Robot
+Novel-Robot-Browser
+Novel-Robot-Parser
+Thrift-API-HiveClient
+Tiezi-Robot-Parser
 
 # broken
-App::Presto
-Catmandu::Store::Lucy
-Dancer2::Session::Sereal
-Data::Localize
-HTML::Zoom::Parser::HH5P
-Message::Passing::ZeroMQ
+App-Presto
+Catmandu-Store-Lucy
+Dancer2-Session-Sereal
+Data-Localize
+HTML-Zoom-Parser-HH5P
+Message-Passing-ZeroMQ
 Tak
 
 # broken tests
-Template::Flute
-Uninets::Check::Modules::HTTP
-Uninets::Check::Modules::MongoDB
-Uninets::Check::Modules::Redis
+Template-Flute
+Uninets-Check-Modules-HTTP
+Uninets-Check-Modules-MongoDB
+Uninets-Check-Modules-Redis
 
 # missing prereqs
-Catmandu::Z3950
-Tiezi::Robot
+Catmandu-Z3950
+Tiezi-Robot
 
 # bad prereq version listed
-Dancer2::Session::Cookie
-Dancer2::Session::JSON
+Dancer2-Session-Cookie
+Dancer2-Session-JSON
 
 # broken, pending release
-Hg::Lib
-P9Y::ProcessTable
-Net::Easypost
+Hg-Lib
+P9Y-ProcessTable
+Net-Easypost
 
 # OS specific
-Linux::AtaSmart
+Linux-AtaSmart
 
-# broken by Moo change, reported rt#84035
-Math::Rational::Approx
-
+# broken by Moo change
+Math-Rational-Approx        # RT#84035
+App-Services                # RT#85255
+GeoIP2                      # https://github.com/maxmind/GeoIP2-perl/pull/1
