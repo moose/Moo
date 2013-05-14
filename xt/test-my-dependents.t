@@ -18,7 +18,7 @@ This test will not run unless you set MOO_TEST_MD to a true value.
 END_HELP
 }
 
-use Test::DependentModules qw( test_modules );
+use Test::DependentModules qw( test_module );
 use MetaCPAN::API;
 use List::Util ();
 
@@ -50,20 +50,37 @@ my $res = $mcpan->post(
 );
 
 my %bad_dist;
-foreach my $line (<DATA>) {
+my $sec_reason;
+my %skip;
+my %todo;
+
+my $hash;
+for my $line (<DATA>) {
   chomp $line;
-  if ($line =~ /^\s*(\S+)?\s*(#|$)/) {
-    $bad_dist{$1}++
-      if $1;
+  next unless $line =~ /\S/;
+  if ( $line =~ /^#\s*(\w+)(?::\s*(.*?)\s*)?$/ ) {
+    die "Invalid action in DATA section ($1)"
+      unless $1 eq 'SKIP' || $1 eq 'TODO';
+    $hash = $1 eq 'SKIP' ? \%skip : \%todo;
+    $sec_reason = $2;
   }
-  else {
-    die "Invalid entry in DATA section: $line";
-  }
+
+  my ( $dist, $reason ) = $line =~ /^(\S*)\s*(?:#\s*(.*?)\s*)?$/;
+  next unless defined $dist && length $dist;
+
+  $hash->{$dist} = $reason || $sec_reason;
 }
 
-my @modules = sort grep !/^(?:Task|Bundle|Acme)::/, map {
-  my $dist = $_->{fields}{distribution};
-  $bad_dist{$dist} ? () : (sort { length $a <=> length $b || $a cmp $b } do {
+my %todo_module;
+my @modules;
+for my $hit (@{ $res->{hits}{hits} }) {
+  my $dist = $hit->{fields}{distribution};
+  next
+    if exists $skip{$dist};
+  next
+    if $dist =~ /^(?:Task|Bundle|Acme)-/;
+
+  my $module = (sort { length $a <=> length $b || $a cmp $b } do {
     if (my $provides = $_->{fields}{provides}) {
       ref $provides ? @$provides : ($provides);
     }
@@ -74,8 +91,13 @@ my @modules = sort grep !/^(?:Task|Bundle|Acme)::/, map {
       (my $module = $dist) =~ s/-/::/g;
       ($module);
     }
-  })[0]
-} @{ $res->{hits}{hits} };
+  })[0];
+  $todo_module{$module} = $todo{$dist}
+    if exists $todo{$dist};
+  push @modules, $module;
+  $module;
+}
+@modules = sort @modules;
 
 if ( $ENV{MOO_TEST_MD} eq 'MooX' ) {
   @modules = grep /^MooX(?:$|::)/, @modules;
@@ -97,16 +119,22 @@ elsif ( $ENV{MOO_TEST_MD} ne 'all' ) {
 }
 
 if (grep { $_ eq '--show' } @ARGV) {
-  print "Dependencies:\n";
+  print "Dependents:\n";
   print "  $_\n" for @modules;
   exit;
 }
 
 plan tests => scalar @modules;
-test_modules(@modules);
+for my $module (@modules) {
+  local $TODO = $todo_module{$module} || '???'
+    if exists $todo_module{$module};
+  test_module($module);
+}
+
 
 __DATA__
-# no tests
+
+# SKIP: no tests
 CPAN-Mirror-Finder
 Catmandu-AlephX
 Device-Hue
@@ -116,7 +144,7 @@ Novel-Robot-Parser
 Thrift-API-HiveClient
 Tiezi-Robot-Parser
 
-# broken
+# SKIP: broken
 App-Presto
 Catmandu-Store-Lucy
 Dancer2-Session-Sereal
@@ -125,29 +153,28 @@ HTML-Zoom-Parser-HH5P
 Message-Passing-ZeroMQ
 Tak
 
-# broken tests
+# SKIP: broken tests
 Template-Flute
 Uninets-Check-Modules-HTTP
 Uninets-Check-Modules-MongoDB
 Uninets-Check-Modules-Redis
 
-# missing prereqs
+# SKIP: missing prereqs
 Catmandu-Z3950
 Tiezi-Robot
 
-# bad prereq version listed
+# SKIP: bad prereq version listed
 Dancer2-Session-Cookie
 Dancer2-Session-JSON
 
-# broken, pending release
+# TODO: broken, pending release
 Hg-Lib
 P9Y-ProcessTable
-Net-Easypost
+GeoIP2
 
-# OS specific
+# SKIP: OS specific
 Linux-AtaSmart
 
-# broken by Moo change
+# TODO: broken by Moo change
 Math-Rational-Approx        # RT#84035
 App-Services                # RT#85255
-GeoIP2                      # https://github.com/maxmind/GeoIP2-perl/pull/1
