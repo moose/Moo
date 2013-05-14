@@ -114,6 +114,8 @@ sub inject_real_metaclass_for {
           }  @{$spec{traits}||[]}
         )
       );
+      # have to hard code this because Moose's role meta-model is lacking
+      $spec_map{traits} ||= 'traits';
 
       $spec{is} = 'ro' if $spec{is} eq 'lazy' or $spec{is} eq 'rwp';
       my $coerce = $spec{coerce};
