@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Fatal;
 
 {
     package Foo;
@@ -43,6 +44,27 @@ use Test::More;
     /;
 }
 
-ok 1;
+{
+    package Baw;
+    use Moo::Role;
+    has attr => (
+        is => 'ro',
+        traits => ['Array'],
+        default => sub { [] },
+        handles => {
+            push_attr => 'push',
+        },
+    );
+}
+{
+    package Buh;
+    use Moose;
+    with 'Baw';
+}
+
+is exception {
+  Buh->new->push_attr(1);
+}, undef, 'traits in role attributes are inflated properly';
+
 done_testing;
 
