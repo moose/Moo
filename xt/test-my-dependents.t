@@ -81,10 +81,10 @@ for my $hit (@{ $res->{hits}{hits} }) {
     if $dist =~ /^(?:Task|Bundle|Acme)-/;
 
   my $module = (sort { length $a <=> length $b || $a cmp $b } do {
-    if (my $provides = $_->{fields}{provides}) {
+    if (my $provides = $hit->{fields}{provides}) {
       ref $provides ? @$provides : ($provides);
     }
-    elsif (my $provides = $_->{fields}{'metadata.provides'}) {
+    elsif (my $provides = $hit->{fields}{'metadata.provides'}) {
       keys %$provides;
     }
     else {
@@ -113,7 +113,7 @@ elsif ( $ENV{MOO_TEST_MD} ne 'all' ) {
   my @chosen = split /,/, $ENV{MOO_TEST_MD};
   my %modules = map { $_ => 1 } @modules;
   if (my @unknown = grep { !$modules{$_} } @chosen) {
-      die "Unknown modules: @unknown";
+    die "Unknown modules: @unknown";
   }
   @modules = @chosen;
 }
