@@ -1,16 +1,17 @@
-MANIFEST
-MANIFEST.bak
-META.*
-MYMETA.*
-Makefile
-Makefile.old
-README
-blib/
-pm_to_blib
-Distar/
+/MANIFEST
+/MANIFEST.bak
+/META.*
+/MYMETA.*
+/Makefile
+/Makefile.old
+/README
+/blib/
+/pm_to_blib
+/Distar/
 *~
 *#
 .#*
+/Moo-*
 
 # yes that's right, distar makes it for us
-MANIFEST.SKIP
+/MANIFEST.SKIP
