@@ -2,6 +2,7 @@ package Moo::Role;
 
 use strictures 1;
 use Moo::_Utils;
+use Role::Tiny ();
 use base qw(Role::Tiny);
 
 require Moo::sification;
