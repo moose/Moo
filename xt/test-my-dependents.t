@@ -170,7 +170,6 @@ Dancer2-Session-JSON
 # TODO: broken, pending release
 Hg-Lib
 P9Y-ProcessTable
-GeoIP2
 
 # SKIP: OS specific
 Linux-AtaSmart
