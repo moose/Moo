@@ -253,6 +253,20 @@ It might turn up in the intended context as follows:
 Which will obviously return from foo, when all you meant to do was return from
 the code context in quote_sub and proceed with running important code b.
 
+=head2 strictures
+
+Sub::Quote compiles quoted subs in an environment where C<< use strictures >>
+is in effect. L<strictures> enables L<strict> and FATAL L<warnings>.
+
+The following dies I<< Use of uninitialized value in print... >>
+
+ no warnings;
+ quote_sub 'Silly::kitty', q{ print undef };
+
+If you need to disable parts of strictures, do it within the quoted sub:
+
+ quote_sub 'Silly::kitty', q{ no warnings; print undef };
+
 =head1 SUPPORT
 
 See L<Moo> for support and contact informations.
