@@ -196,7 +196,7 @@ version for convenience.
 
 =head2 inlinify
 
- my $prelude = capture_unroll {
+ my $prelude = capture_unroll '$captures', {
    '$x' => 1,
    '$y' => 2,
  };
@@ -213,14 +213,17 @@ arguments.
 
 =head2 capture_unroll
 
- my $prelude = capture_unroll {
+ my $prelude = capture_unroll '$captures', {
    '$x' => 1,
    '$y' => 2,
- };
+ }, 4;
+
+Arguments: $from, \%captures, $indent
 
 Generates a snippet of code which is suitable to be used as a prelude for
-L</inlinify>.  The keys are the names of the variables and the values are (duh)
-the values.  Note that references work as values.
+L</inlinify>.  C<$from> is a string will be used as a hashref in the resulting
+code.  The keys of C<%captures> are the names of the variables and the values
+are ignored.  C<$indent> is the number of spaces to indent the result by.
 
 =head1 CAVEATS
 
