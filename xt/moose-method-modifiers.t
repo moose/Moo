@@ -1,8 +1,6 @@
 use strictures 1;
 use Test::More;
 
-use Moo::HandleMoose;
-
 {
    package ModifyFoo;
    use Moo::Role;
@@ -35,5 +33,29 @@ $bar->foo;
 ok($ModifyFoo::before_ran, 'before ran');
 ok($ModifyFoo::after_ran, 'after ran');
 ok($ModifyFoo::around_ran, 'around ran');
+
+{
+  package ModifyMultiple;
+  use Moo::Role;
+  our $before = 0;
+
+  before 'foo', 'bar' => sub {
+    $before++;
+  };
+
+  package Baz;
+  use Moose;
+  with 'ModifyMultiple';
+
+  sub foo {}
+  sub bar {}
+}
+
+my $baz = Baz->new;
+my $pre = $ModifyMultiple::before;
+$baz->foo;
+is $ModifyMultiple::before, $pre+1, "before applies to first of multiple subs";
+$baz->bar;
+is $ModifyMultiple::before, $pre+2, "before applies to second of multiple subs";
 
 done_testing;

@@ -179,7 +179,8 @@ sub inject_real_metaclass_for {
     $meta->add_required_methods(@{$info->{requires}});
     foreach my $modifier (@{$info->{modifiers}}) {
       my ($type, @args) = @$modifier;
-      $meta->${\"add_${type}_method_modifier"}(@args);
+      my $code = pop @args;
+      $meta->${\"add_${type}_method_modifier"}($_, $code) for @args;
     }
   } else {
     foreach my $attr (@attrs) {
