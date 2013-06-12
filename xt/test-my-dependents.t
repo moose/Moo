@@ -149,7 +149,6 @@ App-Presto
 Catmandu-Store-Lucy
 Dancer2-Session-Sereal
 Data-Localize
-HTML-Zoom-Parser-HH5P
 Message-Passing-ZeroMQ
 Tak
 
