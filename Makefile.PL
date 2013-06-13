@@ -109,6 +109,8 @@ sub check_conflicts {
 EOF
     }
 
+    return if $ENV{AUTOMATED_TESTING} || $ENV{NONINTERACTIVE_TESTING};
+
     # More or less copied from Module::Build
     return if $ENV{PERL_MM_USE_DEFAULT};
     return unless -t STDIN && ( -t STDOUT || !( -f STDOUT || -c STDOUT ) );
