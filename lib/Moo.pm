@@ -93,6 +93,9 @@ sub _set_superclasses {
     Moo->_constructor_maker_for($target)
        ->register_attribute_specs(%{$old->all_attribute_specs});
   }
+  elsif (!$target->isa('Moo::Object')) {
+    Moo->_constructor_maker_for($target);
+  }
   no warnings 'once'; # piss off. -- mst
   $Moo::HandleMoose::MOUSE{$target} = [
     grep defined, map Mouse::Util::find_meta($_), @_
