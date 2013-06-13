@@ -6,6 +6,10 @@ use ExtUtils::MakeMaker;
 check_conflicts();
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
+my %CONFIGURE_DEPS = (
+  'ExtUtils::MakeMaker' => 0,
+  'Dist::CheckConflicts' => '0.02',
+);
 my %BUILD_DEPS = ();
 
 my %TEST_DEPS = (
@@ -19,56 +23,63 @@ my %RUN_DEPS = (
   'Module::Runtime' => 0.012,
   'Role::Tiny' => 1.002004,
   'Devel::GlobalDestruction' => 0.11,
+  'Dist::CheckConflicts' => 0.02,
+);
+
+my %extra_info = (
+  'meta-spec' => { version => 2 },
+  resources => {
+    repository => {
+      url => 'git://git.shadowcat.co.uk/gitmo/Moo.git',
+      web => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=gitmo/Moo.git',
+      type => 'git',
+    },
+    x_IRC => 'irc://irc.perl.org/#moose',
+    bugtracker => {
+      web => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Moo',
+      mailto => 'bug-moo@rt.cpan.org',
+    },
+    license => [ 'http://dev.perl.org/licenses/' ],
+  },
+  prereqs => {
+    configure => { requires => { %CONFIGURE_DEPS } },
+    build     => { requires => { %BUILD_DEPS } },
+    test      => { requires => { %TEST_DEPS } },
+    runtime   => { requires => { %RUN_DEPS, perl => '5.8.1' } },
+  },
 );
 
 # have to do this since old EUMM dev releases miss the eval $VERSION line
-my $mymeta_works = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.5707 };
-my $mymeta = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.5702 };
+my $mymeta_works = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.57_07 };
+my $mymeta = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.57_02 };
 
 my $has_test_requires = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.63_03 };
 
-if (not $has_test_requires)
-{
-    %BUILD_DEPS = (%BUILD_DEPS, %TEST_DEPS);
-    %TEST_DEPS = ();
-}
+my $has_meta_v2 = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.57_10 };
 
-my %extra_info = (
-  resources => {
-    repository => 'git://git.shadowcat.co.uk/gitmo/Moo.git',
-    IRC => 'irc://irc.perl.org/#moose',
-    bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Moo',
-    license => 'http://dev.perl.org/licenses/',
-  }
-);
+if (! $has_meta_v2) {
+  %extra_info = ();
+}
+if (not $has_test_requires) {
+  %BUILD_DEPS = (%BUILD_DEPS, %TEST_DEPS);
+  %TEST_DEPS = ();
+}
+if (not $mymeta_works) {
+  %RUN_DEPS = (%RUN_DEPS, %BUILD_DEPS);
+  %BUILD_DEPS = ();
+}
 
 WriteMakefile(
   NAME => 'Moo',
   VERSION_FROM => 'lib/Moo.pm',
-  CONFIGURE_REQUIRES => {
-    'Dist::CheckConflicts' => '0.02',
-  },
+  CONFIGURE_REQUIRES => \%CONFIGURE_DEPS,
   PREREQ_PM => {
     %RUN_DEPS,
     ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
-    ($mymeta_works ? () : (%BUILD_DEPS)),
-    'Dist::CheckConflicts' => '0.02',
   },
-  ($mymeta_works
-    ? ( # BUILD_REQUIRES makes MYMETA right, requires stops META being wrong
-        BUILD_REQUIRES => \%BUILD_DEPS,
-        $has_test_requires ? ( TEST_REQUIRES => \%TEST_DEPS ) : (),
-        META_ADD => { requires => \%RUN_DEPS, %extra_info }
-      )
-    : ( # META_ADD both to get META right - only Makefile written
-        META_ADD => {
-          requires => \%RUN_DEPS,
-          build_requires => \%BUILD_DEPS,
-          test_requires => \%TEST_DEPS,
-          %extra_info,
-        }
-      )
-  ),
+  keys %BUILD_DEPS ? ( BUILD_REQUIRES => \%BUILD_DEPS ) : (),
+  keys %TEST_DEPS ? ( TEST_REQUIRES => \%TEST_DEPS ) : (),
+  META_ADD => \%extra_info,
   META_MERGE => {
     no_index => {
       directory => [ 'xt' ]
@@ -80,7 +91,7 @@ WriteMakefile(
   },
   ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),
   LICENSE => 'perl',
-  'EXE_FILES' => [
+  EXE_FILES => [
     'bin/moo-outdated',
   ],
 );
