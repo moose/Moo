@@ -2,6 +2,8 @@ use strict;
 use warnings FATAL => 'all';
 use 5.008001;
 use ExtUtils::MakeMaker;
+
+check_conflicts();
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
 my %BUILD_DEPS = ();
@@ -43,10 +45,14 @@ my %extra_info = (
 WriteMakefile(
   NAME => 'Moo',
   VERSION_FROM => 'lib/Moo.pm',
+  CONFIGURE_REQUIRES => {
+    'Dist::CheckConflicts' => '0.02',
+  },
   PREREQ_PM => {
     %RUN_DEPS,
     ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
     ($mymeta_works ? () : (%BUILD_DEPS)),
+    'Dist::CheckConflicts' => '0.02',
   },
   ($mymeta_works
     ? ( # BUILD_REQUIRES makes MYMETA right, requires stops META being wrong
@@ -66,9 +72,49 @@ WriteMakefile(
   META_MERGE => {
     no_index => {
       directory => [ 'xt' ]
-    }
+    },
+    x_breaks => {
+      # enter conflicting data here, *and* in Moo::Conflicts
+      'HTML::Restrict' => '2.1.5',
+    },
   },
   ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),
   LICENSE => 'perl',
+  'EXE_FILES' => [
+    'bin/moo-outdated',
+  ],
 );
+
+
+# copied from Moose-2.0801/Makefile.PL
+sub check_conflicts {
+    if ( eval { require 'lib/Moo/Conflicts.pm'; 1; } ) {
+        if ( eval { Moo::Conflicts->check_conflicts; 1 } ) {
+            return;
+        }
+        else {
+            my $err = $@;
+            $err =~ s/^/    /mg;
+            warn "***\n$err***\n";
+        }
+    }
+    else {
+        print <<'EOF';
+***
+    Your toolchain doesn't support configure_requires, so
+    Dist::CheckConflicts hasn't been installed yet. You should check for
+    conflicting modules manually using the 'moo-outdated' script that is
+    installed with this distribution once the installation finishes.
+***
+EOF
+    }
+
+    return if $ENV{AUTOMATED_TESTING} || $ENV{NONINTERACTIVE_TESTING};
+
+    # More or less copied from Module::Build
+    return if $ENV{PERL_MM_USE_DEFAULT};
+    return unless -t STDIN && ( -t STDOUT || !( -f STDOUT || -c STDOUT ) );
+
+    sleep 4;
+}
 
