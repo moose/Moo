@@ -3,6 +3,7 @@
   - fix inflating method modifiers applied to multiple methods
   - fix documentation for Sub::Quote::capture_unroll
   - add documentation noting Sub::Quote's use of strictures
+  - fix FOREIGNBUILDARGS not being called if no attributes created
 
 1.002000 - 2013-05-04
   - add 'moosify' attribute key to provide code for inflating to Moose
