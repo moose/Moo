@@ -18,6 +18,14 @@ BEGIN {
   ;
 }
 
+sub SIGDIE
+{
+  our ($CurrentArgument, $CurrentAttribute, $CurrentStep, $OrigSigDie);
+  $OrigSigDie ||= sub { die $_[0] };
+  my $attr_desc = _attr_desc($CurrentAttribute, $CurrentArgument);
+  $OrigSigDie->("$CurrentStep for $attr_desc failed: $_[0]");
+}
+
 sub _die_overwrite
 {
   my ($pkg, $method, $type) = @_;
@@ -376,14 +384,6 @@ sub generate_isa_check {
 sub _generate_die_prefix {
   my ($self, $name, $prefix, $init_arg, $inside) = @_;
   
-  $self->{captures}{'$__DIE__'} ||= \ sub {
-    our ($CurrentArgument, $CurrentAttribute, $CurrentStep, $OrigSigDie);
-    $OrigSigDie ||= sub { die $_[0] };
-    
-    my $attr_desc = _attr_desc($CurrentAttribute, $CurrentArgument);
-    $OrigSigDie->("$CurrentStep for $attr_desc failed: $_[0]");
-  };
-  
   "do {\n"
   .'  local $Method::Generate::Accessor::CurrentArgument = '
     . (defined $init_arg ? B::perlstring($init_arg) : 'undef') . ";\n"
@@ -392,7 +392,7 @@ sub _generate_die_prefix {
   .'  local $Method::Generate::Accessor::CurrentStep = '
     . B::perlstring($prefix) . ";\n"
   .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
-  .'  local $SIG{__DIE__} = $__DIE__;'."\n"
+  .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::SIGDIE;'."\n"
   .$inside
   ."}\n"
 }
