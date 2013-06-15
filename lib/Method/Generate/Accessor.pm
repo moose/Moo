@@ -380,18 +380,13 @@ sub _generate_die_prefix {
     our ($CurrentArgument, $CurrentAttribute, $CurrentStep, $OrigSigDie);
     $OrigSigDie ||= sub { die $_[0] };
     
-    $OrigSigDie->(
-      qq[$CurrentStep for "$CurrentAttribute"]
-      . ($CurrentArgument && ($CurrentArgument ne $CurrentAttribute)
-        ? qq[ (constructor argument: "$CurrentArgument")]
-        : "")
-      . qq[ failed: $_[0]]
-    );
+    my $attr_desc = _attr_desc($CurrentAttribute, $CurrentArgument);
+    $OrigSigDie->("$CurrentStep for $attr_desc failed: $_[0]");
   };
   
   "do {\n"
   .'  local $Method::Generate::Accessor::CurrentArgument = '
-    . B::perlstring($init_arg) . ";\n"
+    . (defined $init_arg ? B::perlstring($init_arg) : 'undef') . ";\n"
   .'  local $Method::Generate::Accessor::CurrentAttribute = '
     . B::perlstring($name) . ";\n"
   .'  local $Method::Generate::Accessor::CurrentStep = '
