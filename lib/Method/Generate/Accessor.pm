@@ -22,6 +22,9 @@ sub _SIGDIE
 {
   our ($CurrentAttribute, $OrigSigDie);
   $OrigSigDie ||= sub { die $_[0] };
+  
+  return $OrigSigDie->(@_) if ref($_[0]);
+  
   my $attr_desc = _attr_desc(@$CurrentAttribute{qw(name init_arg)});
   $OrigSigDie->("$CurrentAttribute->{step} for $attr_desc failed: $_[0]");
 }
