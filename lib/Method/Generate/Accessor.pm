@@ -390,11 +390,12 @@ sub _generate_die_prefix {
   };
   
   "do {\n"
-  ."  local \$Method::Generate::Accessor::CurrentArgument = "
-    ."${\B::perlstring($init_arg)};\n"
-  ."  local \$Method::Generate::Accessor::CurrentAttribute = "
-    ."${\B::perlstring($name)};\n"
-  ."  local \$Method::Generate::Accessor::CurrentStep = q[$prefix];\n"
+  .'  local $Method::Generate::Accessor::CurrentArgument = '
+    . B::perlstring($init_arg) . ";\n"
+  .'  local $Method::Generate::Accessor::CurrentAttribute = '
+    . B::perlstring($name) . ";\n"
+  .'  local $Method::Generate::Accessor::CurrentStep = '
+    . B::perlstring($prefix) . ";\n"
   .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
   .'  local $SIG{__DIE__} = $__DIE__;'."\n"
   .$inside
