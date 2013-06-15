@@ -347,7 +347,9 @@ sub _attr_desc {
 sub _generate_coerce {
   my ($self, $name, $value, $coerce, $init_arg) = @_;
   $self->_generate_die_prefix(
-    "coercion for ${\_attr_desc($name, $init_arg)} failed: ",
+    $name,
+    "coercion",
+    $init_arg,
     $self->_generate_call_code($name, 'coerce', "${value}", $coerce)
   );
 }
@@ -372,12 +374,29 @@ sub generate_isa_check {
 }
 
 sub _generate_die_prefix {
-  my ($self, $prefix, $inside) = @_;
+  my ($self, $name, $prefix, $init_arg, $inside) = @_;
+  
+  $self->{captures}{'$__DIE__'} ||= \ sub {
+    our ($CurrentArgument, $CurrentAttribute, $CurrentStep, $OrigSigDie);
+    $OrigSigDie ||= sub { die $_[0] };
+    
+    $OrigSigDie->(
+      qq[$CurrentStep for "$CurrentAttribute"]
+      . ($CurrentArgument && ($CurrentArgument ne $CurrentAttribute)
+        ? qq[ (constructor argument: "$CurrentArgument")]
+        : "")
+      . qq[ failed: $_[0]]
+    );
+  };
+  
   "do {\n"
-  .'  my $sig_die = $SIG{__DIE__} || sub { die $_[0] };'."\n"
-  .'  local $SIG{__DIE__} = sub {'."\n"
-  .'    $sig_die->(ref($_[0]) ? $_[0] : '.perlstring($prefix).'.$_[0]);'."\n"
-  .'  };'."\n"
+  ."  local \$Method::Generate::Accessor::CurrentArgument = "
+    ."${\B::perlstring($init_arg)};\n"
+  ."  local \$Method::Generate::Accessor::CurrentAttribute = "
+    ."${\B::perlstring($name)};\n"
+  ."  local \$Method::Generate::Accessor::CurrentStep = q[$prefix];\n"
+  .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
+  .'  local $SIG{__DIE__} = $__DIE__;'."\n"
   .$inside
   ."}\n"
 }
@@ -385,7 +404,9 @@ sub _generate_die_prefix {
 sub _generate_isa_check {
   my ($self, $name, $value, $check, $init_arg) = @_;
   $self->_generate_die_prefix(
-    "isa check for ${\_attr_desc($name, $init_arg)} failed: ",
+    $name,
+    "isa check",
+    $init_arg,
     $self->_generate_call_code($name, 'isa_check', $value, $check)
   );
 }
