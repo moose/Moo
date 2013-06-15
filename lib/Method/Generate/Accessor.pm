@@ -20,10 +20,10 @@ BEGIN {
 
 sub _SIGDIE
 {
-  our ($CurrentArgument, $CurrentAttribute, $CurrentStep, $OrigSigDie);
+  our ($CurrentAttribute, $OrigSigDie);
   $OrigSigDie ||= sub { die $_[0] };
-  my $attr_desc = _attr_desc($CurrentAttribute, $CurrentArgument);
-  $OrigSigDie->("$CurrentStep for $attr_desc failed: $_[0]");
+  my $attr_desc = _attr_desc(@$CurrentAttribute{qw(name init_arg)});
+  $OrigSigDie->("$CurrentAttribute->{step} for $attr_desc failed: $_[0]");
 }
 
 sub _die_overwrite
@@ -382,15 +382,13 @@ sub generate_isa_check {
 }
 
 sub _generate_die_prefix {
-  my ($self, $name, $prefix, $init_arg, $inside) = @_;
-  
+  my ($self, $name, $prefix, $arg, $inside) = @_;
   "do {\n"
-  .'  local $Method::Generate::Accessor::CurrentArgument = '
-    . (defined $init_arg ? B::perlstring($init_arg) : 'undef') . ";\n"
-  .'  local $Method::Generate::Accessor::CurrentAttribute = '
-    . B::perlstring($name) . ";\n"
-  .'  local $Method::Generate::Accessor::CurrentStep = '
-    . B::perlstring($prefix) . ";\n"
+  .'  local $Method::Generate::Accessor::CurrentAttribute = {'
+  .'    init_arg => '.(defined $arg ? B::perlstring($arg) : 'undef') . ",\n"
+  .'    name     => '.B::perlstring($name).",\n"
+  .'    step     => '.B::perlstring($prefix).",\n"
+  ."  };\n"
   .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
   .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::_SIGDIE;'."\n"
   .$inside
