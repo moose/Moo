@@ -1,3 +1,6 @@
+  - $Method::Generate::Accessor::CurrentAttribute hashref contains
+    information about attribute currently being processed (available
+    to exception objects thrown by "isa" and "coerce")
   - properly die when composing a module that isn't a Role
   - fix passing attribute parameters for traits when inflating to Moose
   - fix inflating method modifiers applied to multiple methods
