@@ -18,7 +18,7 @@ BEGIN {
   ;
 }
 
-sub SIGDIE
+sub _SIGDIE
 {
   our ($CurrentArgument, $CurrentAttribute, $CurrentStep, $OrigSigDie);
   $OrigSigDie ||= sub { die $_[0] };
@@ -392,7 +392,7 @@ sub _generate_die_prefix {
   .'  local $Method::Generate::Accessor::CurrentStep = '
     . B::perlstring($prefix) . ";\n"
   .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
-  .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::SIGDIE;'."\n"
+  .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::_SIGDIE;'."\n"
   .$inside
   ."}\n"
 }
