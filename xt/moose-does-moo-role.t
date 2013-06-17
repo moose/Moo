@@ -1,8 +1,6 @@
 use strictures 1;
 use Test::More;
-use Test::Exception;
-
-use Moo::HandleMoose;
+use Test::Fatal;
 
 {
    package MooParentRole;
@@ -47,7 +45,7 @@ use Moo::HandleMoose;
 
 for my $parent (qw(MooseParent MooParent)) {
    for my $child (qw(MooRoledMooClass MooRoledMooseClass)) {
-      lives_and {
+      is(exception {
          my $o = $parent->new(
             e => $child->new(),
          );
@@ -56,7 +54,7 @@ for my $parent (qw(MooseParent MooParent)) {
          can_ok( $o->e, "parent_role_method" );
          ok($o->e->meta->has_method('role_method'), 'Moose knows about role_method');
          ok($o->e->meta->has_method('parent_role_method'), 'Moose knows about parent_role_method');
-      };
+      }, undef);
    }
 }
 

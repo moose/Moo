@@ -1,5 +1,5 @@
 use strictures 1;
-use Test::Exception;
+use Test::Fatal;
 
 BEGIN { require "t/moo-accessors.t"; }
 
@@ -44,12 +44,12 @@ is($spoon->four, 4, 'Role application ok');
    requires 'gun_dog';
 }
 
-lives_ok {
+is exception {
    Moose::Util::apply_all_roles($meta, 'MooRequiresFour');
-} 'apply role with satisified requirement';
+}, undef, 'apply role with satisified requirement';
 
-dies_ok {
+ok exception {
    Moose::Util::apply_all_roles($meta, 'MooRequiresGunDog');
-} 'apply role with unsatisified requirement';
+}, 'apply role with unsatisified requirement';
 
 done_testing;

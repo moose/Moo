@@ -1,8 +1,6 @@
 use strictures 1;
 use Test::More;
-use Test::Exception;
-
-use Moo::HandleMoose;
+use Test::Fatal;
 
 {
    package FrewWithIsa;
@@ -41,17 +39,17 @@ use Moo::HandleMoose;
    __PACKAGE__->meta->make_immutable;
 }
 
-lives_ok {
+is(exception {
    Bar->new(frooh => 1, frew => 1);
-} 'creation of valid Bar';
+}, undef, 'creation of valid Bar');
 
-dies_ok {
+ok exception {
    Bar->new(frooh => 'silly', frew => 1);
-} 'creation of invalid Bar validated by coderef';
+}, 'creation of invalid Bar validated by coderef';
 
-dies_ok {
+ok exception {
    Bar->new(frooh => 1, frew => 'goose');
-} 'creation of invalid Bar validated by quoted sub';
+}, 'creation of invalid Bar validated by quoted sub';
 
 sub test_off_by_one {
   my ($class, $type) = @_;

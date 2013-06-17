@@ -1,8 +1,5 @@
 use strictures 1;
 use Test::More;
-use Test::Exception;
-
-use Moo::HandleMoose;
 
 {
    package LazyFrew;
