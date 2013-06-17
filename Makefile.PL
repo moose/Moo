@@ -84,10 +84,9 @@ WriteMakefile(
     no_index => {
       directory => [ 'xt' ]
     },
-    x_breaks => {
-      # enter conflicting data here, *and* in Moo::Conflicts
-      'HTML::Restrict' => '2.1.5',
-    },
+    Moo::Conflicts->can('conflicts') ? (
+      x_breaks => { Moo::Conflicts->conflicts }
+    ) : (),
   },
   ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),
   LICENSE => 'perl',
