@@ -16,6 +16,10 @@ BEGIN {
       &&
     (eval { Class::XSAccessor->VERSION('1.07') })
   ;
+  our $CAN_HAZ_XS_PRED =
+    $CAN_HAZ_XS &&
+    (eval { Class::XSAccessor->VERSION('1.17') })
+  ;
 }
 
 sub _SIGDIE
@@ -158,10 +162,16 @@ sub generate_method {
   if (my $pred = $spec->{predicate}) {
     _die_overwrite($into, $pred, 'a predicate')
       if !$spec->{allow_overwrite} && *{_getglob("${into}::${pred}")}{CODE};
-    $methods{$pred} =
-      quote_sub "${into}::${pred}" =>
-        '    '.$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
-      ;
+    if (our $CAN_HAZ_XS && our $CAN_HAZ_XS_PRED) {
+      $methods{$pred} = $self->_generate_xs(
+        exists_predicates => $into, $pred, $name, $spec
+      );
+    } else {
+      $methods{$pred} =
+        quote_sub "${into}::${pred}" =>
+          '    '.$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
+        ;
+    }
   }
   if (my $pred = $spec->{builder_sub}) {
     _install_coderef( "${into}::$spec->{builder}" => $spec->{builder_sub} );
