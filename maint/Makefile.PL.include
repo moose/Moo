@@ -2,6 +2,8 @@ BEGIN { -e 'Distar' or system("git clone git://git.shadowcat.co.uk/p5sagit/Dista
 use lib 'Distar/lib';
 use Distar;
 
+use ExtUtils::MakeMaker 6.57_10 ();
+
 author 'mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>';
 
 manifest_include t => 'global-destruction-helper.pl';
