@@ -32,17 +32,17 @@ foreach my $combo (
   package RoleWithAttr;
   use Moo::Role;
 
-  has attr1 => (is => 'rw');
+  has attr1 => (is => 'ro', default => -1);
 
   package RoleWithAttr2;
   use Moo::Role;
 
-  has attr2 => (is => 'rw');
+  has attr2 => (is => 'ro', default => -2);
 
   package ClassWithAttr;
   use Moo;
 
-  has attr3 => (is => 'rw');
+  has attr3 => (is => 'ro', default => -3);
 }
 
 Moo::Role->apply_roles_to_package('ClassWithAttr', 'RoleWithAttr', 'RoleWithAttr2');
@@ -50,5 +50,16 @@ my $o = ClassWithAttr->new(attr1 => 1, attr2 => 2, attr3 => 3);
 is($o->attr1, 1, 'attribute from role works');
 is($o->attr2, 2, 'attribute from role 2 works');
 is($o->attr3, 3, 'attribute from base class works');
+
+{
+  package SubClassWithoutAttr;
+  use Moo;
+  extends 'ClassWithAttr';
+}
+
+my $o2 = Moo::Role->create_class_with_roles(
+  'SubClassWithoutAttr', 'RoleWithAttr')->new;
+is($o2->attr3, -3, 'constructor includes base class');
+is($o2->attr2, -2, 'constructor includes role');
 
 done_testing;
