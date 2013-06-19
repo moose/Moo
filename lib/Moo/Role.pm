@@ -256,7 +256,7 @@ sub create_class_with_roles {
   $Moo::MAKERS{$new_name} = {};
 
   $me->_handle_constructor(
-    $new_name, [ map @{$INFO{$_}{attributes}||[]}, @roles ], $superclass
+    $new_name, [ map @{$INFO{$_}{attributes}||[]}, @roles ]
   );
 
   return $new_name;
@@ -276,14 +276,14 @@ sub _install_single_modifier {
 }
 
 sub _handle_constructor {
-  my ($me, $to, $attr_info, $superclass) = @_;
+  my ($me, $to, $attr_info) = @_;
   return unless $attr_info && @$attr_info;
   if ($INFO{$to}) {
     push @{$INFO{$to}{attributes}||=[]}, @$attr_info;
   } else {
     # only fiddle with the constructor if the target is a Moo class
     if ($INC{"Moo.pm"}
-        and my $con = Moo->_constructor_maker_for($to, $superclass)) {
+        and my $con = Moo->_constructor_maker_for($to)) {
       # shallow copy of the specs since the constructor will assign an index
       $con->register_attribute_specs(map ref() ? { %$_ } : $_, @$attr_info);
     }
