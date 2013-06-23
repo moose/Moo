@@ -1,3 +1,17 @@
 #!/bin/sh
 
+while [ "$#" -gt "0" ]; do
+  case $1 in
+    --cover)
+      cover -delete -silent
+      export HARNESS_PERL_SWITCHES='-MDevel::Cover=-ignore,^x?t/,-blib,0'
+      ;;
+    *)
+      echo "Invalid option: $1"
+      exit 1
+      ;;
+    esac
+  shift
+done
+
 prove -l t xt && MOO_XS_DISABLE=1 prove -l t xt
