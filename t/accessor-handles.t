@@ -1,5 +1,6 @@
 use strictures 1;
 use Test::More;
+use Test::Fatal;
 
 use lib "t/lib";
 
@@ -75,16 +76,19 @@ is $bar->foobot, 'beep', 'asserter checks for existence not truth, on false valu
 
 is $bar->foobar, 'bar', 'asserter checks for existence not truth, on undef ';
 
-{
-	local $@;
-	ok !eval q{
-		package Baz;
-		use Moo;
-		has foo => ( is => 'ro', handles => 'Robot' );
-		sub smash { 1 };
-		1;
-	}, 'handles will not overwrite locally defined method';
-	like $@, qr{You cannot overwrite a locally defined method \(smash\) with a delegation};
-}
+ok(my $e = exception {
+  package Baz;
+  use Moo;
+  has foo => ( is => 'ro', handles => 'Robot' );
+  sub smash { 1 };
+}, 'handles will not overwrite locally defined method');
+like $e, qr{You cannot overwrite a locally defined method \(smash\) with a delegation},
+  '... and has correct error message';
+
+ok(exception {
+  package Fuzz;
+  use Moo;
+  has foo => ( is => 'ro', handles => $bar );
+}, 'invalid handles throws exception');
 
 done_testing;
