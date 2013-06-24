@@ -16,6 +16,18 @@ my @result;
   );
 
   sub one {'sub'}
+
+  has two => (
+    is     => 'lazy',
+    default => sub { 2 },
+    reader => 'get_two',
+  );
+
+  has three => (
+    is     => 'rwp',
+    reader => 'get_three',
+    writer => 'set_three',
+  );
 }
 
 {
@@ -36,6 +48,13 @@ is( $foo->get_one, 'lol', 'reader works' );
 $foo->set_one('rofl');
 is( $foo->get_one, 'rofl', 'writer works' );
 is( $foo->one, 'sub', 'reader+writer = no accessor' );
+
+is( $foo->get_two, 2, 'lazy doesn\'t override reader' );
+
+is( $foo->can('two'), undef, 'reader+ro = no accessor' );
+
+ok( $foo->can('get_three'), 'rwp doesn\'t override reader');
+ok( $foo->can('set_three'), 'rwp doesn\'t override writer');
 
 ok( exception { $foo->get_one('blah') }, 'reader dies on write' );
 
