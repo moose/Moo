@@ -246,6 +246,13 @@ sub _generate_get {
   }
 }
 
+sub generate_simple_has {
+  my $self = shift;
+  $self->{captures} = {};
+  my $code = $self->_generate_simple_has(@_);
+  ($code, delete $self->{captures});
+}
+
 sub _generate_simple_has {
   my ($self, $me, $name) = @_;
   "exists ${me}->{${\perlstring $name}}";
@@ -260,6 +267,13 @@ sub generate_get_default {
   my $self = shift;
   $self->{captures} = {};
   my $code = $self->_generate_get_default(@_);
+  ($code, delete $self->{captures});
+}
+
+sub generate_use_default {
+  my $self = shift;
+  $self->{captures} = {};
+  my $code = $self->_generate_use_default(@_);
   ($code, delete $self->{captures});
 }
 
