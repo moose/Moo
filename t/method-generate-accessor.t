@@ -32,6 +32,12 @@ like(
   qr/Unknown is purple/, 'is purple rejected'
 );
 
+is(exception {
+  $gen->generate_method('Foo' => 'three' => { is => 'bare', predicate => 1 });
+}, undef, 'generating bare accessor works');
+
+ok(Foo->can('has_three'), 'bare accessor will still generate predicate');
+
 like(
   exception { $gen->generate_method('Foo' => 'four' => { is => 'ro', coerce => 5 }) },
   qr/Invalid coerce/, "coerce - scalar rejected"
