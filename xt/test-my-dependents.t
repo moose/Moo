@@ -1,6 +1,6 @@
 use Test::More;
 BEGIN {
-  plan skip_all => <<'END_HELP' unless $ENV{MOO_TEST_MD};
+  plan skip_all => <<'END_HELP' unless $ENV{MOO_TEST_MD} || @ARGV;
 This test will not run unless you set MOO_TEST_MD to a true value.
 
   Valid values are:
@@ -99,17 +99,22 @@ for my $hit (@{ $res->{hits}{hits} }) {
 }
 @modules = sort @modules;
 
-if ( $ENV{MOO_TEST_MD} eq 'MooX' ) {
+my @args = grep { $_ ne '--show' } @ARGV;
+my $show = @args != @ARGV;
+my $pick = $ENV{MOO_TEST_MD} || shift @args || 'all';
+
+if ( $pick eq 'MooX' ) {
   @modules = grep /^MooX(?:$|::)/, @modules;
 }
-elsif ( $ENV{MOO_TEST_MD} eq '1' ) {
-  diag(<<'EOF');
-  Picking 200 random dependents to test. Set MOO_TEST_MD=all to test all
+elsif ( $pick =~ /^\d+$/ ) {
+  my $count = $pick == 1 ? 200 : $pick;
+  diag(<<"EOF");
+  Picking $count random dependents to test. Set MOO_TEST_MD=all to test all
   dependents or MOO_TEST_MD=MooX to test extension modules only.
 EOF
-  @modules = (List::Util::shuffle(@modules))[0..199];
+  @modules = (List::Util::shuffle(@modules))[0 .. $count-1];
 }
-elsif ( $ENV{MOO_TEST_MD} ne 'all' ) {
+elsif ( $pick ne 'all' ) {
   my @chosen = split /,/, $ENV{MOO_TEST_MD};
   my %modules = map { $_ => 1 } @modules;
   if (my @unknown = grep { !$modules{$_} } @chosen) {
@@ -118,7 +123,7 @@ elsif ( $ENV{MOO_TEST_MD} ne 'all' ) {
   @modules = @chosen;
 }
 
-if (grep { $_ eq '--show' } @ARGV) {
+if ($show) {
   print "Dependents:\n";
   print "  $_\n" for @modules;
   exit;
