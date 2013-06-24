@@ -26,6 +26,8 @@ my $c_ran;
   has eleven => (is => 'ro', default => 5 );
   has twelve => (is => 'lazy', default => 0 );
   has thirteen => (is => 'ro', default => 0 );
+  has fourteen => (is => 'ro', required => 1, builder => '_build_fourteen');
+  sub _build_fourteen { {} }
 }
 
 sub check {
@@ -49,6 +51,8 @@ check five => map Foo->new->{five}, 1..2;
 check six => map Foo->new->{six}, 1..2;
 
 check seven => map Foo->new->{seven}, 1..2;
+
+check fourteen => map Foo->new->{fourteen}, 1..2;
 
 check eight => map Foo->new->{eight}, 1..2;
 ok($c_ran, 'coerce defaults');
