@@ -458,7 +458,7 @@ sub _generate_populate_set {
   if ($self->has_eager_default($name, $spec)) {
     my $get_indent = ' ' x ($spec->{isa} ? 6 : 4);
     my $get_default = $self->_generate_get_default(
-                        '$new', $_, $spec
+                        '$new', $name, $spec
                       );
     my $get_value = 
       defined($spec->{init_arg})
