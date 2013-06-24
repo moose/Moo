@@ -56,10 +56,8 @@ sub generate_method {
   }
   if (exists $spec->{builder}) {
     if(ref $spec->{builder}) {
-      die "Invalid builder for $into->$name - not a method name, coderef or"
-        . " code-convertible object"
-        unless ref $spec->{builder} eq 'CODE'
-        or (blessed($spec->{builder}) and eval { \&{$spec->{builder}} });
+      $self->_validate_codulatable('builder', $spec->{builder},
+        "$into->$name", 'or a method name');
       $spec->{builder_sub} = $spec->{builder};
       $spec->{builder} = 1;
     }
