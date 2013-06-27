@@ -5,6 +5,7 @@ use Sub::Quote;
 use base qw(Moo::Object);
 use Sub::Defer;
 use B 'perlstring';
+use Moo::_Utils qw(_getstash);
 
 sub register_attribute_specs {
   my ($self, @new_specs) = @_;
@@ -44,9 +45,13 @@ sub accessor_generator {
 sub construction_string {
   my ($self) = @_;
   $self->{construction_string}
-    or 'bless('
-       .$self->accessor_generator->default_construction_string
-       .', $class);'
+    ||= $self->_build_construction_string;
+}
+
+sub _build_construction_string {
+  'bless('
+    .$_[0]->accessor_generator->default_construction_string
+    .', $class);'
 }
 
 sub install_delayed {
@@ -177,5 +182,17 @@ sub _check_required {
     .q{      die "Missing required arguments: ".join(', ', sort @missing);}."\n"
     ."    }\n";
 }
+
+use Moo;
+Moo->_constructor_maker_for(__PACKAGE__)->register_attribute_specs(
+  attribute_specs => {
+    is => 'ro',
+    reader => 'all_attribute_specs',
+  },
+  accessor_generator => { is => 'ro' },
+  construction_string => { is => 'lazy' },
+  subconstructor_handler => { is => 'ro' },
+  package => { is => 'ro' },
+);
 
 1;
