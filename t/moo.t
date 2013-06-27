@@ -11,7 +11,7 @@ use Test::More;
 
 BEGIN {
   is(
-    $INC{'Class/Tiny/Object.pm'}, undef,
+    $INC{'Moo/Object.pm'}, undef,
     'Object.pm not loaded if not required'
   );
 }
