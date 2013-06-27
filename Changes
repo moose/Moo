@@ -1,6 +1,7 @@
   - fix constructor generated when creating a class with
     create_class_with_roles when the superclass constructor hasn't been
     generated yet
+  - fix extending the constructor generator using Moo classes/roles
   - updated META files to list prerequisites in proper phases
   - $Method::Generate::Accessor::CurrentAttribute hashref contains
     information about attribute currently being processed (available
