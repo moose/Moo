@@ -272,7 +272,7 @@ If you need to disable parts of strictures, do it within the quoted sub:
 
 =head1 SUPPORT
 
-See L<Moo> for support and contact informations.
+See L<Moo> for support and contact information.
 
 =head1 AUTHORS
 

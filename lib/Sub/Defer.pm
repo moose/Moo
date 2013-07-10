@@ -93,7 +93,7 @@ If this is confusing, take a look at the example in the L</SYNOPSIS>.
 
 =head1 SUPPORT
 
-See L<Moo> for support and contact informations.
+See L<Moo> for support and contact information.
 
 =head1 AUTHORS
 
