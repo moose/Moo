@@ -10,6 +10,7 @@ require Moo::sification;
 BEGIN { *INFO = \%Role::Tiny::INFO }
 
 our %INFO;
+our %APPLY_DEFAULTS;
 
 sub _install_tracked {
   my ($target, $name, $code) = @_;
@@ -265,31 +266,40 @@ sub create_class_with_roles {
 sub apply_roles_to_object {
   my ($me, $object, @roles) = @_;
   my $new = $me->SUPER::apply_roles_to_object($object, @roles);
-  if ($INC{'Moo.pm'}
-      and my $m = Moo->_accessor_maker_for(ref $new)
-      and my $con_gen = Moo->_constructor_maker_for(ref $new)) {
-    require Sub::Quote;
 
-    my $specs = $con_gen->all_attribute_specs;
+  my $apply_defaults = $APPLY_DEFAULTS{ref $new} ||= do {
     my %attrs = map { @{$INFO{$_}{attributes}||[]} } @roles;
 
-    my $assign = '';
-    my %captures;
-    foreach my $name ( keys %attrs ) {
-      my $spec = $specs->{$name};
-      if ($m->has_eager_default($name, $spec)) {
-        my ($has, $has_cap)
-          = $m->generate_simple_has('$_[0]', $name, $spec);
-        my ($code, $pop_cap)
-          = $m->generate_use_default('$_[0]', $name, $spec, $has);
+    if ($INC{'Moo.pm'}
+        and keys %attrs
+        and my $con_gen = Moo->_constructor_maker_for(ref $new)
+        and my $m = Moo->_accessor_maker_for(ref $new)) {
+      require Sub::Quote;
 
-        $assign .= $code;
-        @captures{keys %$has_cap, keys %$pop_cap}
-          = (values %$has_cap, values %$pop_cap);
+      my $specs = $con_gen->all_attribute_specs;
+
+      my $assign = '';
+      my %captures;
+      foreach my $name ( keys %attrs ) {
+        my $spec = $specs->{$name};
+        if ($m->has_eager_default($name, $spec)) {
+          my ($has, $has_cap)
+            = $m->generate_simple_has('$_[0]', $name, $spec);
+          my ($code, $pop_cap)
+            = $m->generate_use_default('$_[0]', $name, $spec, $has);
+
+          $assign .= $code;
+          @captures{keys %$has_cap, keys %$pop_cap}
+            = (values %$has_cap, values %$pop_cap);
+        }
       }
+      Sub::Quote::quote_sub($assign, \%captures);
     }
-    Sub::Quote::quote_sub($assign, \%captures)->($new);
-  }
+    else {
+      sub {};
+    }
+  };
+  $new->$apply_defaults;
   return $new;
 }
 
