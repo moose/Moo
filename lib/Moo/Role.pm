@@ -216,8 +216,8 @@ sub apply_roles_to_package {
 
 sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
-  die "${role} is not a Moo::Role" unless my $info = $INFO{$role};
   $me->_inhale_if_moose($role);
+  die "${role} is not a Moo::Role" unless my $info = $INFO{$role};
   $me->_handle_constructor($to, $INFO{$role}{attributes});
   $me->_maybe_make_accessors($role, $to);
   $me->SUPER::apply_single_role_to_package($to, $role);
