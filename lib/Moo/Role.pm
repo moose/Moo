@@ -206,10 +206,16 @@ sub _make_accessors {
   }
 }
 
+sub role_application_steps {
+  qw(_handle_constructor _maybe_make_accessors),
+    $_[0]->SUPER::role_application_steps;
+}
+
 sub apply_roles_to_package {
   my ($me, $to, @roles) = @_;
   foreach my $role (@roles) {
-      $me->_inhale_if_moose($role);
+    $me->_inhale_if_moose($role);
+    die "${role} is not a Moo::Role" unless $INFO{$role};
   }
   $me->SUPER::apply_roles_to_package($to, @roles);
 }
@@ -217,9 +223,7 @@ sub apply_roles_to_package {
 sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
   $me->_inhale_if_moose($role);
-  die "${role} is not a Moo::Role" unless my $info = $INFO{$role};
-  $me->_handle_constructor($to, $role);
-  $me->_maybe_make_accessors($to, $role);
+  die "${role} is not a Moo::Role" unless $INFO{$role};
   $me->SUPER::apply_single_role_to_package($to, $role);
 }
 
