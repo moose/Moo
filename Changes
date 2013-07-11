@@ -1,3 +1,4 @@
+  - document optional use of Class::XSAccessor with caveats
   - fix constructor generated when creating a class with
     create_class_with_roles when the superclass constructor hasn't been
     generated yet

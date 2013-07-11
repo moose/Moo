@@ -310,6 +310,15 @@ to your code before Moose is loaded, but bear in mind that this switch is
 currently global and turns the mechanism off entirely so don't put this
 in library code.
 
+=head1 MOO AND CLASS::XSACCESSOR
+
+If a new enough version of L<Class::XSAccessor> is available, it
+will be used to generate simple accessors, readers, and writers for
+a speed boost.  Simple accessors are those without lazy defaults,
+type checks/coercions, or triggers.  Readers and writers generated
+by L<Class::XSAccessor> will behave slightly differently: they will
+reject attempts to call them with the incorrect number of parameters.
+
 =head1 MOO VERSUS ANY::MOOSE
 
 L<Any::Moose> will load L<Mouse> normally, and L<Moose> in a program using
