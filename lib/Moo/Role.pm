@@ -172,25 +172,25 @@ sub _inhale_if_moose {
 }
 
 sub _maybe_make_accessors {
-  my ($self, $role, $target) = @_;
+  my ($self, $target, $role) = @_;
   my $m;
-  if ($INFO{$role}{inhaled_from_moose}
+  if ($INFO{$role} && $INFO{$role}{inhaled_from_moose}
       or $INC{"Moo.pm"}
       and $m = Moo->_accessor_maker_for($target)
       and ref($m) ne 'Method::Generate::Accessor') {
-    $self->_make_accessors($role, $target);
+    $self->_make_accessors($target, $role);
   }
 }
 
 sub _make_accessors_if_moose {
-  my ($self, $role, $target) = @_;
-  if ($INFO{$role}{inhaled_from_moose}) {
-    $self->_make_accessors($role, $target);
+  my ($self, $target, $role) = @_;
+  if ($INFO{$role} && $INFO{$role}{inhaled_from_moose}) {
+    $self->_make_accessors($target, $role);
   }
 }
 
 sub _make_accessors {
-  my ($self, $role, $target) = @_;
+  my ($self, $target, $role) = @_;
   my $acc_gen = ($Moo::MAKERS{$target}{accessor} ||= do {
     require Method::Generate::Accessor;
     Method::Generate::Accessor->new
@@ -218,8 +218,8 @@ sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
   $me->_inhale_if_moose($role);
   die "${role} is not a Moo::Role" unless my $info = $INFO{$role};
-  $me->_handle_constructor($to, $INFO{$role}{attributes});
-  $me->_maybe_make_accessors($role, $to);
+  $me->_handle_constructor($to, $role);
+  $me->_maybe_make_accessors($to, $role);
   $me->SUPER::apply_single_role_to_package($to, $role);
 }
 
@@ -251,14 +251,12 @@ sub create_class_with_roles {
   $me->SUPER::create_class_with_roles($superclass, @roles);
 
   foreach my $role (@roles) {
-    die "${role} is not a Role::Tiny" unless my $info = $INFO{$role};
+    die "${role} is not a Role::Tiny" unless $INFO{$role};
   }
 
   $Moo::MAKERS{$new_name} = {};
 
-  $me->_handle_constructor(
-    $new_name, [ map @{$INFO{$_}{attributes}||[]}, @roles ]
-  );
+  $me->_handle_constructor($new_name, $_) for @roles;
 
   return $new_name;
 }
@@ -307,7 +305,7 @@ sub _composable_package_for {
   my ($self, $role) = @_;
   my $composed_name = 'Role::Tiny::_COMPOSABLE::'.$role;
   return $composed_name if $Role::Tiny::COMPOSED{role}{$composed_name};
-  $self->_make_accessors_if_moose($role, $composed_name);
+  $self->_make_accessors_if_moose($composed_name, $role);
   $self->SUPER::_composable_package_for($role);
 }
 
@@ -317,7 +315,8 @@ sub _install_single_modifier {
 }
 
 sub _handle_constructor {
-  my ($me, $to, $attr_info) = @_;
+  my ($me, $to, $role) = @_;
+  my $attr_info = $INFO{$role} && $INFO{$role}{attributes};
   return unless $attr_info && @$attr_info;
   if ($INFO{$to}) {
     push @{$INFO{$to}{attributes}||=[]}, @$attr_info;
