@@ -259,7 +259,7 @@ sub create_class_with_roles {
     die "${role} is not a Role::Tiny" unless $INFO{$role};
   }
 
-  $Moo::MAKERS{$new_name} = {};
+  $Moo::MAKERS{$new_name} = {is_class => 1};
 
   $me->_handle_constructor($new_name, $_) for @roles;
 

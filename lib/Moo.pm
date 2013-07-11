@@ -22,7 +22,7 @@ sub import {
   my $target = caller;
   my $class = shift;
   strictures->import;
-  if ($Moo::Role::INFO{$target} and $Moo::Role::INFO{$target}{is_role}) {
+  if ($Role::Tiny::INFO{$target} and $Role::Tiny::INFO{$target}{is_role}) {
     die "Cannot import Moo into a role";
   }
   $MAKERS{$target} ||= {};
