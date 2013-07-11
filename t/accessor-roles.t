@@ -28,17 +28,17 @@ is $c->two, "two",     "attr default set from role";
 is $c->three, "three", "attr default set from role";
 
 {
-	package Deux; use Moo; with 'One::P1';
-	::like(
-		::exception { has two => (is => 'ro', default => sub { 'II' }); },
-		qr{^You cannot overwrite a locally defined method \(two\) with a reader},
-		'overwriting accesssors with roles fails'
-	);
+  package Deux; use Moo; with 'One::P1';
+  ::like(
+    ::exception { has two => (is => 'ro', default => sub { 'II' }); },
+    qr{^You cannot overwrite a locally defined method \(two\) with a reader},
+    'overwriting accesssors with roles fails'
+  );
 }
 
 {
-	package Two; use Moo; with 'One::P1';
-	has '+two' => (is => 'ro', default => sub { 'II' });
+  package Two; use Moo; with 'One::P1';
+  has '+two' => (is => 'ro', default => sub { 'II' });
 }
 
 is(Two->new->two, 'II', "overwriting accessors using +attr works");
