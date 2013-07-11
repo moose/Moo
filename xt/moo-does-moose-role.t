@@ -1,5 +1,6 @@
 use strictures 1;
 use Test::More;
+use Test::Fatal;
 
 BEGIN {
   package Ker;
@@ -262,5 +263,21 @@ is( UsingMooseTrait->meta->find_attribute_by_name('one')
       ->extra_attr,
     'one',
     'trait attributes maintain values');
+
+{
+  package NeedTrap;
+  use Moo::Role;
+
+  requires 'trap';
+}
+
+is exception {
+  package Splattrap;
+  use Moo;
+  sub monkey {}
+
+  with qw(Splat NeedTrap);
+}, undef, 'requires satisfied by Moose attribute composed at the same time';
+
 
 done_testing;

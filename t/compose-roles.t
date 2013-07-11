@@ -1,5 +1,6 @@
 use strictures 1;
 use Test::More;
+use Test::Fatal;
 
 {
   package One; use Role::Tiny;
@@ -61,5 +62,34 @@ my $o2 = Moo::Role->create_class_with_roles(
   'SubClassWithoutAttr', 'RoleWithAttr')->new;
 is($o2->attr3, -3, 'constructor includes base class');
 is($o2->attr2, -2, 'constructor includes role');
+
+{
+  package AccessorExtension;
+  use Moo::Role;
+  around 'generate_method' => sub {
+    my $orig = shift;
+    my $me = shift;
+    my ($into, $name) = @_;
+    $me->$orig(@_);
+    no strict 'refs';
+    *{"${into}::_${name}_marker"} = sub { };
+  };
+}
+
+{
+  package RoleWithReq;
+  use Moo::Role;
+  requires '_attr1_marker';
+}
+
+is exception {
+  package EmptyClass;
+  use Moo;
+  Moo::Role->apply_roles_to_object(
+    Moo->_accessor_maker_for(__PACKAGE__),
+    'AccessorExtension');
+
+  with qw(RoleWithAttr RoleWithReq);
+}, undef, 'apply_roles_to_object correctly calls accessor generator';
 
 done_testing;
