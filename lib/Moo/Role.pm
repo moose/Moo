@@ -168,6 +168,7 @@ sub _inhale_if_moose {
     }
     require Class::Method::Modifiers if @$mods;
     $INFO{$role}{inhaled_from_moose} = 1;
+    $INFO{$role}{is_role} = 1;
   }
 }
 
