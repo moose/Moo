@@ -135,28 +135,45 @@ for my $module (@modules) {
 __DATA__
 
 # SKIP: no tests
+AnyMerchant
 CPAN-Mirror-Finder
 Catmandu-AlephX
 Device-Hue
 Novel-Robot
 Novel-Robot-Browser
 Novel-Robot-Parser
+Novel-Robot-Packer
 Thrift-API-HiveClient
 Tiezi-Robot-Parser
+Tiezi-Robot-Packer
+WWW-ORCID
 
 # SKIP: broken
 App-Presto
 Catmandu-Store-Lucy
 Dancer2-Session-Sereal
+Dancer-Plugin-FontSubset
 Data-Localize
+DBIx-Class-IndexSearch-Dezi
+DBIx-FixtureLoader
 Message-Passing-ZeroMQ
 Tak
+
+# SKIP: broken prereqs
+App-Netdisco
+DBIx-Table-TestDataGenerator
+Perinci-CmdLine
+Perinci-Sub-Gen-AccessTable-DBI
+
+# SKIP: unreliable prereqs
+Finance-Bitcoin
 
 # SKIP: broken tests
 Template-Flute
 Uninets-Check-Modules-HTTP
 Uninets-Check-Modules-MongoDB
 Uninets-Check-Modules-Redis
+Net-OAuth-LP # pod coverage
 
 # SKIP: missing prereqs
 Catmandu-Z3950
@@ -168,7 +185,6 @@ Dancer2-Session-JSON
 
 # TODO: broken, pending release
 Hg-Lib
-P9Y-ProcessTable
 
 # SKIP: OS specific
 Linux-AtaSmart
