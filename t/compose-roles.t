@@ -83,7 +83,7 @@ is($o2->attr2, -2, 'constructor includes role');
 }
 
 is exception {
-  package EmptyClass;
+  package ClassWithExtension;
   use Moo;
   Moo::Role->apply_roles_to_object(
     Moo->_accessor_maker_for(__PACKAGE__),
@@ -91,5 +91,28 @@ is exception {
 
   with qw(RoleWithAttr RoleWithReq);
 }, undef, 'apply_roles_to_object correctly calls accessor generator';
+
+{
+  package EmptyClass;
+  use Moo;
+}
+
+{
+  package RoleWithReq2;
+  use Moo::Role;
+  requires 'attr2';
+}
+
+is exception {
+  Moo::Role->create_class_with_roles(
+    'EmptyClass', 'RoleWithReq2', 'RoleWithAttr2');
+}, undef, 'create_class_with_roles accepts attributes for requirements';
+
+like exception {
+  Moo::Role->create_class_with_roles(
+    'EmptyClass', 'RoleWithReq2', 'RoleWithAttr');
+}, qr/Can't apply .* missing attr2/,
+  'create_class_with_roles accepts attributes for requirements';
+
 
 done_testing;

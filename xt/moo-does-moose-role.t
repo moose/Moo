@@ -279,5 +279,13 @@ is exception {
   with qw(Splat NeedTrap);
 }, undef, 'requires satisfied by Moose attribute composed at the same time';
 
+{
+  package HasMonkey;
+  use Moo;
+  sub monkey {}
+}
+is exception {
+  Moo::Role->create_class_with_roles('HasMonkey', 'Splat', 'NeedTrap');
+}, undef, ' ... and when created by create_class_with_roles';
 
 done_testing;
