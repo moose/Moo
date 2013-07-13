@@ -68,7 +68,7 @@ for my $line (<DATA>) {
   my ( $dist, $reason ) = $line =~ /^(\S*)\s*(?:#\s*(.*?)\s*)?$/;
   next unless defined $dist && length $dist;
 
-  $hash->{$dist} = $reason || $sec_reason;
+  $hash->{$dist} = $reason ? "$sec_reason: $reason" : $reason;
 }
 
 my %todo_module;
@@ -153,7 +153,7 @@ Tiezi-Robot-Parser
 Tiezi-Robot-Packer
 WWW-ORCID
 
-# SKIP: broken
+# TODO: broken
 App-Presto
 Catmandu-Store-Lucy
 Dancer2-Session-Sereal
@@ -164,36 +164,58 @@ DBIx-FixtureLoader
 Message-Passing-ZeroMQ
 Tak
 
-# SKIP: broken prereqs
+# TODO: broken by perl 5.18
+App-DBCritic                # 0.020 - smartmatch
+App-OS-Detect-MachineCores  # 0.038 - smartmatch
+Authen-HTTP-Signature       # 0.02 - smartmatch
+DBICx-Backend-Move          # 1.000010 - smartmatch
+POEx-ZMQ3                   # 0.060002 - smartmatch
+Ruby-VersionManager         # 0.004003 - smartmatch
+Text-Keywords               # 0.900 - smartmatch
+Data-CloudWeights           # v0.9.2
+HTML-Zoom-Parser-HH5P       # 0.002
+Log-Message-Structured-Stringify-AsSereal   # 0.10
+
+# TODO: broken prereqs
 App-Netdisco
 DBIx-Table-TestDataGenerator
 Perinci-CmdLine
 Perinci-Sub-Gen-AccessTable-DBI
 
-# SKIP: unreliable prereqs
-Finance-Bitcoin
+# TODO: broken prereqs (perl 5.18)
+App-Rssfilter   # 0.03 - Data::Alias
+App-Zapzi       # 0.004 - HTTP::CookieJar
+Code-Crypt      # 0.001000 - Crypt::DES
+Data-Sah        # 0.15 - Regexp::Grammars
+Language-Expr   # 0.19 - Regexp::Grammars
+Net-Icecast2    # 0.005 - PHP::HTTPBuildQuery (hash order)
+Org-To-HTML     # 0.07 - Language::Expr
+POE-Component-ProcTerminator          # 0.03 - Log::Fu
+Perinci-Access-Simple-Server          # 0.12 - Regexp::Grammars
+Perinci-Sub-Gen-AccessTable           # 0.19 - Regexp::Grammars
+Software-Release-Watch                # 0.01 - Data::Sah, Perinci::CmdLine
+Software-Release-Watch-SW-wordpress   # 0.01 - Software::Release::Watch
+Tiezi-Robot                           # 0.12 - Data::Dump::Streamer, SOAP::Lite
+WebService-HabitRPG                   # 0.19 - Data::Alias
 
-# SKIP: broken tests
+# TODO: broken tests
 Template-Flute
 Uninets-Check-Modules-HTTP
 Uninets-Check-Modules-MongoDB
 Uninets-Check-Modules-Redis
 Net-OAuth-LP # pod coverage
 
-# SKIP: missing prereqs
-Catmandu-Z3950
-Tiezi-Robot
+# SKIP: invalid prereqs
+Catmandu-Z3950        # 0.03 - ZOOM missing
+Dancer2-Session-JSON  # 0.001 - Dancer2 bad version requirement
 
-# SKIP: bad prereq version listed
-Dancer2-Session-Cookie
-Dancer2-Session-JSON
-
-# TODO: broken, pending release
-Hg-Lib
-
-# SKIP: OS specific
-Linux-AtaSmart
+# SKIP: misc
+Linux-AtaSmart    # OS specific
+Net-Works         # 0.12 - prereq Math::Int128 (requires gcc 4.4)
+XML-GrammarBase   # v0.2.2 - prereq XML::LibXSLT (hard to install)
+Forecast-IO       # 0.21 - interactive tests
 
 # TODO: broken by Moo change
 Math-Rational-Approx        # RT#84035
 App-Services                # RT#85255
+Hg-Lib                      # pending release
