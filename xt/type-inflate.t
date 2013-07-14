@@ -6,8 +6,30 @@ use Test::More;
 
   use Moo::Role;
   use Sub::Quote;
-  use MooX::Types::MooseLike::Base qw(Str);
-  use MooX::Types::MooseLike::Numeric qw(PositiveInt);
+  use Moo::HandleMoose ();
+
+  sub Str {
+    my $type = sub {
+      die unless defined $_[0] && !ref $_[0];
+    };
+    $Moo::HandleMoose::TYPE_MAP{$type} = sub {
+      require Moose::Util::TypeConstraints;
+      Moose::Util::TypeConstraints::find_type_constraint("Str");
+    };
+    return ($type, @_);
+  }
+  sub PositiveInt {
+    my $type = sub {
+      die unless defined $_[0] && !ref $_[0] && $_[0] =~ /^-?\d+/;
+    };
+    $Moo::HandleMoose::TYPE_MAP{$type} = sub {
+      require Moose::Util::TypeConstraints;
+      require MooseX::Types::Common::Numeric;
+      Moose::Util::TypeConstraints::find_type_constraint(
+        "MooseX::Types::Common::Numeric::PositiveInt");
+    };
+    return ($type, @_);
+  }
 
   has named_type => (
     is => 'ro',

@@ -2,15 +2,25 @@ use strictures 1;
 use Test::More;
 use Test::Fatal;
 
+sub ArrayRef {
+  my $type = sub {
+    die unless ref $_[0] && ref $_[0] eq 'ARRAY';
+  };
+  $Moo::HandleMoose::TYPE_MAP{$type} = sub {
+    require Moose::Util::TypeConstraints;
+    Moose::Util::TypeConstraints::find_type_constraint("ArrayRef");
+  };
+  return ($type, @_);
+}
+
 {
   package ClassWithTypes;
   $INC{'ClassWithTypes.pm'} = __FILE__;
   use Moo;
-  use MooX::Types::MooseLike::Base qw(ArrayRef);
 
-  has split_comma => (is => 'ro', isa => ArrayRef, coerce => sub { [ split /,/, $_[0] ] } );
-  has split_space => (is => 'ro', isa => ArrayRef, coerce => sub { [ split / /, $_[0] ] } );
-  has bad_coerce => (is => 'ro', isa => ArrayRef, coerce => sub { $_[0] } );
+  has split_comma => (is => 'ro', isa => ::ArrayRef, coerce => sub { [ split /,/, $_[0] ] } );
+  has split_space => (is => 'ro', isa => ::ArrayRef, coerce => sub { [ split / /, $_[0] ] } );
+  has bad_coerce => (is => 'ro', isa => ::ArrayRef, coerce => sub { $_[0] } );
 }
 
 my $o = ClassWithTypes->new(split_comma => 'a,b c,d', split_space => 'a,b c,d');
