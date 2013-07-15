@@ -1,3 +1,4 @@
+1.003000 - 2013-07-15
   - fix composing roles that require methods provided by the other (RT#82711)
   - document optional use of Class::XSAccessor with caveats
   - fix constructor generated when creating a class with
