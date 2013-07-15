@@ -1,6 +1,4 @@
-#!/usr/bin/env perl
-use strict;
-use warnings;
+use strictures 1;
 use Test::More;
 use Test::Fatal;
 use Moo::Object;
@@ -33,13 +31,13 @@ is( exception { Example->meta->can('can') } , undef, "Example->meta->can doesn't
     use base "Example_2";
 }
 
-ok( Example_2->can('meta'), 'Example_2 can meta') and subtest meta_checks_for_Example_2 => sub {
+ok( Example_2->can('meta'), 'Example_2 can meta') and do {
     return unless ok( Example_2->meta->can('get_all_attributes'), 'Example_2 meta can get_all_attributes' );
     my (@attributes) = Example_2->meta->get_all_attributes;
     is( scalar @attributes, 1, 'Has one attribute' );
 };
 
-ok( Example_3->can('meta'), 'Example_3 can meta') and subtest meta_checks_for_Example_3 => sub {
+ok( Example_3->can('meta'), 'Example_3 can meta') and do {
     return unless is( exception { Example_3->meta->can('can') } , undef, "Example_3->meta->can doesn't explode" );
     return unless ok( Example_3->meta->can('get_all_attributes'), 'Example_3 meta can get_all_attributes' );
     my (@attributes) = Example_3->meta->get_all_attributes;

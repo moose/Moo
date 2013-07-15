@@ -13,7 +13,7 @@ my %CONFIGURE_DEPS = (
 my %BUILD_DEPS = ();
 
 my %TEST_DEPS = (
-  'Test::More' => 0.96,
+  'Test::More' => 0.94,
   'Test::Fatal' => 0.003,
 );
 
