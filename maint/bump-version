@@ -7,6 +7,9 @@ use autodie;
 chomp(my $LATEST = qx(grep '^[0-9]' Changes | head -1 | awk '{print \$1}'));
 
 my @parts = split /\./, $LATEST;
+if (@parts == 2) {
+  @parts[1,2] = $parts[1] =~ /(\d{1,3})(\d{1,3})/;
+}
 
 my $OLD_DECIMAL = sprintf('%i.%03i%03i', @parts);
 
@@ -25,12 +28,13 @@ my $NEW_DECIMAL = sprintf('%i.%03i%03i', @new_parts);
 
 warn "Bumping $OLD_DECIMAL -> $NEW_DECIMAL\n";
 
-my $PM_FILE = 'lib/Moo.pm';
+for my $PM_FILE ('lib/Moo.pm') {
+  my $file = do { local (@ARGV, $/) = ($PM_FILE); <> };
 
-my $file = do { local (@ARGV, $/) = ($PM_FILE); <> };
+  $file =~ s/(?<=\$VERSION = ')${\quotemeta $OLD_DECIMAL}/${NEW_DECIMAL}/
+    or die "unable to bump version number in $PM_FILE";
 
-$file =~ s/(?<=\$VERSION = ')${\quotemeta $OLD_DECIMAL}/${NEW_DECIMAL}/;
+  open my $out, '>', $PM_FILE;
 
-open my $out, '>', $PM_FILE;
-
-print $out $file;
+  print $out $file;
+}
