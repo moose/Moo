@@ -37,12 +37,18 @@ sub import {
     $class->_maybe_reset_handlemoose($target);
   };
   _install_tracked $target => has => sub {
-    my ($name_proto, %spec) = @_;
-    my $name_isref = ref $name_proto eq 'ARRAY';
-    foreach my $name ($name_isref ? @$name_proto : $name_proto) {
-      # Note that when $name_proto is an arrayref, each attribute
+    my $name_proto = shift;
+    my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
+    if (@_ % 2 != 0) {
+      require Carp;
+      Carp::croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
+        . " attribute(s): even number of arguments expected, got " . scalar @_)
+    }
+    my %spec = @_;
+    foreach my $name (@name_proto) {
+      # Note that when multiple attributes specified, each attribute
       # needs a separate \%specs hashref
-      my $spec_ref = $name_isref ? +{%spec} : \%spec;
+      my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
       $class->_constructor_maker_for($target)
             ->register_attribute_specs($name, $spec_ref);
       $class->_accessor_maker_for($target)

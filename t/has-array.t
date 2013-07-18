@@ -27,4 +27,18 @@ can_ok(
   qw( attr1 attr2 attr3 attr4 ),
 );
 
+like(exception {
+  package Local::Test::Role2;
+  use Moo::Role;
+  has [qw/ attr1 attr2 /] => (is => 'ro', 'isa');
+}, qr/^Invalid options for 'attr1', 'attr2' attribute\(s\): even number of arguments expected, got 3/,
+  'correct exception when has given bad parameters in role');
+
+like(exception {
+  package Local::Test::Class2;
+  use Moo;
+  has [qw/ attr3 attr4 /] => (is => 'ro', 'isa');
+}, qr/^Invalid options for 'attr3', 'attr4' attribute\(s\): even number of arguments expected, got 3/,
+  'correct exception when has given bad parameters in class');
+
 done_testing;
