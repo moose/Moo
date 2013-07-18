@@ -4,6 +4,9 @@ use strictures 1;
 use base qw(Exporter);
 use Moo::_Utils;
 
+our $VERSION = '1.003000';
+$VERSION = eval $VERSION;
+
 our @EXPORT = qw(defer_sub undefer_sub);
 
 our %DEFERRED;

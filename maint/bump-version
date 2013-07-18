@@ -28,7 +28,12 @@ my $NEW_DECIMAL = sprintf('%i.%03i%03i', @new_parts);
 
 warn "Bumping $OLD_DECIMAL -> $NEW_DECIMAL\n";
 
-for my $PM_FILE ('lib/Moo.pm') {
+for my $PM_FILE (qw(
+  lib/Moo.pm
+  lib/Moo/Role.pm
+  lib/Sub/Defer.pm
+  lib/Sub/Quote.pm
+)) {
   my $file = do { local (@ARGV, $/) = ($PM_FILE); <> };
 
   $file =~ s/(?<=\$VERSION = ')${\quotemeta $OLD_DECIMAL}/${NEW_DECIMAL}/

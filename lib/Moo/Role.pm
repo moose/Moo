@@ -5,6 +5,9 @@ use Moo::_Utils;
 use Role::Tiny ();
 use base qw(Role::Tiny);
 
+our $VERSION = '1.003000';
+$VERSION = eval $VERSION;
+
 require Moo::sification;
 
 BEGIN { *INFO = \%Role::Tiny::INFO }
