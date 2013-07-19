@@ -20,7 +20,6 @@ my %META = (
     } },
     runtime => {
       requires => {
-        'perl'                      => 5.008001,
         'Class::Method::Modifiers'  => 1.10,  # for RT#80194
         'strictures'                => 1.004003,
         'Module::Runtime'           => 0.012, # for RT#74789
