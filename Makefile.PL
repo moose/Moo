@@ -1,6 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
-use 5.008001;
+use 5.006;
 
 check_conflicts();
 
