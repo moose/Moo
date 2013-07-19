@@ -2,7 +2,6 @@ package Moo::HandleMoose;
 
 use strictures 1;
 use Moo::_Utils;
-use B qw(perlstring);
 
 our %TYPE_MAP;
 

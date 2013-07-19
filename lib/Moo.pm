@@ -2,7 +2,6 @@ package Moo;
 
 use strictures 1;
 use Moo::_Utils;
-use B 'perlstring';
 use Sub::Defer ();
 use Import::Into;
 

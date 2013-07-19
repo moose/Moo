@@ -4,7 +4,6 @@ use strictures 1;
 use Moo::_Utils;
 use base qw(Moo::Object);
 use Sub::Quote;
-use B 'perlstring';
 use Scalar::Util 'blessed';
 use overload ();
 use Module::Runtime qw(use_module);

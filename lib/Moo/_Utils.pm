@@ -20,6 +20,7 @@ our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
     _get_linear_isa _getstash _install_coderef _name_coderef
     _unimport_coderefs _in_global_destruction _set_loaded
+    perlstring
 );
 
 sub _in_global_destruction ();
@@ -121,6 +122,16 @@ sub _unimport_coderefs {
 
 if ($Config{useithreads}) {
   require Moo::HandleMoose::_TypeMap;
+}
+
+require B;
+if (exists &B::perlstring) {
+  *perlstring = \&B::perlstring;
+}
+else {
+  require Data::Dumper;
+  my $d = 'Data::Dumper'->new([])->Indent(0)->Purity(0)->Pad('')->Useqq(1)->Terse(1)->Freezer('')->Toaster('');
+  *perlstring = sub { $d->Values([shift])->Dump };
 }
 
 1;

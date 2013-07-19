@@ -4,8 +4,21 @@ use strictures 1;
 
 sub _clean_eval { eval $_[0] }
 
+BEGIN {
+  # Cannot use implementation from Moo::_Utils because Sub::Quote
+  # should not depend on Moo.
+  require B;
+  if (exists &B::perlstring) {
+    *perlstring = \&B::perlstring;
+  }
+  else {
+    require Data::Dumper;
+    my $d = 'Data::Dumper'->new([])->Indent(0)->Purity(0)->Pad('')->Useqq(1)->Terse(1)->Freezer('')->Toaster('');
+    *perlstring = sub { $d->Values([shift])->Dump };
+  }
+};
+
 use Sub::Defer;
-use B 'perlstring';
 use Scalar::Util qw(weaken);
 use base qw(Exporter);
 

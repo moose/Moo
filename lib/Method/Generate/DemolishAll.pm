@@ -4,7 +4,6 @@ use strictures 1;
 use base qw(Moo::Object);
 use Sub::Quote;
 use Moo::_Utils;
-use B qw(perlstring);
 
 sub generate_method {
   my ($self, $into) = @_;

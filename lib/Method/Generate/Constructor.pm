@@ -4,8 +4,7 @@ use strictures 1;
 use Sub::Quote;
 use base qw(Moo::Object);
 use Sub::Defer;
-use B 'perlstring';
-use Moo::_Utils qw(_getstash);
+use Moo::_Utils qw(_getstash perlstring);
 
 sub register_attribute_specs {
   my ($self, @new_specs) = @_;
