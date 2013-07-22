@@ -415,9 +415,9 @@ sub _generate_die_prefix {
   my ($self, $name, $prefix, $arg, $inside) = @_;
   "do {\n"
   .'  local $Method::Generate::Accessor::CurrentAttribute = {'
-  .'    init_arg => '.(defined $arg ? B::perlstring($arg) : 'undef') . ",\n"
-  .'    name     => '.B::perlstring($name).",\n"
-  .'    step     => '.B::perlstring($prefix).",\n"
+  .'    init_arg => '.(defined $arg ? perlstring($arg) : 'undef') . ",\n"
+  .'    name     => '.perlstring($name).",\n"
+  .'    step     => '.perlstring($prefix).",\n"
   ."  };\n"
   .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
   .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::_SIGDIE;'."\n"
