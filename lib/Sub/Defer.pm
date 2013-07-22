@@ -41,14 +41,18 @@ sub defer_info {
 sub defer_sub {
   my ($target, $maker) = @_;
   my $undeferred;
-  my $deferred_string;
-  my $deferred = sub {
-    goto &{$undeferred ||= undefer_sub($deferred_string)};
+  my $deferred;
+  $deferred = sub {
+    $undeferred ||= undefer_sub($deferred);
+    goto &$undeferred;
   };
-  $deferred_string = "$deferred";
   $DEFERRED{$deferred} = [ $target, $maker, \$undeferred, $deferred ];
   _install_coderef($target => $deferred) if defined $target;
   return $deferred;
+}
+
+sub CLONE {
+  %DEFERRED = map { $_->[3] => $_ } values %DEFERRED;
 }
 
 1;

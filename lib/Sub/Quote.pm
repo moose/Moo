@@ -63,13 +63,12 @@ sub quote_sub {
   undef($captures) if $captures && !keys %$captures;
   my $code = pop;
   my $name = $_[0];
-  my $outstanding;
-  my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
-    unquote_sub($outstanding);
+  my $deferred;
+  $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
+    unquote_sub($deferred);
   };
-  $outstanding = "$deferred";
-  $QUOTED{$outstanding} = [ $name, $code, $captures ];
-  weaken($WEAK_REFS{$outstanding} = $deferred);
+  $QUOTED{$deferred} = [ $name, $code, $captures ];
+  weaken($WEAK_REFS{$deferred} = $deferred);
   return $deferred;
 }
 
@@ -85,23 +84,22 @@ sub unquote_sub {
 
     my $make_sub = "{\n";
 
-    if (keys %$captures) {
-      $make_sub .= capture_unroll("\$_[1]", $captures, 2);
-    }
+    my %captures = $captures ? %$captures : ();
+    $captures{'$_QUOTED'} = \$QUOTED{$sub};
+    $make_sub .= capture_unroll("\$_[1]", \%captures, 2);
 
-    my $o_quoted = perlstring $sub;
     $make_sub .= (
       $name
           # disable the 'variable $x will not stay shared' warning since
           # we're not letting it escape from this scope anyway so there's
           # nothing trying to share it
         ? "  no warnings 'closure';\n  sub ${name} {\n"
-        : "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = sub {\n"
+        : "  \$_QUOTED->[3] = sub {\n"
     );
     $make_sub .= $code;
     $make_sub .= "  }".($name ? '' : ';')."\n";
     if ($name) {
-      $make_sub .= "  \$Sub::Quote::QUOTED{${o_quoted}}[3] = \\&${name}\n";
+      $make_sub .= "  \$_QUOTED->[3] = \\&${name}\n";
     }
     $make_sub .= "}\n1;\n";
     $ENV{SUB_QUOTE_DEBUG} && warn $make_sub;
@@ -109,12 +107,17 @@ sub unquote_sub {
       local $@;
       no strict 'refs';
       local *{$name} if $name;
-      unless (_clean_eval $make_sub, $captures) {
+      unless (_clean_eval $make_sub, \%captures) {
         die "Eval went very, very wrong:\n\n${make_sub}\n\n$@";
       }
     }
   }
   $QUOTED{$sub}[3];
+}
+
+sub CLONE {
+  %QUOTED = map { $WEAK_REFS{$_} => $QUOTED{$_} } keys %WEAK_REFS;
+  %WEAK_REFS = map { $_ => $_ } values %WEAK_REFS;
 }
 
 1;
