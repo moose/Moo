@@ -16,6 +16,8 @@ sub undefer_sub {
   my ($target, $maker, $undeferred_ref) = @{
     $DEFERRED{$deferred}||return $deferred
   };
+  return ${$undeferred_ref}
+    if ${$undeferred_ref};
   ${$undeferred_ref} = my $made = $maker->();
 
   # make sure the method slot has not changed since deferral time
@@ -26,7 +28,7 @@ sub undefer_sub {
     # _install_coderef calls are not necessary --ribasushi
     *{_getglob($target)} = $made;
   }
-  push @{$DEFERRED{$made} = $DEFERRED{$deferred}}, $made;
+  $DEFERRED{$made} = $DEFERRED{$deferred};
 
   return $made;
 }
@@ -44,7 +46,7 @@ sub defer_sub {
     goto &{$undeferred ||= undefer_sub($deferred_string)};
   };
   $deferred_string = "$deferred";
-  $DEFERRED{$deferred} = [ $target, $maker, \$undeferred ];
+  $DEFERRED{$deferred} = [ $target, $maker, \$undeferred, $deferred ];
   _install_coderef($target => $deferred) if defined $target;
   return $deferred;
 }

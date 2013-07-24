@@ -1,5 +1,6 @@
 use strictures 1;
 use Test::More;
+use Test::Fatal;
 use Sub::Defer;
 
 my %made;
@@ -28,6 +29,9 @@ is($one_defer->(), 'one', 'one (deferred) still runs');
 is(Foo->one, 'one', 'one (undeferred) runs');
 
 is(my $two_made = undefer_sub($two_defer), $made{'Foo::two'}, 'make two');
+
+is exception { undefer_sub($two_defer) }, undef,
+  "repeated undefer doesn't regenerate";
 
 is($two_made, \&Foo::two, 'two installed');
 
