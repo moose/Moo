@@ -3,6 +3,7 @@ package Sub::Defer;
 use strictures 1;
 use base qw(Exporter);
 use Moo::_Utils;
+use Scalar::Util qw(weaken);
 
 our $VERSION = '1.003000';
 $VERSION = eval $VERSION;
@@ -28,7 +29,7 @@ sub undefer_sub {
     # _install_coderef calls are not necessary --ribasushi
     *{_getglob($target)} = $made;
   }
-  $DEFERRED{$made} = $DEFERRED{$deferred};
+  weaken($DEFERRED{$made} = $DEFERRED{$deferred});
 
   return $made;
 }
@@ -41,18 +42,20 @@ sub defer_info {
 sub defer_sub {
   my ($target, $maker) = @_;
   my $undeferred;
-  my $deferred;
-  $deferred = sub {
-    $undeferred ||= undefer_sub($deferred);
+  my $deferred_info;
+  my $deferred = sub {
+    $undeferred ||= undefer_sub($deferred_info->[3]);
     goto &$undeferred;
   };
-  $DEFERRED{$deferred} = [ $target, $maker, \$undeferred, $deferred ];
+  $deferred_info = [ $target, $maker, \$undeferred, $deferred ];
+  weaken($DEFERRED{$deferred} = $deferred_info);
   _install_coderef($target => $deferred) if defined $target;
   return $deferred;
 }
 
 sub CLONE {
-  %DEFERRED = map { $_->[3] => $_ } values %DEFERRED;
+  %DEFERRED = map { defined $_ ? ($_->[3] => $_) : () } values %DEFERRED;
+  weaken($_) for values %DEFERRED;
 }
 
 1;
