@@ -63,18 +63,18 @@ sub quote_sub {
   undef($captures) if $captures && !keys %$captures;
   my $code = pop;
   my $name = $_[0];
-  my $deferred;
-  $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
-    unquote_sub($deferred);
+  my $quoted_info;
+  my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
+    unquote_sub($quoted_info->[4]);
   };
-  $QUOTED{$deferred} = [ $name, $code, $captures ];
-  weaken($WEAK_REFS{$deferred} = $deferred);
+  $quoted_info = [ $name, $code, $captures, undef, $deferred ];
+  weaken($QUOTED{$deferred} = $quoted_info);
   return $deferred;
 }
 
 sub quoted_from_sub {
   my ($sub) = @_;
-  $WEAK_REFS{$sub||''} and $QUOTED{$sub||''};
+  $QUOTED{$sub||''};
 }
 
 sub unquote_sub {
@@ -116,8 +116,8 @@ sub unquote_sub {
 }
 
 sub CLONE {
-  %QUOTED = map { $WEAK_REFS{$_} => $QUOTED{$_} } keys %WEAK_REFS;
-  %WEAK_REFS = map { $_ => $_ } values %WEAK_REFS;
+  %QUOTED = map { defined $_ ? ($_->[4] => $_) : () } values %QUOTED;
+  weaken($_) for values %QUOTED;
 }
 
 1;

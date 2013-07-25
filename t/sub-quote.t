@@ -47,4 +47,16 @@ like(
   'exception contains correct name'
 );
 
+quote_sub 'Foo::four' => q{
+  return 5;
+};
+
+my $quoted = quoted_from_sub(\&Foo::four);
+like $quoted->[1], qr/return 5;/,
+  'can get quoted from installed sub';
+Foo::four();
+my $quoted2 = quoted_from_sub(\&Foo::four);
+is $quoted2->[1], undef,
+  "can't get quoted from installed sub after undefer";
+
 done_testing;
