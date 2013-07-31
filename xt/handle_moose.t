@@ -112,4 +112,16 @@ ok(Moo::Role->is_role('AnotherMooseRole'),
   ok $meta, 'generated class via create_class_with_roles has metaclass';
 }
 
+{
+  package WithBlessedSub;
+  use Moo;
+
+  sub foo { 1 }
+  bless \&foo;
+
+  my $meta = Class::MOP::get_metaclass_by_name(__PACKAGE__);
+  ::is ::exception { $meta->isa('Moose::Meta::Class') }, undef,
+    'Moose class inflation works with blessed subs';
+}
+
 done_testing;
