@@ -52,4 +52,14 @@ ok exception {
    Moose::Util::apply_all_roles($meta, 'MooRequiresGunDog');
 }, 'apply role with unsatisified requirement';
 
+{
+  package WithNonMethods;
+  use Scalar::Util qw(looks_like_number);
+  use Moo;
+
+  my $meta = Class::MOP::get_metaclass_by_name(__PACKAGE__);
+  ::ok(!$meta->has_method('looks_like_number'),
+    'imported sub before use Moo not included in inflated metaclass');
+}
+
 done_testing;

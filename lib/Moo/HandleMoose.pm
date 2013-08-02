@@ -81,7 +81,8 @@ sub inject_real_metaclass_for {
     }
   }
 
-  my %methods = %{Role::Tiny->_concrete_methods_of($name)};
+  my %methods
+    = %{($am_role ? 'Role::Tiny' : 'Moo')->_concrete_methods_of($name)};
 
   # if stuff gets added afterwards, _maybe_reset_handlemoose should
   # trigger the recreation of the metaclass but we need to ensure the

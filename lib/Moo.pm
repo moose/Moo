@@ -65,6 +65,9 @@ sub import {
     };
   }
   return if $MAKERS{$target}{is_class}; # already exported into this package
+  my $stash = _getstash($target);
+  my @not_methods = map { *$_{CODE}||() } grep !ref($_), values %$stash;
+  @{$MAKERS{$target}{not_methods}={}}{@not_methods} = @not_methods;
   $MAKERS{$target}{is_class} = 1;
   {
     no strict 'refs';
@@ -188,6 +191,23 @@ sub _constructor_maker_for {
       ->install_delayed
       ->register_attribute_specs(%{$con?$con->all_attribute_specs:{}})
   }
+}
+
+sub _concrete_methods_of {
+  my ($me, $role) = @_;
+  my $makers = $MAKERS{$role};
+  # grab role symbol table
+  my $stash = _getstash($role);
+  # reverse so our keys become the values (captured coderefs) in case
+  # they got copied or re-used since
+  my $not_methods = { reverse %{$makers->{not_methods}||{}} };
+  +{
+    # grab all code entries that aren't in the not_methods list
+    map {
+      my $code = *{$stash->{$_}}{CODE};
+      ( ! $code or exists $not_methods->{$code} ) ? () : ($_ => $code)
+    } grep !ref($stash->{$_}), keys %$stash
+  };
 }
 
 1;
