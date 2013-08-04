@@ -192,6 +192,10 @@ sub inject_real_metaclass_for {
       $meta->find_method_by_name('new'),
       'Moo::HandleMoose::FakeConstructor',
     );
+    # a combination of Moo and Moose may bypass a Moo constructor but still
+    # use a Moo DEMOLISHALL.  We need to make sure this is loaded before
+    # global destruction.
+    require Method::Generate::DemolishAll;
   }
   $meta->add_role(Class::MOP::class_of($_))
     for grep !/\|/ && $_ ne $name, # reject Foo|Bar and same-role-as-self
