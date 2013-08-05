@@ -181,9 +181,14 @@ sub inject_real_metaclass_for {
         }
       }
     }
-    foreach my $meth_name (keys %methods) {
+
+    for my $meth_name (keys %methods) {
       my $meth_code = $methods{$meth_name};
-      $meta->add_method($meth_name, $meth_code);
+      # work around moose bug
+      my $rebless = Scalar::Util::blessed($meth_code);
+      bless $meth_code, '0' if $rebless;
+      $meta->add_method($meth_name, $meth_code) if $meth_code;
+      bless $meth_code, $rebless if $rebless;
     }
 
     if ($am_role) {
