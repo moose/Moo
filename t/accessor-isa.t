@@ -154,4 +154,18 @@ is($e->[2], 'isa check', 'step available in isa check');
   is($called, 1, '__DIE__ handler called if set')
 }
 
+{
+  package ClassWithDeadlyIsa;
+  use Moo;
+  has foo => (is => 'ro', isa => sub { die "nope" });
+
+  package ClassUsingDeadlyIsa;
+  use Moo;
+  has bar => (is => 'ro', coerce => sub { ClassWithDeadlyIsa->new(foo => $_[0]) });
+}
+
+like exception { ClassUsingDeadlyIsa->new(bar => 1) },
+  qr/isa check for "foo" failed: nope/,
+  'isa check within isa check produces correct exception';
+
 done_testing;
