@@ -1,11 +1,13 @@
-use strictures 1;
-use Test::More;
 use Config;
 BEGIN {
-  unless ($Config{useithreads} && eval { require threads } ) {
-    plan skip_all => "your perl does not support ithreads";
+  unless ($Config{useithreads}) {
+    print "1..0 # SKIP your perl does not support ithreads\n";
+    exit 0;
   }
 }
+use threads;
+use strictures 1;
+use Test::More;
 
 use Sub::Quote;
 
@@ -19,10 +21,10 @@ my $two = quote_sub q{
     3 + $x++
 } => { '$x' => \do { my $x = 0 } };
 
-ok(threads->create(sub {
+is(threads->create(sub {
   my $quoted = quoted_from_sub($one);
-  $quoted && $quoted->[1] eq $one_code;
-})->join, 'able to retrieve quoted sub in thread');
+  $quoted && $quoted->[1];
+})->join, $one_code, 'able to retrieve quoted sub in thread');
 
 my $u_one = unquote_sub $one;
 
