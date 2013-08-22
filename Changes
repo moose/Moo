@@ -1,3 +1,4 @@
+  - fix Sub::Quote and Sub::Defer under threads (RT#87043)
   - better diagnostics when bad parameters given to has
 
 1.003000 - 2013-07-15
