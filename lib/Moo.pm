@@ -448,7 +448,9 @@ Returns true if the object composes in the passed role.
  extends 'Parent::Class';
 
 Declares base class. Multiple superclasses can be passed for multiple
-inheritance (but please use roles instead).
+inheritance (but please use roles instead).  The class will be loaded, however
+no errors will be triggered if it can't be found and there are already subs in
+the class.
 
 Calling extends more than once will REPLACE your superclasses, not add to
 them like 'use base' would.

@@ -9,7 +9,8 @@ use constant lt_5_8_3 => ( $] < 5.008003 or $ENV{MOO_TEST_PRE_583} ) ? 1 : 0;
 use constant can_haz_subname => eval { require Sub::Name };
 
 use strictures 1;
-use Module::Runtime qw(require_module);
+use Module::Runtime qw(use_package_optimistically module_notional_filename);
+
 use Devel::GlobalDestruction ();
 use base qw(Exporter);
 use Moo::_mro;
@@ -37,14 +38,16 @@ sub _install_modifier {
 our %MAYBE_LOADED;
 
 sub _load_module {
-  (my $proto = $_[0]) =~ s/::/\//g;
-  return 1 if $INC{"${proto}.pm"};
+  my $module = use_package_optimistically($_[0]);
+  my $file = module_notional_filename($module);
+  return 1
+    if $INC{$file};
+
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
   my $stash = _getstash($_[0])||{};
   return 1 if grep +(!ref($_) and *$_{CODE}), values %$stash;
-  require_module($_[0]);
-  return 1;
+  die "Can't locate $file";
 }
 
 sub _maybe_load_module {
