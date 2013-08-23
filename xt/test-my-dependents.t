@@ -139,28 +139,14 @@ for my $module (@modules) {
 
 __DATA__
 
-# SKIP: no tests
-AnyMerchant
-CPAN-Mirror-Finder
-Catmandu-AlephX
-Device-Hue
-Novel-Robot
-Novel-Robot-Browser
-Novel-Robot-Parser
-Novel-Robot-Packer
-Thrift-API-HiveClient
-Tiezi-Robot-Parser
-Tiezi-Robot-Packer
-WWW-ORCID
-
 # TODO: broken
 App-Presto
-Catmandu-Store-Lucy
 Dancer2-Session-Sereal
 Dancer-Plugin-FontSubset
-Data-Localize
+Mail-GcalReminder       # 0.1
+MooX-LvalueAttribute    # 0.12
+Net-Docker              # 0.002003
 DBIx-Class-IndexSearch-Dezi
-DBIx-FixtureLoader
 Message-Passing-ZeroMQ
 Tak
 
@@ -169,40 +155,29 @@ App-DBCritic                # 0.020 - smartmatch
 App-OS-Detect-MachineCores  # 0.038 - smartmatch
 Authen-HTTP-Signature       # 0.02 - smartmatch
 DBICx-Backend-Move          # 1.000010 - smartmatch
-POEx-ZMQ3                   # 0.060002 - smartmatch
 Ruby-VersionManager         # 0.004003 - smartmatch
 Text-Keywords               # 0.900 - smartmatch
-Data-CloudWeights           # v0.9.2
 HTML-Zoom-Parser-HH5P       # 0.002
 Log-Message-Structured-Stringify-AsSereal   # 0.10
-
-# TODO: broken prereqs
-App-Netdisco
-DBIx-Table-TestDataGenerator
-Perinci-CmdLine
-Perinci-Sub-Gen-AccessTable-DBI
+Text-CSV-Merge              # 0.03 - smartmatch
 
 # TODO: broken prereqs (perl 5.18)
 App-Rssfilter   # 0.03 - Data::Alias
-App-Zapzi       # 0.004 - HTTP::CookieJar
-Code-Crypt      # 0.001000 - Crypt::DES
 Data-Sah        # 0.15 - Regexp::Grammars
+Finance-Bank-ID-BCA     # 0.26 - Perinci::CmdLine
 Language-Expr   # 0.19 - Regexp::Grammars
 Net-Icecast2    # 0.005 - PHP::HTTPBuildQuery (hash order)
 Org-To-HTML     # 0.07 - Language::Expr
 POE-Component-ProcTerminator          # 0.03 - Log::Fu
 Perinci-Access-Simple-Server          # 0.12 - Regexp::Grammars
-Perinci-Sub-Gen-AccessTable           # 0.19 - Regexp::Grammars
+Perinci-CmdLine                       # 0.85 - Data::Sah
+Perinci-To-Text                       # 0.22 - Data::Sah
+Perinci-Sub-To-Text                   # 0.24 - Data::Sah
 Software-Release-Watch                # 0.01 - Data::Sah, Perinci::CmdLine
 Software-Release-Watch-SW-wordpress   # 0.01 - Software::Release::Watch
-Tiezi-Robot                           # 0.12 - Data::Dump::Streamer, SOAP::Lite
 WebService-HabitRPG                   # 0.19 - Data::Alias
 
 # TODO: broken tests
-Template-Flute
-Uninets-Check-Modules-HTTP
-Uninets-Check-Modules-MongoDB
-Uninets-Check-Modules-Redis
 Net-OAuth-LP # pod coverage
 
 # SKIP: invalid prereqs
@@ -210,10 +185,19 @@ Catmandu-Z3950        # 0.03 - ZOOM missing
 Dancer2-Session-JSON  # 0.001 - Dancer2 bad version requirement
 
 # SKIP: misc
+GeoIP2            # 0.040000 - prereq Math::Int128 (requires gcc 4.4)
+Graphics-Potrace  # 0.72 - external dependency
+GraphViz2         # 2.19 - external dependency
 Linux-AtaSmart    # OS specific
+MaxMind-DB-Reader # 0.040003 - prereq Math::Int128 (requires gcc 4.4)
+MaxMind-DB-Common # 0.031002 - prereq Math::Int128 (requires gcc 4.4)
 Net-Works         # 0.12 - prereq Math::Int128 (requires gcc 4.4)
+PortageXS         # 0.3.1 - external dependency and broken prereq (Shell::EnvImporter)
 XML-GrammarBase   # v0.2.2 - prereq XML::LibXSLT (hard to install)
 Forecast-IO       # 0.21 - interactive tests
+Net-OpenVPN-Launcher    # 0.1 - external dependency (and broken test)
+App-PerlWatcher-Level   # 0.13 - depends on Linux::Inotify2
+Graph-Easy-Marpa        # 2.00 - GraphVis2
 
 # TODO: broken by Moo change
 Math-Rational-Approx        # RT#84035
