@@ -1,3 +1,4 @@
+  - clarify in docs that Sub::Quote's captured variables are copies, not aliases
   - fix infinite recursion if an isa check fails due to another isa check
     (RT#87575)
   - fix Sub::Quote and Sub::Defer under threads (RT#87043)

@@ -167,7 +167,10 @@ C<$name> is the subroutine where the coderef will be installed.
 C<$code> is a string that will be turned into code.
 
 C<\%captures> is a hashref of variables that will be made available to the
-code.  See the L</SYNOPSIS>'s C<Silly::dagron> for an example using captures.
+code.  The keys should be the full name of the variable to be made available,
+including the sigil.  The values should be references to the values.  The
+variables will contain copies of the values.  See the L</SYNOPSIS>'s
+C<Silly::dagron> for an example using captures.
 
 =head3 options
 
