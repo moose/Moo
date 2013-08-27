@@ -1,3 +1,5 @@
+  - abbreviate class names from created by create_class_with_roles if they are
+    too long for perl to handle (RT#83248)
   - prevent destructors from failing in global destruction for certain
     combinations of Moo and Moose classes subclassing each other (RT#87810)
   - clarify in docs that Sub::Quote's captured variables are copies, not aliases

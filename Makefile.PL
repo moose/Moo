@@ -21,7 +21,7 @@ my %RUN_DEPS = (
   'Class::Method::Modifiers' => 1.10, # or RT#80194
   'strictures' => 1.004003,
   'Module::Runtime' => 0.012, # for RT#74789
-  'Role::Tiny' => 1.003000,
+  'Role::Tiny' => 1.003002,
   'Devel::GlobalDestruction' => 0.11, # for RT#78617
   'Dist::CheckConflicts' => 0.02,
 );

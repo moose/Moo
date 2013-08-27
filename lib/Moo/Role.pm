@@ -240,9 +240,7 @@ sub apply_single_role_to_package {
 sub create_class_with_roles {
   my ($me, $superclass, @roles) = @_;
 
-  my $new_name = join(
-    '__WITH__', $superclass, my $compose_name = join '__AND__', @roles
-  );
+  my ($new_name, $compose_name) = $me->_composite_name($superclass, @roles);
 
   return $new_name if $Role::Tiny::COMPOSED{class}{$new_name};
 
