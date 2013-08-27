@@ -2,6 +2,8 @@
   - check for FOREIGNBUILDARGS only once per class instead of on each
     instantiation
   - take advantage of XS predicates from newer versions of Class::XSAccessor
+  - always try to load superclasses and roles, and only fall back on the
+    heuristic of checking for subs if the file doesn't exist
 
 1.003001 - 2013-09-10
   - abbreviate class names from created by create_class_with_roles if they are
