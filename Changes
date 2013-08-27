@@ -1,3 +1,5 @@
+  - prevent destructors from failing in global destruction for certain
+    combinations of Moo and Moose classes subclassing each other (RT#87810)
   - clarify in docs that Sub::Quote's captured variables are copies, not aliases
   - fix infinite recursion if an isa check fails due to another isa check
     (RT#87575)
