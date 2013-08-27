@@ -185,6 +185,15 @@ sub inject_real_metaclass_for {
     for my $meth_name (keys %methods) {
       my $meth_code = $methods{$meth_name};
       # work around moose bug
+      my $rebless = Moose->VERSION >= 2.1005 && Scalar::Util::blessed($meth_code);
+      bless $meth_code, '0' if $rebless;
+      $meta->add_method($meth_name, $meth_code) if $meth_code;
+      bless $meth_code, $rebless if $rebless;
+    }
+
+    for my $meth_name (keys %methods) {
+      my $meth_code = $methods{$meth_name};
+      # work around moose bug
       my $rebless = Scalar::Util::blessed($meth_code);
       bless $meth_code, '0' if $rebless;
       $meta->add_method($meth_name, $meth_code) if $meth_code;
