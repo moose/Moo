@@ -10,6 +10,8 @@ Revision history for Moo
   - fix inheriting from a class with a prototype on new
   - use ->is_role internally to check if a package is a role
   - minimise Role::Tiny coupling outside Moo::Role
+  - fix calling parent constructor when C3 multiple inheritance is in use
+    (such as when combining with DBIx::Class)
 
 1.004002 - 2013-12-31
   - fix type inflation in threads when types are inserted by manually
