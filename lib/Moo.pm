@@ -174,10 +174,15 @@ sub _constructor_maker_for {
       ->new(
         package => $target,
         accessor_generator => $class->_accessor_maker_for($target),
-        construction_string => (
-          $moo_constructor
-            ? ($con ? $con->construction_string : undef)
-            : ('$class->'.$target.'::SUPER::new($class->can(q[FOREIGNBUILDARGS]) ? $class->FOREIGNBUILDARGS(@_) : @_)')
+        $moo_constructor ? (
+          $con ? (construction_string => $con->construction_string) : ()
+        ) : (
+          construction_builder => sub {
+            '$class->'.$target.'::SUPER::new('
+              .($target->can('FOREIGNBUILDARGS') ?
+                '$class->FOREIGNBUILDARGS(@_)' : '@_')
+              .')'
+          },
         ),
         subconstructor_handler => (
           '      if ($Moo::MAKERS{$class}) {'."\n"

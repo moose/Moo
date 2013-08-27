@@ -49,8 +49,11 @@ sub construction_string {
 }
 
 sub _build_construction_string {
-  'bless('
-    .$_[0]->accessor_generator->default_construction_string
+  my ($self) = @_;
+  my $builder = $self->{construction_builder};
+  $builder ? $self->$builder
+    : 'bless('
+    .$self->accessor_generator->default_construction_string
     .', $class);'
 }
 
@@ -191,6 +194,7 @@ Moo->_constructor_maker_for(__PACKAGE__)->register_attribute_specs(
   },
   accessor_generator => { is => 'ro' },
   construction_string => { is => 'lazy' },
+  construction_builder => { is => 'lazy' },
   subconstructor_handler => { is => 'ro' },
   package => { is => 'ro' },
 );
