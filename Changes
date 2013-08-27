@@ -1,6 +1,7 @@
   - omit sub imported before use Moo from Moose method inflation
   - check for FOREIGNBUILDARGS only once per class instead of on each
     instantiation
+  - take advantage of XS predicates from newer versions of Class::XSAccessor
 
 1.003001 - 2013-09-10
   - abbreviate class names from created by create_class_with_roles if they are
