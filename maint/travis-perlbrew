@@ -1,0 +1,13 @@
+BREWVER=${TRAVIS_PERL_VERSION/_*/}
+BREWOPTS=
+[[ "${TRAVIS_PERL_VERSION}_" =~ '_thr_' ]] && BREWOPTS="$BREWOPTS -Duseithreads"
+
+if ! perlbrew use | grep -q "Currently using $TRAVIS_PERL_VERSION"; then
+  perlbrew install --as $TRAVIS_PERL_VERSION --notest --noman --verbose $BREWOPTS -j 2 $BREWVER
+  perlbrew use $TRAVIS_PERL_VERSION
+  if ! perlbrew use | grep -q "Currently using $TRAVIS_PERL_VERSION"; then
+    echo "Unable to switch to $TRAVIS_PERL_VERSION - compilation failed...?" 1>&2
+    exit 1
+  fi
+fi
+perlbrew install-cpanm -f
