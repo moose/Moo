@@ -1,7 +1,7 @@
 language: perl
 perl:
-  - "5.8.3"
-  - "5.8.3_thr"
+  - "5.8.4"
+  - "5.8.4_thr"
 before_install:
   - source maint/travis-perlbrew
   - perlbrew install-cpanm -f
