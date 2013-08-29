@@ -30,7 +30,7 @@ sub import {
   }
   $INFO{$target} ||= {};
   # get symbol table reference
-  my $stash = do { no strict 'refs'; \%{"${target}::"} };
+  my $stash = _getstash($target);
   _install_tracked $target => has => sub {
     my $name_proto = shift;
     my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
