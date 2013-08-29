@@ -9,7 +9,7 @@ before_install:
   - perlbrew install-cpanm -f
   - perl -V
 install:
-  - cpanm --verbose --no-interactive --notest strictures autodie
+  - cpanm --verbose --no-interactive --notest strictures autodie ExtUtils::MakeMaker
   - cpanm --verbose --no-interactive --notest --installdeps --with-develop --with-recommends --with-suggests .
   - cpanm --verbose --no-interactive --notest Devel::Cover::Report::Coveralls
 script:
