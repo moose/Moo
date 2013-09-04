@@ -72,7 +72,7 @@ my %MM_ARGS = (
 
 
 # have to do this since old EUMM dev releases miss the eval $VERSION line
-my $mmver = do { no warnings; $ExtUtils::MakeMaker::VERSION+0 };
+my $mmver = eval $ExtUtils::MakeMaker::VERSION;
 my $mymeta_works      = $mmver >= 6.57_07;
 my $mymeta            = $mmver >= 6.57_02;
 my $has_test_requires = $mmver >= 6.63_03;
