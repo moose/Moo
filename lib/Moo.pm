@@ -529,7 +529,7 @@ Takes a coderef which is meant to coerce the attribute.  The basic idea is to
 do something like the following:
 
  coerce => sub {
-   $_[0] + 1 unless $_[0] % 2
+   $_[0] % 2 ? $_[0] : $_[0] + 1
  },
 
 Note that L<Moo> will always fire your coercion: this is to permit
