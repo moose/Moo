@@ -6,29 +6,42 @@ use ExtUtils::MakeMaker;
 check_conflicts();
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
-my %CONFIGURE_DEPS = (
-  'ExtUtils::MakeMaker'   => 0,
-  'Dist::CheckConflicts'  => '0.02',
-);
-my %BUILD_DEPS = ();
-
-my %TEST_DEPS = (
-  'Test::More'  => 0.94,
-  'Test::Fatal' => 0.003,
-);
-
-my %RUN_DEPS = (
-  'Class::Method::Modifiers'  => 1.10,  # for RT#80194
-  'strictures'                => 1.004003,
-  'Module::Runtime'           => 0.012, # for RT#74789
-  'Role::Tiny'                => 1.003002,
-  'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
-  'Dist::CheckConflicts'      => 0.02,
-  'Import::Into'              => 1.002,
-);
-
-my %extra_info = (
-  'meta-spec' => { version => 2 },
+my %META = (
+  name => 'Moo',
+  license => 'perl_5',
+  prereqs => {
+    configure => { requires => {
+      'ExtUtils::MakeMaker'   => 0,
+      'Dist::CheckConflicts'  => '0.02',
+    } },
+    build => { requires => {
+    } },
+    test => { requires => {
+      'Test::More'  => 0.94,
+      'Test::Fatal' => 0.003,
+    } },
+    runtime => { requires => {
+      'perl'                      => '5.8.1',
+      'Class::Method::Modifiers'  => 1.10,  # for RT#80194
+      'strictures'                => 1.004003,
+      'Module::Runtime'           => 0.012, # for RT#74789
+      'Role::Tiny'                => 1.003002,
+      'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
+      'Dist::CheckConflicts'      => 0.02,
+      'Import::Into'              => 1.002,
+      ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
+    } },
+    develop   => {
+      requires => { map { $_ => 0 } qw(
+        Class::XSAccessor
+        indirect multidimensional bareword::filehandles
+      ) },
+      recommends => { map { $_ => 0 } qw(
+        Moose Mouse namespace::clean namespace::autoclean
+        MooseX::Types::Common::Numeric
+      ) },
+    },
+  },
   resources => {
     repository => {
       url => 'https://github.com/moose/Moo.git',
@@ -42,70 +55,62 @@ my %extra_info = (
     },
     license => [ 'http://dev.perl.org/licenses/' ],
   },
-  prereqs => {
-    configure => { requires => { %CONFIGURE_DEPS } },
-    build     => { requires => { %BUILD_DEPS } },
-    test      => { requires => { %TEST_DEPS } },
-    runtime   => { requires => { %RUN_DEPS, perl => '5.8.1' } },
-    develop   => {
-      requires => { map { $_ => 0 } qw(
-        Class::XSAccessor
-        indirect multidimensional bareword::filehandles
-      ) },
-      recommends => { map { $_ => 0 } qw(
-        Moose Mouse namespace::clean namespace::autoclean
-        MooseX::Types::Common::Numeric
-      ) },
-    },
+  no_index => {
+    directory => [ 'xt' ]
   },
+  Moo::Conflicts->can('conflicts') ? (
+    x_breaks => { Moo::Conflicts->conflicts }
+  ) : (),
 );
 
-# have to do this since old EUMM dev releases miss the eval $VERSION line
-my $mymeta_works = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.57_07 };
-my $mymeta = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.57_02 };
-
-my $has_test_requires = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.63_03 };
-
-my $has_meta_v2 = do { no warnings; $ExtUtils::MakeMaker::VERSION >= 6.57_10 };
-
-if (! $has_meta_v2) {
-  %extra_info = ();
-}
-if (not $has_test_requires) {
-  %BUILD_DEPS = (%BUILD_DEPS, %TEST_DEPS);
-  %TEST_DEPS = ();
-}
-if (not $mymeta_works) {
-  %RUN_DEPS = (%RUN_DEPS, %BUILD_DEPS);
-  %BUILD_DEPS = ();
-}
-
-WriteMakefile(
-  NAME => 'Moo',
-  VERSION_FROM => 'lib/Moo.pm',
-  CONFIGURE_REQUIRES => \%CONFIGURE_DEPS,
-  PREREQ_PM => {
-    %RUN_DEPS,
-    ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
-  },
-  keys %BUILD_DEPS ? ( BUILD_REQUIRES => \%BUILD_DEPS ) : (),
-  keys %TEST_DEPS ? ( TEST_REQUIRES => \%TEST_DEPS ) : (),
-  META_ADD => \%extra_info,
-  META_MERGE => {
-    no_index => {
-      directory => [ 'xt' ]
-    },
-    Moo::Conflicts->can('conflicts') ? (
-      x_breaks => { Moo::Conflicts->conflicts }
-    ) : (),
-  },
-  ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),
-  LICENSE => 'perl',
+my %MM_ARGS = (
   EXE_FILES => [
     'bin/moo-outdated',
   ],
 );
 
+
+
+# have to do this since old EUMM dev releases miss the eval $VERSION line
+my $mmver = do { no warnings; $ExtUtils::MakeMaker::VERSION+0 };
+my $mymeta_works      = $mmver >= 6.57_07;
+my $mymeta            = $mmver >= 6.57_02;
+my $has_test_requires = $mmver >= 6.63_03;
+
+my %configure_deps = %{$META{prereqs}{configure}{requires}};
+my %build_deps     = %{$META{prereqs}{build}{requires}};
+my %test_deps      = %{$META{prereqs}{test}{requires}};
+my %run_deps       = %{$META{prereqs}{runtime}{requires}};
+
+my $min_perl_version = delete $run_deps{perl};
+
+if (not $has_test_requires) {
+  %build_deps = (%build_deps, %test_deps);
+  %test_deps = ();
+}
+if (not $mymeta_works) {
+  %run_deps = (%run_deps, %build_deps);
+  %build_deps = ();
+}
+
+(my $module = "lib/$META{name}.pm") =~ s{::}{/}g;
+
+WriteMakefile(
+  NAME => $META{name},
+  VERSION_FROM => $module,
+  LICENSE => $META{license},
+
+  $min_perl_version     ? ( MIN_PERL_VERSION    => $min_perl_version ) : (),
+  keys %configure_deps  ? ( CONFIGURE_REQUIRES  => \%configure_deps ) : (),
+  keys %build_deps      ? ( BUILD_REQUIRES      => \%build_deps ) : (),
+  keys %test_deps       ? ( TEST_REQUIRES       => \%test_deps ) : (),
+  keys %run_deps        ? ( PREREQ_PM           => \%run_deps ) : (),
+
+  ($mymeta && !$mymeta_works ? (NO_MYMETA => 1) : ()),
+  -f 'META.yml' ? () : (META_ADD => { 'meta-spec' => { version => 2 }, %META }),
+
+  %MM_ARGS,
+);
 
 # copied from Moose-2.0801/Makefile.PL
 sub check_conflicts {
@@ -135,6 +140,7 @@ EOF
     # More or less copied from Module::Build
     return if $ENV{PERL_MM_USE_DEFAULT};
     return unless -t STDIN && ( -t STDOUT || !( -f STDOUT || -c STDOUT ) );
+    return unless -f 'META.yml';
 
     sleep 4;
 }
