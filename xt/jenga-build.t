@@ -1,11 +1,11 @@
 use strictures;
 use Test::More;
+use Test::Fatal;
 
-my @test_classes;
 for my $stack (
   [qw(Moo Moose Moo)],
   [qw(Moose Moo Moose)],
-  [qw(Mouse Moo)],
+  [qw(Mouse Moo Moose)],
 ) {
   for my $immut ( 0, 1 ) {
     for my $withattr ( 0, 1 ) {
@@ -30,22 +30,27 @@ for my $stack (
             $withattr ?
               "has attr$level => (is => 'ro');\n"
             : '')
-          . ($immut ? "$class->meta->make_immutable;\n" : '')
         ;
         eval $code;
         die "$@\nwhile evaling:\n$code" if $@;
-        if (!$level && $withattr) {
+        if ($level && $withattr) {
           eval
             "package $class;\n"
-            ."has '+extend_count' => (predicate => 'has_extend_count');\n";
+            ."has '+extend_count' => (is => 'rw');\n";
           is $@, '', "extending attribute when stacking $class";
         }
-        $last_class = $class;
+        if ($immut) {
+          $class->meta->make_immutable;
+        }
 
-        my $obj = $class->new;
-        is $obj->builder_count, 1, "$class: attribute builder called once";
-        is $obj->extend_count, 1, "$class: extended attribute builder called once";
-        is $obj->build_count, 1, "$class: BUILD called once";
+        is exception {
+          my $obj = $class->new;
+          is $obj->builder_count, 1, "$class: attribute builder called once";
+          is $obj->extend_count, 1, "$class: extended attribute builder called once";
+          is $obj->build_count, 1, "$class: BUILD called once";
+        }, undef, "$class: functions without errors";
+
+        $last_class = $class;
       }
     }
   }
