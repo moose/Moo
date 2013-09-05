@@ -45,6 +45,7 @@ use Moo ();
     extends 'Foo';
 
     # this replicates what Class::C3::Componentized does
+    # aka ->load_components in DBIx::Class
     unshift our @ISA, 'Foo::AddCD';
     Class::C3::reinitialize() if $] < 5.009005;
 }
