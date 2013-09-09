@@ -16,6 +16,10 @@ script:
   - maint/fulltest --cover
 after_success:
   - cover -report coveralls
+branches:
+  except:
+    - /^wip\//
+    - /^blocked/
 notifications:
   email: false
   on_success: change
