@@ -4,6 +4,7 @@ use strictures 1;
 use Moo::_Utils;
 use Role::Tiny ();
 use base qw(Role::Tiny);
+use Import::Into;
 
 our $VERSION = '1.003001';
 $VERSION = eval $VERSION;
@@ -25,7 +26,7 @@ sub import {
   my $target = caller;
   my ($me) = @_;
   _set_loaded(caller);
-  strictures->import;
+  strictures->import::into(1);
   if ($Moo::MAKERS{$target} and $Moo::MAKERS{$target}{is_class}) {
     die "Cannot import Moo::Role into a Moo class";
   }

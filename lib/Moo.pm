@@ -4,6 +4,7 @@ use strictures 1;
 use Moo::_Utils;
 use B 'perlstring';
 use Sub::Defer ();
+use Import::Into;
 
 our $VERSION = '1.003001';
 $VERSION = eval $VERSION;
@@ -22,7 +23,7 @@ sub import {
   my $target = caller;
   my $class = shift;
   _set_loaded(caller);
-  strictures->import;
+  strictures->import::into(1);
   if ($Role::Tiny::INFO{$target} and $Role::Tiny::INFO{$target}{is_role}) {
     die "Cannot import Moo into a role";
   }
