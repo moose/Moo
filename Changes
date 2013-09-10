@@ -1,3 +1,4 @@
+1.003001 - 2013-09-10
   - abbreviate class names from created by create_class_with_roles if they are
     too long for perl to handle (RT#83248)
   - prevent destructors from failing in global destruction for certain
