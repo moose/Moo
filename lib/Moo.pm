@@ -21,6 +21,7 @@ sub _install_tracked {
 sub import {
   my $target = caller;
   my $class = shift;
+  _set_loaded(caller);
   strictures->import;
   if ($Role::Tiny::INFO{$target} and $Role::Tiny::INFO{$target}{is_role}) {
     die "Cannot import Moo into a role";

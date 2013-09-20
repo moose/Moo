@@ -24,6 +24,7 @@ sub _install_tracked {
 sub import {
   my $target = caller;
   my ($me) = @_;
+  _set_loaded(caller);
   strictures->import;
   if ($Moo::MAKERS{$target} and $Moo::MAKERS{$target}{is_class}) {
     die "Cannot import Moo::Role into a Moo class";
@@ -255,6 +256,7 @@ sub create_class_with_roles {
     # old fashioned way time.
     *{_getglob("${new_name}::ISA")} = [ $superclass ];
     $me->apply_roles_to_package($new_name, @roles);
+    _set_loaded($new_name, (caller)[1]);
     return $new_name;
   }
 
@@ -270,12 +272,14 @@ sub create_class_with_roles {
 
   $me->_handle_constructor($new_name, $_) for @roles;
 
+  _set_loaded($new_name, (caller)[1]);
   return $new_name;
 }
 
 sub apply_roles_to_object {
   my ($me, $object, @roles) = @_;
   my $new = $me->SUPER::apply_roles_to_object($object, @roles);
+  _set_loaded(ref $new, (caller)[1]);
 
   my $apply_defaults = $APPLY_DEFAULTS{ref $new} ||= do {
     my %attrs = map { @{$INFO{$_}{attributes}||[]} } @roles;
