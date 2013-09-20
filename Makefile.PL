@@ -7,23 +7,23 @@ check_conflicts();
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
 
 my %CONFIGURE_DEPS = (
-  'ExtUtils::MakeMaker' => 0,
-  'Dist::CheckConflicts' => '0.02',
+  'ExtUtils::MakeMaker'   => 0,
+  'Dist::CheckConflicts'  => '0.02',
 );
 my %BUILD_DEPS = ();
 
 my %TEST_DEPS = (
-  'Test::More' => 0.94,
+  'Test::More'  => 0.94,
   'Test::Fatal' => 0.003,
 );
 
 my %RUN_DEPS = (
-  'Class::Method::Modifiers' => 1.10, # or RT#80194
-  'strictures' => 1.004003,
-  'Module::Runtime' => 0.012, # for RT#74789
-  'Role::Tiny' => 1.003002,
-  'Devel::GlobalDestruction' => 0.11, # for RT#78617
-  'Dist::CheckConflicts' => 0.02,
+  'Class::Method::Modifiers'  => 1.10,  # for RT#80194
+  'strictures'                => 1.004003,
+  'Module::Runtime'           => 0.012, # for RT#74789
+  'Role::Tiny'                => 1.003002,
+  'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
+  'Dist::CheckConflicts'      => 0.02,
 );
 
 my %extra_info = (
