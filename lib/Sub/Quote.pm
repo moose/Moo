@@ -63,8 +63,19 @@ sub quote_sub {
   undef($captures) if $captures && !keys %$captures;
   my $code = pop;
   my $name = $_[0];
-  my $context = caller;
-  $code = "package $context;\n$code";
+  my ($package, $hints, $bitmask, $hintshash) = (caller(0))[0,8,9,10];
+  my $context
+    ="package $package;\n"
+    ."BEGIN {\n"
+    ."  \$^H = ".B::perlstring($hints).";\n"
+    ."  \${^WARNING_BITS} = ".B::perlstring($bitmask).";\n"
+    ."  \%^H = (\n"
+    . join('', map
+     "    ".B::perlstring($_)." => ".B::perlstring($hintshash->{$_}).",",
+      keys %$hintshash)
+    ."  );\n"
+    ."}\n";
+  $code = "$context$code";
   my $quoted_info;
   my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
     unquote_sub($quoted_info->[4]);

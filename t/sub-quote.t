@@ -71,4 +71,9 @@ like(
 sub in_main { 1 }
 is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in quoted sub';
 
+{
+  no strict 'refs';
+  is exception { quote_sub(q{ my $foo = "some_variable"; $$foo; })->(); }, undef, 'hints are preserved';
+}
+
 done_testing;
