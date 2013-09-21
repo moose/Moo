@@ -2,11 +2,10 @@ use strictures 1;
 use Test::More;
 use lib qw(t/lib);
 
-use_ok 'MooObjectWithDelegate';
+BEGIN { use_ok 'MooObjectWithDelegate' };
 
 {
     package MooObjectWithDelegate;
-    use Moo;
 
     around 'connect', sub {
       my ($orig, $self, @args) = @_;
