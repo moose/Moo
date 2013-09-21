@@ -140,45 +140,40 @@ for my $module (@modules) {
 __DATA__
 
 # TODO: broken
-App-Presto
-Dancer2-Session-Sereal
-Dancer-Plugin-FontSubset
-Mail-GcalReminder       # 0.1
-MooX-LvalueAttribute    # 0.12
-Net-Docker              # 0.002003
-DBIx-Class-IndexSearch-Dezi
-Message-Passing-ZeroMQ
-Tak
+App-Presto                  # 0.009
+Dancer2-Session-Sereal      # 0.001
+Mail-GcalReminder           # 0.1
+DBIx-Class-IndexSearch-Dezi # 0.05
+Tak                         # 0.001003
+HTML-Zoom-Parser-HH5P       # 0.002
+
+# TODO: broken prereqs
+Dancer-Plugin-FontSubset    # 0.1.2 - Font::TTF::Scripts::Name
 
 # TODO: broken by perl 5.18
-App-DBCritic                # 0.020 - smartmatch
-App-OS-Detect-MachineCores  # 0.038 - smartmatch
-Authen-HTTP-Signature       # 0.02 - smartmatch
-DBICx-Backend-Move          # 1.000010 - smartmatch
-Ruby-VersionManager         # 0.004003 - smartmatch
-Text-Keywords               # 0.900 - smartmatch
-HTML-Zoom-Parser-HH5P       # 0.002
-Log-Message-Structured-Stringify-AsSereal   # 0.10
-Text-CSV-Merge              # 0.03 - smartmatch
+App-DBCritic                # 0.020 - smartmatch (GH #9)
+App-OS-Detect-MachineCores  # 0.038 - smartmatch (rt#88855)
+Authen-HTTP-Signature       # 0.02 - smartmatch (rt#88854)
+DBICx-Backend-Move          # 1.000010 - smartmatch (rt#88853)
+Ruby-VersionManager         # 0.004003 - smartmatch (rt#88852)
+Text-Keywords               # 0.900 - smartmatch (rt#84339)
+Log-Message-Structured-Stringify-AsSereal   # 0.10 - hash order (GH #1)
+WebService-HabitRPG         # 0.21 - smartmatch (rt#88399)
+App-Rssfilter               # 0.03 - smartmatch (GH #2)
+Net-Icecast2                # 0.005 - hash order via PHP::HTTPBuildQuery (rt#81570)
+POE-Component-ProcTerminator  # 0.03 - hash order via Log::Fu (rt#88851)
 
-# TODO: broken prereqs (perl 5.18)
-App-Rssfilter   # 0.03 - Data::Alias
-Data-Sah        # 0.15 - Regexp::Grammars
-Finance-Bank-ID-BCA     # 0.26 - Perinci::CmdLine
-Language-Expr   # 0.19 - Regexp::Grammars
-Net-Icecast2    # 0.005 - PHP::HTTPBuildQuery (hash order)
-Org-To-HTML     # 0.07 - Language::Expr
-POE-Component-ProcTerminator          # 0.03 - Log::Fu
-Perinci-Access-Simple-Server          # 0.12 - Regexp::Grammars
-Perinci-CmdLine                       # 0.85 - Data::Sah
-Perinci-To-Text                       # 0.22 - Data::Sah
-Perinci-Sub-To-Text                   # 0.24 - Data::Sah
-Software-Release-Watch                # 0.01 - Data::Sah, Perinci::CmdLine
-Software-Release-Watch-SW-wordpress   # 0.01 - Software::Release::Watch
-WebService-HabitRPG                   # 0.19 - Data::Alias
-
-# TODO: broken tests
-Net-OAuth-LP # pod coverage
+# TODO: broken by Regexp::Grammars (perl 5.18)
+Data-Sah        # 0.15
+Language-Expr   # 0.19
+Org-To-HTML     # 0.07 - via Language::Expr
+Perinci-Access-Simple-Server          # 0.12
+Perinci-CmdLine                       # 0.85 - via Data::Sah
+Perinci-To-Text                       # 0.22 - via Data::Sah
+Perinci-Sub-To-Text                   # 0.24 - via Data::Sah
+Finance-Bank-ID-BCA                   # 0.26 - via Perinci::CmdLine
+Software-Release-Watch                # 0.01 - via Data::Sah, Perinci::CmdLine
+Software-Release-Watch-SW-wordpress   # 0.01 - via Software::Release::Watch
 
 # SKIP: invalid prereqs
 Catmandu-Z3950        # 0.03 - ZOOM missing
@@ -198,6 +193,9 @@ Forecast-IO       # 0.21 - interactive tests
 Net-OpenVPN-Launcher    # 0.1 - external dependency (and broken test)
 App-PerlWatcher-Level   # 0.13 - depends on Linux::Inotify2
 Graph-Easy-Marpa        # 2.00 - GraphVis2
+Net-OAuth-LP            # 0.016 - relies on external service
+Message-Passing-ZeroMQ  # 0.007 - external dependency
+Net-Docker              # 0.002003 - external dependency
 
 # TODO: broken by Moo change
 Math-Rational-Approx        # RT#84035
