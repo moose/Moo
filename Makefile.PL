@@ -21,7 +21,7 @@ my %META = (
       'Test::Fatal' => 0.003,
     } },
     runtime => { requires => {
-      'perl'                      => '5.8.1',
+      'perl'                      => 5.008001,
       'Class::Method::Modifiers'  => 1.10,  # for RT#80194
       'strictures'                => 1.004003,
       'Module::Runtime'           => 0.012, # for RT#74789
@@ -93,7 +93,8 @@ if (not $mymeta_works) {
   %build_deps = ();
 }
 
-(my $module = "lib/$META{name}.pm") =~ s{::}{/}g;
+(my $name = $META{name}) =~ s/-/::/g;
+(my $module = "lib/$name.pm") =~ s{::}{/}g;
 
 WriteMakefile(
   NAME => $META{name},
