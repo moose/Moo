@@ -33,19 +33,19 @@ sub capture_unroll {
 sub inlinify {
   my ($code, $args, $extra, $local) = @_;
   my $do = 'do { '.($extra||'');
-  if (my ($code_args, $body) = $code =~ / +my \(([^)]+)\) = \@_;(.*)$/s) {
-    if ($code_args eq $args) {
-      $do.$body.' }'
-    } else {
-      $do.'my ('.$code_args.') = ('.$args.'); '.$body.' }';
-    }
-  } else {
-    my $assign = '';
-    if ($local || $args ne '@_') {
-      $assign = ($local ? 'local ' : '').'@_ = ('.$args.'); ';
-    }
-    $do.$assign.$code.' }';
+  if ($code =~ s/^(\s*package\s+([a-zA-Z0-9:]+);)//) {
+    $do .= $1;
   }
+  my $assign = '';
+  if (my ($code_args) = $code =~ /^\s*my\s*\(([^)]+)\)\s*=\s*\@_;$/s) {
+    if ($code_args ne $args) {
+      $assign = 'my ('.$code_args.') = ('.$args.'); ';
+    }
+  }
+  elsif ($local || $args ne '@_') {
+    $assign = ($local ? 'local ' : '').'@_ = ('.$args.'); ';
+  }
+  $do.$assign.$code.' }';
 }
 
 sub quote_sub {
