@@ -68,4 +68,7 @@ like(
   "quoted sub with syntax error dies when called"
 );
 
+sub in_main { 1 }
+is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in quoted sub';
+
 done_testing;
