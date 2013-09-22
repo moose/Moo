@@ -50,7 +50,6 @@ sub inject_fake_metaclass_for {
 
   sub _uninlined_body { \&Moose::Object::new }
 }
-    
 
 sub inject_real_metaclass_for {
   my ($name) = @_;

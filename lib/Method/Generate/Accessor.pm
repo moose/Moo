@@ -24,9 +24,9 @@ sub _SIGDIE
   my $sigdie = $OrigSigDie && $OrigSigDie != \&_SIGDIE
     ? $OrigSigDie
     : sub { die $_[0] };
-  
+
   return $sigdie->(@_) if ref($_[0]);
-  
+
   my $attr_desc = _attr_desc(@$CurrentAttribute{qw(name init_arg)});
   $sigdie->("$CurrentAttribute->{step} for $attr_desc failed: $_[0]");
 }
@@ -170,7 +170,7 @@ sub generate_method {
     _die_overwrite($into, $cl, 'a clearer')
       if !$spec->{allow_overwrite} && *{_getglob("${into}::${cl}")}{CODE};
     $methods{$cl} =
-      quote_sub "${into}::${cl}" => 
+      quote_sub "${into}::${cl}" =>
         $self->_generate_simple_clear('$_[0]', $name, $spec)."\n"
       ;
   }
@@ -339,7 +339,7 @@ sub _generate_set {
       $code = "do { my \$self = shift;\n";
     }
     if ($isa_check) {
-      $code .= 
+      $code .=
         "        ".$self->_generate_isa_check($name, $value_store, $isa_check).";\n";
     }
     my $simple = $self->_generate_simple_set('$self', $name, $spec, $value_store);
@@ -378,7 +378,7 @@ sub _generate_coerce {
     $self->_generate_call_code($name, 'coerce', "${value}", $coerce)
   );
 }
- 
+
 sub generate_trigger {
   my $self = shift;
   $self->{captures} = {};
@@ -462,7 +462,7 @@ sub _generate_populate_set {
     my $get_default = $self->_generate_get_default(
                         '$new', $name, $spec
                       );
-    my $get_value = 
+    my $get_value =
       defined($spec->{init_arg})
         ? "(\n${get_indent}  ${test}\n${get_indent}   ? ${source}\n${get_indent}   : "
             .$get_default

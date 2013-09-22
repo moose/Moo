@@ -121,7 +121,7 @@ sub _accessor_maker_for {
   $MAKERS{$target}{accessor} ||= do {
     my $maker_class = do {
       if (my $m = do {
-            if (my $defer_target = 
+            if (my $defer_target =
                   (Sub::Defer::defer_info($target->can('new'))||[])->[0]
               ) {
               my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
@@ -166,7 +166,7 @@ sub _constructor_maker_for {
       } else {
         $moo_constructor = 1; # no other constructor, make a Moo one
       }
-    };
+    }
     ($con ? ref($con) : 'Method::Generate::Constructor')
       ->new(
         package => $target,
