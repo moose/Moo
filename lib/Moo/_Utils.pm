@@ -124,14 +124,8 @@ if ($Config{useithreads}) {
   require Moo::HandleMoose::_TypeMap;
 }
 
-require B;
-if (exists &B::perlstring) {
-  *perlstring = \&B::perlstring;
-}
-else {
-  require Data::Dumper;
-  my $d = 'Data::Dumper'->new([])->Indent(0)->Purity(0)->Pad('')->Useqq(1)->Terse(1)->Freezer('')->Toaster('');
-  *perlstring = sub { $d->Values([shift])->Dump };
+sub perlstring {
+  defined $_[0] ? qq["\Q$_[0]\E"] : '0';
 }
 
 1;
