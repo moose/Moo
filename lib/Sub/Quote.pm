@@ -59,7 +59,7 @@ sub quote_sub {
     (ref($_[-1]) eq 'HASH' and ref($_[-2]) eq 'HASH')
       ? pop
       : {};
-  my $captures = pop if ref($_[-1]) eq 'HASH';
+  my $captures = ref($_[-1]) eq 'HASH' ? pop : undef;
   undef($captures) if $captures && !keys %$captures;
   my $code = pop;
   my $name = $_[0];
