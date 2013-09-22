@@ -191,6 +191,8 @@ sub _constructor_maker_for {
 }
 
 1;
+__END__
+
 =pod
 
 =encoding utf-8

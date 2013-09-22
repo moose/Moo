@@ -343,6 +343,7 @@ sub _handle_constructor {
 }
 
 1;
+__END__
 
 =head1 NAME
 
@@ -408,3 +409,5 @@ See L<Moo> for authors.
 =head1 COPYRIGHT AND LICENSE
 
 See L<Moo> for the copyright and license.
+
+=cut
