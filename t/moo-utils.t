@@ -4,6 +4,8 @@ use Test::Fatal;
 
 use Moo::_Utils;
 
+use t::lib::INCModule;
+
 my %files = (
   'Broken/Class.pm' => q{
     use strict;
@@ -13,8 +15,7 @@ my %files = (
 );
 unshift @INC, sub {
   my $out = $files{$_[1]} or return;
-  open my $fh, '<', \$out;
-  $fh;
+  return inc_module($out);
 };
 
 {

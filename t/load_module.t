@@ -6,11 +6,11 @@ use strictures 1;
 
 use Test::More;
 
+use t::lib::INCModule;
+
 local @INC = (sub {
   return unless $_[1] eq 'Foo/Bar.pm';
-  my $source = "package Foo::Bar; sub baz { 1 } 1";
-  open my $fh, '<', \$source;
-  $fh;
+  inc_module("package Foo::Bar; sub baz { 1 } 1");
 }, @INC);
 
 { package Foo::Bar::Baz; sub quux { } }
