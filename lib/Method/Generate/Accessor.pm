@@ -22,6 +22,8 @@ BEGIN {
   ;
 }
 
+my $module_name_only = qr/\A$Module::Runtime::module_name_rx\z/;
+
 sub _SIGDIE
 {
   our ($CurrentAttribute, $OrigSigDie);
@@ -69,7 +71,7 @@ sub generate_method {
     }
     $spec->{builder} = '_build_'.$name if ($spec->{builder}||0) eq 1;
     die "Invalid builder for $into->$name - not a valid method name"
-      if $spec->{builder} !~ /\A[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)*\z/;
+      if $spec->{builder} !~ $module_name_only;
   }
   if (($spec->{predicate}||0) eq 1) {
     $spec->{predicate} = $name =~ /^_/ ? "_has${name}" : "has_${name}";
