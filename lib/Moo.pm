@@ -232,6 +232,7 @@ Moo - Minimalist Object Orientation (with Moose compatibility)
  package Cat::Food;
 
  use Moo;
+ use namespace::clean;
 
  sub feed_lion {
    my $self = shift;
@@ -732,8 +733,10 @@ aware can take advantage of this.
 
 To do this, you can write
 
-  use Moo;
   use Sub::Quote;
+
+  use Moo;
+  use namespace::clean;
 
   has foo => (
     is => 'ro',
@@ -763,6 +766,47 @@ which will be inlined as
 
 See L<Sub::Quote> for more information, including how to pass lexical
 captures that will also be compiled into the subroutine.
+
+=head1 CLEANING UP IMPORTS
+
+L<Moo> will not clean up imported subroutines for you; you will have
+to do that manually. The recommended way to do this is to declare your
+imports first, then C<use Moo>, then C<use namespace::clean>.
+Anything imported before L<namespace::clean> will be scrubbed.
+Anything imported or declared after will be still be available.
+
+ package Record;
+
+ use Digest::MD5 qw(md5_hex);
+
+ use Moo;
+ use namespace::clean;
+
+ has name => (is => 'ro', required => 1);
+ has id => (is => 'lazy');
+ sub _build_id {
+   my ($self) = @_;
+   return md5_hex($self->name);
+ }
+
+ 1;
+
+If you were to import C<md5_hex> after L<namespace::clean> you would
+be able to call C<< ->md5_hex() >> on your C<Record> instances (and it
+probably wouldn't do what you expect!).
+
+L<Moo:Role>s behave slightly differently.  Since their methods are
+composed into the consuming class, they can do a little more for you
+automatically.  As long as you declare your imports before calling
+C<use Moo::Role>, those imports and the ones L<Moo::Role> itself
+provides will be scrubbed for you.  There's no need to use
+L<namespace::clean>.
+
+B<On L<namespace::autoclean>:> If you're coming to Moo from the Moose
+world, you may be accustomed to using L<namespace::autoclean> in all
+your packages. This is not recommended for L<Moo> packages, because
+L<namespace::autoclean> will inflate your class to a full L<Moose>
+class. It'll work, but you will lose the benefits of L<Moo>.
 
 =head1 INCOMPATIBILITIES WITH MOOSE
 

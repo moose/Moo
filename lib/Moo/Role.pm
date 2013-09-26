@@ -402,6 +402,33 @@ imported by this module.
 Declares an attribute for the class to be composed into.  See
 L<Moo/has> for all options.
 
+=head1 CLEANING UP IMPORTS
+
+L<Moo::Role> cleans up its own imported methods and any imports
+declared before the C<use Moo::Role> statement automatically.
+Anything imported after C<use Moo::Role> will be composed into
+consuming packages.  A package that consumes this role:
+
+ package My::Role::ID;
+
+ use Digest::MD5 qw(md5_hex);
+ use Moo::Role;
+ use Digest::SHA qw(sha1_hex);
+
+ requires 'name';
+
+ sub as_md5  { my ($self) = @_; return md5_hex($self->name);  }
+ sub as_sha1 { my ($self) = @_; return sha1_hex($self->name); }
+
+ 1;
+
+..will now have a C<< $self->sha1_hex() >> method available to it
+that probably does not do what you expect.  On the other hand, a call
+to C<< $self->md5_hex() >> will die with the helpful error message:
+C<Can't locate object method "md5_hex">.
+
+See L<Moo/"CLEANING UP IMPORTS"> for more details.
+
 =head1 SUPPORT
 
 See L<Moo> for support and contact information.
