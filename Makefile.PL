@@ -29,10 +29,9 @@ my %RUN_DEPS = (
 my %extra_info = (
   'meta-spec' => { version => 2 },
   resources => {
-    # r/w: gitmo@git.shadowcat.co.uk:Moo.git
     repository => {
-      url => 'git://git.shadowcat.co.uk/gitmo/Moo.git',
-      web => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=gitmo/Moo.git',
+      url => 'https://github.com/moose/Moo.git',
+      web => 'https://github.com/moose/Moo',
       type => 'git',
     },
     x_IRC => 'irc://irc.perl.org/#moose',
