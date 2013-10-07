@@ -52,6 +52,11 @@ sub construction_string {
     ||= $self->_build_construction_string;
 }
 
+sub buildall_generator {
+  require Method::Generate::BuildAll;
+  Method::Generate::BuildAll->new;
+}
+
 sub _build_construction_string {
   my ($self) = @_;
   my $builder = $self->{construction_builder};
@@ -91,8 +96,7 @@ sub generate_method {
   $body .= '    my $new = '.$self->construction_string.";\n";
   $body .= $self->_assign_new($spec);
   if ($into->can('BUILD')) {
-    require Method::Generate::BuildAll;
-    $body .= Method::Generate::BuildAll->new->buildall_body_for(
+    $body .= $self->buildall_generator->buildall_body_for(
       $into, '$new', '$args'
     );
   }
