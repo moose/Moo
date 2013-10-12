@@ -109,4 +109,50 @@ sub _unimport_coderefs {
   }
 }
 
+my $type_map = \%Moo::HandleMoose::TYPE_MAP;
+my $weak_types = \%Moo::HandleMoose::WEAK_TYPES;
+
+my %old_map = %$type_map;
+
+{
+  package
+    Moo::HandleMoose::TypeMap;
+  use Tie::Hash;
+  use Scalar::Util qw(weaken);
+  our @ISA = qw(Tie::StdHash);
+  sub STORE {
+    weaken($weak_types->{$_[1]} = $_[1]);
+    $_[0]->SUPER::STORE(@_[1..$#_]);
+  }
+
+  sub CLONE {
+    %$type_map   = map {
+      defined $weak_types->{$_} ? ($weak_types->{$_} => $type_map->{$_}) : ()
+    } keys %$type_map;
+    %$weak_types = map {
+      defined $weak_types->{$_} ? ($weak_types->{$_} => $weak_types->{$_}) : ()
+    } keys %$weak_types;
+    weaken $_ for values %$weak_types;
+  }
+
+  tie %$type_map, __PACKAGE__;
+}
+
+if (keys %old_map) {
+  require B;
+  for my $key (keys %old_map) {
+    my $old_value = $old_map{$key};
+    if ($key =~ /(?:^|=)[A-Z]+\(0x([0-9a-zA-Z]+)\)$/) {
+      my $id = do { no warnings; hex "$1" };
+      my $sv = bless \$id, 'B::SV';
+      my $ref = eval { $sv->object_2svref };
+      if (!defined $ref) {
+        die "make sure Moo is loaded before creating threads if types are defined before creating threads";
+      }
+      $key = $ref;
+    }
+    $type_map->{$key} = $old_value;
+  }
+}
+
 1;
