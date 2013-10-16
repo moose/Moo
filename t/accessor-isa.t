@@ -2,6 +2,9 @@ use strictures 1;
 use Test::More;
 use Test::Fatal;
 
+use lib "t/lib";
+use ComplexWriter;
+
 sub run_for {
   my $class = shift;
 
@@ -167,5 +170,7 @@ is($e->[2], 'isa check', 'step available in isa check');
 like exception { ClassUsingDeadlyIsa->new(bar => 1) },
   qr/isa check for "foo" failed: nope/,
   'isa check within isa check produces correct exception';
+
+ComplexWriter->test_with("isa");
 
 done_testing;

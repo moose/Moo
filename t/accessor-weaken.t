@@ -11,6 +11,7 @@ ok(Moo::_Utils::lt_5_8_3, "pretending to be pre-5.8.3")
   use Moo;
 
   has one => (is => 'rw', weak_ref => 1);
+  has four=> (is => 'rw', weak_ref => 1, writer => 'set_four');
 
   package Foo2;
 
@@ -42,6 +43,14 @@ my $ref3 = {};
 is($foo2->two($ref3), $ref3, 'value returned from setter');
 undef $ref3;
 ok(!defined $foo->{two}, 'weak value gone');
+
+my $ref4 = {};
+my $foo4 = Foo->new;
+$foo4->set_four($ref4);
+is($foo4->four, $ref4, 'value present');
+ok(Scalar::Util::isweak($foo4->{four}), 'value weakened');
+undef $ref4;
+ok(!defined $foo4->{four}, 'weak value gone');
 
 
 # test readonly SVs

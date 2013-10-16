@@ -2,6 +2,9 @@ use strictures 1;
 use Test::More;
 use Test::Fatal;
 
+use lib "t/lib";
+use ComplexWriter;
+
 sub run_for {
   my $class = shift;
 
@@ -201,5 +204,7 @@ run_with_default_for 'Foo3';
 }
 
 run_with_default_for 'Bar3';
+
+ComplexWriter->test_with("coerce");
 
 done_testing;

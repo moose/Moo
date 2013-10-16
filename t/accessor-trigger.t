@@ -1,6 +1,9 @@
 use strictures 1;
 use Test::More;
 
+use lib "t/lib";
+use ComplexWriter;
+
 our @tr;
 
 sub run_for {
@@ -104,5 +107,7 @@ run_for 'LazyDefault';
 }
 
 run_for 'Shaz';
+
+ComplexWriter->test_with("trigger");
 
 done_testing;
