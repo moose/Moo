@@ -1,43 +1,55 @@
 #!/bin/bash
 
-DEPS=''
+function clean_up {
+  kill $PROG
+  wait 2>/dev/null
+}
+
+export PERL_CPANM_OPT="--mirror http://www.cpan.org/"
+
+function cpanm_install {
+  local dep="$1"
+  printf "Installing (without testing) $dep ..."
+  (
+    while true; do
+      sleep 3
+      printf '.'
+    done
+  ) &
+  local PROG=$!
+  trap "clean_up $PROG; exit 1" SIGHUP SIGINT SIGTERM
+  local OUT=$(cpanm --verbose --no-interactive --no-man-pages --notest $dep 2>&1 )
+  local STATUS=$?
+  kill $PROG
+  wait $PROG 2>/dev/null
+  trap - SIGHUP SIGINT SIGTERM
+  if [ $STATUS != 0 ]; then
+    echo ' Failed!'
+    echo "$OUT"
+    exit $?
+  fi
+  echo ' Done'
+}
+
 for arg; do
   case $arg in
     --deps)
-      DEVELOP=''
+      AUTHOR_OPTS=''
       if [ -z "$AUTHOR_TESTING" ] || [ "$AUTHOR_TESTING" -ne 0 ]; then
-        DEVELOP='--with-develop'
+        AUTHOR_OPTS='--with-develop'
       fi
-      DEPS="$DEPS $(cpanm --showdeps -q . --with-recommends --with-suggests $DEVELOP)"
+      DEPS="$DEPS $(cpanm --showdeps -q . $AUTHOR_OPTS)"
+      for dep in $DEPS; do
+        case $dep in
+          perl*) ;;
+          *)
+            cpanm_install $dep
+          ;;
+        esac
+      done
     ;;
     *)
-      DEPS="$DEPS $arg"
-    ;;
-  esac
-done
-
-for dep in $DEPS; do
-  case $dep in
-    perl*) ;;
-    *)
-      printf "Installing (without testing) $dep ..."
-      (
-        while true; do
-          sleep 1
-          printf '.'
-        done
-      ) &
-      PROG=$!
-      OUT=$(cpanm --verbose --no-interactive --no-man-pages --notest $dep 2>&1 )
-      STATUS=$?
-      kill $PROG
-      wait $PROG 2>/dev/null
-      if [ $STATUS != 0 ]; then
-        echo ' Failed!'
-        echo "$OUT"
-        exit $?
-      fi
-      echo ' Done'
+      cpanm_install $arg
     ;;
   esac
 done
