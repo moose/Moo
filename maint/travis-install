@@ -36,9 +36,9 @@ for arg; do
     --deps)
       AUTHOR_OPTS=''
       if [ -z "$AUTHOR_TESTING" ] || [ "$AUTHOR_TESTING" -ne 0 ]; then
-        AUTHOR_OPTS='--with-develop'
+        AUTHOR_OPTS='--with-recommends'
       fi
-      DEPS="$DEPS $(cpanm --showdeps -q . $AUTHOR_OPTS)"
+      DEPS="$DEPS $(cpanm --showdeps -q . --with-develop $AUTHOR_OPTS)"
       for dep in $DEPS; do
         case $dep in
           perl*) ;;

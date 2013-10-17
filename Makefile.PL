@@ -46,12 +46,16 @@ my %extra_info = (
     build     => { requires => { %BUILD_DEPS } },
     test      => { requires => { %TEST_DEPS } },
     runtime   => { requires => { %RUN_DEPS, perl => '5.8.1' } },
-    develop   => { requires => { map { $_ => 0 } qw(
-      Class::XSAccessor
-      indirect multidimensional bareword::filehandles
-      Moose Mouse namespace::clean namespace::autoclean
-      MooseX::Types::Common::Numeric
-    ) } },
+    develop   => {
+      requires => { map { $_ => 0 } qw(
+        Class::XSAccessor
+        indirect multidimensional bareword::filehandles
+      ) },
+      recommends => { map { $_ => 0 } qw(
+        Moose Mouse namespace::clean namespace::autoclean
+        MooseX::Types::Common::Numeric
+      ) },
+    },
   },
 );
 
