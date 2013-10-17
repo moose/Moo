@@ -1,6 +1,5 @@
 language: perl
 perl:
-  - "5.8.1"
   - "5.8.4"
   - "5.8.4_thr"
   - "5.8"
@@ -8,16 +7,24 @@ perl:
   - "5.12"
   - "5.14"
   - "5.16"
-  - "5.18"
+matrix:
+  include:
+    - perl: 5.8.1
+      env: AUTHOR_TESTING=0
+    - perl: 5.18
+      env: COVERAGE=1
 before_install:
   - source maint/travis-perlbrew
   - perlbrew install-cpanm -f
   - perl -V
 install:
-  - cpanm --verbose --no-interactive --no-man-pages --notest strictures ExtUtils::MakeMaker
-  - cpanm --verbose --no-interactive --no-man-pages --notest --installdeps --with-develop --with-recommends --with-suggests .
+  - maint/travis-install ExtUtils::MakeMaker strictures
+  - maint/travis-install --deps
+  - "[ -n \"$COVERAGE\" ] && maint/travis-install Devel::Cover Devel::Cover::Report::Coveralls || true"
 script:
   - maint/fulltest
+after_success:
+  - "[ -n \"$COVERAGE\" ] && cover -report coveralls || true"
 branches:
   except:
     - /^wip\//
