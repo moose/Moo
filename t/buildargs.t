@@ -132,6 +132,18 @@ is $ext_non_moo->attr, 'bar',
 is $ext_non_moo->attr2, 'baz',
     "extended non-moo has own attributes";
 
+{
+  package NoAttr;
+  use Moo;
+}
+
+eval {
+  MoAttr->new( 37 );
+};
+like( $@, qr/Single parameters to new\(\) must be a HASH ref/,
+  "new() requires a list or a HASH ref with no attributes"
+);
+my $noattr = NoAttr->new({ foo => 'bar' });
+is $noattr->{foo}, 'bar', 'without attributes, all params are stored';
 
 done_testing;
-
