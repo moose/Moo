@@ -59,4 +59,13 @@ my $quoted2 = quoted_from_sub(\&Foo::four);
 is $quoted2->[1], undef,
   "can't get quoted from installed sub after undefer";
 
+my $broken_quoted = quote_sub q{
+  return 5$;
+};
+
+like(
+  exception { $broken_quoted->() }, qr/Eval went very, very wrong/,
+  "quoted sub with syntax error dies when called"
+);
+
 done_testing;
