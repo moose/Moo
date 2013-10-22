@@ -104,11 +104,16 @@ sub unquote_sub {
     $make_sub .= "}\n1;\n";
     $ENV{SUB_QUOTE_DEBUG} && warn $make_sub;
     {
-      local $@;
       no strict 'refs';
       local *{$name} if $name;
-      unless (_clean_eval $make_sub, \%captures) {
-        die "Eval went very, very wrong:\n\n${make_sub}\n\n$@";
+      my ($success, $e);
+      {
+        local $@;
+        $success = _clean_eval($make_sub, \%captures);
+        $e = $@;
+      }
+      unless ($success) {
+        die "Eval went very, very wrong:\n\n${make_sub}\n\n$e";
       }
     }
   }
