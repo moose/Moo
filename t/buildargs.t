@@ -138,10 +138,10 @@ is $ext_non_moo->attr2, 'baz',
 }
 
 eval {
-  MoAttr->new( 37 );
+  NoAttr->BUILDARGS( 37 );
 };
 like( $@, qr/Single parameters to new\(\) must be a HASH ref/,
-  "new() requires a list or a HASH ref with no attributes"
+  "default BUILDARGS requires a list or a HASH ref"
 );
 my $noattr = NoAttr->new({ foo => 'bar' });
 is $noattr->{foo}, 'bar', 'without attributes, all params are stored';
