@@ -97,20 +97,4 @@ sub _unimport_coderefs {
   }
 }
 
-sub STANDARD_DESTROY {
-  my $self = shift;
-
-  my $e = do {
-    local $?;
-    local $@;
-    eval {
-      $self->DEMOLISHALL(_in_global_destruction);
-    };
-    $@;
-  };
-
-  no warnings 'misc';
-  die $e if $e; # rethrow
-}
-
 1;
