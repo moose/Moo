@@ -433,7 +433,7 @@ sub _generate_call_code {
     }
     my $code = $quoted->[1];
     if (my $captures = $quoted->[2]) {
-      my $cap_name = qq{\$${type}_captures_for_${name}};
+      my $cap_name = qq{\$${type}_captures_for_}.$self->_sanitize_name($name);
       $self->{captures}->{$cap_name} = \$captures;
       Sub::Quote::inlinify(
         $code, $values, Sub::Quote::capture_unroll($cap_name, $captures, 6), $local
@@ -442,10 +442,16 @@ sub _generate_call_code {
       Sub::Quote::inlinify($code, $values, undef, $local);
     }
   } else {
-    my $cap_name = qq{\$${type}_for_${name}};
+    my $cap_name = qq{\$${type}_for_}.$self->_sanitize_name($name);
     $self->{captures}->{$cap_name} = \$sub;
     "${cap_name}->(${values})";
   }
+}
+
+sub _sanitize_name {
+  my ($self, $name) = @_;
+  $name =~ s/([_\W])/sprintf('_%x', ord($1))/ge;
+  $name;
 }
 
 sub generate_populate_set {
