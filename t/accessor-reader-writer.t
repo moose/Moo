@@ -62,4 +62,19 @@ is( $bar->TWO, '...', 'accessor works for reading' );
 $bar->TWO('!!!');
 is( $bar->TWO, '!!!', 'accessor works for writing' );
 
+{
+  package Baz;
+  use Moo;
+
+  ::is(::exception {
+    has '@three' => (
+      is     => 'lazy',
+      default => sub { 3 },
+      reader => 'three',
+    );
+  }, undef, 'declaring non-identifier attribute with proper reader works');
+}
+
+is( Baz->new->three, 3, '... and reader works');
+
 done_testing;
