@@ -464,7 +464,8 @@ or
  with 'Some::Role1', 'Some::Role2';
 
 Composes one or more L<Moo::Role> (or L<Role::Tiny>) roles into the current
-class.  An error will be raised if these roles have conflicting methods.
+class.  An error will be raised if these roles have conflicting methods.  The
+roles will be loaded using the same mechansim as C<extends> uses.
 
 =head2 has
 
