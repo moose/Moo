@@ -795,18 +795,19 @@ If you were to import C<md5_hex> after L<namespace::clean> you would
 be able to call C<< ->md5_hex() >> on your C<Record> instances (and it
 probably wouldn't do what you expect!).
 
-L<Moo:Role>s behave slightly differently.  Since their methods are
+L<Moo::Role>s behave slightly differently.  Since their methods are
 composed into the consuming class, they can do a little more for you
 automatically.  As long as you declare your imports before calling
 C<use Moo::Role>, those imports and the ones L<Moo::Role> itself
-provides will be scrubbed for you.  There's no need to use
-L<namespace::clean>.
+provides will not be composed into consuming classes, so there's usually
+no need to use L<namespace::clean>.
 
 B<On L<namespace::autoclean>:> If you're coming to Moo from the Moose
 world, you may be accustomed to using L<namespace::autoclean> in all
 your packages. This is not recommended for L<Moo> packages, because
 L<namespace::autoclean> will inflate your class to a full L<Moose>
-class. It'll work, but you will lose the benefits of L<Moo>.
+class.  It'll work, but you will lose the benefits of L<Moo>.  Instead
+you are recommended to just use L<namespace::clean>.
 
 =head1 INCOMPATIBILITIES WITH MOOSE
 
@@ -870,6 +871,10 @@ is arguably not an incompatibility.
 Since C<coerce> does not require C<isa> to be defined but L<Moose> does
 require it, the metaclass inflation for coerce alone is a trifle insane
 and if you attempt to subtype the result will almost certainly break.
+
+C<BUILDARGS> is not triggered if your class does not have any attributes.
+Without attributes, C<BUILDARGS> return value would be ignored, so we just
+skip calling the method instead.
 
 Handling of warnings: when you C<use Moo> we enable FATAL warnings.  The nearest
 similar invocation for L<Moose> would be:
