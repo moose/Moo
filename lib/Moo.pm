@@ -877,8 +877,12 @@ C<BUILDARGS> is not triggered if your class does not have any attributes.
 Without attributes, C<BUILDARGS> return value would be ignored, so we just
 skip calling the method instead.
 
-Handling of warnings: when you C<use Moo> we enable FATAL warnings.  The nearest
-similar invocation for L<Moose> would be:
+Handling of warnings: when you C<use Moo> we enable FATAL warnings, and some
+several extra pragmas when used in development: L<indirect>,
+L<multidimensional>, and L<bareword::filehandles>.  See the L<strictures>
+documentation for the details on this.
+
+A similar invocation for L<Moose> would be:
 
   use Moose;
   use warnings FATAL => "all";
