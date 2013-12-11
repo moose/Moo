@@ -1,3 +1,5 @@
+  - provide useful error if attribute defined as required but with
+    init_arg => undef
   - document that BUILDARGS isn't called when there are no attributes
   - omit sub imported before use Moo from Moose method inflation
   - check for FOREIGNBUILDARGS only once per class instead of on each

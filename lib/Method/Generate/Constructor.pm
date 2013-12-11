@@ -27,6 +27,10 @@ sub register_attribute_specs {
         }
       }
     }
+    if (exists $new_spec->{init_arg} && !defined $new_spec->{init_arg}
+        && $new_spec->{required}) {
+      die "${name} attribute can't be required with init_arg => undef";
+    }
     $new_spec->{index} = scalar keys %$specs
       unless defined $new_spec->{index};
     $specs->{$name} = $new_spec;
