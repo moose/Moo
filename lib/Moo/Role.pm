@@ -104,6 +104,13 @@ sub _maybe_reset_handlemoose {
   }
 }
 
+sub methods_provided_by {
+  my ($self, $role) = @_;
+  $self->_inhale_if_moose($role);
+  die "${role} is not a Moo::Role" unless $INFO{$role};
+  return $self->SUPER::methods_provided_by($role);
+}
+
 sub _inhale_if_moose {
   my ($self, $role) = @_;
   _load_module($role);
