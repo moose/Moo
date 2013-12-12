@@ -193,7 +193,7 @@ sub generate_method {
         map [ $_ => ref($hspec->{$_}) ? @{$hspec->{$_}} : $hspec->{$_} ],
           keys %$hspec;
       } elsif (!ref($hspec)) {
-        map [ $_ => $_ ], use_module('Role::Tiny')->methods_provided_by(use_module($hspec))
+        map [ $_ => $_ ], use_module('Moo::Role')->methods_provided_by(use_module($hspec))
       } else {
         die "You gave me a handles of ${hspec} and I have no idea why";
       }

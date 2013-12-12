@@ -1,3 +1,4 @@
+  - inhale Moose roles for has attr => ( handles => "RoleName" )
   - provide useful error if attribute defined as required but with
     init_arg => undef
   - document that BUILDARGS isn't called when there are no attributes
