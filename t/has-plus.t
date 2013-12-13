@@ -55,6 +55,22 @@ use Test::Fatal;
   ::like(::exception { has '+f' => () }, qr/\Qhas '+f'/, 'Kaboom');
 }
 
+{
+  package ClassyClass2;
+  use Moo;
+  has d => (is => 'ro', default => sub { 4 });
+}
+
+{
+  package MultiClass;
+  use Moo;
+  extends 'ClassyClass', 'ClassyClass2';
+  ::is(::exception {
+    has '+d' => ();
+    has '+f' => ();
+  }, undef, 'extend attributes from multiple parents')
+}
+
 is(UsesTheRole->new->f, 0, 'role attr');
 is(ClassyClass->new->f, 1, 'class attr');
 is(UsesTheRole2->new->f, 2, 'role attr with +');
