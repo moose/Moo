@@ -127,8 +127,11 @@ sub _inhale_if_moose {
         and $meta->isa('Mouse::Meta::Role')
      )
   ) {
+    my $is_mouse = $meta->isa('Mouse::Meta::Role');
     $INFO{$role}{methods} = {
       map +($_ => $role->can($_)),
+        grep $role->can($_),
+        grep !($is_mouse && $_ eq 'meta'),
         grep !$meta->get_method($_)->isa('Class::MOP::Method::Meta'),
           $meta->get_method_list
     };
@@ -139,7 +142,6 @@ sub _inhale_if_moose {
     $INFO{$role}{attributes} = [
       map +($_ => do {
         my $attr = $meta->get_attribute($_);
-        my $is_mouse = $meta->isa('Mouse::Meta::Role');
         my $spec = { %{ $is_mouse ? $attr : $attr->original_options } };
 
         if ($spec->{isa}) {
