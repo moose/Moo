@@ -38,16 +38,18 @@ sub _install_modifier {
 our %MAYBE_LOADED;
 
 sub _load_module {
-  my $module = use_package_optimistically($_[0]);
+  my $module = $_[0];
   my $file = module_notional_filename($module);
+  use_package_optimistically($module);
   return 1
     if $INC{$file};
+  my $error = $@ || "Can't locate $file";
 
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
-  my $stash = _getstash($_[0])||{};
+  my $stash = _getstash($module)||{};
   return 1 if grep +(!ref($_) and *$_{CODE}), values %$stash;
-  die "Can't locate $file";
+  die $error;
 }
 
 sub _maybe_load_module {
