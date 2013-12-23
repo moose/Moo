@@ -6,7 +6,7 @@ use Test::More;
     package RoleOne;
     use Mouse::Role;
     use Mouse::Util::TypeConstraints;
-    use namespace::autoclean;
+    use namespace::clean;
 
     subtype 'Foo', as 'Int';
     coerce 'Foo', from 'Str', via { 3 };
