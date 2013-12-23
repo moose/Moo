@@ -1,3 +1,5 @@
+Revision history for Moo
+
   - don't include meta method when consuming Mouse roles
   - inhale Moose roles for has attr => ( handles => "RoleName" )
   - provide useful error if attribute defined as required but with
