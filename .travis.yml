@@ -6,6 +6,7 @@ perl:
   - "5.14"
   - "5.16"
   - "5.18"
+  - "5.18.1_thr"
 matrix:
   include:
     - perl: 5.8.1
@@ -14,7 +15,7 @@ matrix:
       env: AUTHOR_TESTING=0
     - perl: 5.8.4_thr
       env: AUTHOR_TESTING=0
-    - perl: 5.18.1_thr
+    - perl: 5.18
       env: COVERAGE=1
 before_install:
   - source maint/travis-perlbrew
