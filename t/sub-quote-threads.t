@@ -11,10 +11,11 @@ use Test::More;
 
 use Sub::Quote;
 
-my $one = quote_sub my $one_code = q{
+my $one = quote_sub q{
     BEGIN { $::EVALED{'one'} = 1 }
     42
 };
+my $one_code = quoted_from_sub($one)->[1];
 
 my $two = quote_sub q{
     BEGIN { $::EVALED{'two'} = 1 }
