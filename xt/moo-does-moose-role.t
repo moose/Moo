@@ -235,6 +235,9 @@ is( Plonker->meta->find_attribute_by_name('kk')->documentation,
     'parentchild',
     'moosify applies for overridden attributes with roles');
 
+is ref Splattered2->meta, 'Moo::HandleMoose::FakeMetaClass',
+  'Mouse::Role meta method not copied';
+
 {
   package MooseAttrTrait;
   use Moose::Role;
