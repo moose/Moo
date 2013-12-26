@@ -27,6 +27,12 @@ sub CLONE {
   %TYPE_MAP = @types;
 }
 
+sub DESTROY {
+  my %types = %{$_[0]};
+  untie %TYPE_MAP;
+  %TYPE_MAP = %types;
+}
+
 if (keys %TYPE_MAP) {
   require B;
 
