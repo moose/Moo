@@ -34,7 +34,7 @@ require B
 
 %WEAK_TYPES = map {
   if (/(?:^|=)[A-Z]+\(0x([0-9a-zA-Z]+)\)$/) {
-    my $id = do { no warnings; hex "$1" };
+    my $id = do { no warnings 'portable'; hex "$1" };
     my $sv = bless \$id, 'B::SV';
     my $ref = eval { $sv->object_2svref };
     if (!defined $ref) {
