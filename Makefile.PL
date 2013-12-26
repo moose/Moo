@@ -56,7 +56,7 @@ my %META = (
     license => [ 'http://dev.perl.org/licenses/' ],
   },
   no_index => {
-    directory => [ 'xt' ]
+    directory => [ 't', 'xt' ]
   },
   Moo::Conflicts->can('conflicts') ? (
     x_breaks => { Moo::Conflicts->conflicts }
