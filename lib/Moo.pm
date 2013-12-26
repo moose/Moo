@@ -6,7 +6,7 @@ use B 'perlstring';
 use Sub::Defer ();
 use Import::Into;
 
-our $VERSION = '1.003001';
+our $VERSION = '1.004000';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
