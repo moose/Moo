@@ -932,11 +932,11 @@ Development and contribution IRC: #web-simple on irc.perl.org
 
 =for html <a href="http://chat.mibbit.com/#web-simple@irc.perl.org">(click for instant chatroom login)</a>
 
-Bugtracker: L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Moo>
+Bugtracker: L<https://rt.cpan.org/Public/Dist/Display.html?Name=Moo>
 
-Git repository: L<git://git.shadowcat.co.uk/gitmo/Moo.git>
+Git repository: L<git://github.com/moose/Moo.git>
 
-Git web access: L<http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=gitmo/Moo.git>
+Git browser: L<https://github.com/moose/Moo>
 
 =head1 AUTHOR
 
