@@ -31,7 +31,6 @@ is(threads->create(sub {
     1;
   } or die $@;
 
-  return 'Str';
   require Moose;
   my $meta = Class::MOP::class_of('TypeOMatic');
   my $str_name = $meta->get_attribute("str_type")->type_constraint->name;
