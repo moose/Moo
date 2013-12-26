@@ -1,5 +1,6 @@
 Revision history for Moo
 
+  - fix handling of type inflation when used with threads
   - don't include meta method when consuming Mouse roles
   - inhale Moose roles for has attr => ( handles => "RoleName" )
   - provide useful error if attribute defined as required but with
