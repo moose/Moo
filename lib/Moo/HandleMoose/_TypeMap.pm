@@ -20,13 +20,11 @@ sub STORE {
 }
 
 sub CLONE {
-  %TYPE_MAP = map {
+  my @types = map {
     defined $WEAK_TYPES{$_} ? ($WEAK_TYPES{$_} => $TYPE_MAP{$_}) : ()
   } keys %TYPE_MAP;
-  %WEAK_TYPES = map {
-    defined $WEAK_TYPES{$_} ? ($WEAK_TYPES{$_} => $WEAK_TYPES{$_}) : ()
-  } keys %WEAK_TYPES;
-  Scalar::Util::weaken($_) for values %WEAK_TYPES;
+  %WEAK_TYPES = ();
+  %TYPE_MAP = @types;
 }
 
 if (keys %TYPE_MAP) {
