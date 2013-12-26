@@ -46,24 +46,29 @@ for my $stack (
         }
         elsif (grep { /^Mo/ } @{$stack}[0..$level-1]) {
           if ($withattr) {
-            $code
-              .= "has attr$level => (is => 'ro');\n"
-              .  "eval { has '+extend_count' => (is => 'rw'); };\n"
-              .  "::is(\$@, '', 'extending attribute when stacking $class');\n";
+            $code .= "
+              has attr$level => (is => 'ro', default => 0);
+              sub BUILD {
+                \$_[0]->{initialized_at_build}{'$class'} = defined \$_[0]->{attr$level}
+                  if !exists \$_[0]->{initialized_at_build}{'$class'};
+              }
+              eval { has '+extend_count' => (is => 'rw'); };
+              ::is(\$@, '', 'extending attribute when stacking $class');
+            ";
           }
         }
         else {
-          $code .= '
-            has builder_count => ( is => "ro", default => sub { ++$_[0]->{_builder_count} } );
-            has extend_count => ( is => "ro", default => sub { ++$_[0]->{_extend_count} } );
-            has initialized_at_build => ( is => "ro" );
-            has build_count => ( is => "ro", default => 0 );
+          $code .= "
+            has builder_count => ( is => 'ro', default => sub { ++\$_[0]->{_builder_count} } );
+            has extend_count => ( is => 'ro', default => sub { ++\$_[0]->{_extend_count} } );
+            has initialized_at_build => ( is => 'ro' );
+            has build_count => ( is => 'ro', default => 0 );
             sub BUILD {
-              $_[0]->{initialized_at_build} = defined $_[0]->{build_count}
-                if !exists $_[0]->{initialized_at_build};
-              $_[0]->{build_count}++;
+              \$_[0]->{initialized_at_build}{'$class'} = defined \$_[0]->{build_count}
+                if !exists \$_[0]->{initialized_at_build}{'$class'};
+              \$_[0]->{build_count}++;
             }
-          ';
+          ";
         }
 
         eval $code;
@@ -81,7 +86,9 @@ for my $stack (
 
         is exception {
           my $obj = $class->new;
-          ok $obj->{initialized_at_build}, "$class: attributes initialized when BUILD called";
+          for my $attr ( keys %{$obj->{initialized_at_build}} ) {
+            ok $obj->{initialized_at_build}{$attr}, "$class: attribute in $attr initialized when BUILD called";
+          }
           is $obj->builder_count, 1, "$class: attribute builder called once";
           is $obj->extend_count, 1, "$class: extended attribute builder called once";
           is $obj->build_count, 1, "$class: BUILD called once";
