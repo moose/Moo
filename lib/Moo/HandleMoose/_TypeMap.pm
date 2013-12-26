@@ -1,9 +1,11 @@
+package Moo::HandleMoose::_TypeMap;
+use strictures 1;
+
 package
   Moo::HandleMoose;
 our %TYPE_MAP;
 
 package Moo::HandleMoose::_TypeMap;
-use strictures 1;
 
 use Scalar::Util ();
 use Tie::Hash ();
