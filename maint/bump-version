@@ -23,6 +23,7 @@ die "no idea which part to bump - $ARGV[0] means nothing to me"
 my @new_parts = @parts;
 
 $new_parts[$bump_this]++;
+$new_parts[$_] = 0 for ($bump_this+1 .. 2);
 
 my $NEW_DECIMAL = sprintf('%i.%03i%03i', @new_parts);
 
