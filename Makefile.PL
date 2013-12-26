@@ -39,6 +39,7 @@ my %META = (
       recommends => { map { $_ => 0 } qw(
         Moose Mouse namespace::clean namespace::autoclean
         MooseX::Types::Common::Numeric
+        Type::Tiny
       ) },
     },
   },
