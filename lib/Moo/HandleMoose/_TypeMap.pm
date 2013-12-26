@@ -29,27 +29,27 @@ sub CLONE {
   Scalar::Util::weaken($_) for values %WEAK_TYPES;
 }
 
-require B
-  if keys %TYPE_MAP;
+if (keys %TYPE_MAP) {
+  require B;
 
-%WEAK_TYPES = map {
-  if (/(?:^|=)[A-Z]+\(0x([0-9a-zA-Z]+)\)$/) {
-    my $id = do { no warnings 'portable'; hex "$1" };
-    my $sv = bless \$id, 'B::SV';
-    my $ref = eval { $sv->object_2svref };
-    if (!defined $ref) {
-      die <<'END_ERROR';
-Moo has been loaded inside a thread, but types were defined before creating the
-thread.  This is broken.  This can be fixed by making sure Moo is loaded before
-creating a thread.
+  %WEAK_TYPES = map {
+    if (/(?:^|=)[A-Z]+\(0x([0-9a-zA-Z]+)\)$/) {
+      my $id = do { no warnings 'portable'; hex "$1" };
+      my $sv = bless \$id, 'B::SV';
+      my $ref = eval { $sv->object_2svref };
+      if (!defined $ref) {
+        die <<'END_ERROR';
+Moo initialization encountered types defined in a parent thread - ensure that
+Moo is require()d before any further thread spawns following a type definition.
 END_ERROR
+      }
+      $ref => $ref;
     }
-    $ref => $ref;
-  }
-  else {
-    $_ => $_;
-  }
-} keys %TYPE_MAP;
+    else {
+      $_ => $_;
+    }
+  } keys %TYPE_MAP;
+}
 
 %{tie %TYPE_MAP, __PACKAGE__} = %TYPE_MAP;
 
