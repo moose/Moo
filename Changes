@@ -1,6 +1,12 @@
 Revision history for Moo
 
+  - fix repository links in pod
+  - add missing changelog entry regarding strictures to 1.004000 release
+
 1.004000 - 2013-12-26
+  - strictures will now be applied to modules using Moo just as if they
+    included "use strictures" directly.  This means that strictures extra
+    checks will now apply to code in checkouts.
   - fix handling of type inflation when used with threads
   - don't include meta method when consuming Mouse roles
   - inhale Moose roles for has attr => ( handles => "RoleName" )
