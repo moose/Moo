@@ -98,7 +98,7 @@ if (not $mymeta_works) {
 (my $module = "lib/$name.pm") =~ s{::}{/}g;
 
 WriteMakefile(
-  NAME => $META{name},
+  NAME => $name,
   VERSION_FROM => $module,
   LICENSE => $META{license},
 
