@@ -972,6 +972,8 @@ haarg - Graham Knop (cpan:HAARG) <haarg@cpan.org>
 
 mattp - Matt Phillips (cpan:MATTP) <mattp@cpan.org>
 
+bluefeet - Aran Deltac (cpan:BLUEFEET) <bluefeet@gmail.com>
+
 =head1 COPYRIGHT
 
 Copyright (c) 2010-2011 the Moo L</AUTHOR> and L</CONTRIBUTORS>
