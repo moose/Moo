@@ -94,12 +94,13 @@ if (not $mymeta_works) {
   %build_deps = ();
 }
 
-(my $name = $META{name}) =~ s/-/::/g;
-(my $module = "lib/$name.pm") =~ s{::}{/}g;
+# $META{name} is the dist name, EUMM needs the module name and file
+(my $module_name = $META{name}) =~ s/-/::/g;
+(my $module_file = "lib/$module_name.pm") =~ s{::}{/}g;
 
 WriteMakefile(
-  NAME => $name,
-  VERSION_FROM => $module,
+  NAME => $module_name,
+  VERSION_FROM => $module_file,
   LICENSE => $META{license},
 
   $min_perl_version     ? ( MIN_PERL_VERSION    => $min_perl_version ) : (),
