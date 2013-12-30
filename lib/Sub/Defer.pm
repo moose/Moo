@@ -8,7 +8,7 @@ use Scalar::Util qw(weaken);
 our $VERSION = '1.004001';
 $VERSION = eval $VERSION;
 
-our @EXPORT = qw(defer_sub undefer_sub);
+our @EXPORT = qw(defer_sub undefer_sub undefer_all);
 
 our %DEFERRED;
 
@@ -32,6 +32,11 @@ sub undefer_sub {
   weaken($DEFERRED{$made} = $DEFERRED{$deferred});
 
   return $made;
+}
+
+sub undefer_all {
+  undefer_sub($_) for keys %DEFERRED;
+  return;
 }
 
 sub defer_info {
@@ -103,6 +108,16 @@ If the passed coderef has been L<deferred|/defer_sub> this will "undefer" it.
 If the passed coderef has not been deferred, this will just return it.
 
 If this is confusing, take a look at the example in the L</SYNOPSIS>.
+
+=head2 undefer_all
+
+ undefer_all();
+
+This will undefer all defered subs in one go.  This can be very useful in a
+forking environment where child processes would each have to undefer the same
+subs.  By calling this just before you start forking children you can undefer
+all currently deferred subs in the parent so that the children do not have to
+do it.
 
 =head1 SUPPORT
 

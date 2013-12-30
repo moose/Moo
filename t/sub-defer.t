@@ -58,4 +58,20 @@ my $orig = Foo->can('four');
 is(Foo->four, 'four with a twist', 'around works');
 is(Foo->four, 'four with a twist', 'around has not been destroyed by first invocation');
 
+my $one_all_defer = defer_sub 'Foo::one_all' => sub {
+  $made{'Foo::one_all'} = sub { 'one_all' }
+};
+
+my $two_all_defer = defer_sub 'Foo::two_all' => sub {
+  $made{'Foo::two_all'} = sub { 'two_all' }
+};
+
+is( $made{'Foo::one_all'}, undef, 'one_all not made' );
+is( $made{'Foo::two_all'}, undef, 'two_all not made' );
+
+undefer_all();
+
+is( $made{'Foo::one_all'}, \&Foo::one_all, 'one_all made by undefer_all' );
+is( $made{'Foo::two_all'}, \&Foo::two_all, 'two_all made by undefer_all' );
+
 done_testing;
