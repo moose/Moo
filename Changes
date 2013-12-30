@@ -1,5 +1,8 @@
 Revision history for Moo
 
+  - fix type inflation in threads when types are inserted by manually
+    stringifying the type first (like Type::Tiny)
+
 1.004001 - 2013-12-27
   - fix repository links in pod
   - add missing changelog entry regarding strictures to 1.004000 release
