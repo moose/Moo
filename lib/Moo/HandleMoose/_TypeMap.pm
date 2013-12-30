@@ -58,6 +58,8 @@ sub DESTROY {
   %TYPE_MAP = %types;
 }
 
-%{tie %TYPE_MAP, __PACKAGE__} = %TYPE_MAP;
+my @types = %TYPE_MAP;
+tie %TYPE_MAP, __PACKAGE__;
+%TYPE_MAP = @types;
 
 1;
