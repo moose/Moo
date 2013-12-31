@@ -8,9 +8,6 @@ our %TYPE_MAP;
 package Moo::HandleMoose::_TypeMap;
 
 use Scalar::Util ();
-use Tie::Hash ();
-
-our @ISA = qw(Tie::StdHash);
 
 our %WEAK_TYPES;
 
@@ -35,14 +32,24 @@ END_ERROR
   return $in;
 }
 
+sub TIEHASH  { bless {}, $_[0] }
+
 sub STORE {
   my ($self, $key, $value) = @_;
   my $type = _str_to_ref($key);
   $WEAK_TYPES{$type} = $type;
   Scalar::Util::weaken($WEAK_TYPES{$type})
     if ref $type;
-  $self->SUPER::STORE($key, $value);
+  $self->{$key} = $value;
 }
+
+sub FETCH    { $_[0]->{$_[1]} }
+sub FIRSTKEY { my $a = scalar keys %{$_[0]}; each %{$_[0]} }
+sub NEXTKEY  { each %{$_[0]} }
+sub EXISTS   { exists $_[0]->{$_[1]} }
+sub DELETE   { delete $_[0]->{$_[1]} }
+sub CLEAR    { %{$_[0]} = () }
+sub SCALAR   { scalar %{$_[0]} }
 
 sub CLONE {
   my @types = map {
