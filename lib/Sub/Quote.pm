@@ -9,7 +9,7 @@ use B 'perlstring';
 use Scalar::Util qw(weaken);
 use base qw(Exporter);
 
-our $VERSION = '1.004001';
+our $VERSION = '1.004002';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);
