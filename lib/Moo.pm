@@ -658,7 +658,7 @@ Takes a method name which will clear the attribute.
 
 If you set this to just C<1>, the clearer is automatically named
 C<clear_${attr_name}> if your attribute's name does not start with an
-underscore, or <_clear_${attr_name_without_the_underscore}> if it does.
+underscore, or C<_clear_${attr_name_without_the_underscore}> if it does.
 This feature comes from L<MooseX::AttributeShortcuts>.
 
 =item * C<lazy>
