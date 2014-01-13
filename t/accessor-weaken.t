@@ -57,7 +57,7 @@ ok(!defined $foo4->{four}, 'weak value gone');
 
 # test readonly SVs
 sub mk_ref { \ 'yay' };
-my $foo_ro = eval { Foo->new(one => mk_ref()) };
+my $foo_ro = Foo->new(one => mk_ref());
 if ($^O eq 'cygwin' and $] < 5.012000) {
   SKIP: { skip 'Static coderef reaping seems nonfunctional on cygwin < 5.12', 1 }
 }
@@ -68,5 +68,17 @@ else {
   { no warnings 'redefine'; *mk_ref = sub {} }
   ok (!defined $foo_ro->{one}, 'optree reaped, ro static value gone');
 }
+
+# test readonly SVs
+my $ro_hash = {a => 1, b => 2};
+Internals::SvREADONLY(%$ro_hash, 1);
+#Internals::SvREADONLY($ro_hash, 1);
+my $foo_hash_ro = Foo->new(one => $ro_hash);
+is($foo_hash_ro->one, $ro_hash, 'value present');
+ok(Scalar::Util::isweak($foo_hash_ro->{one}), 'value weakened');
+
+undef $ro_hash;
+
+ok (!defined $foo_hash_ro->{one}, 'weakened ro hash gone');
 
 done_testing;
