@@ -555,11 +555,11 @@ sub _generate_simple_set {
     # Perl < 5.8.3 can't weaken refs to readonly vars
     # (e.g. string constants). This *can* be solved by:
     #
-    #Internals::SetReadWrite($foo);
-    #Scalar::Util::weaken ($foo);
-    #Internals::SetReadOnly($foo);
+    # &Internals::SvREADONLY($foo, 0);
+    # Scalar::Util::weaken($foo);
+    # &Internals::SvREADONLY($foo, 1);
     #
-    # but requires XS and is just too damn crazy
+    # but requires Internal functions and is just too damn crazy
     # so simply throw a better exception
     my $weak_simple = "do { Scalar::Util::weaken(${simple}); no warnings 'void'; $get }";
     Moo::_Utils::lt_5_8_3() ? <<"EOC" : $weak_simple;
