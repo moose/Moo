@@ -24,7 +24,7 @@ sub import {
   my $class = shift;
   _set_loaded(caller);
   strictures->import::into(1);
-  if ($Role::Tiny::INFO{$target} and $Role::Tiny::INFO{$target}{is_role}) {
+  if ($INC{'Role/Tiny.pm'} and Role::Tiny->is_role($target)) {
     die "Cannot import Moo into a role";
   }
   $MAKERS{$target} ||= {};
@@ -92,7 +92,7 @@ sub _set_superclasses {
   my $target = shift;
   foreach my $superclass (@_) {
     _load_module($superclass);
-    if ($INC{"Role/Tiny.pm"} && $Role::Tiny::INFO{$superclass}) {
+    if ($INC{'Role/Tiny.pm'} && Role::Tiny->is_role($superclass)) {
       require Carp;
       Carp::croak("Can't extend role '$superclass'");
     }

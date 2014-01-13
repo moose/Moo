@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - use ->is_role internally to check if a package is a role
+
 1.004002 - 2013-12-31
   - fix type inflation in threads when types are inserted by manually
     stringifying the type first (like Type::Tiny)

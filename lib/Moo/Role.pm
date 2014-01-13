@@ -68,7 +68,7 @@ sub import {
     $me->apply_roles_to_package($target, @_);
     $me->_maybe_reset_handlemoose($target);
   };
-  return if $INFO{$target}{is_role}; # already exported into this package
+  return if $me->is_role($target); # already exported into this package
   $INFO{$target}{is_role} = 1;
   *{_getglob("${target}::meta")} = $me->can('meta');
   # grab all *non-constant* (stash slot is not a scalarref) subs present
@@ -107,7 +107,7 @@ sub _maybe_reset_handlemoose {
 sub methods_provided_by {
   my ($self, $role) = @_;
   $self->_inhale_if_moose($role);
-  die "${role} is not a Moo::Role" unless $INFO{$role};
+  die "${role} is not a Moo::Role" unless $self->is_role($role);
   return $self->SUPER::methods_provided_by($role);
 }
 
@@ -115,7 +115,7 @@ sub _inhale_if_moose {
   my ($self, $role) = @_;
   _load_module($role);
   my $meta;
-  if (!$INFO{$role}
+  if (!$self->is_role($role)
       and (
         $INC{"Moose.pm"}
         and $meta = Class::MOP::class_of($role)
@@ -236,7 +236,7 @@ sub apply_roles_to_package {
   my ($me, $to, @roles) = @_;
   foreach my $role (@roles) {
     $me->_inhale_if_moose($role);
-    die "${role} is not a Moo::Role" unless $INFO{$role};
+    die "${role} is not a Moo::Role" unless $me->is_role($role);
   }
   $me->SUPER::apply_roles_to_package($to, @roles);
 }
@@ -244,7 +244,7 @@ sub apply_roles_to_package {
 sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
   $me->_inhale_if_moose($role);
-  die "${role} is not a Moo::Role" unless $INFO{$role};
+  die "${role} is not a Moo::Role" unless $me->is_role($role);
   $me->SUPER::apply_single_role_to_package($to, $role);
 }
 
@@ -275,7 +275,7 @@ sub create_class_with_roles {
   $me->SUPER::create_class_with_roles($superclass, @roles);
 
   foreach my $role (@roles) {
-    die "${role} is not a Role::Tiny" unless $INFO{$role};
+    die "${role} is not a Role::Tiny" unless $me->is_role($role);
   }
 
   $Moo::MAKERS{$new_name} = {is_class => 1};
