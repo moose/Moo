@@ -11,9 +11,13 @@ $VERSION = eval $VERSION;
 
 require Moo::sification;
 
-BEGIN { *INFO = \%Role::Tiny::INFO }
+BEGIN {
+    *INFO = \%Role::Tiny::INFO;
+    *APPLIED_TO = \%Role::Tiny::APPLIED_TO;
+}
 
 our %INFO;
+our %APPLIED_TO;
 our %APPLY_DEFAULTS;
 
 sub _install_tracked {
@@ -78,7 +82,7 @@ sub import {
   my @not_methods = ('', map { *$_{CODE}||() } grep !ref($_), values %$stash);
   @{$INFO{$target}{not_methods}={}}{@not_methods} = @not_methods;
   # a role does itself
-  $Role::Tiny::APPLIED_TO{$target} = { $target => undef };
+  $APPLIED_TO{$target} = { $target => undef };
 
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
@@ -135,7 +139,7 @@ sub _inhale_if_moose {
         grep !$meta->get_method($_)->isa('Class::MOP::Method::Meta'),
           $meta->get_method_list
     };
-    $Role::Tiny::APPLIED_TO{$role} = {
+    $APPLIED_TO{$role} = {
       map +($_->name => 1), $meta->calculate_all_roles
     };
     $INFO{$role}{requires} = [ $meta->get_required_method_list ];
@@ -275,7 +279,7 @@ sub create_class_with_roles {
   $me->SUPER::create_class_with_roles($superclass, @roles);
 
   foreach my $role (@roles) {
-    die "${role} is not a Role::Tiny" unless $me->is_role($role);
+    die "${role} is not a Moo::Role" unless $me->is_role($role);
   }
 
   $Moo::MAKERS{$new_name} = {is_class => 1};

@@ -82,12 +82,12 @@ sub inject_real_metaclass_for {
   }
 
   my %methods
-    = %{($am_role ? 'Role::Tiny' : 'Moo')->_concrete_methods_of($name)};
+    = %{($am_role ? 'Moo::Role' : 'Moo')->_concrete_methods_of($name)};
 
   # if stuff gets added afterwards, _maybe_reset_handlemoose should
   # trigger the recreation of the metaclass but we need to ensure the
-  # Role::Tiny cache is cleared so we don't confuse Moo itself.
-  if (my $info = $Role::Tiny::INFO{$name}) {
+  # Moo::Role cache is cleared so we don't confuse Moo itself.
+  if (my $info = $Moo::Role::INFO{$name}) {
     delete $info->{methods};
   }
 
@@ -199,7 +199,7 @@ sub inject_real_metaclass_for {
   }
   $meta->add_role(Class::MOP::class_of($_))
     for grep !/\|/ && $_ ne $name, # reject Foo|Bar and same-role-as-self
-      do { no warnings 'once'; keys %{$Role::Tiny::APPLIED_TO{$name}} };
+      do { no warnings 'once'; keys %{$Moo::Role::APPLIED_TO{$name}} };
   $DID_INJECT{$name} = 1;
   $meta;
 }
