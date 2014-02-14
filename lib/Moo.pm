@@ -2,7 +2,6 @@ package Moo;
 
 use strictures 1;
 use Moo::_Utils;
-use Import::Into;
 
 our $VERSION = '1.004_004';
 $VERSION = eval $VERSION;
@@ -21,7 +20,10 @@ sub import {
   my $target = caller;
   my $class = shift;
   _set_loaded(caller);
-  strictures->import::into(1);
+
+  strict->import;
+  warnings->import;
+
   if ($INC{'Role/Tiny.pm'} and Role::Tiny->is_role($target)) {
     die "Cannot import Moo into a role";
   }
@@ -232,6 +234,7 @@ Moo - Minimalist Object Orientation (with Moose compatibility)
  package Cat::Food;
 
  use Moo;
+ use strictures 1;
  use namespace::clean;
 
  sub feed_lion {
@@ -877,15 +880,11 @@ C<BUILDARGS> is not triggered if your class does not have any attributes.
 Without attributes, C<BUILDARGS> return value would be ignored, so we just
 skip calling the method instead.
 
-Handling of warnings: when you C<use Moo> we enable FATAL warnings, and some
-several extra pragmas when used in development: L<indirect>,
-L<multidimensional>, and L<bareword::filehandles>.  See the L<strictures>
-documentation for the details on this.
-
-A similar invocation for L<Moose> would be:
-
-  use Moose;
-  use warnings FATAL => "all";
+Handling of warnings: when you C<use Moo> we enable strict and warnings, in a
+similar way to Moose. The authors recommend the use of C<strictures>, which
+enables FATAL warnings, and some several extra pragmas when used in
+development: L<indirect>, L<multidimensional>, and L<bareword::filehandles>.
+See the L<strictures> documentation for the details on this.
 
 Additionally, L<Moo> supports a set of attribute option shortcuts intended to
 reduce common boilerplate.  The set of shortcuts is the same as in the L<Moose>
@@ -893,6 +892,7 @@ module L<MooseX::AttributeShortcuts> as of its version 0.009+.  So if you:
 
     package MyClass;
     use Moo;
+    use strictures 1;
 
 The nearest L<Moose> invocation would be:
 
