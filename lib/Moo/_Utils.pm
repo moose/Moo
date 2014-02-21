@@ -85,6 +85,8 @@ sub _install_coderef {
   if (*{$glob}{CODE}) {
     *{$glob} = $code;
   }
+  # perl will sometimes warn about mismatched prototypes coming from the
+  # inheritance cache, so disable them if we aren't redefining a sub
   else {
     no warnings 'prototype';
     *{$glob} = $code;
