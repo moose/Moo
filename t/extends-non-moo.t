@@ -1,5 +1,6 @@
 use strictures 1;
 use Test::More;
+use Test::Fatal;
 
 {
     package t::moo::extends_non_moo::base;
@@ -63,5 +64,18 @@ ok $app = t::moo::extends_non_moo::second_level_moo->wrap($app),
 
 is $app, 100,
   '$app still 100';
+
+{
+  package BadPrototype;
+  sub new () { bless {}, shift }
+}
+{
+  package ExtendBadPrototype;
+  use Moo;
+  ::is(::exception {
+    extends 'BadPrototype';
+    has attr1 => (is => 'ro');
+  }, undef, 'extending class with prototype on new');
+}
 
 done_testing();

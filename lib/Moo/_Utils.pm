@@ -80,8 +80,15 @@ sub _get_linear_isa {
 }
 
 sub _install_coderef {
+  my ($glob, $code) = (_getglob($_[0]), _name_coderef(@_));
   no warnings 'redefine';
-  *{_getglob($_[0])} = _name_coderef(@_);
+  if (*{$glob}{CODE}) {
+    *{$glob} = $code;
+  }
+  else {
+    no warnings 'prototype';
+    *{$glob} = $code;
+  }
 }
 
 sub _name_coderef {
