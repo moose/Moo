@@ -1,5 +1,6 @@
 Revision history for Moo
 
+  - fix inheriting from a class with a prototype on new
   - use ->is_role internally to check if a package is a role
   - minimise Role::Tiny coupling outside Moo::Role
 
