@@ -111,7 +111,8 @@ is(
   undef, 'builder - quote_sub accepted'
 );
 
-my $foo = Foo->new(one => 1);
+my $foo = Foo->new;
+$foo->{one} = 1;
 
 is($foo->one, 1, 'ro reads');
 ok(exception { $foo->one(-3) }, 'ro dies on write attempt');
