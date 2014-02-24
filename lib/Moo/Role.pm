@@ -14,11 +14,13 @@ require Moo::sification;
 BEGIN {
     *INFO = \%Role::Tiny::INFO;
     *APPLIED_TO = \%Role::Tiny::APPLIED_TO;
+    *ON_ROLE_CREATE = \@Role::Tiny::ON_ROLE_CREATE;
 }
 
 our %INFO;
 our %APPLIED_TO;
 our %APPLY_DEFAULTS;
+our @ON_ROLE_CREATE;
 
 sub _install_tracked {
   my ($target, $name, $code) = @_;
@@ -84,10 +86,16 @@ sub import {
   # a role does itself
   $APPLIED_TO{$target} = { $target => undef };
 
+  $_->($target)
+    for @ON_ROLE_CREATE;
+}
+
+push @ON_ROLE_CREATE, sub {
+  my $target = shift;
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
-}
+};
 
 # duplicate from Moo::Object
 sub meta {
