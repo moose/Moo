@@ -161,7 +161,8 @@ sub _constructor_maker_for {
       if ($t_new) {
         if ($t_new == Moo::Object->can('new')) {
           $moo_constructor = 1;
-        } elsif (my $defer_target = (Sub::Defer::defer_info($t_new)||[])->[0]) {
+        }
+        elsif (my $defer_target = (Sub::Defer::defer_info($t_new)||[])->[0]) {
           my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
           if ($MAKERS{$pkg}) {
             $moo_constructor = 1;
@@ -860,7 +861,8 @@ or array reference as a default is almost always incorrect since the value is
 then shared between all objects using that default.
 
 C<lazy_build> is not supported; you are instead encouraged to use the
-C<< is => 'lazy' >> option supported by L<Moo> and L<MooseX::AttributeShortcuts>.
+C<< is => 'lazy' >> option supported by L<Moo> and
+L<MooseX::AttributeShortcuts>.
 
 C<auto_deref> is not supported since the author considers it a bad idea and
 it has been considered best practice to avoid it for some time.
@@ -926,11 +928,13 @@ to Moo by providing a more Moose-like interface.
 
 Users' IRC: #moose on irc.perl.org
 
-=for html <a href="http://chat.mibbit.com/#moose@irc.perl.org">(click for instant chatroom login)</a>
+=for html <a href="http://chat.mibbit.com/#moose@irc.perl.org">(click for
+instant chatroom login)</a>
 
 Development and contribution IRC: #web-simple on irc.perl.org
 
-=for html <a href="http://chat.mibbit.com/#web-simple@irc.perl.org">(click for instant chatroom login)</a>
+=for html <a href="http://chat.mibbit.com/#web-simple@irc.perl.org">(click for
+instant chatroom login)</a>
 
 Bugtracker: L<https://rt.cpan.org/Public/Dist/Display.html?Name=Moo>
 
