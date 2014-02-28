@@ -53,7 +53,7 @@ sub generate_method {
   } elsif ($is eq 'lazy') {
     $spec->{reader} = $name unless exists $spec->{reader};
     $spec->{lazy} = 1;
-    $spec->{builder} ||= '_build_'.$name unless $spec->{default};
+    $spec->{builder} ||= '_build_'.$name unless exists $spec->{default};
   } elsif ($is eq 'rwp') {
     $spec->{reader} = $name unless exists $spec->{reader};
     $spec->{writer} = "_set_${name}" unless exists $spec->{writer};
@@ -87,7 +87,7 @@ sub generate_method {
   }
 
   if (exists $spec->{default}) {
-    if (!defined $spec->{default} || ref $spec->{default}) {
+    if (ref $spec->{default}) {
       $self->_validate_codulatable('default', $spec->{default}, "$into->$name", 'or a non-ref');
     }
   }
@@ -232,7 +232,7 @@ sub is_simple_attribute {
 
 sub is_simple_get {
   my ($self, $name, $spec) = @_;
-  !($spec->{lazy} and ($spec->{default} or $spec->{builder}));
+  !($spec->{lazy} and (exists $spec->{default} or $spec->{builder}));
 }
 
 sub is_simple_set {
@@ -313,7 +313,9 @@ sub _generate_get_default {
   if (exists $spec->{default}) {
     ref $spec->{default}
       ? $self->_generate_call_code($name, 'default', $me, $spec->{default})
-      : perlstring $spec->{default};
+    : defined $spec->{default}
+      ? perlstring $spec->{default}
+    : 'undef';
   }
   else {
     "${me}->${\$spec->{builder}}"

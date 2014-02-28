@@ -28,6 +28,7 @@ my $c_ran;
   has thirteen => (is => 'ro', default => 0 );
   has fourteen => (is => 'ro', required => 1, builder => '_build_fourteen');
   sub _build_fourteen { {} }
+  has fifteen => (is => 'lazy', default => undef);
 }
 
 sub check {
@@ -66,5 +67,8 @@ is(Foo->new->ten, 5, 'non-ref default');
 is(Foo->new->eleven, 5, 'eager non-ref default');
 is(Foo->new->twelve, 0, 'false non-ref default');
 is(Foo->new->thirteen, 0, 'eager false non-ref default');
+my $foo = Foo->new;
+is($foo->fifteen, undef, 'undef default');
+ok(exists $foo->{fifteen}, 'undef default is stored');
 
 done_testing;
