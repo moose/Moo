@@ -7,6 +7,7 @@ use ExtUtils::MakeMaker 6.57_10 ();
 author 'mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>';
 
 manifest_include t => 'global-destruction-helper.pl';
+manifest_include xt => 'global-destruct-jenga-helper.pl';
 manifest_include bin => 'moo-outdated';
 
 1;
