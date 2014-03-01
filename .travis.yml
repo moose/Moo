@@ -23,6 +23,7 @@ before_install:
   - perl -V
 install:
   - maint/travis-install ExtUtils::MakeMaker strictures
+  - maint/travis-install git://git.shadowcat.co.uk/gitmo/Role-Tiny.git
   - maint/travis-install --deps
   - "[ -n \"$COVERAGE\" ] && maint/travis-install Devel::Cover Devel::Cover::Report::Coveralls || true"
 script:
