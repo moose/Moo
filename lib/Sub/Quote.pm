@@ -70,11 +70,11 @@ sub quote_sub {
   my $context
     ="package $package;\n"
     ."BEGIN {\n"
-    ."  \$^H = ".B::perlstring($hints).";\n"
-    ."  \${^WARNING_BITS} = ".B::perlstring($bitmask).";\n"
+    ."  \$^H = ".perlstring($hints).";\n"
+    ."  \${^WARNING_BITS} = ".perlstring($bitmask).";\n"
     ."  \%^H = (\n"
     . join('', map
-     "    ".B::perlstring($_)." => ".B::perlstring($hintshash->{$_}).",",
+     "    ".perlstring($_)." => ".perlstring($hintshash->{$_}).",",
       keys %$hintshash)
     ."  );\n"
     ."}\n";
