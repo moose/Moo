@@ -28,8 +28,11 @@ install:
   - cpan-install ExtUtils::MakeMaker~6.30 git://git.shadowcat.co.uk/gitmo/Role-Tiny.git
   - cpan-install --deps
   - cpan-install --coverage
+before_script:
+  - coverage-setup
 script:
-  - maint/fulltest
+  - prove -l $(test-dirs)
+  - MOO_XS_DISABLE=1 prove -l $(test-dirs)
 after_success:
   - coverage-report
 branches:

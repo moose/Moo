@@ -5,7 +5,8 @@ TEST_DIRS='t xt'
 while [ "$#" -gt "0" ]; do
   case $1 in
     --cover)
-      COVERAGE=1
+      cover -delete -silent
+      export HARNESS_PERL_SWITCHES='-MDevel::Cover=-ignore,^x?t/,-blib,0'
       ;;
     *)
       echo "Invalid option: $1"
@@ -17,10 +18,6 @@ done
 
 if [ -n "$AUTHOR_TESTING" ] && [ "$AUTHOR_TESTING" -eq 0 ]; then
   TEST_DIRS='t'
-fi
-if [ -n "$COVERAGE" ] && [ "$COVERAGE" -ne 0 ]; then
-  cover -delete -silent
-  export HARNESS_PERL_SWITCHES='-MDevel::Cover=-ignore,^x?t/,-blib,0'
 fi
 
 prove -l $TEST_DIRS && MOO_XS_DISABLE=1 prove -l $TEST_DIRS
