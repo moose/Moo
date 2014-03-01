@@ -18,18 +18,21 @@ matrix:
     - perl: 5.18
       env: COVERAGE=1
 before_install:
-  - source maint/travis-perlbrew
-  - perlbrew install-cpanm -f
+  - git clone git://github.com/haarg/perl-travis-helper
+  - source perl-travis-helper/init
+  - build-perl
   - perl -V
+  - build-dist
+  - cd $BUILD_DIR
 install:
-  - maint/travis-install ExtUtils::MakeMaker
-  - maint/travis-install git://git.shadowcat.co.uk/gitmo/Role-Tiny.git
-  - maint/travis-install --deps
-  - "[ -n \"$COVERAGE\" ] && maint/travis-install Devel::Cover Devel::Cover::Report::Coveralls || true"
+  - cpan-install ExtUtils::MakeMaker
+  - cpan-install git://git.shadowcat.co.uk/gitmo/Role-Tiny.git
+  - cpan-install --deps
+  - cpan-install --coverage
 script:
   - maint/fulltest
 after_success:
-  - "[ -n \"$COVERAGE\" ] && cover -report coveralls || true"
+  - coverage-report
 branches:
   except:
     - /^wip\//
