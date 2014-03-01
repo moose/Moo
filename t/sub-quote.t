@@ -181,4 +181,7 @@ SKIP: {
     or diag "Failed strings: " . join(' ', map { $dump->($_) } @failed_utf8);
 }
 
+my @stuff = (qsub q{ print "hello"; }, 1, 2);
+is scalar @stuff, 3, 'qsub only accepts a single parameter';
+
 done_testing;

@@ -15,7 +15,7 @@ BEGIN {
 our $VERSION = '1.004006';
 $VERSION = eval $VERSION;
 
-our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);
+our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub qsub);
 our @EXPORT_OK = qw(quotify capture_unroll inlinify);
 
 our %QUOTED;
@@ -166,6 +166,10 @@ sub unquote_sub {
   $$unquoted;
 }
 
+sub qsub ($) {
+  goto &quote_sub;
+}
+
 sub CLONE {
   %QUOTED = map { defined $_ ? (
     $_->[3] && ${$_->[3]} ? (${ $_->[3] } => $_) : (),
@@ -296,6 +300,18 @@ Generates a snippet of code which is suitable to be used as a prelude for
 L</inlinify>.  C<$from> is a string will be used as a hashref in the resulting
 code.  The keys of C<%captures> are the names of the variables and the values
 are ignored.  C<$indent> is the number of spaces to indent the result by.
+
+=head2 qsub
+
+ my $hash = {
+  coderef => qsub q{ print "hello"; },
+  other   => 5,
+ };
+
+Arguments: $code
+
+Works exactly like L</quote_sub>, but includes a prototype to only accept a
+single parameter.  This makes it easier to include in hash structures or lists.
 
 =head1 CAVEATS
 
