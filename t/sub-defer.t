@@ -74,4 +74,21 @@ undefer_all();
 is( $made{'Foo::one_all'}, \&Foo::one_all, 'one_all made by undefer_all' );
 is( $made{'Foo::two_all'}, \&Foo::two_all, 'two_all made by undefer_all' );
 
+my $foo = defer_sub undef, sub { sub { 'foo' } };
+my $foo2 = defer_sub undef, sub { sub { 'foo2' } };
+my $foo_string = "$foo";
+my $foo2_string = "$foo2";
+
+undef $foo;
+is Sub::Defer::defer_info($foo_string), undef,
+  "deferred subs don't leak";
+
+Sub::Defer->CLONE;
+ok !exists $Sub::Defer::DEFERRED{$foo_string},
+  'CLONE cleans out expired entries';
+
+undef $foo2;
+is Sub::Defer::defer_info($foo2_string), undef,
+  "CLONE doesn't strengthen refs";
+
 done_testing;

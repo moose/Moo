@@ -53,6 +53,7 @@ sub defer_sub {
     goto &$undeferred;
   };
   $deferred_info = [ $target, $maker, \$undeferred, $deferred ];
+  weaken($deferred_info->[3]);
   weaken($DEFERRED{$deferred} = $deferred_info);
   _install_coderef($target => $deferred) if defined $target;
   return $deferred;
