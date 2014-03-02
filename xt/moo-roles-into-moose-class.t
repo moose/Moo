@@ -66,5 +66,14 @@ is exception {
   Buh->new->push_attr(1);
 }, undef, 'traits in role attributes are inflated properly';
 
+{
+    package Blorp;
+    use Moo::Role;
+    has attr => (is => 'ro');
+}
+
+is +Blorp->meta->get_attribute('attr')->name, 'attr',
+  'role metaclass inflatable via ->meta';
+
 done_testing;
 
