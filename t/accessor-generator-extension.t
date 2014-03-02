@@ -101,4 +101,10 @@ $o = ArrayTest3->new(one => 1, two => 2, three => 3, four => 4);
 
 is_deeply([ @$o ], [ 1, 2, 3, 4 ], 'Subclass object w/role');
 
+my $c = Moo::Role->create_class_with_roles('ArrayTest1', 'ArrayTestRole');
+
+$o = $c->new(one => 1, two => 2, three => 3, four => 4);
+
+is_deeply([ @$o ], [ 1, 2, 3, 4 ], 'Generated subclass object w/role');
+
 done_testing;
