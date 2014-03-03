@@ -66,4 +66,9 @@ sub test_off_by_one {
 test_off_by_one('Baz', 'Moo');
 test_off_by_one('Quux', 'Moose');
 
+my $coerce_constraint = Quux->meta->get_attribute('off_by_one')
+  ->type_constraint->constraint;
+like exception { $coerce_constraint->() }, qr/This is not going to work/,
+  'generated constraint is not a null constraint';
+
 done_testing;
