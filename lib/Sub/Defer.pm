@@ -29,7 +29,9 @@ sub undefer_sub {
     # _install_coderef calls are not necessary --ribasushi
     *{_getglob($target)} = $made;
   }
-  weaken($DEFERRED{$made} = $DEFERRED{$deferred});
+  $DEFERRED{$made} = $DEFERRED{$deferred};
+  weaken $DEFERRED{$made}
+    unless $target;
 
   return $made;
 }
@@ -61,7 +63,10 @@ sub defer_sub {
 
 sub CLONE {
   %DEFERRED = map { defined $_ && $_->[3] ? ($_->[3] => $_) : () } values %DEFERRED;
-  weaken($_) for values %DEFERRED;
+  for my $info (values %DEFERRED) {
+    weaken($info)
+      unless $info->[0] && ${$info->[2]};
+  }
 }
 
 1;
