@@ -20,17 +20,22 @@ my %META = (
       'Test::More'  => 0.94,
       'Test::Fatal' => 0.003,
     } },
-    runtime => { requires => {
-      'perl'                      => 5.008001,
-      'Class::Method::Modifiers'  => 1.10,  # for RT#80194
-      'strictures'                => 1.004003,
-      'Module::Runtime'           => 0.012, # for RT#74789
-      'Role::Tiny'                => 1.003002,
-      'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
-      'Dist::CheckConflicts'      => 0.02,
-      'Import::Into'              => 1.002,
-      ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
-    } },
+    runtime => {
+      requires => {
+        'perl'                      => 5.008001,
+        'Class::Method::Modifiers'  => 1.10,  # for RT#80194
+        'strictures'                => 1.004003,
+        'Module::Runtime'           => 0.012, # for RT#74789
+        'Role::Tiny'                => 1.003002,
+        'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
+        'Dist::CheckConflicts'      => 0.02,
+        'Import::Into'              => 1.002,
+        ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
+      },
+      recommends => {
+        'Class::XSAccessor'         => 1.18,
+      },
+    },
     develop   => {
       requires => { map { $_ => 0 } qw(
         Class::XSAccessor
