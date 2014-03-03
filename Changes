@@ -1,5 +1,11 @@
 Revision history for Moo
 
+  - always maintain source of quoted subs for the lifetime of the sub
+  - fix Sub::Quote and Sub::Defer leaking memory
+  - Class::XSAccessor is now listed as a recommended prerequisite
+  - fix generating a subclass with roles when using a non-standard accessor
+  - use alternate quoting routine, which is faster and saves memory by not
+    loading B.pm
   - fix default of undef
   - fix inheriting from a class with a prototype on new
   - use ->is_role internally to check if a package is a role
