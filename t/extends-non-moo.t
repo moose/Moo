@@ -22,7 +22,7 @@ use Test::Fatal;
         $class->new({app => $app})
               ->to_app;
     }
- 
+
     package t::moo::extends_non_moo::moo;
     use Moo;
     extends 't::moo::extends_non_moo::middle';

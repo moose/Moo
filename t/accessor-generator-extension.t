@@ -43,7 +43,7 @@ BEGIN {
 
   sub default_construction_string { '[]' }
 
-  sub MooX::ArrayRef::import { 
+  sub MooX::ArrayRef::import {
     Moo::Role->apply_roles_to_object(
       Moo->_accessor_maker_for(scalar caller),
       'Method::Generate::Accessor::Role::ArrayRefInstance'

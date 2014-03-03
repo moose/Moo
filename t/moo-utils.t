@@ -11,7 +11,7 @@ my %files = (
     my $f = flub;
   },
 );
-unshift @INC, sub { 
+unshift @INC, sub {
   my $out = $files{$_[1]} or return;
   open my $fh, '<', \$out;
   $fh;
