@@ -111,6 +111,53 @@ is(
   undef, 'builder - quote_sub accepted'
 );
 
+ok !$gen->is_simple_attribute('attr', { builder => 'build_attr' }),
+  "attribute with builder isn't simple";
+ok $gen->is_simple_attribute('attr', { clearer => 'clear_attr' }),
+  "attribute with clearer is simple";
+
+{
+  my ($code, $cap) = $gen->generate_get_default('$self', 'attr',
+    { default => 5 });
+  is eval $code, 5, 'non-ref default code works';
+  is_deeply $cap, {}, 'non-ref default has no captures';
+}
+
+{
+  my ($code, $cap) = $gen->generate_simple_get('$self', 'attr',
+    { default => 1 });
+  my $self = { attr => 5 };
+  is eval $code, 5, 'simple get code works';
+  is_deeply $cap, {}, 'simple get code has no captures';
+}
+
+{
+  my ($code, $cap) = $gen->generate_coerce('attr', '$value',
+    quote_sub q{ $_[0] + 1 });
+  my $value = 5;
+  is eval $code, 6, 'coerce from quoted sub code works';
+  is_deeply $cap, {}, 'coerce from quoted sub has no captures';
+}
+
+{
+  my ($code, $cap) = $gen->generate_trigger('attr', '$self', '$value',
+    quote_sub q{ $_[0]{trigger} = $_[1] });
+  my $self = {};
+  my $value = 5;
+  eval $code;
+  is $self->{trigger}, 5, 'trigger from quoted sub code works';
+  is_deeply $cap, {}, 'trigger from quoted sub has no captures';
+}
+
+{
+  my ($code, $cap) = $gen->generate_isa_check('attr', '$value',
+    quote_sub q{ die "bad value: $_[0]" unless $_[0] && $_[0] == 5 });
+  my $value = 4;
+  eval $code;
+  like $@, qr/bad value: 4/, 'isa from quoted sub code works';
+  is_deeply $cap, {}, 'isa from quoted sub has no captures';
+}
+
 my $foo = Foo->new;
 $foo->{one} = 1;
 
