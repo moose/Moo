@@ -58,6 +58,7 @@ Foo::four();
 my $quoted2 = quoted_from_sub(\&Foo::four);
 is $quoted2->[1], undef,
   "can't get quoted from installed sub after undefer";
+undef $quoted;
 
 my $broken_quoted = quote_sub q{
   return 5$;
@@ -75,5 +76,22 @@ is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in q
   no strict 'refs';
   is exception { quote_sub(q{ my $foo = "some_variable"; $$foo; })->(); }, undef, 'hints are preserved';
 }
+
+my $foo = quote_sub '{}';
+my $foo2 = quote_sub '{}';
+my $foo_string = "$foo";
+my $foo2_string = "$foo2";
+
+undef $foo;
+is quoted_from_sub($foo_string), undef,
+  "quoted subs don't leak";
+
+Sub::Quote->CLONE;
+ok !exists $Sub::Quote::QUOTED{$foo_string},
+  'CLONE cleans out expired entries';
+
+undef $foo2;
+is quoted_from_sub($foo2_string), undef,
+  "CLONE doesn't strengthen refs";
 
 done_testing;

@@ -84,6 +84,7 @@ sub quote_sub {
     unquote_sub($quoted_info->[4]);
   };
   $quoted_info = [ $name, $code, $captures, undef, $deferred ];
+  weaken($quoted_info->[4]);
   weaken($QUOTED{$deferred} = $quoted_info);
   return $deferred;
 }
@@ -95,6 +96,8 @@ sub quoted_from_sub {
 
 sub unquote_sub {
   my ($sub) = @_;
+  return undef
+    unless $QUOTED{$sub};
   unless ($QUOTED{$sub}[3]) {
     my ($name, $code, $captures) = @{$QUOTED{$sub}};
 
