@@ -15,8 +15,6 @@ our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);
 
 our %QUOTED;
 
-our %WEAK_REFS;
-
 sub perlstring {
   defined $_[0] ? qq["\Q$_[0]\E"] : '0';
 }
