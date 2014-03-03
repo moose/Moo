@@ -77,31 +77,39 @@ is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in q
   is exception { quote_sub(q{ my $foo = "some_variable"; $$foo; })->(); }, undef, 'hints are preserved';
 }
 
-my $foo = quote_sub '{}';
-my $foo2 = quote_sub '{}';
-my $foo_string = "$foo";
-my $foo2_string = "$foo2";
+{
+  my $foo = quote_sub '{}';
+  my $foo_string = "$foo";
+  undef $foo;
 
-undef $foo;
-is quoted_from_sub($foo_string), undef,
-  "quoted subs don't leak";
+  is quoted_from_sub($foo_string), undef,
+    "quoted subs don't leak";
 
-Sub::Quote->CLONE;
-ok !exists $Sub::Quote::QUOTED{$foo_string},
-  'CLONE cleans out expired entries';
+  Sub::Quote->CLONE;
+  ok !exists $Sub::Quote::QUOTED{$foo_string},
+    'CLONE cleans out expired entries';
+}
 
-undef $foo2;
-is quoted_from_sub($foo2_string), undef,
-  "CLONE doesn't strengthen refs";
+{
+  my $foo = quote_sub '{}';
+  my $foo_string = "$foo";
+  Sub::Quote->CLONE;
+  undef $foo;
 
-my $foo3 = quote_sub '{}';
-my $foo3_string = "$foo3";
-my $foo3_info = quoted_from_sub($foo3_string);
-undef $foo3;
-is exception { Sub::Quote->CLONE }, undef,
-  'CLONE works when quoted info kept alive externally';
+  is quoted_from_sub($foo_string), undef,
+    "CLONE doesn't strengthen refs";
+}
 
-ok !exists $Sub::Quote::QUOTED{$foo3_string},
-  'CLONE removes expired entries that were kept alive externally';
+{
+  my $foo = quote_sub '{}';
+  my $foo_string = "$foo";
+  my $foo_info = quoted_from_sub($foo_string);
+  undef $foo;
+
+  is exception { Sub::Quote->CLONE }, undef,
+    'CLONE works when quoted info kept alive externally';
+  ok !exists $Sub::Quote::QUOTED{$foo_string},
+    'CLONE removes expired entries that were kept alive externally';
+}
 
 done_testing;
