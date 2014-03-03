@@ -122,8 +122,11 @@ sub inject_real_metaclass_for {
         my $tc = $spec{isa} = do {
           if (my $mapped = $TYPE_MAP{$isa}) {
             my $type = $mapped->();
-            Scalar::Util::blessed($type) && $type->isa("Moose::Meta::TypeConstraint")
-              or die "error inflating attribute '$name' for package '$_[0]': \$TYPE_MAP{$isa} did not return a valid type constraint'";
+            unless ( Scalar::Util::blessed($type)
+                && $type->isa("Moose::Meta::TypeConstraint") ) {
+              die "error inflating attribute '$name' for package '$_[0]': "
+                ."\$TYPE_MAP{$isa} did not return a valid type constraint'";
+            }
             $coerce ? $type->create_child_type(name => $type->name) : $type;
           } else {
             Moose::Meta::TypeConstraint->new(

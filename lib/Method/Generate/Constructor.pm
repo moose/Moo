@@ -147,8 +147,8 @@ sub _generate_args {
         $args = { %{ $_[0] } };
     }
     elsif ( @_ % 2 ) {
-        die "The new() method for $class expects a hash reference or a key/value list."
-                . " You passed an odd number of arguments\n";
+        die "The new() method for $class expects a hash reference or a"
+          . " key/value list. You passed an odd number of arguments\n";
     }
     else {
         $args = {@_};

@@ -23,7 +23,7 @@ sub generate_method {
       };
       $@;
     };
-  
+
     no warnings 'misc';
     die $e if $e; # rethrow
   !;

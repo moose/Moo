@@ -39,7 +39,8 @@ sub _SIGDIE
 sub _die_overwrite
 {
   my ($pkg, $method, $type) = @_;
-  die "You cannot overwrite a locally defined method ($method) with @{[ $type || 'an accessor' ]}";
+  die "You cannot overwrite a locally defined method ($method) with "
+    . ( $type || 'an accessor' );
 }
 
 sub generate_method {
@@ -89,7 +90,8 @@ sub generate_method {
 
   if (exists $spec->{default}) {
     if (ref $spec->{default}) {
-      $self->_validate_codulatable('default', $spec->{default}, "$into->$name", 'or a non-ref');
+      $self->_validate_codulatable('default', $spec->{default}, "$into->$name",
+        'or a non-ref');
     }
   }
 
@@ -216,9 +218,9 @@ sub generate_method {
 
 
     $methods{$asserter} =
-      quote_sub "${into}::${asserter}" => $self->_generate_asserter($name, $spec),
-        delete $self->{captures}
-      ;
+      quote_sub "${into}::${asserter}" =>
+        $self->_generate_asserter($name, $spec),
+        delete $self->{captures};
   }
   \%methods;
 }
@@ -301,12 +303,13 @@ sub _generate_use_default {
   }
   $test." ? \n"
   .$self->_generate_simple_get($me, $name, $spec)."\n:"
-  .($spec->{isa}
-    ? "    do {\n      my \$value = ".$get_value.";\n"
+  .($spec->{isa} ?
+       "    do {\n      my \$value = ".$get_value.";\n"
       ."      ".$self->_generate_isa_check($name, '$value', $spec->{isa}).";\n"
       ."      ".$self->_generate_simple_set($me, $name, $spec, '$value')."\n"
       ."    }\n"
-    : '    ('.$self->_generate_simple_set($me, $name, $spec, $get_value).")\n");
+    : '    ('.$self->_generate_simple_set($me, $name, $spec, $get_value).")\n"
+  );
 }
 
 sub _generate_get_default {
@@ -448,9 +451,8 @@ sub _generate_call_code {
     if (my $captures = $quoted->[2]) {
       my $cap_name = qq{\$${type}_captures_for_}.$self->_sanitize_name($name);
       $self->{captures}->{$cap_name} = \$captures;
-      Sub::Quote::inlinify(
-        $code, $values, Sub::Quote::capture_unroll($cap_name, $captures, 6), $local
-      );
+      Sub::Quote::inlinify($code, $values,
+        Sub::Quote::capture_unroll($cap_name, $captures, 6), $local);
     } else {
       Sub::Quote::inlinify($code, $values, undef, $local);
     }
@@ -483,7 +485,8 @@ sub _generate_populate_set {
                       );
     my $get_value =
       defined($spec->{init_arg})
-        ? "(\n${get_indent}  ${test}\n${get_indent}   ? ${source}\n${get_indent}   : "
+        ? "(\n${get_indent}  ${test}\n"
+            ."${get_indent}   ? ${source}\n${get_indent}   : "
             .$get_default
             ."\n${get_indent})"
         : $get_default;

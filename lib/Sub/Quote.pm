@@ -258,8 +258,8 @@ are ignored.  C<$indent> is the number of spaces to indent the result by.
 
 =head1 CAVEATS
 
-Much of this is just string-based code-generation, and as a result, a few caveats
-apply.
+Much of this is just string-based code-generation, and as a result, a few
+caveats apply.
 
 =head2 return
 
