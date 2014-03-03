@@ -328,7 +328,9 @@ sub _generate_get_default {
 
 sub generate_simple_get {
   my ($self, @args) = @_;
-  $self->_generate_simple_get(@args);
+  $self->{captures} = {};
+  my $code = $self->_generate_simple_get(@args);
+  ($code, delete $self->{captures});
 }
 
 sub _generate_simple_get {
