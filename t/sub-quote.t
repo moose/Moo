@@ -107,6 +107,18 @@ is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in q
   undef $foo;
 
   is exception { Sub::Quote->CLONE }, undef,
+    'CLONE works when quoted info saved externally';
+  ok exists $Sub::Quote::QUOTED{$foo_string},
+    'CLONE keeps entries that had info saved';
+}
+
+{
+  my $foo = quote_sub '{}';
+  my $foo_string = "$foo";
+  my $foo_info = $Sub::Quote::QUOTED{$foo_string};
+  undef $foo;
+
+  is exception { Sub::Quote->CLONE }, undef,
     'CLONE works when quoted info kept alive externally';
   ok !exists $Sub::Quote::QUOTED{$foo_string},
     'CLONE removes expired entries that were kept alive externally';

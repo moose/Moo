@@ -104,7 +104,19 @@ is( $made{'Foo::two_all'}, \&Foo::two_all, 'two_all made by undefer_all' );
   undef $foo;
 
   is exception { Sub::Defer->CLONE }, undef,
-    'CLONE works when info kept alive externally';
+    'CLONE works when quoted info saved externally';
+  ok exists $Sub::Defer::DEFERRED{$foo_string},
+    'CLONE keeps entries that had info saved externally';
+}
+
+{
+  my $foo = defer_sub undef, sub { sub { 'foo' } };
+  my $foo_string = "$foo";
+  my $foo_info = $Sub::Defer::DEFERRED{$foo_string};
+  undef $foo;
+
+  is exception { Sub::Defer->CLONE }, undef,
+    'CLONE works when quoted info kept alive externally';
   ok !exists $Sub::Defer::DEFERRED{$foo_string},
     'CLONE removes expired entries that were kept alive externally';
 }

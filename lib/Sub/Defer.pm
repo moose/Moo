@@ -43,7 +43,8 @@ sub undefer_all {
 
 sub defer_info {
   my ($deferred) = @_;
-  $DEFERRED{$deferred||''};
+  my $info = $DEFERRED{$deferred||''} or return undef;
+  [ @$info ];
 }
 
 sub defer_sub {

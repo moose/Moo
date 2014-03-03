@@ -98,7 +98,8 @@ sub quote_sub {
 
 sub quoted_from_sub {
   my ($sub) = @_;
-  $QUOTED{$sub||''};
+  my $quoted = $QUOTED{$sub||''} || return undef;
+  [ @$quoted ];
 }
 
 sub unquote_sub {
