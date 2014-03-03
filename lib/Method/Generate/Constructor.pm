@@ -203,7 +203,7 @@ Moo->_constructor_maker_for(__PACKAGE__)->register_attribute_specs(
   construction_string => { is => 'lazy' },
   construction_builder => { is => 'bare' },
   subconstructor_handler => { is => 'ro' },
-  package => { is => 'ro' },
+  package => { is => 'bare' },
 );
 
 1;
