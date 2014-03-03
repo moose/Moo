@@ -39,16 +39,22 @@ sub inlinify {
   if ($code =~ s/^(\s*package\s+([a-zA-Z0-9:]+);)//) {
     $do .= $1;
   }
-  my $assign = '';
-  if (my ($code_args) = $code =~ /^\s*my\s*\(([^)]+)\)\s*=\s*\@_;$/s) {
-    if ($code_args ne $args) {
-      $assign = 'my ('.$code_args.') = ('.$args.'); ';
+  if ($code =~ s{(\A\s*|# END quote_sub PRELUDE\n\s*)(^\s*)(my\s*\(([^)]+)\)\s*=\s*\@_;)$}{
+    my ($pre, $indent, $assign, $code_args) = ($1, $2, $3, $4);
+    if ($code_args eq $args) {
+      $pre . $indent . ($local ? 'local ' : '').'@_ = ('.$args.");\n"
+      . $indent . $assign;
     }
+    else {
+      $pre . 'my ('.$code_args.') = ('.$args.'); ';
+    }
+  }mse) {
+    #done
   }
   elsif ($local || $args ne '@_') {
-    $assign = ($local ? 'local ' : '').'@_ = ('.$args.'); ';
+    $do .= ($local ? 'local ' : '').'@_ = ('.$args.'); ';
   }
-  $do.$assign.$code.' }';
+  $do.$code.' }';
 }
 
 sub quote_sub {
@@ -77,7 +83,8 @@ sub quote_sub {
      "    ".perlstring($_)." => ".perlstring($hintshash->{$_}).",",
       keys %$hintshash)
     ."  );\n"
-    ."}\n";
+    ."}\n"
+    ."# END quote_sub PRELUDE\n";
   $code = "$context$code";
   my $quoted_info;
   my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
