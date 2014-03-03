@@ -87,10 +87,13 @@ sub quote_sub {
     ."# END quote_sub PRELUDE\n";
   $code = "$context$code";
   my $quoted_info;
+  my $unquoted;
   my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
+    $unquoted if 0;
     unquote_sub($quoted_info->[4]);
   };
-  $quoted_info = [ $name, $code, $captures, undef, $deferred ];
+  $quoted_info = [ $name, $code, $captures, \$unquoted, $deferred ];
+  weaken($quoted_info->[3]);
   weaken($quoted_info->[4]);
   weaken($QUOTED{$deferred} = $quoted_info);
   return $deferred;
@@ -99,20 +102,21 @@ sub quote_sub {
 sub quoted_from_sub {
   my ($sub) = @_;
   my $quoted = $QUOTED{$sub||''} || return undef;
-  [ @$quoted ];
+  [ @{$quoted}[0 .. 2], ${ $quoted->[3] || \undef }, $quoted->[4] ]
 }
 
 sub unquote_sub {
   my ($sub) = @_;
-  return undef
-    unless $QUOTED{$sub};
-  unless ($QUOTED{$sub}[3]) {
-    my ($name, $code, $captures) = @{$QUOTED{$sub}};
+  my $quoted = $QUOTED{$sub} or return undef;
+  my $unquoted = $quoted->[3] && ${$quoted->[3]};
+  unless ($unquoted) {
+    my ($name, $code, $captures) = @$quoted;
 
     my $make_sub = "{\n";
 
     my %captures = $captures ? %$captures : ();
-    $captures{'$_QUOTED'} = \$QUOTED{$sub};
+    $captures{'$_UNQUOTED'} = \\$unquoted;
+    $captures{'$_QUOTED'} = \$quoted;
     $make_sub .= capture_unroll("\$_[1]", \%captures, 2);
 
     $make_sub .= (
@@ -121,12 +125,13 @@ sub unquote_sub {
           # we're not letting it escape from this scope anyway so there's
           # nothing trying to share it
         ? "  no warnings 'closure';\n  sub ${name} {\n"
-        : "  \$_QUOTED->[3] = sub {\n"
+        : "  \$\$_UNQUOTED = sub {\n"
     );
+    $make_sub .= "  \$_QUOTED if 0;\n";
     $make_sub .= $code;
     $make_sub .= "  }".($name ? '' : ';')."\n";
     if ($name) {
-      $make_sub .= "  \$_QUOTED->[3] = \\&${name}\n";
+      $make_sub .= "  \$\$_UNQUOTED = \\&${name}\n";
     }
     $make_sub .= "}\n1;\n";
     $ENV{SUB_QUOTE_DEBUG} && warn $make_sub;
@@ -142,13 +147,18 @@ sub unquote_sub {
       unless ($success) {
         die "Eval went very, very wrong:\n\n${make_sub}\n\n$e";
       }
+      ${$quoted->[3]} = $unquoted;
+      weaken($QUOTED{$unquoted} = $quoted);
     }
   }
-  $QUOTED{$sub}[3];
+  $unquoted;
 }
 
 sub CLONE {
-  %QUOTED = map { defined $_ && $_->[4] ? ($_->[4] => $_) : () } values %QUOTED;
+  %QUOTED = map { defined $_ ? (
+    $_->[3] && ${$_->[3]} ? (${ $_->[3] } => $_) : (),
+    $_->[4] ? ($_->[4] => $_) : (),
+  ) : () } values %QUOTED;
   weaken($_) for values %QUOTED;
 }
 

@@ -56,8 +56,8 @@ like $quoted->[1], qr/return 5;/,
   'can get quoted from installed sub';
 Foo::four();
 my $quoted2 = quoted_from_sub(\&Foo::four);
-is $quoted2->[1], undef,
-  "can't get quoted from installed sub after undefer";
+like $quoted2->[1], qr/return 5;/,
+  "can still get quoted from installed sub after undefer";
 undef $quoted;
 
 my $broken_quoted = quote_sub q{
@@ -122,6 +122,22 @@ is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in q
     'CLONE works when quoted info kept alive externally';
   ok !exists $Sub::Quote::QUOTED{$foo_string},
     'CLONE removes expired entries that were kept alive externally';
+}
+
+{
+  my $foo = quote_sub '{}';
+  my $foo_string = "$foo";
+  my $sub = unquote_sub $foo;
+  my $sub_string = "$sub";
+
+  Sub::Quote->CLONE;
+
+  ok quoted_from_sub($sub_string),
+    'CLONE maintains entries referenced by unquoted sub';
+
+  undef $sub;
+  ok quoted_from_sub($foo_string)->[3],
+    'unquoted sub still available if quoted sub exists';
 }
 
 done_testing;
