@@ -140,7 +140,7 @@ sub unquote_sub {
 }
 
 sub CLONE {
-  %QUOTED = map { defined $_ ? ($_->[4] => $_) : () } values %QUOTED;
+  %QUOTED = map { defined $_ && $_->[4] ? ($_->[4] => $_) : () } values %QUOTED;
   weaken($_) for values %QUOTED;
 }
 

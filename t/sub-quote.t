@@ -94,4 +94,14 @@ undef $foo2;
 is quoted_from_sub($foo2_string), undef,
   "CLONE doesn't strengthen refs";
 
+my $foo3 = quote_sub '{}';
+my $foo3_string = "$foo3";
+my $foo3_info = quoted_from_sub($foo3_string);
+undef $foo3;
+is exception { Sub::Quote->CLONE }, undef,
+  'CLONE works when quoted info kept alive externally';
+
+ok !exists $Sub::Quote::QUOTED{$foo3_string},
+  'CLONE removes expired entries that were kept alive externally';
+
 done_testing;

@@ -91,4 +91,14 @@ undef $foo2;
 is Sub::Defer::defer_info($foo2_string), undef,
   "CLONE doesn't strengthen refs";
 
+my $foo3 = defer_sub undef, sub { sub { 'foo3' } };
+my $foo3_string = "$foo3";
+my $foo3_info = Sub::Defer::defer_info($foo3_string);
+undef $foo3;
+is exception { Sub::Defer->CLONE }, undef,
+  'CLONE works when info kept alive externally';
+
+ok !exists $Sub::Defer::DEFERRED{$foo3_string},
+  'CLONE removes expired entries that were kept alive externally';
+
 done_testing;

@@ -60,7 +60,7 @@ sub defer_sub {
 }
 
 sub CLONE {
-  %DEFERRED = map { defined $_ ? ($_->[3] => $_) : () } values %DEFERRED;
+  %DEFERRED = map { defined $_ && $_->[3] ? ($_->[3] => $_) : () } values %DEFERRED;
   weaken($_) for values %DEFERRED;
 }
 
