@@ -1,4 +1,5 @@
 package Moo::HandleMoose::FakeMetaClass;
+use strictures 1;
 
 sub DESTROY { }
 
