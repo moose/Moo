@@ -1,14 +1,21 @@
 use strictures 1;
 use Test::More;
 use Test::Fatal;
+use File::Temp;
+
+{
+  package EnsureMooLoaded;
+  use Moo;
+}
 
 # make sure these are really loaded
 no indirect 'fatal';
 no multidimensional;
 no bareword::filehandles;
 
-plan skip_all => "test must be run from git checkout"
-  unless -e '.git';
+my $dir = File::Temp::tempdir( CLEANUP => 1 );
+chdir $dir;
+mkdir '.git';
 
 our %test_hash;
 
