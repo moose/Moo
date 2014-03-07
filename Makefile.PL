@@ -35,10 +35,7 @@ my %META = (
     },
     develop   => {
       requires => { map { $_ => 0 } qw(
-        Class::XSAccessor
         indirect multidimensional bareword::filehandles
-      ) },
-      recommends => { map { $_ => 0 } qw(
         Moose Mouse namespace::clean namespace::autoclean
         MooseX::Types::Common::Numeric
         Type::Tiny
