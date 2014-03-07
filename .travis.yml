@@ -1,6 +1,8 @@
 language: perl
 perl:
   - "5.8"
+  - "5.8.5"
+  - "5.8.5_thr"
   - "5.10"
   - "5.12"
   - "5.14"
@@ -10,10 +12,6 @@ perl:
 matrix:
   include:
     - perl: 5.8.1
-      env: AUTHOR_TESTING=0
-    - perl: 5.8.4
-      env: AUTHOR_TESTING=0
-    - perl: 5.8.4_thr
       env: AUTHOR_TESTING=0
     - perl: 5.18
       env: COVERAGE=1
