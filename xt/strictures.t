@@ -3,19 +3,12 @@ use Test::More;
 use Test::Fatal;
 use File::Temp;
 
-{
-  package EnsureMooLoaded;
-  use Moo;
-}
+$strictures::Smells_Like_VCS = 1;
 
 # make sure these are really loaded
 no indirect 'fatal';
 no multidimensional;
 no bareword::filehandles;
-
-my $dir = File::Temp::tempdir( CLEANUP => 1 );
-chdir $dir;
-mkdir '.git';
 
 our %test_hash;
 
