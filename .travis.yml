@@ -29,8 +29,8 @@ install:
 before_script:
   - coverage-setup
 script:
-  - prove -l $(test-dirs)
-  - MOO_XS_DISABLE=1 prove -l $(test-dirs)
+  - prove -lv $(test-dirs)
+  - MOO_XS_DISABLE=1 prove -lv $(test-dirs)
 after_success:
   - coverage-report
 branches:
