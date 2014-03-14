@@ -388,23 +388,24 @@ sub _handle_constructor {
   my ($me, $to, $role) = @_;
   my $attr_info = $INFO{$role} && $INFO{$role}{attributes};
   return unless $attr_info && @$attr_info;
-  if ($INFO{$to}) {
-    push @{$INFO{$to}{attributes}||=[]}, @$attr_info;
-  } else {
-    # only fiddle with the constructor if the target is a Moo class
-    if ($INC{"Moo.pm"}
-        and my $con = Moo->_constructor_maker_for($to)) {
-      if ( defined ( my $specs = $con->all_attribute_specs ) ) {
-        my @attr_info;
-        push @attr_info, $attr_info->[$_], $attr_info->[$_+1]
-          for grep { ! $specs->{$attr_info->[$_] } }
-              map { 2 * $_ } 0..@{$attr_info}/2-1;
-        $attr_info = \@attr_info;
-        return unless @$attr_info;
-      }
-      # shallow copy of the specs since the constructor will assign an index
-      $con->register_attribute_specs(map ref() ? { %$_ } : $_, @$attr_info);
-    }
+  my $info = $INFO{$to};
+  my $con = $INC{"Moo.pm"} && Moo->_constructor_maker_for($to);
+  my %existing
+    = $info ? @{$info->{attributes} || []}
+    : $con  ? %{$con->all_attribute_specs || {}}
+    : ();
+
+  my @attr_info =
+    map { @{$attr_info}[$_, $_+1] }
+    grep { ! $existing{$attr_info->[$_]} }
+    map { 2 * $_ } 0..@$attr_info/2-1;
+
+  if ($info) {
+    push @{$info->{attributes}||=[]}, @attr_info;
+  }
+  elsif ($con) {
+    # shallow copy of the specs since the constructor will assign an index
+    $con->register_attribute_specs(map ref() ? { %$_ } : $_, @attr_info);
   }
 }
 
