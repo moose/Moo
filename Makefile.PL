@@ -2,15 +2,12 @@ use strict;
 use warnings FATAL => 'all';
 use 5.006;
 
-check_conflicts();
-
 my %META = (
   name => 'Moo',
   license => 'perl_5',
   prereqs => {
     configure => { requires => {
       'ExtUtils::MakeMaker'   => 0,
-      'Dist::CheckConflicts'  => '0.02',
     } },
     build => { requires => {
     } },
@@ -58,9 +55,9 @@ my %META = (
   no_index => {
     directory => [ 't', 'xt' ]
   },
-  Moo::Conflicts->can('conflicts') ? (
-    x_breaks => { Moo::Conflicts->conflicts }
-  ) : (),
+  x_breaks => {
+    'HTML::Restrict' => '== 2.1.5',
+  },
 );
 
 my %MM_ARGS = (
@@ -112,37 +109,3 @@ delete $MM_ARGS{CONFIGURE_REQUIRES}
   if $eumm_version < 6.51_03;
 
 ExtUtils::MakeMaker::WriteMakefile(%MM_ARGS);
-
-# copied from Moose-2.0801/Makefile.PL
-sub check_conflicts {
-    if ( eval { require 'lib/Moo/Conflicts.pm'; 1; } ) {
-        if ( eval { Moo::Conflicts->check_conflicts; 1 } ) {
-            return;
-        }
-        else {
-            my $err = $@;
-            $err =~ s/^/    /mg;
-            warn "***\n$err***\n";
-        }
-    }
-    else {
-        print <<'EOF';
-***
-    Your toolchain doesn't support configure_requires, so
-    Dist::CheckConflicts hasn't been installed yet. You should check for
-    conflicting modules manually using the 'moo-outdated' script that is
-    installed with this distribution once the installation finishes.
-***
-EOF
-    }
-
-    return if $ENV{AUTOMATED_TESTING} || $ENV{NONINTERACTIVE_TESTING};
-
-    # More or less copied from Module::Build
-    return if $ENV{PERL_MM_USE_DEFAULT};
-    return unless -t STDIN && ( -t STDOUT || !( -f STDOUT || -c STDOUT ) );
-    return unless -f 'META.yml';
-
-    sleep 4;
-}
-
