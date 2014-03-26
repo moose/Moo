@@ -41,4 +41,25 @@ is $o->foo, 1, 'superclass attribute has correct value';
 is $o->bar, 2, 'subclass attribute has correct value';
 is $o->built, 1, 'BUILD called correct number of times';
 
+{
+  package ClassE;
+  sub new {
+    return ClassF->new;
+  }
+}
+
+{
+  package ClassF;
+  use Moo;
+  extends 'Moo::Object', 'ClassE';
+}
+
+{
+  my $o = eval { ClassF->new };
+  ok $o,
+    'explicit inheritence from Moo::Object works around broken constructor'
+    or diag $@;
+  isa_ok $o, 'ClassF';
+}
+
 done_testing;
