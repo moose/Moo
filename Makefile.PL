@@ -11,10 +11,16 @@ my %META = (
     } },
     build => { requires => {
     } },
-    test => { requires => {
-      'Test::More'  => 0.94,
-      'Test::Fatal' => 0.003,
-    } },
+    test => {
+      requires => {
+        'Test::More'  => 0.94,
+        'Test::Fatal' => 0.003,
+      },
+      recommends => {
+        'CPAN::Meta::Requirements' => 0,
+        'CPAN::Meta::Check' => '0.007',
+      },
+    },
     runtime => {
       requires => {
         'Class::Method::Modifiers'  => 1.10,  # for RT#80194
@@ -54,7 +60,7 @@ my %META = (
   no_index => {
     directory => [ 't', 'xt' ]
   },
-  x_breaks => {
+  x_breaks => { # add these entries to t/zzz-check-breaks.t
     'HTML::Restrict' => '== 2.1.5',
   },
   x_authority => 'cpan:MSTROUT',
