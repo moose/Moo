@@ -62,4 +62,13 @@ ok exception {
     'imported sub before use Moo not included in inflated metaclass');
 }
 
+{
+  package AnotherMooseRole;
+  use Moose::Role;
+  has attr1 => (is => 'ro');
+}
+
+ok(Moo::Role->is_role('AnotherMooseRole'),
+  'Moose roles are Moo::Role->is_role');
+
 done_testing;
