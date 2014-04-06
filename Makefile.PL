@@ -22,7 +22,6 @@ my %META = (
         'Module::Runtime'           => 0.012, # for RT#74789
         'Role::Tiny'                => 1.003003,
         'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
-        'Dist::CheckConflicts'      => 0.02,
         'Import::Into'              => 1.002,
         'Scalar::Util'              => 0,
       },
