@@ -58,6 +58,7 @@ my %META = (
   x_breaks => {
     'HTML::Restrict' => '== 2.1.5',
   },
+  x_authority => 'cpan:MSTROUT',
 );
 
 my %MM_ARGS = (
