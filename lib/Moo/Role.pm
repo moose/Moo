@@ -118,16 +118,22 @@ sub _maybe_reset_handlemoose {
 
 sub methods_provided_by {
   my ($self, $role) = @_;
+  _load_module($role);
   $self->_inhale_if_moose($role);
   die "${role} is not a Moo::Role" unless $self->is_role($role);
   return $self->SUPER::methods_provided_by($role);
 }
 
+sub is_role {
+  my ($self, $role) = @_;
+  $self->_inhale_if_moose($role);
+  $self->SUPER::is_role($role);
+}
+
 sub _inhale_if_moose {
   my ($self, $role) = @_;
-  _load_module($role);
   my $meta;
-  if (!$self->is_role($role)
+  if (!$self->SUPER::is_role($role)
       and (
         $INC{"Moose.pm"}
         and $meta = Class::MOP::class_of($role)
@@ -247,6 +253,7 @@ sub role_application_steps {
 sub apply_roles_to_package {
   my ($me, $to, @roles) = @_;
   foreach my $role (@roles) {
+    _load_module($role);
     $me->_inhale_if_moose($role);
     die "${role} is not a Moo::Role" unless $me->is_role($role);
   }
@@ -255,6 +262,7 @@ sub apply_roles_to_package {
 
 sub apply_single_role_to_package {
   my ($me, $to, $role) = @_;
+  _load_module($role);
   $me->_inhale_if_moose($role);
   die "${role} is not a Moo::Role" unless $me->is_role($role);
   $me->SUPER::apply_single_role_to_package($to, $role);
@@ -268,6 +276,7 @@ sub create_class_with_roles {
   return $new_name if $Role::Tiny::COMPOSED{class}{$new_name};
 
   foreach my $role (@roles) {
+      _load_module($role);
       $me->_inhale_if_moose($role);
   }
 
