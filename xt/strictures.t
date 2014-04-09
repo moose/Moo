@@ -3,6 +3,7 @@ use Test::More;
 use Test::Fatal;
 use File::Temp;
 
+delete $ENV{PERL_STRICTURES_EXTRA}; # ensure the env doesn't break the tests
 $strictures::Smells_Like_VCS = 1;
 
 # make sure these are really loaded
