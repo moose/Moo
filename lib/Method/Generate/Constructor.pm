@@ -136,6 +136,13 @@ sub generate_method {
   }
   $body .= $self->_check_required($spec);
   $body .= '    my $new = '.$self->construction_string.";\n";
+  $body .= '    my $ref_type = Scalar::Util::reftype($new);'."\n"
+          .'    Carp::croak "Constructor of parent class of '.$into.'"'."\n"
+          .'               ." returned an object based on $ref_type. Moo"'."\n"
+          .'               ." is only compatible with objects based on"'."\n"
+          .'               ." hash references."'."\n"
+          .'      if $ref_type ne "HASH";'."\n"
+    if $self->construction_string =~ /::SUPER::/;
   $body .= $self->_assign_new($spec);
   if ($into->can('BUILD')) {
     $body .= $self->buildall_generator->buildall_body_for(
