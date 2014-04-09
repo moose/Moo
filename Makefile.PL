@@ -62,9 +62,6 @@ my %META = (
 );
 
 my %MM_ARGS = (
-  EXE_FILES => [
-    'bin/moo-outdated',
-  ],
   PREREQ_PM => {
     ($] >= 5.008 ? () : ('Task::Weaken' => 0)),
     ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
