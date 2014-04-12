@@ -17,7 +17,7 @@ our @EXPORT_OK = qw(quotify capture_unroll inlinify);
 our %QUOTED;
 
 sub quotify {
-  defined $_[0] ? qq["\Q$_[0]\E"] : 'undef';
+  defined $_[0] ? qq["\Q$_[0]\E"] : 'undef()';
 }
 
 sub capture_unroll {
@@ -266,7 +266,9 @@ arguments.
 
  my $quoted_value = quotify $value;
 
-Quotes a single scalar value for use in a code string.
+Quotes a single (non-reference) scalar value for use in a code string.  Numbers
+aren't treated specially and will be quoted as strings, but undef will quoted as
+C<undef()>.
 
 =head2 capture_unroll
 
