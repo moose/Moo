@@ -317,9 +317,7 @@ sub _generate_get_default {
   if (exists $spec->{default}) {
     ref $spec->{default}
       ? $self->_generate_call_code($name, 'default', $me, $spec->{default})
-    : defined $spec->{default}
-      ? quotify $spec->{default}
-    : 'undef';
+    : quotify $spec->{default};
   }
   else {
     "${me}->${\$spec->{builder}}"

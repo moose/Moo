@@ -17,7 +17,7 @@ our @EXPORT_OK = qw(quotify capture_unroll inlinify);
 our %QUOTED;
 
 sub quotify {
-  defined $_[0] ? qq["\Q$_[0]\E"] : '0';
+  defined $_[0] ? qq["\Q$_[0]\E"] : 'undef';
 }
 
 sub capture_unroll {
