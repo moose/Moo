@@ -12,10 +12,11 @@ our $VERSION = '1.004002';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);
+our @EXPORT_OK = qw(quotify capture_unroll inlinify);
 
 our %QUOTED;
 
-sub perlstring {
+sub quotify {
   defined $_[0] ? qq["\Q$_[0]\E"] : '0';
 }
 
@@ -26,7 +27,7 @@ sub capture_unroll {
     map {
       /^([\@\%\$])/
         or die "capture key should start with \@, \% or \$: $_";
-      (' ' x $indent).qq{my ${_} = ${1}{${from}->{${\perlstring $_}}};\n};
+      (' ' x $indent).qq{my ${_} = ${1}{${from}->{${\quotify $_}}};\n};
     } keys %$captures
   );
 }
@@ -74,11 +75,11 @@ sub quote_sub {
   my $context
     ="package $package;\n"
     ."BEGIN {\n"
-    ."  \$^H = ".perlstring($hints).";\n"
-    ."  \${^WARNING_BITS} = ".perlstring($bitmask).";\n"
+    ."  \$^H = ".quotify($hints).";\n"
+    ."  \${^WARNING_BITS} = ".quotify($bitmask).";\n"
     ."  \%^H = (\n"
     . join('', map
-     "    ".perlstring($_)." => ".perlstring($hintshash->{$_}).",",
+     "    ".quotify($_)." => ".quotify($hintshash->{$_}).",",
       keys %$hintshash)
     ."  );\n"
     ."}\n"
@@ -260,6 +261,12 @@ version for convenience.
 Takes a string of code, a string of arguments, a string of code which acts as a
 "prelude", and a B<Boolean> representing whether or not to localize the
 arguments.
+
+=head2 quotify
+
+ my $quoted_value = quotify $value;
+
+Quotes a single scalar value for use in a code string.
 
 =head2 capture_unroll
 

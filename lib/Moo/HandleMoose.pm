@@ -2,6 +2,7 @@ package Moo::HandleMoose;
 
 use strictures 1;
 use Moo::_Utils;
+use Sub::Quote qw(quotify);
 
 our %TYPE_MAP;
 
@@ -140,7 +141,7 @@ sub inject_real_metaclass_for {
           $spec{coerce} = 1;
         }
       } elsif ($coerce) {
-        my $attr = perlstring($name);
+        my $attr = quotify($name);
         my $tc = Moose::Meta::TypeConstraint->new(
                    constraint => sub { die "This is not going to work" },
                    inlined => sub {

@@ -2,7 +2,7 @@ package Method::Generate::BuildAll;
 
 use strictures 1;
 use base qw(Moo::Object);
-use Sub::Quote;
+use Sub::Quote qw(quote_sub quotify);
 use Moo::_Utils;
 
 sub generate_method {
@@ -16,7 +16,7 @@ sub generate_method {
 
 sub _handle_subbuild {
   my ($self, $into) = @_;
-  '    if (ref($_[0]) ne '.perlstring($into).') {'."\n".
+  '    if (ref($_[0]) ne '.quotify($into).') {'."\n".
   '      return shift->Moo::Object::BUILDALL(@_)'.";\n".
   '    }'."\n";
 }

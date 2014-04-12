@@ -3,7 +3,7 @@ package Method::Generate::Accessor;
 use strictures 1;
 use Moo::_Utils;
 use base qw(Moo::Object);
-use Sub::Quote;
+use Sub::Quote qw(quote_sub quoted_from_sub quotify);
 use Scalar::Util 'blessed';
 use overload ();
 use Module::Runtime qw(use_module);
@@ -270,12 +270,12 @@ sub generate_simple_has {
 
 sub _generate_simple_has {
   my ($self, $me, $name) = @_;
-  "exists ${me}->{${\perlstring $name}}";
+  "exists ${me}->{${\quotify $name}}";
 }
 
 sub _generate_simple_clear {
   my ($self, $me, $name) = @_;
-  "    delete ${me}->{${\perlstring $name}}\n"
+  "    delete ${me}->{${\quotify $name}}\n"
 }
 
 sub generate_get_default {
@@ -318,7 +318,7 @@ sub _generate_get_default {
     ref $spec->{default}
       ? $self->_generate_call_code($name, 'default', $me, $spec->{default})
     : defined $spec->{default}
-      ? perlstring $spec->{default}
+      ? quotify $spec->{default}
     : 'undef';
   }
   else {
@@ -335,7 +335,7 @@ sub generate_simple_get {
 
 sub _generate_simple_get {
   my ($self, $me, $name) = @_;
-  my $name_str = perlstring $name;
+  my $name_str = quotify $name;
   "${me}->{${name_str}}";
 }
 
@@ -383,8 +383,8 @@ sub generate_coerce {
 
 sub _attr_desc {
   my ($name, $init_arg) = @_;
-  return perlstring($name) if !defined($init_arg) or $init_arg eq $name;
-  return perlstring($name).' (constructor argument: '.perlstring($init_arg).')';
+  return quotify($name) if !defined($init_arg) or $init_arg eq $name;
+  return quotify($name).' (constructor argument: '.quotify($init_arg).')';
 }
 
 sub _generate_coerce {
@@ -420,9 +420,9 @@ sub _generate_die_prefix {
   my ($self, $name, $prefix, $arg, $inside) = @_;
   "do {\n"
   .'  local $Method::Generate::Accessor::CurrentAttribute = {'
-  .'    init_arg => '.(defined $arg ? perlstring($arg) : 'undef') . ",\n"
-  .'    name     => '.perlstring($name).",\n"
-  .'    step     => '.perlstring($prefix).",\n"
+  .'    init_arg => '.(defined $arg ? quotify($arg) : 'undef') . ",\n"
+  .'    name     => '.quotify($name).",\n"
+  .'    step     => '.quotify($prefix).",\n"
   ."  };\n"
   .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
   .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::_SIGDIE;'."\n"
@@ -547,13 +547,13 @@ sub _generate_populate_set {
 
 sub _generate_core_set {
   my ($self, $me, $name, $spec, $value) = @_;
-  my $name_str = perlstring $name;
+  my $name_str = quotify $name;
   "${me}->{${name_str}} = ${value}";
 }
 
 sub _generate_simple_set {
   my ($self, $me, $name, $spec, $value) = @_;
-  my $name_str = perlstring $name;
+  my $name_str = quotify $name;
   my $simple = $self->_generate_core_set($me, $name, $spec, $value);
 
   if ($spec->{weak_ref}) {
@@ -611,7 +611,7 @@ sub _generate_delegation {
   my ($self, $asserter, $target, $args) = @_;
   my $arg_string = do {
     if (@$args) {
-      # I could, I reckon, linearise out non-refs here using perlstring
+      # I could, I reckon, linearise out non-refs here using quotify
       # plus something to check for numbers but I'm unsure if it's worth it
       $self->{captures}{'@curries'} = $args;
       '@curries, @_';

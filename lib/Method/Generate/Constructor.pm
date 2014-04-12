@@ -1,10 +1,10 @@
 package Method::Generate::Constructor;
 
 use strictures 1;
-use Sub::Quote;
+use Sub::Quote qw(quote_sub unquote_sub quotify);
 use base qw(Moo::Object);
 use Sub::Defer;
-use Moo::_Utils qw(_getstash perlstring);
+use Moo::_Utils qw(_getstash);
 
 sub register_attribute_specs {
   my ($self, @new_specs) = @_;
@@ -113,7 +113,7 @@ sub generate_method {
 sub _handle_subconstructor {
   my ($self, $into, $name) = @_;
   if (my $gen = $self->{subconstructor_handler}) {
-    '    if ($class ne '.perlstring($into).') {'."\n".
+    '    if ($class ne '.quotify($into).') {'."\n".
     $gen.
     '    }'."\n";
   } else {
@@ -168,7 +168,7 @@ sub _assign_new {
     $test{$name} = $attr_spec->{init_arg};
   }
   join '', map {
-    my $arg_key = perlstring($test{$_});
+    my $arg_key = quotify($test{$_});
     my $test = "exists \$args->{$arg_key}";
     my $source = "\$args->{$arg_key}";
     my $attr_spec = $spec->{$_};

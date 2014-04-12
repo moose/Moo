@@ -20,7 +20,6 @@ our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
     _get_linear_isa _getstash _install_coderef _name_coderef
     _unimport_coderefs _in_global_destruction _set_loaded
-    perlstring
 );
 
 sub _in_global_destruction ();
@@ -120,10 +119,6 @@ sub _unimport_coderefs {
 
 if ($Config{useithreads}) {
   require Moo::HandleMoose::_TypeMap;
-}
-
-sub perlstring {
-  defined $_[0] ? qq["\Q$_[0]\E"] : '0';
 }
 
 1;
