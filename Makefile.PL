@@ -18,7 +18,6 @@ my %META = (
       },
       recommends => {
         'CPAN::Meta::Requirements' => 0,
-        'CPAN::Meta::Check' => '0.007',
       },
     },
     runtime => {
