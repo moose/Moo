@@ -12,6 +12,7 @@ Revision history for Moo
   - minimise Role::Tiny coupling outside Moo::Role
   - fix calling parent constructor when C3 multiple inheritance is in use
     (such as when combining with DBIx::Class)
+  - return true from Moo::Role->is_role for all Moose roles
 
 1.004002 - 2013-12-31
   - fix type inflation in threads when types are inserted by manually
