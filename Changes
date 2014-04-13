@@ -1,5 +1,6 @@
 Revision history for Moo
 
+1.004_003 - 2014-04-13
   - always maintain source of quoted subs for the lifetime of the sub
   - fix Sub::Quote and Sub::Defer leaking memory
   - Class::XSAccessor is now listed as a recommended prerequisite
