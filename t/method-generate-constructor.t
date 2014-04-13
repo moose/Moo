@@ -66,8 +66,15 @@ is(
 like(
   exception { $gen->register_attribute_specs('seventeen'
       => { is => 'ro', init_arg => undef, required => 1 }) },
-  qr/attribute can't be required with init_arg => undef/,
+  qr/You cannot have a required attribute/,
   'required not allowed with init_arg undef'
+);
+
+is(
+  exception { $gen->register_attribute_specs('eighteen'
+      => { is => 'ro', init_arg => undef, required => 1, default => 'foo' }) },
+  undef,
+  'required allowed with init_arg undef if given a default'
 );
 
 done_testing;

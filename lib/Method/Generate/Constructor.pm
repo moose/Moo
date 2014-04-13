@@ -26,9 +26,16 @@ sub register_attribute_specs {
         }
       }
     }
-    if (exists $new_spec->{init_arg} && !defined $new_spec->{init_arg}
-        && $new_spec->{required}) {
-      die "${name} attribute can't be required with init_arg => undef";
+    if ($new_spec->{required}
+      && !(
+        exists $new_spec->{default}
+        || $new_spec->{builder}
+        || !exists $new_spec->{init_arg}
+        || defined $new_spec->{init_arg}
+      )
+    ) {
+      die "You cannot have a required attribute (${name})"
+        . " without a default, builder, or an init_arg";
     }
     $new_spec->{index} = scalar keys %$specs
       unless defined $new_spec->{index};
