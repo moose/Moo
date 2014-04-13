@@ -8,7 +8,7 @@ use Sub::Defer;
 use Scalar::Util qw(weaken);
 use base qw(Exporter);
 
-our $VERSION = '1.004002';
+our $VERSION = '1.004_003';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub);

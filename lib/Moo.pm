@@ -5,7 +5,7 @@ use Moo::_Utils;
 use Sub::Defer ();
 use Import::Into;
 
-our $VERSION = '1.004002';
+our $VERSION = '1.004_003';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
