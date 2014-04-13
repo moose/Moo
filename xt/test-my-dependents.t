@@ -146,38 +146,65 @@ Mail-GcalReminder           # 0.1
 DBIx-Class-IndexSearch-Dezi # 0.05
 Tak                         # 0.001003
 HTML-Zoom-Parser-HH5P       # 0.002
+Farabi                      # 0.44
+MooX-Types-CLike            # 0.92
+Net-Easypost                # 0.09
+OAuth2-Google-Plus          # 0.02
+Protocol-Star-Linemode      # 1.0.0
+Vim-X                       # 0.2.0
+WWW-eNom                    # v1.2.8 - the internet changes
+WebService-Cryptsy          # 1.008003
+Perinci-CmdLine                       # 0.85 - via SHARYANTO
+Perinci-To-Text                       # 0.22 - via SHARYANTO
+Perinci-Sub-To-Text                   # 0.24 - via SHARYANTO
+Software-Release-Watch                # 0.01 - via SHARYANTO
+Software-Release-Watch-SW-wordpress   # 0.01 - via Software::Release::Watch
 
 # TODO: broken prereqs
 Dancer-Plugin-FontSubset    # 0.1.2 - Font::TTF::Scripts::Name
+App-Unicheck-Modules-MySQL  # 0.02 - DBD::mysql
+Video-PlaybackMachine       # 0.09 - needs X11::FullScreen
+Games-Snake                 # 0.000001 - SDL
+Data-SimplePassword         # 0.10 - Crypt::Random, Math::Pari
+Dancer2-Plugin-Queue        # 0.004 - Dancer2 0.08
+MarpaX-Grammar-GraphViz2    # 1.00 - GraphViz2
+Nitesi                      # 0.0094 - Crypt::Random, Math::Pari
+POEx-ZMQ3                   # 0.060003 - ZMQ::LibZMQ3
+Unicorn-Manager             # 0.006009 - Net::Interface
+Wight-Chart                 # 0.003 - Wight
+Yakuake-Sessions            # 0.11.1 - Net::DBus
+
+# TODO: undeclared prereqs
+Dancer2-Session-PSGI        # 0.002 - Plack 1.0029, gh#1
+Leyland                     # 1.000001 - Plack 1.0029, rt#94678
+Catmandu-Inspire            # v0.24 - Furl
 
 # TODO: broken by perl 5.18
 App-DBCritic                # 0.020 - smartmatch (GH #9)
-App-OS-Detect-MachineCores  # 0.038 - smartmatch (rt#88855)
 Authen-HTTP-Signature       # 0.02 - smartmatch (rt#88854)
 DBICx-Backend-Move          # 1.000010 - smartmatch (rt#88853)
 Ruby-VersionManager         # 0.004003 - smartmatch (rt#88852)
 Text-Keywords               # 0.900 - smartmatch (rt#84339)
 Log-Message-Structured-Stringify-AsSereal   # 0.10 - hash order (GH #1)
 WebService-HabitRPG         # 0.21 - smartmatch (rt#88399)
-App-Rssfilter               # 0.03 - smartmatch (GH #2)
 Net-Icecast2                # 0.005 - hash order via PHP::HTTPBuildQuery (rt#81570)
 POE-Component-ProcTerminator  # 0.03 - hash order via Log::Fu (rt#88851)
+Plugin-Tiny                 # 0.012 - hash order
+Firebase                    # 0.0201 - hash order
 
 # TODO: broken by Regexp::Grammars (perl 5.18)
-Data-Sah        # 0.15
 Language-Expr   # 0.19
 Org-To-HTML     # 0.07 - via Language::Expr
 Perinci-Access-Simple-Server          # 0.12
-Perinci-CmdLine                       # 0.85 - via Data::Sah
-Perinci-To-Text                       # 0.22 - via Data::Sah
-Perinci-Sub-To-Text                   # 0.24 - via Data::Sah
-Finance-Bank-ID-BCA                   # 0.26 - via Perinci::CmdLine
-Software-Release-Watch                # 0.01 - via Data::Sah, Perinci::CmdLine
-Software-Release-Watch-SW-wordpress   # 0.01 - via Software::Release::Watch
 
 # SKIP: invalid prereqs
 Catmandu-Z3950        # 0.03 - ZOOM missing
 Dancer2-Session-JSON  # 0.001 - Dancer2 bad version requirement
+Business-CPI-Gateway-Moip # 0.05 - Business::CPI::Buyer
+Business-OnlinePayment-IPayment # 0.05 - XML::Compile::WSDL11
+WebService-BambooHR   # 0.04 - LWP::Online
+WWW-AdServeApache2-HttpEquiv-1.00r          # 1.01 - unlisted dep Geo::IP
+Apache2-HttpEquiv     # 1.00 - Apache2::Const
 
 # SKIP: misc
 GeoIP2            # 0.040000 - prereq Math::Int128 (requires gcc 4.4)
@@ -196,6 +223,14 @@ Graph-Easy-Marpa        # 2.00 - GraphVis2
 Net-OAuth-LP            # 0.016 - relies on external service
 Message-Passing-ZeroMQ  # 0.007 - external dependency
 Net-Docker              # 0.002003 - external dependency
+App-PerlWatcher-Watcher-FileTail # 0.18 - Linux::Inotify2
+switchman               # 1.05 - Linux::MemInfo
+Juno                    # 0.009 - never finishes
+Zucchini                # 0.0.21 - broken by File::Rsync
+ZMQ-FFI                 # 0.12 - libzmq
+MaxMind-DB-Reader-XS    # 0.060003 - external lib libmaxminddb
+Cave-Wrapper            # 0.01100100 - external program cave
+Tropo                   # 0.16 - openssl >= 1.0.0?
 
 # TODO: broken by Moo change
 Math-Rational-Approx        # RT#84035
