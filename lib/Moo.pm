@@ -145,49 +145,50 @@ sub _accessor_maker_for {
 }
 
 sub _constructor_maker_for {
-  my ($class, $target) = @_;
+  my ($class, $target, $select_super) = @_;
   return unless $MAKERS{$target};
   $MAKERS{$target}{constructor} ||= do {
     require Method::Generate::Constructor;
+    require Sub::Defer;
+    my ($moo_constructor, $con);
 
-    my @parents = reverse @{_get_linear_isa($target)};
-    pop @parents;
-
-    my $con;
-    my %specs =
-      map { $con = $_; %{$_->all_attribute_specs} }
-      map $_->{constructor} || (),
-      map $MAKERS{$_} || (),
-      @parents;
-
-    my $moo_new = Moo::Object->can('new');
-    my $non_moo =
-      grep $_ != $moo_new,
-      map $_ && *$_{CODE} || (),
-      map _getstash($_)->{new},
-      grep !$MAKERS{$_},
-      @parents;
-
+    if ($select_super && $MAKERS{$select_super}) {
+      $moo_constructor = 1;
+      $con = $MAKERS{$select_super}{constructor};
+    } else {
+      my $t_new = $target->can('new');
+      if ($t_new) {
+        if ($t_new == Moo::Object->can('new')) {
+          $moo_constructor = 1;
+        }
+        elsif (my $defer_target = (Sub::Defer::defer_info($t_new)||[])->[0]) {
+          my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
+          if ($MAKERS{$pkg}) {
+            $moo_constructor = 1;
+            $con = $MAKERS{$pkg}{constructor};
+          }
+        }
+      } else {
+        $moo_constructor = 1; # no other constructor, make a Moo one
+      }
+    }
     ($con ? ref($con) : 'Method::Generate::Constructor')
       ->new(
         package => $target,
         accessor_generator => $class->_accessor_maker_for($target),
-        $non_moo ? (
+        $moo_constructor ? (
+          $con ? (construction_string => $con->construction_string) : ()
+        ) : (
           construction_builder => sub {
             '$class->'.$target.'::SUPER::new('
               .($target->can('FOREIGNBUILDARGS') ?
                 '$class->FOREIGNBUILDARGS(@_)' : '@_')
               .')'
           },
-        ) : (
-          $con ? (construction_string => $con->construction_string) : ()
         ),
         subconstructor_handler => (
           '      if ($Moo::MAKERS{$class}) {'."\n"
-          .'        if ($Moo::MAKERS{$class}{constructor}) {'."\n"
-          .'          return $class->'.$target.'::SUPER::new(@_);'."\n"
-          .'        }'."\n"
-          .'        '.$class.'->_constructor_maker_for($class);'."\n"
+          .'        '.$class.'->_constructor_maker_for($class,'.perlstring($target).');'."\n"
           .'        return $class->new(@_)'.";\n"
           .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
           .'        return $meta->new_object($class->BUILDARGS(@_));'."\n"
@@ -195,7 +196,7 @@ sub _constructor_maker_for {
         ),
       )
       ->install_delayed
-      ->register_attribute_specs(%specs)
+      ->register_attribute_specs(%{$con?$con->all_attribute_specs:{}})
   }
 }
 
