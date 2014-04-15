@@ -29,9 +29,9 @@ use Test::More;
 }
 
 my $o = MyClassChild->new(root => 1, left => 2, right => 3, child => 4);
-is $o->root, 1;
-is $o->left, 2;
-is $o->right, 3;
-is $o->child, 4;
+is $o->root, 1, 'constructor populates root class attribute';
+is $o->left, 2, 'constructor populates left parent attribute';
+is $o->right, undef, 'constructor doesn\'t populate right parent attribute';
+is $o->child, 4, 'constructor populates child class attribute';
 
 done_testing;
