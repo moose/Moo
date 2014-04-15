@@ -3,6 +3,7 @@ package Moo;
 use strictures 1;
 use Moo::_Utils;
 use Sub::Defer ();
+use Sub::Quote qw(quotify);
 use Import::Into;
 
 our $VERSION = '1.004_003';
@@ -188,7 +189,7 @@ sub _constructor_maker_for {
         ),
         subconstructor_handler => (
           '      if ($Moo::MAKERS{$class}) {'."\n"
-          .'        '.$class.'->_constructor_maker_for($class,'.perlstring($target).');'."\n"
+          .'        '.$class.'->_constructor_maker_for($class,'.quotify($target).');'."\n"
           .'        return $class->new(@_)'.";\n"
           .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
           .'        return $meta->new_object($class->BUILDARGS(@_));'."\n"
