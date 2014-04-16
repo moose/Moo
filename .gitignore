@@ -11,7 +11,8 @@
 *~
 *#
 .#*
-/Moo-*
+/Moo-*/
+/Moo-*.tar.gz
 /cover_db/
 
 # yes that's right, distar makes it for us
