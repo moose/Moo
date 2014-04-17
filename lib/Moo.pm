@@ -145,32 +145,28 @@ sub _accessor_maker_for {
 }
 
 sub _constructor_maker_for {
-  my ($class, $target, $select_super) = @_;
+  my ($class, $target) = @_;
   return unless $MAKERS{$target};
   $MAKERS{$target}{constructor} ||= do {
     require Method::Generate::Constructor;
     require Sub::Defer;
     my ($moo_constructor, $con);
 
-    if ($select_super && $MAKERS{$select_super}) {
-      $moo_constructor = 1;
-      $con = $MAKERS{$select_super}{constructor};
-    } else {
-      my $t_new = $target->can('new');
-      if ($t_new) {
-        if ($t_new == Moo::Object->can('new')) {
-          $moo_constructor = 1;
-        }
-        elsif (my $defer_target = (Sub::Defer::defer_info($t_new)||[])->[0]) {
-          my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
-          if ($MAKERS{$pkg}) {
-            $moo_constructor = 1;
-            $con = $MAKERS{$pkg}{constructor};
-          }
-        }
-      } else {
-        $moo_constructor = 1; # no other constructor, make a Moo one
+    my $t_new = $target->can('new');
+    if ($t_new) {
+      if ($t_new == Moo::Object->can('new')) {
+        $moo_constructor = 1;
       }
+      elsif (my $defer_target = (Sub::Defer::defer_info($t_new)||[])->[0]) {
+        my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
+        if ($MAKERS{$pkg}) {
+          $moo_constructor = 1;
+          $con = $MAKERS{$pkg}{constructor};
+        }
+      }
+    }
+    else {
+      $moo_constructor = 1; # no other constructor, make a Moo one
     }
     ($con ? ref($con) : 'Method::Generate::Constructor')
       ->new(
