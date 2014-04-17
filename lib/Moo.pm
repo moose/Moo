@@ -2,8 +2,6 @@ package Moo;
 
 use strictures 1;
 use Moo::_Utils;
-use Sub::Defer ();
-use Sub::Quote qw(quotify);
 use Import::Into;
 
 our $VERSION = '1.004_003';
@@ -126,6 +124,7 @@ sub _accessor_maker_for {
   $MAKERS{$target}{accessor} ||= do {
     my $maker_class = do {
       if (my $m = do {
+            require Sub::Defer;
             if (my $defer_target =
                   (Sub::Defer::defer_info($target->can('new'))||[])->[0]
               ) {
@@ -181,7 +180,7 @@ sub _constructor_maker_for {
           $con ? (construction_string => $con->construction_string) : ()
         ) : (
           construction_builder => sub {
-            '$class->'.$target.'::SUPER::new('
+            '$class->next::method('
               .($target->can('FOREIGNBUILDARGS') ?
                 '$class->FOREIGNBUILDARGS(@_)' : '@_')
               .')'
@@ -189,7 +188,10 @@ sub _constructor_maker_for {
         ),
         subconstructor_handler => (
           '      if ($Moo::MAKERS{$class}) {'."\n"
-          .'        '.$class.'->_constructor_maker_for($class,'.quotify($target).');'."\n"
+          .'        if ($Moo::MAKERS{$class}{constructor}) {'."\n"
+          .'          return $class->'.$target.'::SUPER::new(@_);'."\n"
+          .'        }'."\n"
+          .'        '.$class.'->_constructor_maker_for($class);'."\n"
           .'        return $class->new(@_)'.";\n"
           .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
           .'        return $meta->new_object($class->BUILDARGS(@_));'."\n"
