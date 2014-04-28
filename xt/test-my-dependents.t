@@ -19,7 +19,8 @@ END_HELP
 }
 
 use Test::DependentModules qw( test_module );
-use MetaCPAN::API;
+use JSON::PP;
+use HTTP::Tiny;
 use List::Util ();
 use Cwd ();
 use Config;
@@ -35,9 +36,9 @@ $ENV{PERL5LIB} = join($Config{path_sep}, @extra_libs, $ENV{PERL5LIB}||());
 # avoid any modules that depend on these
 my @bad_prereqs = qw(Gtk2 Padre Wx);
 
-my $mcpan = MetaCPAN::API->new;
-my $res = $mcpan->post(
-  '/search/reverse_dependencies/Moo' => {
+my $res = decode_json(HTTP::Tiny->new->post(
+  'http://api.metacpan.org/v0/search/reverse_dependencies/Moo',
+  { content => encode_json({
     query => {
       filtered => {
         query => { "match_all" => {} },
@@ -56,8 +57,8 @@ my $res = $mcpan->post(
     },
     size => 5000,
     fields => ['distribution', 'provides', 'metadata.provides'],
-  },
-);
+  }) },
+)->{content});
 
 my %bad_dist;
 my $sec_reason;
@@ -145,8 +146,6 @@ if ($show) {
 
 plan tests => scalar @modules;
 for my $module (@modules) {
-  local $TODO = $todo_module{$module} || '???'
-    if exists $todo_module{$module};
   SKIP: {
     local $TODO = $todo_module{$module} || '???'
       if exists $todo_module{$module};
@@ -155,7 +154,6 @@ for my $module (@modules) {
     test_module($module);
   }
 }
-
 
 __DATA__
 
