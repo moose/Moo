@@ -21,6 +21,16 @@ END_HELP
 use Test::DependentModules qw( test_module );
 use MetaCPAN::API;
 use List::Util ();
+use Cwd ();
+use Config;
+
+my @extra_libs = do {
+  my @libs = `"$^X" -le"print for \@INC"`;
+  chomp @libs;
+  my %libs; @libs{@libs} = ();
+  map { Cwd::abs_path($_) } grep { !exists $libs{$_} } @INC;
+};
+$ENV{PERL5LIB} = join($Config{path_sep}, @extra_libs, $ENV{PERL5LIB}||());
 
 # avoid any modules that depend on these
 my @bad_prereqs = qw(Gtk2 Padre Wx);
@@ -72,13 +82,10 @@ for my $line (<DATA>) {
 }
 
 my %todo_module;
+my %skip_module;
 my @modules;
 for my $hit (@{ $res->{hits}{hits} }) {
   my $dist = $hit->{fields}{distribution};
-  next
-    if exists $skip{$dist};
-  next
-    if $dist =~ /^(?:Task|Bundle|Acme)-/;
 
   my $module = (sort { length $a <=> length $b || $a cmp $b } do {
     if (my $provides = $hit->{fields}{provides}) {
@@ -94,6 +101,11 @@ for my $hit (@{ $res->{hits}{hits} }) {
   })[0];
   $todo_module{$module} = $todo{$dist}
     if exists $todo{$dist};
+  $skip_module{$module} = $skip{$dist}
+    if exists $skip{$dist};
+  if ($dist =~ /^(Task|Bundle|Acme)-/) {
+    $skip_module{$module} = "not testing $1 dist";
+  }
   push @modules, $module;
   $module;
 }
@@ -112,14 +124,16 @@ elsif ( $pick =~ /^\d+$/ ) {
   Picking $count random dependents to test. Set MOO_TEST_MD=all to test all
   dependents or MOO_TEST_MD=MooX to test extension modules only.
 EOF
-  @modules = (List::Util::shuffle(@modules))[0 .. $count-1];
+  @modules = grep { !exists $skip_modules{$_} } List::Util::shuffle(@modules);
+  @modules = @modules[0 .. $count-1];
 }
 elsif ( $pick ne 'all' ) {
-  my @chosen = split /,/, $ENV{MOO_TEST_MD};
+  my @chosen = split /,/, $pick;
   my %modules = map { $_ => 1 } @modules;
   if (my @unknown = grep { !$modules{$_} } @chosen) {
     die "Unknown modules: @unknown";
   }
+  delete @skip_modules{@chosen};
   @modules = @chosen;
 }
 
@@ -133,7 +147,13 @@ plan tests => scalar @modules;
 for my $module (@modules) {
   local $TODO = $todo_module{$module} || '???'
     if exists $todo_module{$module};
-  test_module($module);
+  SKIP: {
+    local $TODO = $todo_module{$module} || '???'
+      if exists $todo_module{$module};
+    skip "$module - " . ($skip_module{$module} || '???'), 1
+      if exists $skip_module{$module};
+    test_module($module);
+  }
 }
 
 
