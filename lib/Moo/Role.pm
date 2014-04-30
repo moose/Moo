@@ -137,6 +137,7 @@ sub _inhale_if_moose {
       and (
         $INC{"Moose.pm"}
         and $meta = Class::MOP::class_of($role)
+        and ref $meta ne 'Moo::HandleMoose::FakeMetaClass'
         and $meta->isa('Moose::Meta::Role')
       )
       or (
