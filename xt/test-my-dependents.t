@@ -174,11 +174,10 @@ Protocol-Star-Linemode      # 1.0.0
 Vim-X                       # 0.2.0
 WWW-eNom                    # v1.2.8 - the internet changes
 WebService-Cryptsy          # 1.008003
-Perinci-CmdLine                       # 0.85 - via SHARYANTO
-Perinci-To-Text                       # 0.22 - via SHARYANTO
-Perinci-Sub-To-Text                   # 0.24 - via SHARYANTO
-Software-Release-Watch                # 0.01 - via SHARYANTO
-Software-Release-Watch-SW-wordpress   # 0.01 - via Software::Release::Watch
+Dancer2-Plugin-REST         # 0.21
+Config-GitLike              # 1.13
+WWW-ThisIsMyJam             # v0.1.0
+Dancer2-Session-JSON        # 0.001
 
 # TODO: broken prereqs
 Dancer-Plugin-FontSubset    # 0.1.2 - Font::TTF::Scripts::Name
@@ -193,10 +192,16 @@ POEx-ZMQ3                   # 0.060003 - ZMQ::LibZMQ3
 Unicorn-Manager             # 0.006009 - Net::Interface
 Wight-Chart                 # 0.003 - Wight
 Yakuake-Sessions            # 0.11.1 - Net::DBus
+Jedi-Plugin-Auth            # 0.01 - Jedi
+Minilla                     # v0.14.1
+Perinci-CmdLine                       # 0.85 - via SHARYANTO
+Perinci-To-Text                       # 0.22 - via SHARYANTO
+Perinci-Sub-To-Text                   # 0.24 - via SHARYANTO
+Software-Release-Watch                # 0.01 - via SHARYANTO
+Software-Release-Watch-SW-wordpress   # 0.01 - via Software::Release::Watch
+Org-To-HTML                 # 0.11 - via Perinci::*
 
 # TODO: undeclared prereqs
-Dancer2-Session-PSGI        # 0.002 - Plack 1.0029, gh#1
-Leyland                     # 1.000001 - Plack 1.0029, rt#94678
 Catmandu-Inspire            # v0.24 - Furl
 
 # TODO: broken by perl 5.18
@@ -205,7 +210,6 @@ Authen-HTTP-Signature       # 0.02 - smartmatch (rt#88854)
 DBICx-Backend-Move          # 1.000010 - smartmatch (rt#88853)
 Ruby-VersionManager         # 0.004003 - smartmatch (rt#88852)
 Text-Keywords               # 0.900 - smartmatch (rt#84339)
-Log-Message-Structured-Stringify-AsSereal   # 0.10 - hash order (GH #1)
 WebService-HabitRPG         # 0.21 - smartmatch (rt#88399)
 Net-Icecast2                # 0.005 - hash order via PHP::HTTPBuildQuery (rt#81570)
 POE-Component-ProcTerminator  # 0.03 - hash order via Log::Fu (rt#88851)
@@ -217,16 +221,19 @@ Language-Expr   # 0.19
 Org-To-HTML     # 0.07 - via Language::Expr
 Perinci-Access-Simple-Server          # 0.12
 
-# SKIP: invalid prereqs
+# TODO: invalid prereqs
 Catmandu-Z3950        # 0.03 - ZOOM missing
 Dancer2-Session-JSON  # 0.001 - Dancer2 bad version requirement
 Business-CPI-Gateway-Moip # 0.05 - Business::CPI::Buyer
 Business-OnlinePayment-IPayment # 0.05 - XML::Compile::WSDL11
 WebService-BambooHR   # 0.04 - LWP::Online
-WWW-AdServeApache2-HttpEquiv-1.00r          # 1.01 - unlisted dep Geo::IP
-Apache2-HttpEquiv     # 1.00 - Apache2::Const
+WWW-AdServeApache2-HttpEquiv # 1.00r - unlisted dep Geo::IP
+WWW-AdServer          # 1.01 - unlisted dep Geo::IP
+CatalystX-Usul        # 0.17.1 - issues in prereq chain
+Dancer2-Template-Haml # 0.04 - unlisted dep Text::Haml
 
 # SKIP: misc
+Apache2-HttpEquiv     # 1.00 - prereq Apache2::Const
 GeoIP2            # 0.040000 - prereq Math::Int128 (requires gcc 4.4)
 Graphics-Potrace  # 0.72 - external dependency
 GraphViz2         # 2.19 - external dependency
