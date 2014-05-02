@@ -31,6 +31,6 @@ done_testing;
 __END__
 
 without namespace::clean, gives the (non-fatal) warning:
-You are overwriting a locally defined function (message) with an accessor at /Users/ether/.perlbrew/libs/19.11@std/lib/perl5/darwin-2level/Moose/Meta/Attribute.pm line 1049.
+You are overwriting a locally defined function (message) with an accessor
 
 ...because Moose::Util::TypeConstraints exports a 'message' sub!
