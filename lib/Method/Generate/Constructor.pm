@@ -2,7 +2,6 @@ package Method::Generate::Constructor;
 
 use strictures 1;
 use Sub::Quote qw(quote_sub unquote_sub quotify);
-use base qw(Moo::Object);
 use Sub::Defer;
 use Moo::_Utils qw(_getstash);
 
@@ -201,7 +200,13 @@ sub _check_required {
 }
 
 use Moo;
-Moo->_constructor_maker_for(__PACKAGE__)->register_attribute_specs(
+# bootstrap our own constructor
+sub new {
+  my $class = shift;
+  bless $class->BUILDARGS(@_), $class;
+}
+Moo->_constructor_maker_for(__PACKAGE__)
+->register_attribute_specs(
   attribute_specs => {
     is => 'ro',
     reader => 'all_attribute_specs',
