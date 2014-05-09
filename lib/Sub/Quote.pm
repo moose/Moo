@@ -38,7 +38,7 @@ sub inlinify {
   if ($code =~ s/^(\s*package\s+([a-zA-Z0-9:]+);)//) {
     $do .= $1;
   }
-  if ($code =~ s{(\A\s*|# END quote_sub PRELUDE\n\s*)(^\s*)(my\s*\(([^)]+)\)\s*=\s*\@_;)$}{
+  if ($code =~ s{(\A\s*|\A# BEGIN quote_sub PRELUDE\n.*?# END quote_sub PRELUDE\n\s*)(^\s*)(my\s*\(([^)]+)\)\s*=\s*\@_;)$}{
     my ($pre, $indent, $assign, $code_args) = ($1, $2, $3, $4);
     if ($code_args eq $args) {
       $pre . $indent . ($local ? 'local ' : '').'@_ = ('.$args.");\n"
@@ -73,7 +73,8 @@ sub quote_sub {
   my $name = $_[0];
   my ($package, $hints, $bitmask, $hintshash) = (caller(0))[0,8,9,10];
   my $context
-    ="package $package;\n"
+    ="# BEGIN quote_sub PRELUDE\n"
+    ."package $package;\n"
     ."BEGIN {\n"
     ."  \$^H = ".quotify($hints).";\n"
     ."  \${^WARNING_BITS} = ".quotify($bitmask).";\n"
