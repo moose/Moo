@@ -140,4 +140,18 @@ is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in q
     'unquoted sub still available if quoted sub exists';
 }
 
+{
+  my $foo = quote_sub '{}';
+  my $foo_string = "$foo";
+  my $foo2 = unquote_sub $foo;
+  undef $foo;
+
+  my $foo_info = Sub::Quote::quoted_from_sub($foo_string);
+  is $foo_info, undef,
+    'quoted data not maintained for quoted sub deleted after being unquoted';
+
+  is quoted_from_sub($foo2)->[3], $foo2,
+    'unquoted sub still included in quote info';
+}
+
 done_testing;
