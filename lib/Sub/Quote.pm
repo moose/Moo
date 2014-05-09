@@ -113,14 +113,14 @@ sub quoted_from_sub {
 sub unquote_sub {
   my ($sub) = @_;
   my $quoted = $QUOTED{$sub} or return undef;
-  my $unquoted = $quoted->[3] && ${$quoted->[3]};
-  unless ($unquoted) {
+  my $unquoted = $quoted->[3];
+  unless ($unquoted && $$unquoted) {
     my ($name, $code, $captures) = @$quoted;
 
     my $make_sub = "{\n";
 
     my %captures = $captures ? %$captures : ();
-    $captures{'$_UNQUOTED'} = \\$unquoted;
+    $captures{'$_UNQUOTED'} = \$unquoted;
     $captures{'$_QUOTED'} = \$quoted;
     $make_sub .= capture_unroll("\$_[1]", \%captures, 2);
 
@@ -133,6 +133,7 @@ sub unquote_sub {
         : "  \$\$_UNQUOTED = sub {\n"
     );
     $make_sub .= "  \$_QUOTED if 0;\n";
+    $make_sub .= "  \$_UNQUOTED if 0;\n";
     $make_sub .= $code;
     $make_sub .= "  }".($name ? '' : ';')."\n";
     if ($name) {
@@ -152,11 +153,10 @@ sub unquote_sub {
       unless ($success) {
         die "Eval went very, very wrong:\n\n${make_sub}\n\n$e";
       }
-      ${$quoted->[3]} = $unquoted;
-      weaken($QUOTED{$unquoted} = $quoted);
+      weaken($QUOTED{$$unquoted} = $quoted);
     }
   }
-  $unquoted;
+  $$unquoted;
 }
 
 sub CLONE {
