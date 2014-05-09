@@ -100,8 +100,14 @@ sub quote_sub {
 
 sub quoted_from_sub {
   my ($sub) = @_;
-  my $quoted = $QUOTED{$sub||''} || return undef;
-  [ @{$quoted}[0 .. 2], ${ $quoted->[3] || \undef }, $quoted->[4] ]
+  my $quoted_info = $QUOTED{$sub||''} or return undef;
+  my ($name, $code, $captured, $unquoted, $deferred) = @{$quoted_info};
+  $unquoted &&= $$unquoted;
+  if (($deferred && $deferred eq $sub)
+      || ($unquoted && $unquoted eq $sub)) {
+    return [ $name, $code, $captured, $unquoted, $deferred ];
+  }
+  return undef;
 }
 
 sub unquote_sub {
