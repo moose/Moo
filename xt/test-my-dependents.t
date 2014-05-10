@@ -178,6 +178,8 @@ Dancer2-Plugin-REST         # 0.21
 Config-GitLike              # 1.13
 WWW-ThisIsMyJam             # v0.1.0
 Dancer2-Session-JSON        # 0.001
+App-Kit                     # 0.26 - db test segfaults
+Data-Record-Serialize       # 0.05 - dbi test fails
 
 # TODO: broken prereqs
 Dancer-Plugin-FontSubset    # 0.1.2 - Font::TTF::Scripts::Name
