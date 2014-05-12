@@ -1,5 +1,6 @@
 Revision history for Moo
 
+1.004_004 - 2014-05-12
   - stop internally depending on Moo::Object::new including all inputs in
     constructed object
   - be more careful when munging code for inlining
