@@ -1,5 +1,14 @@
 Revision history for Moo
 
+  - stop internally depending on Moo::Object::new including all inputs in
+    constructed object
+  - be more careful when munging code for inlining
+  - fix maintaining source of quoted sub for lifetime of sub
+  - redo foreign C3 compatibility, fixing constructors without changing behavior
+    for Moo constructors
+  - don't build Moose metaclass when checking Moo classes with ->is_role
+  - include Sub::Name in recommendations metadata
+
 1.004_003 - 2014-04-13
   - always maintain source of quoted subs for the lifetime of the sub
   - fix Sub::Quote and Sub::Defer leaking memory
