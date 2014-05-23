@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - releasing 1.004_004 as stable
+
 1.004_004 - 2014-05-12
   - stop internally depending on Moo::Object::new including all inputs in
     constructed object
