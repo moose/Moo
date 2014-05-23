@@ -6,7 +6,7 @@ use Role::Tiny ();
 use base qw(Role::Tiny);
 use Import::Into;
 
-our $VERSION = '1.004_004';
+our $VERSION = '1.004005';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
