@@ -154,16 +154,24 @@ is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in q
     'unquoted sub still included in quote info';
 }
 
+use Data::Dumper;
 SKIP: {
-  eval { require utf8; } or skip 2, "utf8 pragma not available";
+  my @strings = (0, 1, "a", "\\", "\xFC", "\x{1F4A9}");
+  eval { require utf8; } or skip 2*@strings, "utf8 pragma not available";
   my $eval = eval 'sub { eval $_[0] }';
   my $eval_utf8 = eval 'sub { use utf8; eval $_[0] }';
-  my $string = "\xFC";
-  my $quoted = Sub::Quote::quotify($string);
-  is( $eval->($quoted), $string,
-    'quotify returns same values without utf8 pragma');
-  is( $eval_utf8->($quoted), $string,
-    'quotify returns same values with utf8 pragma');
+  for my $string (@strings) {
+    my $dump = do {
+      local $Data::Dumper::Terse = 1;
+      Data::Dumper::Dumper($string);
+    };
+    $dump =~ s/\s+$//;
+    my $quoted = Sub::Quote::quotify($string);
+    is( $eval->($quoted), $string,
+      "evaling quotify without utf8 pragma returns same value for $dump");
+    is( $eval_utf8->($quoted), $string,
+      "evaling quotify with utf8 pragma returns same value for $dump");
+  }
 }
 
 done_testing;
