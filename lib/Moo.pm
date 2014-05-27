@@ -4,7 +4,7 @@ use strictures 1;
 use Moo::_Utils;
 use Import::Into;
 
-our $VERSION = '1.004005';
+our $VERSION = '1.004006';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
