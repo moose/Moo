@@ -61,7 +61,7 @@ like $quoted2->[1], qr/return 5;/,
 undef $quoted;
 
 my $broken_quoted = quote_sub q{
-  return 5$;
+  return 5<;
 };
 
 like(
