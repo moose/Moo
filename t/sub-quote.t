@@ -162,10 +162,7 @@ my $dump = sub {
   $d;
 };
 
-my $have_utf8 = eval { require utf8; 1 };
-my @strings   = (0, 1, "\x00", "a", "\xFC");
-push @strings, eval q["\x{1F4A9}"]
-  if $have_utf8;
+my @strings   = (0, 1, "\x00", "a", "\xFC", "\x{1F4A9}");
 my $eval = sub { eval Sub::Quote::quotify($_[0])};
 
 my @failed = grep { my $o = $eval->($_); !defined $o || $o ne $_ } @strings;
@@ -174,11 +171,11 @@ ok !@failed, "evaling quotify returns same value for all strings"
   or diag "Failed strings: " . join(' ', map { $dump->($_) } @failed);
 
 SKIP: {
-  skip 1, "utf8 pragma not available"
-    if !$have_utf8;
+  skip "working utf8 pragma not available", 1
+    if $] < 5.008000;
   my $eval_utf8 = eval 'sub { use utf8; eval Sub::Quote::quotify($_[0]) }';
 
-  my @failed_utf8 = grep { my $o = $eval_utf8 ->($_); !defined $o || $o ne $_ }
+  my @failed_utf8 = grep { my $o = $eval_utf8->($_); !defined $o || $o ne $_ }
     @strings;
   ok !@failed_utf8, "evaling quotify under utf8 returns same value for all strings"
     or diag "Failed strings: " . join(' ', map { $dump->($_) } @failed_utf8);
