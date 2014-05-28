@@ -1,5 +1,9 @@
 Revision history for Moo
 
+  - add qsub to Sub::Quote as a prototyped alternative to quote_sub, accepting
+    only the sub body
+  - avoid testing UTF-8 on perl 5.6
+
 1.004006 - 2014-05-27
   - fix quotify for characters in the \x80-\xFF range when used under the utf8
     pragma.  Also fixes some cases of constructor generation with the pragma.
