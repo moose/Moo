@@ -24,7 +24,7 @@ before_install:
   - build-dist
   - cd $BUILD_DIR
 install:
-  - cpan-install ExtUtils::MakeMaker~6.68 git://git.shadowcat.co.uk/gitmo/Role-Tiny.git
+  - cpan-install ExtUtils::MakeMaker~6.68 git://github.com/moose/Role-Tiny
   - cpan-install --deps
   - cpan-install --coverage
 before_script:
