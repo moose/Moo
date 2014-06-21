@@ -12,6 +12,8 @@ perl:
   - "blead"
 matrix:
   include:
+    - perl: 5.6.2
+      env: AUTHOR_TESTING=0
     - perl: 5.8.1
       env: AUTHOR_TESTING=0
     - perl: 5.18
