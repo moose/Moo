@@ -320,8 +320,8 @@ to use them in L<Moose> code without anybody ever noticing you aren't using
 L<Moose> everywhere.
 
 L<Moo> will also create L<Moose type constraints|Moose::Manual::Types> for
-classes and roles, so that C<< isa => 'MyClass' >> and C<< isa => 'MyRole' >>
-work the same as for L<Moose> classes and roles.
+L<Moo> classes and roles, so that in Moose classes C<< isa => 'MyMooClass' >>
+and C<< isa => 'MyMooRole' >> work the same as for L<Moose> classes and roles.
 
 Extending a L<Moose> class or consuming a L<Moose::Role> will also work.
 
