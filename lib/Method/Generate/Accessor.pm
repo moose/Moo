@@ -165,7 +165,7 @@ sub generate_method {
   if (my $pred = $spec->{predicate}) {
     _die_overwrite($into, $pred, 'a predicate')
       if !$spec->{allow_overwrite} && *{_getglob("${into}::${pred}")}{CODE};
-    if (our $CAN_HAZ_XS_PRED) {
+    if (our $CAN_HAZ_XS && our $CAN_HAZ_XS_PRED) {
       $methods{$pred} = $self->_generate_xs(
         exists_predicates => $into, $pred, $name, $spec
       );
