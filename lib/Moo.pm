@@ -571,6 +571,9 @@ check after the coercion has run to ensure that it returned a valid value.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
+If the C<isa> option is a blessed object providing a C<coerce> or
+C<coercion> method, then the C<coerce> option may be set to just C<1>.
+
 =item * handles
 
 Takes a string
