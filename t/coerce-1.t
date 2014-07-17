@@ -1,6 +1,6 @@
 use strictures 1;
 use Test::More;
-use Test::Requires { 'Types::Standard' => '0.008' };
+use Test::Fatal;
 
 {
   package IntConstraint;
@@ -48,34 +48,44 @@ use Test::Requires { 'Types::Standard' => '0.008' };
 {
   package Goo;
   use Moo;
-  use Types::Standard qw( ArrayRef Int Num );
-  
-  has foo => (
-    is      => 'ro',
-    isa     => Int->plus_coercions(Num, q{ int($_) }),
-    coerce  => 1,
-  );
-  
+
+  ::like(::exception {
+    has foo => (
+      is      => 'ro',
+      isa     => sub { $_[0] eq int $_[0] },
+      coerce  => 1,
+    );
+  }, qr/Invalid coercion/,
+    'coerce => 1 not allowed when isa has no coercion');
+
+  ::like(::exception {
+    has foo => (
+      is      => 'ro',
+      isa     => IntConstraint->new,
+      coerce  => 1,
+    );
+  }, qr/Invalid coercion/,
+    'coerce => 1 not allowed when isa has no coercion');
+
   has bar => (
     is      => 'ro',
     isa     => IntConstraint::WithCoercionMethod->new,
     coerce  => 1,
   );
-  
+
   has baz => (
     is      => 'ro',
     isa     => IntConstraint::WithCoerceMethod->new,
     coerce  => 1,
   );
+
 }
 
 my $obj = Goo->new(
-  foo => 3.14159,
   bar => 3.14159,
   baz => 3.14159,
 );
 
-is($obj->foo, '3', 'Type::Tiny example');
 is($obj->bar, '3', '$isa->coercion');
 is($obj->baz, '3', '$isa->coerce');
 
