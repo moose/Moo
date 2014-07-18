@@ -82,6 +82,16 @@ sub generate_method {
   if (($spec->{trigger}||0) eq 1) {
     $spec->{trigger} = quote_sub('shift->_trigger_'.$name.'(@_)');
   }
+  if (($spec->{coerce}||0) eq 1) {
+    my $isa = $spec->{isa};
+    if (blessed $isa and $isa->can('coercion')) {
+      $spec->{coerce} = $isa->coercion;
+    } elsif (blessed $isa and $isa->can('coerce')) {
+      $spec->{coerce} = sub { $isa->coerce(@_) };
+    } else {
+      die "Invalid coercion for $into->$name - no appropriate type constraint";
+    }
+  }
 
   for my $setting (qw( isa coerce )) {
     next if !exists $spec->{$setting};
