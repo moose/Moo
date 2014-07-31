@@ -29,6 +29,18 @@ my $c_ran;
   has fourteen => (is => 'ro', required => 1, builder => '_build_fourteen');
   sub _build_fourteen { {} }
   has fifteen => (is => 'lazy', default => undef);
+
+  # DIE handler was leaking into defaults when coercion is on.
+  has default_with_coerce => (
+      is        => 'rw',
+      coerce    => sub { return $_[0] },
+      default   => sub { eval { die "blah\n" }; return $@; }
+  );
+
+  has default_no_coerce => (
+      is        => 'rw',
+      default   => sub { eval { die "blah\n" }; return $@; }
+  );
 }
 
 sub check {
@@ -70,5 +82,8 @@ is(Foo->new->thirteen, 0, 'eager false non-ref default');
 my $foo = Foo->new;
 is($foo->fifteen, undef, 'undef default');
 ok(exists $foo->{fifteen}, 'undef default is stored');
+
+is( Foo->new->default_with_coerce, "blah\n" );
+is( Foo->new->default_no_coerce,   "blah\n" );
 
 done_testing;
