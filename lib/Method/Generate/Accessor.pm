@@ -397,7 +397,7 @@ sub _attr_desc {
 
 sub _generate_coerce {
   my ($self, $name, $value, $coerce, $init_arg) = @_;
-  $self->_generate_die_prefix(
+  $self->_wrap_attr_exception(
     $name,
     "coercion",
     $init_arg,
@@ -424,23 +424,23 @@ sub generate_isa_check {
   ($code, delete $self->{captures});
 }
 
-sub _generate_die_prefix {
-  my ($self, $name, $prefix, $arg, $inside) = @_;
+sub _wrap_attr_exception {
+  my ($self, $name, $step, $arg, $code) = @_;
   "do {\n"
-  .'  local $Method::Generate::Accessor::CurrentAttribute = {'
-  .'    init_arg => '.(defined $arg ? quotify($arg) : 'undef') . ",\n"
+  .'  local $Method::Generate::Accessor::CurrentAttribute = {'."\n"
+  .'    init_arg => '.quotify($arg).",\n"
   .'    name     => '.quotify($name).",\n"
-  .'    step     => '.quotify($prefix).",\n"
+  .'    step     => '.quotify($step).",\n"
   ."  };\n"
   .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
   .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::_SIGDIE;'."\n"
-  .$inside
+  .$code
   ."}\n"
 }
 
 sub _generate_isa_check {
   my ($self, $name, $value, $check, $init_arg) = @_;
-  $self->_generate_die_prefix(
+  $self->_wrap_attr_exception(
     $name,
     "isa check",
     $init_arg,
