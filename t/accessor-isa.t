@@ -173,4 +173,42 @@ like exception { ClassUsingDeadlyIsa->new(bar => 1) },
 
 ComplexWriter->test_with("isa");
 
+{
+  package ClassWithEvilDestroy;
+  sub new { bless {}, $_[0] }
+  sub DESTROY {
+    eval {
+      # nop
+    };
+  }
+
+  package ClassWithEvilException;
+  use Moo;
+  has foo => (is => 'rw', isa => sub {
+    local $@;
+    die "welp";
+  });
+  has bar => (is => 'rw', isa => sub {
+    my $o = ClassWithEvilDestroy->new;
+    die "welp";
+  });
+  my $error;
+  has baz => (is => 'rw', isa => sub {
+    ::is $@, $error, '$@ unchanged inside isa';
+    1;
+  });
+
+  my $o = ClassWithEvilException->new;
+
+  ::like ::exception { $o->foo(1) }, qr/isa check for "foo" failed:/,
+    'got proper exception with localized $@';
+  ::like ::exception { $o->bar(1) }, qr/isa check for "bar" failed:/,
+    'got proper exception with eval in DESTROY';
+
+  eval { die "blah\n" };
+  $error = $@;
+  $o->baz(1);
+  ::is $@, $error, '$@ unchanged after successful isa';
+}
+
 done_testing;
