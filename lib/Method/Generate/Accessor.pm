@@ -23,19 +23,6 @@ BEGIN {
 
 my $module_name_only = qr/\A$Module::Runtime::module_name_rx\z/;
 
-sub _SIGDIE
-{
-  our ($CurrentAttribute, $OrigSigDie);
-  my $sigdie = $OrigSigDie && $OrigSigDie != \&_SIGDIE
-    ? $OrigSigDie
-    : sub { die $_[0] };
-
-  return $sigdie->(@_) if ref($_[0]);
-
-  my $attr_desc = _attr_desc(@$CurrentAttribute{qw(name init_arg)});
-  $sigdie->("$CurrentAttribute->{step} for $attr_desc failed: $_[0]");
-}
-
 sub _die_overwrite
 {
   my ($pkg, $method, $type) = @_;
@@ -426,15 +413,33 @@ sub generate_isa_check {
 
 sub _wrap_attr_exception {
   my ($self, $name, $step, $arg, $code) = @_;
+  my $prefix = quotify("${step} for "._attr_desc($name, $arg).' failed: ');
   "do {\n"
   .'  local $Method::Generate::Accessor::CurrentAttribute = {'."\n"
   .'    init_arg => '.quotify($arg).",\n"
   .'    name     => '.quotify($name).",\n"
   .'    step     => '.quotify($step).",\n"
   ."  };\n"
-  .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
-  .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::_SIGDIE;'."\n"
-  .$code
+  .'  my $_return;'."\n"
+  .'  my $_error;'."\n"
+  ."  {\n"
+  .'    my $_old_error = $@;'."\n"
+  ."    if (!eval {\n"
+  .'      $@ = $_old_error;'."\n"
+  .'      $_return ='."\n"
+  .'      '.$code.";\n"
+  ."      1;\n"
+  ."    }) {\n"
+  .'      $_error = $@;'."\n"
+  .'      if (!ref $_error) {'."\n"
+  .'        $_error = '.$prefix.'.$_error;'."\n"
+  ."      }\n"
+  ."    }\n"
+  .'    $@ = $_old_error;'."\n"
+  ."  }\n"
+  .'  die $_error if $_error;'."\n"
+  .'  no warnings "void";'."\n"
+  .'  $_return;'."\n"
   ."}\n"
 }
 

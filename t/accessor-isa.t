@@ -154,7 +154,7 @@ is($e->[2], 'isa check', 'step available in isa check');
   my $called;
   local $SIG{__DIE__} = sub { $called++; die $_[0] };
   my $e = exception { Fizz->new(attr_1 => 5) };
-  is($called, 1, '__DIE__ handler called if set')
+  ok($called, '__DIE__ handler called if set')
 }
 
 {
