@@ -388,7 +388,8 @@ sub _generate_coerce {
     $name,
     "coercion",
     $init_arg,
-    $self->_generate_call_code($name, 'coerce', "${value}", $coerce)
+    $self->_generate_call_code($name, 'coerce', "${value}", $coerce),
+    1,
   );
 }
 
@@ -412,7 +413,7 @@ sub generate_isa_check {
 }
 
 sub _wrap_attr_exception {
-  my ($self, $name, $step, $arg, $code) = @_;
+  my ($self, $name, $step, $arg, $code, $want_return) = @_;
   my $prefix = quotify("${step} for "._attr_desc($name, $arg).' failed: ');
   "do {\n"
   .'  local $Method::Generate::Accessor::CurrentAttribute = {'."\n"
@@ -420,13 +421,13 @@ sub _wrap_attr_exception {
   .'    name     => '.quotify($name).",\n"
   .'    step     => '.quotify($step).",\n"
   ."  };\n"
-  .'  my $_return;'."\n"
+  .($want_return ? '  my $_return;'."\n" : '')
   .'  my $_error;'."\n"
   ."  {\n"
   .'    my $_old_error = $@;'."\n"
   ."    if (!eval {\n"
   .'      $@ = $_old_error;'."\n"
-  .'      $_return ='."\n"
+  .($want_return ? '      $_return ='."\n" : '')
   .'      '.$code.";\n"
   ."      1;\n"
   ."    }) {\n"
@@ -438,8 +439,7 @@ sub _wrap_attr_exception {
   .'    $@ = $_old_error;'."\n"
   ."  }\n"
   .'  die $_error if $_error;'."\n"
-  .'  no warnings "void";'."\n"
-  .'  $_return;'."\n"
+  .($want_return ? '  $_return;'."\n" : '')
   ."}\n"
 }
 
