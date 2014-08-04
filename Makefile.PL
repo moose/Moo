@@ -95,7 +95,7 @@ $MM_ARGS{META_ADD} = { 'meta-spec' => { version => 2 }, %META }
 for (qw(configure build test runtime)) {
   my $key = $_ eq 'runtime' ? 'PREREQ_PM' : uc $_.'_REQUIRES';
   my $r = $MM_ARGS{$key} = {
-    %{$META{prereqs}{$_}{requires}},
+    %{$META{prereqs}{$_}{requires} || {}},
     %{delete $MM_ARGS{$key} || {}},
   };
   defined $r->{$_} or delete $r->{$_} for keys %$r;
