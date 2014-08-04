@@ -23,19 +23,6 @@ BEGIN {
 
 my $module_name_only = qr/\A$Module::Runtime::module_name_rx\z/;
 
-sub _SIGDIE
-{
-  our ($CurrentAttribute, $OrigSigDie);
-  my $sigdie = $OrigSigDie && $OrigSigDie != \&_SIGDIE
-    ? $OrigSigDie
-    : sub { die $_[0] };
-
-  return $sigdie->(@_) if ref($_[0]);
-
-  my $attr_desc = _attr_desc(@$CurrentAttribute{qw(name init_arg)});
-  $sigdie->("$CurrentAttribute->{step} for $attr_desc failed: $_[0]");
-}
-
 sub _die_overwrite
 {
   my ($pkg, $method, $type) = @_;
@@ -397,7 +384,7 @@ sub _attr_desc {
 
 sub _generate_coerce {
   my ($self, $name, $value, $coerce, $init_arg) = @_;
-  $self->_generate_die_prefix(
+  $self->_generate_die_prefix_for_return(
     $name,
     "coercion",
     $init_arg,
@@ -424,23 +411,52 @@ sub generate_isa_check {
   ($code, delete $self->{captures});
 }
 
-sub _generate_die_prefix {
+sub _generate_die_prefix_for_return {
   my ($self, $name, $prefix, $arg, $inside) = @_;
-  "do {\n"
-  .'  local $Method::Generate::Accessor::CurrentAttribute = {'
-  .'    init_arg => '.(defined $arg ? quotify($arg) : 'undef') . ",\n"
-  .'    name     => '.quotify($name).",\n"
-  .'    step     => '.quotify($prefix).",\n"
-  ."  };\n"
-  .'  local $Method::Generate::Accessor::OrigSigDie = $SIG{__DIE__};'."\n"
-  .'  local $SIG{__DIE__} = \&Method::Generate::Accessor::_SIGDIE;'."\n"
-  .$inside
-  ."}\n"
+
+  my $qname = quotify($name);
+  my $qarg  = (defined $arg ? quotify($arg) : 'undef');
+  return <<"CODE";
+do {
+  my \$value = eval {
+    $inside
+  };
+  if( ref \$@ ) {
+    die \@_;
+  }
+  elsif( \$@ ) {
+    my \$attr_desc = Method::Generate::Accessor::_attr_desc($qname, $qarg);
+    die "$prefix for \$attr_desc failed: \$@";
+  }
+  \$value;
+}
+CODE
+
+}
+
+sub _generate_die_prefix_for_check {
+  my ($self, $name, $prefix, $arg, $inside) = @_;
+
+  my $qname = quotify($name);
+  my $qarg  = (defined $arg ? quotify($arg) : 'undef');
+  return <<"CODE";
+  eval {
+    $inside
+  };
+  if( ref \$@ ) {
+    die \$@;
+  }
+  elsif( \$@ ) {
+    my \$attr_desc = Method::Generate::Accessor::_attr_desc($qname, $qarg);
+    die "$prefix for \$attr_desc failed: \$@";
+  }
+CODE
+
 }
 
 sub _generate_isa_check {
   my ($self, $name, $value, $check, $init_arg) = @_;
-  $self->_generate_die_prefix(
+  $self->_generate_die_prefix_for_check(
     $name,
     "isa check",
     $init_arg,

@@ -131,9 +131,7 @@ is(LazyFoo->new->less_than_three, 2, 'Correct builder value returned ok');
   has attr1 => (
     is => 'ro',
     isa => sub {
-      no warnings 'once';
-      my $attr = $Method::Generate::Accessor::CurrentAttribute;
-      die bless [@$attr{'name', 'init_arg', 'step'}], 'MyException';
+      die bless [], 'MyException';
     },
     init_arg => 'attr_1',
   );
@@ -146,15 +144,11 @@ is(
   'Exception objects passed though correctly',
 );
 
-is($e->[0], 'attr1', 'attribute name available in isa check');
-is($e->[1], 'attr_1', 'attribute init_arg available in isa check');
-is($e->[2], 'isa check', 'step available in isa check');
-
 {
   my $called;
   local $SIG{__DIE__} = sub { $called++; die $_[0] };
   my $e = exception { Fizz->new(attr_1 => 5) };
-  is($called, 1, '__DIE__ handler called if set')
+  ok($called, '__DIE__ handler called if set')
 }
 
 {
