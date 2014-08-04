@@ -29,6 +29,7 @@ my %META = (
         'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
         'Import::Into'              => 1.002,
         'Scalar::Util'              => 0,
+        'perl'                      => 5.006,
       },
       recommends => {
         'Class::XSAccessor'         => 1.18,
