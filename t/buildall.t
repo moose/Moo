@@ -69,4 +69,10 @@ $o = Sub2->new;
 is(ref($o), 'Sub2', 'Sub2 object constructed');
 is_deeply(\@ran, [ qw(sub2) ], 'BUILD ran');
 
+@ran = ();
+
+$o = Sub2->new(__no_BUILD__ => 1);
+
+is_deeply(\@ran, [], '__no_BUILD__ surpresses BUILD running');
+
 done_testing;
