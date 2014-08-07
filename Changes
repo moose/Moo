@@ -1,5 +1,8 @@
 Revision history for Moo
 
+  - add attribute information to type check errors by trapping with an eval
+    rather than overriding the global __DIE__ handler
+
 1.005000 - 2014-06-10
   - add qsub to Sub::Quote as a prototyped alternative to quote_sub, accepting
     only the sub body
