@@ -227,6 +227,10 @@ __END__
 
 Moo - Minimalist Object Orientation (with Moose compatibility)
 
+=for html
+<a href="https://travis-ci.org/moose/Moo"><img src="https://travis-ci.org/moose/Moo.png" alt="Travis build status"></a>
+<a href="https://coveralls.io/r/moose/Moo?branch=master"><img src="https://coveralls.io/repos/moose/Moo/badge.png" alt="Coveralls coverage status"></a>
+
 =head1 SYNOPSIS
 
  package Cat::Food;
