@@ -495,7 +495,7 @@ The options for C<has> are as follows:
 
 =over 2
 
-=item * is
+=item * C<is>
 
 B<required>, may be C<ro>, C<lazy>, C<rwp> or C<rw>.
 
@@ -518,7 +518,7 @@ This feature comes from L<MooseX::AttributeShortcuts>.
 C<rw> generates a normal getter/setter by defaulting C<accessor> to the
 name of the attribute.
 
-=item * isa
+=item * C<isa>
 
 Takes a coderef which is meant to validate the attribute.  Unlike L<Moose>, Moo
 does not include a basic type system, so instead of doing C<< isa => 'Num' >>,
@@ -555,7 +555,7 @@ Note that this example is purely illustrative; anything that returns a
 L<Moose::Meta::TypeConstraint> object or something similar enough to it to
 make L<Moose> happy is fine.
 
-=item * coerce
+=item * C<coerce>
 
 Takes a coderef which is meant to coerce the attribute.  The basic idea is to
 do something like the following:
@@ -574,7 +574,7 @@ L<Sub::Quote aware|/SUB QUOTE AWARE>
 If the C<isa> option is a blessed object providing a C<coerce> or
 C<coercion> method, then the C<coerce> option may be set to just C<1>.
 
-=item * handles
+=item * C<handles>
 
 Takes a string
 
