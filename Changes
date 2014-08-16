@@ -4,6 +4,8 @@ Revision history for Moo
     if it is an object that supports the coerce or coercion method.
   - add attribute information to type check errors by trapping with an eval
     rather than overriding the global __DIE__ handler
+  - bump Module::Runtime prerequisite to fix error messages when there is a
+    missing module used by a role loaded using 'with' or similar (rt#97669)
 
 1.005000 - 2014-06-10
   - add qsub to Sub::Quote as a prototyped alternative to quote_sub, accepting
