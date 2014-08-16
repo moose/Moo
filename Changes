@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - support coerce => 1 in attributes, taking the coercion from the isa option
+    if it is an object that supports the coerce or coercion method.
   - add attribute information to type check errors by trapping with an eval
     rather than overriding the global __DIE__ handler
 
