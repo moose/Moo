@@ -12,7 +12,7 @@ BEGIN {
   *_HAVE_PERLSTRING = defined &B::perlstring ? sub(){1} : sub(){0};
 }
 
-our $VERSION = '1.005000';
+our $VERSION = '1.006000';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub qsub);
