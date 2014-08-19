@@ -47,7 +47,7 @@ notifications:
     channels:
       - "irc.perl.org#moo-smoke"
     template:
-      - "%{branch}#%{build_number} by %{author}: %{message} (%{build_url})"
+      - "%{repository}#%{build_number} %{branch} by %{author}: %{message} (%{build_url})"
     on_success: change
     on_failure: always
     skip_join: true
