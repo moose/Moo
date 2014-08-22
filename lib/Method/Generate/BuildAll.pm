@@ -1,7 +1,8 @@
 package Method::Generate::BuildAll;
 
 use strictures 1;
-use base qw(Moo::Object);
+use Moo::Object ();
+our @ISA = qw(Moo::Object);
 use Sub::Quote qw(quote_sub quotify);
 use Moo::_Utils;
 
