@@ -6,7 +6,7 @@ sub _clean_eval { eval $_[0] }
 
 use Sub::Defer;
 use Scalar::Util qw(weaken);
-use base qw(Exporter);
+use Exporter qw(import);
 use B ();
 BEGIN {
   *_HAVE_PERLSTRING = defined &B::perlstring ? sub(){1} : sub(){0};
