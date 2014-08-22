@@ -12,7 +12,7 @@ use strictures 1;
 use Module::Runtime qw(use_package_optimistically module_notional_filename);
 
 use Devel::GlobalDestruction ();
-use base qw(Exporter);
+use Exporter qw(import);
 use Moo::_mro;
 use Config;
 

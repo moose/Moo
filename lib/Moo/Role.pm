@@ -3,7 +3,7 @@ package Moo::Role;
 use strictures 1;
 use Moo::_Utils;
 use Role::Tiny ();
-use base qw(Role::Tiny);
+our @ISA = qw(Role::Tiny);
 use Import::Into;
 
 our $VERSION = '1.006000';
