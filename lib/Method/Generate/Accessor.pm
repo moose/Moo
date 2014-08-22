@@ -2,7 +2,8 @@ package Method::Generate::Accessor;
 
 use strictures 1;
 use Moo::_Utils;
-use base qw(Moo::Object);
+use Moo::Object ();
+our @ISA = qw(Moo::Object);
 use Sub::Quote qw(quote_sub quoted_from_sub quotify);
 use Scalar::Util 'blessed';
 use overload ();
