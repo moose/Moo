@@ -1,7 +1,7 @@
 package Sub::Defer;
 
 use strictures 1;
-use base qw(Exporter);
+use Exporter qw(import);
 use Moo::_Utils;
 use Scalar::Util qw(weaken);
 

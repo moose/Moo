@@ -30,6 +30,7 @@ my %META = (
         'Import::Into'              => 1.002,
         'Scalar::Util'              => 0,
         'perl'                      => 5.006,
+        'Exporter'                  => 5.57,  # Import 'import'
       },
       recommends => {
         'Class::XSAccessor'         => 1.18,
