@@ -34,7 +34,7 @@ use Test::More;
 
    sub _bar { 'extended' }
 
-   package A;
+   package First;
 
    use Moo;
    extends 'ConsumesDelegateToBar';
@@ -42,7 +42,7 @@ use Test::More;
 
    has '+_barrer' => ( is => 'rw' );
 
-   package B;
+   package Second;
 
    use Moo;
    extends 'ConsumesDelegateToBar';
@@ -51,7 +51,7 @@ use Test::More;
 
    has '+_barrer' => ( is => 'rw' );
 
-   package D;
+   package Fourth;
 
    use Moo;
    extends 'ConsumesDelegateToBar';
@@ -62,7 +62,7 @@ use Test::More;
       is => 'rw',
       handles => { _baz => 'bar' },
    );
-   package C;
+   package Third;
 
    use Moo;
    extends 'ConsumesDelegateToBar';
@@ -74,12 +74,12 @@ use Test::More;
    );
 }
 
-is(A->new->_bar, 'extended', 'overriding delegate method with role works');
-is(D->new->_bar, 'extended', '... even when you specify other delegates in subclass');
-is(D->new->_baz, 'unextended!', '... and said other delegate still works');
-is(B->new->_bar, 'extended', 'overriding delegate method directly works');
-is(C->new->_bar, 'extended', '... even when you specify other delegates in subclass');
-is(C->new->_baz, 'unextended!', '... and said other delegate still works');
+is(First->new->_bar, 'extended', 'overriding delegate method with role works');
+is(Fourth->new->_bar, 'extended', '... even when you specify other delegates in subclass');
+is(Fourth->new->_baz, 'unextended!', '... and said other delegate still works');
+is(Second->new->_bar, 'extended', 'overriding delegate method directly works');
+is(Third->new->_bar, 'extended', '... even when you specify other delegates in subclass');
+is(Third->new->_baz, 'unextended!', '... and said other delegate still works');
 
 done_testing;
 
