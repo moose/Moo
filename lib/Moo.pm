@@ -150,53 +150,50 @@ sub _constructor_maker_for {
   $MAKERS{$target}{constructor} ||= do {
     require Method::Generate::Constructor;
     require Sub::Defer;
-    my ($moo_constructor, $con);
 
-    my $t_new = $target->can('new');
-    if ($t_new) {
+    my %construct_opts = (
+      package => $target,
+      accessor_generator => $class->_accessor_maker_for($target),
+      subconstructor_handler => (
+        '      if ($Moo::MAKERS{$class}) {'."\n"
+        .'        if ($Moo::MAKERS{$class}{constructor}) {'."\n"
+        .'          return $class->'.$target.'::SUPER::new(@_);'."\n"
+        .'        }'."\n"
+        .'        '.$class.'->_constructor_maker_for($class);'."\n"
+        .'        return $class->new(@_)'.";\n"
+        .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
+        .'        return $meta->new_object('."\n"
+        .'          $class->can("BUILDARGS") ? $class->BUILDARGS(@_)'."\n"
+        .'                      : $class->Moo::Object::BUILDARGS(@_)'."\n"
+        .'        );'."\n"
+        .'      }'."\n"
+      ),
+    );
+
+    my $con;
+    if (my $t_new = $target->can('new')) {
       if ($t_new == Moo::Object->can('new')) {
-        $moo_constructor = 1;
+        # no special constructor needed
       }
       elsif (my $defer_target = (Sub::Defer::defer_info($t_new)||[])->[0]) {
         my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
         if ($MAKERS{$pkg}) {
-          $moo_constructor = 1;
           $con = $MAKERS{$pkg}{constructor};
+          $construct_opts{construction_string} = $con->construction_string
+            if $con;
         }
       }
-    }
-    else {
-      $moo_constructor = 1; # no other constructor, make a Moo one
+      else {
+        $construct_opts{construction_builder} = sub {
+          '$class->next::method('
+            .($target->can('FOREIGNBUILDARGS') ?
+              '$class->FOREIGNBUILDARGS(@_)' : '@_')
+            .')'
+        };
+      }
     }
     ($con ? ref($con) : 'Method::Generate::Constructor')
-      ->new(
-        package => $target,
-        accessor_generator => $class->_accessor_maker_for($target),
-        $moo_constructor ? (
-          $con ? (construction_string => $con->construction_string) : ()
-        ) : (
-          construction_builder => sub {
-            '$class->next::method('
-              .($target->can('FOREIGNBUILDARGS') ?
-                '$class->FOREIGNBUILDARGS(@_)' : '@_')
-              .')'
-          },
-        ),
-        subconstructor_handler => (
-          '      if ($Moo::MAKERS{$class}) {'."\n"
-          .'        if ($Moo::MAKERS{$class}{constructor}) {'."\n"
-          .'          return $class->'.$target.'::SUPER::new(@_);'."\n"
-          .'        }'."\n"
-          .'        '.$class.'->_constructor_maker_for($class);'."\n"
-          .'        return $class->new(@_)'.";\n"
-          .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
-          .'        return $meta->new_object('."\n"
-          .'          $class->can("BUILDARGS") ? $class->BUILDARGS(@_)'."\n"
-          .'                      : $class->Moo::Object::BUILDARGS(@_)'."\n"
-          .'        );'."\n"
-          .'      }'."\n"
-        ),
-      )
+      ->new(%construct_opts)
       ->install_delayed
       ->register_attribute_specs(%{$con?$con->all_attribute_specs:{}})
   }
