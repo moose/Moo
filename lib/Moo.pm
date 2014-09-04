@@ -171,17 +171,16 @@ sub _constructor_maker_for {
     );
 
     my $con;
-    if (my $t_new = $target->can('new')) {
-      if ($t_new == Moo::Object->can('new')) {
+    my @isa = @{mro::get_linear_isa($target)};
+    shift @isa;
+    if (my ($parent_new) = grep { *{_getglob($_.'::new')}{CODE} } @isa) {
+      if ($parent_new eq 'Moo::Object') {
         # no special constructor needed
       }
-      elsif (my $defer_target = (Sub::Defer::defer_info($t_new)||[])->[0]) {
-        my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
-        if ($MAKERS{$pkg}) {
-          $con = $MAKERS{$pkg}{constructor};
-          $construct_opts{construction_string} = $con->construction_string
-            if $con;
-        }
+      elsif (my $makers = $MAKERS{$parent_new}) {
+        $con = $makers->{constructor};
+        $construct_opts{construction_string} = $con->construction_string
+          if $con;
       }
       else {
         $construct_opts{construction_builder} = sub {
