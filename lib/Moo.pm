@@ -3,6 +3,7 @@ package Moo;
 use strictures 1;
 use Moo::_Utils;
 use Import::Into;
+use Exporter::Tiny;
 
 our $VERSION = '1.006000';
 $VERSION = eval $VERSION;
@@ -12,58 +13,26 @@ require Moo::sification;
 our %MAKERS;
 
 sub _install_tracked {
-  my ($target, $name, $code) = @_;
+  my ($target, $name, $code) = @_==2 ? ($_[0]->{into}, @{$_[1]}) : @_;
   $MAKERS{$target}{exports}{$name} = $code;
+  $MAKERS{$target}{not_methods}{"$code"} = $code;
   _install_coderef "${target}::${name}" => "Moo::${name}" => $code;
 }
 
-sub import {
-  my $target = caller;
+our @ISA    = qw( Exporter::Tiny );
+our @EXPORT = qw( extends with has before after around );
+
+sub _exporter_validate_opts {
   my $class = shift;
-  _set_loaded(caller);
-  strictures->import::into(1);
+  my ($globals) = @_;
+  my $target = $globals->{into};
+  die "import into reference not supported" if ref $target;
+  _set_loaded($target);
+  strictures->import::into(2);
   if ($INC{'Role/Tiny.pm'} and Role::Tiny->is_role($target)) {
     die "Cannot import Moo into a role";
   }
   $MAKERS{$target} ||= {};
-  _install_tracked $target => extends => sub {
-    $class->_set_superclasses($target, @_);
-    $class->_maybe_reset_handlemoose($target);
-    return;
-  };
-  _install_tracked $target => with => sub {
-    require Moo::Role;
-    Moo::Role->apply_roles_to_package($target, @_);
-    $class->_maybe_reset_handlemoose($target);
-  };
-  _install_tracked $target => has => sub {
-    my $name_proto = shift;
-    my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
-    if (@_ % 2 != 0) {
-      require Carp;
-      Carp::croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
-        . " attribute(s): even number of arguments expected, got " . scalar @_)
-    }
-    my %spec = @_;
-    foreach my $name (@name_proto) {
-      # Note that when multiple attributes specified, each attribute
-      # needs a separate \%specs hashref
-      my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
-      $class->_constructor_maker_for($target)
-            ->register_attribute_specs($name, $spec_ref);
-      $class->_accessor_maker_for($target)
-            ->generate_method($target, $name, $spec_ref);
-      $class->_maybe_reset_handlemoose($target);
-    }
-    return;
-  };
-  foreach my $type (qw(before after around)) {
-    _install_tracked $target => $type => sub {
-      require Class::Method::Modifiers;
-      _install_modifier($target, $type, @_);
-      return;
-    };
-  }
   return if $MAKERS{$target}{is_class}; # already exported into this package
   my $stash = _getstash($target);
   my @not_methods = map { *$_{CODE}||() } grep !ref($_), values %$stash;
@@ -78,7 +47,73 @@ sub import {
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
+  $globals->{installer} ||= \&_install_tracked;
 }
+
+sub _generate_extends {
+  my $class = shift;
+  my ($name, $args, $globals) = @_;
+  my $target = $globals->{into};
+  sub {
+    $class->_set_superclasses($target, @_);
+    $class->_maybe_reset_handlemoose($target);
+    return;
+  };
+}
+
+sub _generate_with {
+  my $class = shift;
+  my ($name, $args, $globals) = @_;
+  my $target = $globals->{into};
+  sub {
+    require Moo::Role;
+    Moo::Role->apply_roles_to_package($target, @_);
+    $class->_maybe_reset_handlemoose($target);
+  };
+}
+
+sub _generate_has {
+  my $class = shift;
+  my ($name, $args, $globals) = @_;
+  my $target = $globals->{into};
+  my %defaults = map { $_ => $args->{$_} } grep { !/^-/ } keys %$args;
+  sub {
+    my $name_proto = shift;
+    my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
+    if (@_ % 2 != 0) {
+      require Carp;
+      Carp::croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
+        . " attribute(s): even number of arguments expected, got " . scalar @_)
+    }
+    my %spec = (%defaults, @_);
+    foreach my $name (@name_proto) {
+      # Note that when multiple attributes specified, each attribute
+      # needs a separate \%specs hashref
+      my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
+      $class->_constructor_maker_for($target)
+            ->register_attribute_specs($name, $spec_ref);
+      $class->_accessor_maker_for($target)
+            ->generate_method($target, $name, $spec_ref);
+      $class->_maybe_reset_handlemoose($target);
+    }
+    return;
+  };
+}
+
+sub _generate_method_modifier {
+  my $class = shift;
+  my ($name, $args, $globals) = @_;
+  my $target = $globals->{into};
+  sub {
+    require Class::Method::Modifiers;
+    _install_modifier($target, $name, @_);
+    return;
+  };
+}
+
+*_generate_before = \&_generate_method_modifier;
+*_generate_after  = \&_generate_method_modifier;
+*_generate_around = \&_generate_method_modifier;
 
 sub unimport {
   my $target = caller;

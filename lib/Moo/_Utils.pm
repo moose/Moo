@@ -12,10 +12,11 @@ use strictures 1;
 use Module::Runtime qw(use_package_optimistically module_notional_filename);
 
 use Devel::GlobalDestruction ();
-use Exporter qw(import);
+use Exporter::Tiny;
 use Moo::_mro;
 use Config;
 
+our @ISA = qw(Exporter::Tiny);
 our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
     _get_linear_isa _getstash _install_coderef _name_coderef

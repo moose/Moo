@@ -77,7 +77,7 @@ is $bar->foobot, 'beep', 'asserter checks for existence not truth, on false valu
 is $bar->foobar, 'bar', 'asserter checks for existence not truth, on undef ';
 
 ok(my $e = exception {
-  package Baz;
+  package Baz2;  # Baz already used above
   use Moo;
   has foo => ( is => 'ro', handles => 'Robot' );
   sub smash { 1 };
