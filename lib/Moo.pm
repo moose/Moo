@@ -3,7 +3,7 @@ package Moo;
 use strictures 1;
 use Moo::_Utils;
 use Import::Into;
-use Exporter::Tiny;
+use Exporter::Tiny 0.041;
 
 our $VERSION = '1.006000';
 $VERSION = eval $VERSION;
@@ -12,10 +12,14 @@ require Moo::sification;
 
 our %MAKERS;
 
+# This sub just kept for compatibility with other modules that
+# make use of it, e.g. to install wrappers for `has`.
+#
 sub _install_tracked {
-  my ($target, $name, $code) = @_==2 ? ($_[0]->{into}, @{$_[1]}) : @_;
-  $MAKERS{$target}{exports}{$name} = $code;
-  $MAKERS{$target}{not_methods}{"$code"} = $code;
+  my ($target, $name, $code) = @_;
+  $Exporter::Tiny::TRACKED{+__PACKAGE__}{$target}{$name}
+    = $MAKERS{$target}{not_methods}{"$code"}
+    = $code;
   _install_coderef "${target}::${name}" => "Moo::${name}" => $code;
 }
 
@@ -47,7 +51,11 @@ sub _exporter_validate_opts {
   if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
-  $globals->{installer} ||= \&_install_tracked;
+  $globals->{installer} ||= sub {
+    my ($name, $code) = @{ $_[1] };
+    $MAKERS{$target}{not_methods}{"$code"} = $code;
+    _install_coderef "${target}::${name}" => "Moo::${name}" => $code;
+  };
 }
 
 sub _generate_extends {
@@ -114,11 +122,6 @@ sub _generate_method_modifier {
 *_generate_before = \&_generate_method_modifier;
 *_generate_after  = \&_generate_method_modifier;
 *_generate_around = \&_generate_method_modifier;
-
-sub unimport {
-  my $target = caller;
-  _unimport_coderefs($target, $MAKERS{$target});
-}
 
 sub _set_superclasses {
   my $class = shift;

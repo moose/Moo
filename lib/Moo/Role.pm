@@ -22,10 +22,14 @@ our %APPLIED_TO;
 our %APPLY_DEFAULTS;
 our @ON_ROLE_CREATE;
 
+# This sub just kept for compatibility with other modules that
+# make use of it, e.g. to install wrappers for `has`.
+#
 sub _install_tracked {
-  my ($target, $name, $code) = @_==2 ? ($_[0]->{into}, @{$_[1]}) : @_;
-  $INFO{$target}{exports}{$name} = $code;
-  $INFO{$target}{not_methods}{"$code"} = $code;
+  my ($target, $name, $code) = @_;
+  $Exporter::Tiny::TRACKED{+__PACKAGE__}{$target}{$name}
+    = $INFO{$target}{not_methods}{"$code"}
+    = $code;
   _install_coderef "${target}::${name}" => "Moo::Role::${name}" => $code;
 }
 
@@ -58,7 +62,11 @@ sub _exporter_validate_opts {
   $APPLIED_TO{$target} = { $target => undef };
   $_->($target)
     for @ON_ROLE_CREATE;
-  $globals->{installer} ||= \&_install_tracked;
+  $globals->{installer} ||= sub {
+    my ($name, $code) = @{ $_[1] };
+    $INFO{$target}{not_methods}{"$code"} = $code;
+    _install_coderef "${target}::${name}" => "Moo::${name}" => $code;
+  };
 }
 
 sub _generate_with {
@@ -134,11 +142,6 @@ sub meta {
   require Moo::HandleMoose::FakeMetaClass;
   my $class = ref($_[0])||$_[0];
   bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
-}
-
-sub unimport {
-  my $target = caller;
-  _unimport_coderefs($target, $INFO{$target});
 }
 
 sub _maybe_reset_handlemoose {
