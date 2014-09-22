@@ -711,21 +711,21 @@ possible extensibility.
 
  before foo => sub { ... };
 
-See L<< Class::Method::Modifiers/before method(s) => sub { ... } >> for full
+See L<< Class::Method::Modifiers/before method(s) => sub { ... }; >> for full
 documentation.
 
 =head2 around
 
  around foo => sub { ... };
 
-See L<< Class::Method::Modifiers/around method(s) => sub { ... } >> for full
+See L<< Class::Method::Modifiers/around method(s) => sub { ... }; >> for full
 documentation.
 
 =head2 after
 
  after foo => sub { ... };
 
-See L<< Class::Method::Modifiers/after method(s) => sub { ... } >> for full
+See L<< Class::Method::Modifiers/after method(s) => sub { ... }; >> for full
 documentation.
 
 =head1 SUB QUOTE AWARE
