@@ -361,6 +361,14 @@ sub _install_single_modifier {
   _install_modifier(@args);
 }
 
+sub _install_does {
+    my ($me, $to) = @_;
+
+    # If Role::Tiny actually installed the DOES, give it a name
+    my $new = $me->SUPER::_install_does($to) or return;
+    return _name_coderef("${to}::DOES", $new);
+}
+
 sub _handle_constructor {
   my ($me, $to, $role) = @_;
   my $attr_info = $INFO{$role} && $INFO{$role}{attributes};

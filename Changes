@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - Name the ->DOES method installed by Role::Tiny
+
 1.006000 - 2014-08-16
   - support coerce => 1 in attributes, taking the coercion from the isa option
     if it is an object that supports the coerce or coercion method.
