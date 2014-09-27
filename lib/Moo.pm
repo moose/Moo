@@ -929,13 +929,13 @@ to Moo by providing a more Moose-like interface.
 
 Users' IRC: #moose on irc.perl.org
 
-=for html <a href="http://chat.mibbit.com/#moose@irc.perl.org">(click for
-instant chatroom login)</a>
+=for :html
+L<(click for instance chatroom login)|http://chat.mibbit.com/#moose@irc.perl.org>
 
 Development and contribution IRC: #web-simple on irc.perl.org
 
-=for html <a href="http://chat.mibbit.com/#web-simple@irc.perl.org">(click for
-instant chatroom login)</a>
+=for :html
+L<(click for instance chatroom login)|http://chat.mibbit.com/#web-simple@irc.perl.org>
 
 Bugtracker: L<https://rt.cpan.org/Public/Dist/Display.html?Name=Moo>
 
