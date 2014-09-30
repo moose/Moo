@@ -323,7 +323,7 @@ sub apply_roles_to_object {
 
       my $specs = $con_gen->all_attribute_specs;
 
-      my $assign = '';
+      my $assign = "{no warnings 'void';\n";
       my %captures;
       foreach my $name ( keys %attrs ) {
         my $spec = $specs->{$name};
@@ -333,11 +333,12 @@ sub apply_roles_to_object {
           my ($code, $pop_cap)
             = $m->generate_use_default('$_[0]', $name, $spec, $has);
 
-          $assign .= $code;
+          $assign .= $code . ";\n";
           @captures{keys %$has_cap, keys %$pop_cap}
             = (values %$has_cap, values %$pop_cap);
         }
       }
+      $assign .= "}";
       Sub::Quote::quote_sub($assign, \%captures);
     }
     else {

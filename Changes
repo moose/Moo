@@ -5,6 +5,8 @@ Revision history for Moo
     it is loaded by something
   - avoid loading base.pm and just set @ISA manually
   - fix some Pod links to Class::Method::Modifiers
+  - fix applying roles with multiple attributes with defaults to objects
+    (RT#99217)
 
 1.006000 - 2014-08-16
   - support coerce => 1 in attributes, taking the coercion from the isa option

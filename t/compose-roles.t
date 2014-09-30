@@ -114,5 +114,25 @@ like exception {
 }, qr/Can't apply .* missing attr2/,
   'create_class_with_roles accepts attributes for requirements';
 
+{
+  package RoleWith2Attrs;
+  use Moo::Role;
+
+  has attr1 => (is => 'ro', default => -1);
+  has attr2 => (is => 'ro', default => -2);
+}
+
+foreach my $combo (
+  [qw(RoleWithAttr RoleWithAttr2)],
+  [qw(RoleWith2Attrs)],
+) {
+  is exception {
+    my $o = Moo::Role->apply_roles_to_object(
+      EmptyClass->new, @$combo);
+    is($o->attr1, -1, 'first attribute works');
+    is($o->attr2, -2, 'second attribute works');
+  }, undef, "apply_roles_to_object with multiple attrs with defaults (@$combo)";
+}
+
 
 done_testing;
