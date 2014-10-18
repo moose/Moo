@@ -370,6 +370,20 @@ sub _install_does {
     return _name_coderef("${to}::DOES", $new);
 }
 
+sub does_role {
+  my ($proto, $role) = @_;
+  return 1
+    if Role::Tiny::does_role($proto, $role);
+  my $meta;
+  if ($INC{'Moose.pm'}
+      and $meta = Class::MOP::class_of($proto)
+      and ref $meta ne 'Moo::HandleMoose::FakeMetaClass'
+  ) {
+    return $meta->does_role($role);
+  }
+  return 0;
+}
+
 sub _handle_constructor {
   my ($me, $to, $role) = @_;
   my $attr_info = $INFO{$role} && $INFO{$role}{attributes};
