@@ -129,7 +129,8 @@ is(LazyFoo->new->less_than_three, 2, 'Correct builder value returned ok');
     is => 'ro',
     isa => sub {
       no warnings 'once';
-      my $attr = $Method::Generate::Accessor::CurrentAttribute;
+      my ($val, $info) = @_;
+      my $attr = $info;
       die bless [@$attr{'name', 'init_arg', 'step'}], 'MyException';
     },
     init_arg => 'attr_1',

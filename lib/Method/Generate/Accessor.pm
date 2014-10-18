@@ -438,11 +438,13 @@ sub _attr_desc {
 
 sub _generate_coerce {
   my ($self, $name, $value, $coerce, $init_arg) = @_;
-  $self->_wrap_attr_exception(
+  $self->_generate_exception_check(
     $name,
     "coercion",
     $init_arg,
-    $self->_generate_call_code($name, 'coerce', "${value}", $coerce),
+    'coerce',
+    "${value}",
+    $coerce,
     1,
   );
 }
@@ -466,15 +468,17 @@ sub generate_isa_check {
   ($code, delete $self->{captures});
 }
 
-sub _wrap_attr_exception {
-  my ($self, $name, $step, $arg, $code, $want_return) = @_;
-  my $prefix = quotify("${step} for "._attr_desc($name, $arg).' failed: ');
+sub _generate_exception_check {
+  my ($self, $name, $descript, $init_arg, $type, $arg, $code, $want_return) = @_;
+  $arg .= ', {'."\n"
+  .'  init_arg => '.quotify($init_arg).",\n"
+  .'  name     => '.quotify($name).",\n"
+  .'  step     => '.quotify($descript).",\n"
+  ."}";
+  my $call = $self->_generate_call_code($name, $type, $arg, $code);
+
+  my $prefix = quotify("${descript} for "._attr_desc($name, $init_arg).' failed: ');
   "do {\n"
-  .'  local $Method::Generate::Accessor::CurrentAttribute = {'."\n"
-  .'    init_arg => '.quotify($arg).",\n"
-  .'    name     => '.quotify($name).",\n"
-  .'    step     => '.quotify($step).",\n"
-  ."  };\n"
   .($want_return ? '  (my $_return),'."\n" : '')
   .'  (my $_error), (my $_old_error = $@);'."\n"
   ."  (eval {\n"
@@ -493,11 +497,13 @@ sub _wrap_attr_exception {
 
 sub _generate_isa_check {
   my ($self, $name, $value, $check, $init_arg) = @_;
-  $self->_wrap_attr_exception(
+  $self->_generate_exception_check(
     $name,
     "isa check",
     $init_arg,
-    $self->_generate_call_code($name, 'isa_check', $value, $check)
+    'isa_check',
+    "${value}",
+    $check,
   );
 }
 
