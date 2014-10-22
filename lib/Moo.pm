@@ -190,7 +190,10 @@ sub _constructor_maker_for {
           .'        '.$class.'->_constructor_maker_for($class);'."\n"
           .'        return $class->new(@_)'.";\n"
           .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
-          .'        return $meta->new_object($class->BUILDARGS(@_));'."\n"
+          .'        return $meta->new_object('."\n"
+          .'          $class->can("BUILDARGS") ? $class->BUILDARGS(@_)'."\n"
+          .'                      : $class->Moo::Object::BUILDARGS(@_)'."\n"
+          .'        );'."\n"
           .'      }'."\n"
         ),
       )

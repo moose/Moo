@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Fatal;
 
 BEGIN {
   package Parent;
@@ -27,5 +28,28 @@ BEGIN {
 my $obj = Child->new(message => 'custom message');
 
 is($obj->message, 'custom message', 'accessor works');
+
+BEGIN {
+  package NonMooParent;
+  sub new {
+    bless {}, $_[0];
+  }
+}
+BEGIN {
+  package MooChild;
+  use Moo;
+  extends 'NonMooParent';
+  has attr1 => (is => 'ro');
+}
+BEGIN {
+  package MooseChild;
+  use Moose;
+  extends 'MooChild';
+  has attr2 => (is => 'ro');
+}
+
+is exception { MooseChild->new }, undef, 'NonMoo->Moo->Moose(mutable) works';
+MooseChild->meta->make_immutable;
+is exception { MooseChild->new }, undef, 'NonMoo->Moo->Moose(immutable) works';
 
 done_testing;
