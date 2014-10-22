@@ -9,6 +9,7 @@ Revision history for Moo
     (RT#99217)
   - fix Moose inheriting from a Moo class that inherits from a non-M* class
     when the Moose class is not made immutable
+  - fix ->does method on Moose child classes of Moo classes
 
 1.006000 - 2014-08-16
   - support coerce => 1 in attributes, taking the coercion from the isa option
