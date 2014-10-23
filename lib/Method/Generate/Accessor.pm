@@ -425,6 +425,7 @@ sub _wrap_attr_exception {
   .($want_return ? '  my $_return;'."\n" : '')
   .'  my $_error;'."\n"
   ."  {\n"
+  .'    local $SIG{__DIE__};'."\n"
   .'    my $_old_error = $@;'."\n"
   ."    if (!eval {\n"
   .'      $@ = $_old_error;'."\n"
