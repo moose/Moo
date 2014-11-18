@@ -15,17 +15,23 @@ my %made;
 
 my $one_defer = defer_sub 'Foo::one' => sub {
   die "remade - wtf" if $made{'Foo::one'};
-  $made{'Foo::one'} = sub { 'one' }
+  $made{'Foo::one'} = sub { 'one' };
 };
 
-is(threads->create(sub {
+ok(threads->create(sub {
   my $info = Sub::Defer::defer_info($one_defer);
-  $info && $info->[0];
-})->join, 'Foo::one', 'able to retrieve info in thread');
+  my $name = $info && $info->[0] || '[undef]';
+  my $ok = $name eq 'Foo::one';
+  if (!$ok) {
+    print STDERR "#   Bad sub name when undeferring: $name\n";
+  }
+  return $ok ? 1234 : 0;
+})->join == 1234, 'able to retrieve info in thread');
 
-is(threads->create(sub {
+ok(threads->create(sub {
   undefer_sub($one_defer);
-  $made{'Foo::one'} && $made{'Foo::one'} == \&Foo::one && 1234;
-})->join, 1234, 'able to undefer in thread');
+  my $ok = $made{'Foo::one'} && $made{'Foo::one'} == \&Foo::one;
+  return $ok ? 1234 : 0;
+})->join == 1234, 'able to undefer in thread');
 
 done_testing;
