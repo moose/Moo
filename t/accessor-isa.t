@@ -151,10 +151,10 @@ is($e->[1], 'attr_1', 'attribute init_arg available in isa check');
 is($e->[2], 'isa check', 'step available in isa check');
 
 {
-  my $called;
-  local $SIG{__DIE__} = sub { $called++; die $_[0] };
+  my @e;
+  local $SIG{__DIE__} = sub { push @e, $_[0]; die $_[0] };
   my $e = exception { Fizz->new(attr_1 => 5) };
-  ok($called, '__DIE__ handler called if set')
+  is_deeply \@e, [ $e ], '__DIE__ handler called with final error if set';
 }
 
 {
@@ -170,6 +170,15 @@ is($e->[2], 'isa check', 'step available in isa check');
 like exception { ClassUsingDeadlyIsa->new(bar => 1) },
   qr/isa check for "foo" failed: nope/,
   'isa check within isa check produces correct exception';
+
+{
+  my @e;
+  local $SIG{__DIE__} = sub { push @e, $_[0]; die $_[0] };
+  my $e = exception { ClassWithDeadlyIsa->new(foo => 42) };
+  like $e, qr/isa check for "foo" failed: nope/,
+    'isa check produces correct exception with with $SIG{__DIE__} handler';
+  is_deeply \@e, [ $e ], '$SIG{__DIE__} handler is only called with final exception';
+}
 
 ComplexWriter->test_with("isa");
 
