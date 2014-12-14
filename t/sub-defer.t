@@ -1,7 +1,7 @@
 use strictures 1;
 use Test::More;
 use Test::Fatal;
-use Sub::Defer;
+use Sub::Defer qw(defer_sub undefer_sub undefer_all);
 
 my %made;
 

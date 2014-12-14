@@ -107,6 +107,8 @@ return a subroutine which will be goto'ed to on subsequent calls.
 If a name is provided, this also installs the sub as that name - and when
 the subroutine is undeferred will re-install the final version for speed.
 
+Exported by default.
+
 =head2 undefer_sub
 
  my $coderef = undefer_sub \&Foo::name;
@@ -115,6 +117,8 @@ If the passed coderef has been L<deferred|/defer_sub> this will "undefer" it.
 If the passed coderef has not been deferred, this will just return it.
 
 If this is confusing, take a look at the example in the L</SYNOPSIS>.
+
+Exported by default.
 
 =head2 undefer_all
 
@@ -125,6 +129,8 @@ forking environment where child processes would each have to undefer the same
 subs.  By calling this just before you start forking children you can undefer
 all currently deferred subs in the parent so that the children do not have to
 do it.
+
+Exported by default.
 
 =head1 SUPPORT
 
