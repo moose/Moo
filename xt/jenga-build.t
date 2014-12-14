@@ -18,7 +18,7 @@ for my $stack (
       for my $level ( 0..$#$stack ) {
         my $class = join('::',
           'Stack',
-          (map { my $s = $_; $s =~ s/:://g; $s } @{$stack}[0..$level]),
+          (join '_', map { my $s = $_; $s =~ s/:://g; $s } @{$stack}[0..$level]),
           $withattr?'WithAttr':(),
           $immut?'Immut':(),
         );
@@ -53,7 +53,8 @@ for my $stack (
                   if !exists \$_[0]->{initialized_at_build}{'$class'};
               }
               eval { has '+extend_count' => (is => 'rw'); };
-              ::is(\$@, '', 'extending attribute when stacking $class');
+              my \$error = \$@;
+              sub extend_error$level { \$error }
             ";
           }
         }
@@ -88,6 +89,11 @@ for my $stack (
           my $obj = $class->new;
           for my $attr ( keys %{$obj->{initialized_at_build}} ) {
             ok $obj->{initialized_at_build}{$attr}, "$class: attribute in $attr initialized when BUILD called";
+          }
+          if ( my $extend_error = $class->can("extend_error$level") ) {
+            local $TODO = 'welp'
+              if $class =~ /(::|_)Mo.se_Moo(::|$)/;
+            is($class->$extend_error, '', "$class: extending attribute");
           }
           is $obj->builder_count, 1, "$class: attribute builder called once";
           is $obj->extend_count, 1, "$class: extended attribute builder called once";
