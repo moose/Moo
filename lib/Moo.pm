@@ -666,6 +666,9 @@ C<clear_${attr_name}> if your attribute's name does not start with an
 underscore, or C<_clear_${attr_name_without_the_underscore}> if it does.
 This feature comes from L<MooseX::AttributeShortcuts>.
 
+B<NOTE:> If the attribute is C<lazy>, it will be regenerated from C<default> or
+C<builder> the next time it is accessed. If it is not lazy, it will be C<undef>.
+
 =item * C<lazy>
 
 B<Boolean>.  Set this if you want values for the attribute to be grabbed
