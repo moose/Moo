@@ -128,7 +128,9 @@ This will undefer all defered subs in one go.  This can be very useful in a
 forking environment where child processes would each have to undefer the same
 subs.  By calling this just before you start forking children you can undefer
 all currently deferred subs in the parent so that the children do not have to
-do it.
+do it.  Note this may bake the behavior of some subs that were intended to
+calculate their behavior later, so it shouldn't be used midway through a
+module load or class definition.
 
 Exported by default.
 
