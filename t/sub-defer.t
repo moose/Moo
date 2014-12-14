@@ -1,7 +1,7 @@
 use strictures 1;
 use Test::More;
 use Test::Fatal;
-use Sub::Defer qw(defer_sub undefer_sub undefer_all);
+use Sub::Defer qw(defer_sub undefer_sub undefer_all undefer_package);
 
 my %made;
 
@@ -73,6 +73,23 @@ undefer_all();
 
 is( $made{'Foo::one_all'}, \&Foo::one_all, 'one_all made by undefer_all' );
 is( $made{'Foo::two_all'}, \&Foo::two_all, 'two_all made by undefer_all' );
+
+defer_sub 'Bar::one' => sub {
+  $made{'Bar::one'} = sub { 'one' }
+};
+defer_sub 'Bar::two' => sub {
+  $made{'Bar::two'} = sub { 'two' }
+};
+defer_sub 'Bar::Baz::one' => sub {
+  $made{'Bar::Baz::one'} = sub { 'one' }
+};
+
+undefer_package('Bar');
+
+is( $made{'Bar::one'}, \&Bar::one, 'one made by undefer_package' );
+is( $made{'Bar::two'}, \&Bar::two, 'two made by undefer_package' );
+
+is( $made{'Bar::Baz::one'}, undef, 'sub-package not undefered by undefer_package' );
 
 {
   my $foo = defer_sub undef, sub { sub { 'foo' } };

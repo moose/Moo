@@ -1,6 +1,7 @@
 Revision history for Moo
 
   - clarify behavior of clearers for non-lazy attribute defaults
+  - add Sub::Defer::undefer_package to undefer all subs from a given package
 
 1.006001 - 2014-10-22
   - Name the ->DOES method installed by Role::Tiny

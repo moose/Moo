@@ -9,6 +9,7 @@ our $VERSION = '1.006001';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(defer_sub undefer_sub undefer_all);
+our @EXPORT_OK = qw(undefer_package);
 
 our %DEFERRED;
 
@@ -38,6 +39,13 @@ sub undefer_sub {
 
 sub undefer_all {
   undefer_sub($_) for keys %DEFERRED;
+  return;
+}
+
+sub undefer_package {
+  my $package = shift;
+  my @subs = grep { $DEFERRED{$_}[0] =~ /^${package}::[^:]+$/ } keys %DEFERRED;
+  undefer_sub($_) for @subs;
   return;
 }
 
@@ -133,6 +141,14 @@ calculate their behavior later, so it shouldn't be used midway through a
 module load or class definition.
 
 Exported by default.
+
+=head2 undefer_package
+
+  undefer_package($package);
+
+This undefers all defered subs in a package.
+
+Not exported by default.
 
 =head1 SUPPORT
 
