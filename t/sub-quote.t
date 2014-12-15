@@ -2,7 +2,7 @@ use strictures 1;
 use Test::More;
 use Test::Fatal;
 
-use Sub::Quote qw(quote_sub quoted_from_sub unquote_sub qsub capture_unroll);
+use Sub::Quote qw(quote_sub quoted_from_sub unquote_sub qsub capture_unroll inlinify);
 
 our %EVALED;
 
@@ -194,5 +194,59 @@ my $out = eval
   . '[ $x, $y ]';
 is "$@", '', 'capture_unroll produces valid code';
 is_deeply $out, [ 1, 2 ], 'unrolled variables get correct values';
+
+{
+  my $inlined_code = inlinify q{
+    my ($x, $y) = @_;
+
+    [ $x, $y ];
+  }, '$x, $y', $prelude;
+  my $out = eval $inlined_code;
+  is "$@", '', 'inlinify produces valid code'
+    or diag "code:\n$inlined_code";
+  is_deeply $out, [ 1, 2 ], 'inlinified code get correct values';
+  unlike $inlined_code, qr/my \(\$x, \$y\) = \@_;/,
+    "matching variables aren't reassigned";
+}
+
+{
+  no warnings 'once';
+  $Bar::baz = 3;
+  my $inlined_code = inlinify q{
+    package Bar;
+    my ($x, $y) = @_;
+
+    [ $x, $y, our $baz ];
+  }, '$x, $y', $prelude;
+  my $out = eval $inlined_code;
+  is "$@", '', 'inlinify produces valid code'
+    or diag "code:\n$inlined_code";
+  is_deeply $out, [ 1, 2, 3 ], 'inlinified code get correct values';
+  unlike $inlined_code, qr/my \(\$x, \$y\) = \@_;/,
+    "matching variables aren't reassigned";
+}
+
+{
+  my $inlined_code = inlinify q{
+    my ($d, $f) = @_;
+
+    [ $d, $f ];
+  }, '$x, $y', $prelude;
+  my $out = eval $inlined_code;
+  is "$@", '', 'inlinify with unmatched params produces valid code'
+    or diag "code:\n$inlined_code";
+  is_deeply $out, [ 1, 2 ], 'inlinified code get correct values';
+}
+
+{
+  my $inlined_code = inlinify q{
+    my $z = $_[0];
+    $z;
+  }, '$y', $prelude;
+  my $out = eval $inlined_code;
+  is "$@", '', 'inlinify with out @_ produces valid code'
+    or diag "code:\n$inlined_code";
+  is $out, 2, 'inlinified code get correct values';
+}
 
 done_testing;
