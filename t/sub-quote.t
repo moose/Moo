@@ -2,7 +2,7 @@ use strictures 1;
 use Test::More;
 use Test::Fatal;
 
-use Sub::Quote qw(quote_sub quoted_from_sub unquote_sub qsub);
+use Sub::Quote qw(quote_sub quoted_from_sub unquote_sub qsub capture_unroll);
 
 our %EVALED;
 
@@ -183,5 +183,16 @@ SKIP: {
 
 my @stuff = (qsub q{ print "hello"; }, 1, 2);
 is scalar @stuff, 3, 'qsub only accepts a single parameter';
+
+my $captures = {
+  '$x' => \1,
+  '$y' => \2,
+};
+my $prelude = capture_unroll '$captures', $captures, 4;
+my $out = eval
+  $prelude
+  . '[ $x, $y ]';
+is "$@", '', 'capture_unroll produces valid code';
+is_deeply $out, [ 1, 2 ], 'unrolled variables get correct values';
 
 done_testing;
