@@ -66,7 +66,7 @@ my %skip;
 my %todo;
 
 my $hash;
-for my $line (<DATA>) {
+while (my $line = <DATA>) {
   chomp $line;
   next unless $line =~ /\S/;
   if ( $line =~ /^#\s*(\w+)(?::\s*(.*?)\s*)?$/ ) {
