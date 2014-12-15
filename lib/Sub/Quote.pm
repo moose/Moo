@@ -47,17 +47,15 @@ sub inlinify {
   if ($code =~ s{
     \A((?:\#\ BEGIN\ quote_sub\ PRELUDE\n.*?\#\ END\ quote_sub\ PRELUDE\n)?\s*)
     (^\s*)( my \s* \(([^)]+)\) \s* = \s* \@_;)
-  }{
+  }{}xms) {
     my ($pre, $indent, $assign, $code_args) = ($1, $2, $3, $4);
     if ($code_args eq $args) {
-      $pre . $indent . ($local ? 'local ' : '').'@_ = ('.$args.");\n"
+      $do .= $pre . $indent . ($local ? 'local ' : '').'@_ = ('.$args.");\n"
       . $indent . $assign;
     }
     else {
-      $pre . 'my ('.$code_args.') = ('.$args.'); ';
+      $do .= $pre . 'my ('.$code_args.') = ('.$args.'); ';
     }
-  }xmse) {
-    #done
   }
   elsif ($local || $args ne '@_') {
     $do .= ($local ? 'local ' : '').'@_ = ('.$args.'); ';
