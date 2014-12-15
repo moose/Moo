@@ -44,7 +44,10 @@ sub inlinify {
   if ($code =~ s/^(\s*package\s+([a-zA-Z0-9:]+);)//) {
     $do .= $1;
   }
-  if ($code =~ s{(\A\s*|\A# BEGIN quote_sub PRELUDE\n.*?# END quote_sub PRELUDE\n\s*)(^\s*)(my\s*\(([^)]+)\)\s*=\s*\@_;)$}{
+  if ($code =~ s{
+    \A((?:\#\ BEGIN\ quote_sub\ PRELUDE\n.*?\#\ END\ quote_sub\ PRELUDE\n)?\s*)
+    (^\s*)( my \s* \(([^)]+)\) \s* = \s* \@_;)
+  }{
     my ($pre, $indent, $assign, $code_args) = ($1, $2, $3, $4);
     if ($code_args eq $args) {
       $pre . $indent . ($local ? 'local ' : '').'@_ = ('.$args.");\n"
@@ -53,7 +56,7 @@ sub inlinify {
     else {
       $pre . 'my ('.$code_args.') = ('.$args.'); ';
     }
-  }mse) {
+  }xmse) {
     #done
   }
   elsif ($local || $args ne '@_') {
