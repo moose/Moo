@@ -21,6 +21,7 @@ use Sub::Quote;
 my $combined = Moo::Role->create_class_with_roles('One', qw(One::P1 One::P2));
 isa_ok $combined, "One";
 ok $combined->does($_), "Does $_" for qw(One::P1 One::P2);
+ok !$combined->does('One::P3'), 'Does not One::P3';
 
 my $c = $combined->new;
 is $c->one, "one",     "attr default set from class";
