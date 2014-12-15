@@ -2,7 +2,7 @@ use strictures 1;
 use Test::More;
 use Test::Fatal;
 
-use Sub::Quote;
+use Sub::Quote qw(quote_sub quoted_from_sub unquote_sub qsub);
 
 our %EVALED;
 
