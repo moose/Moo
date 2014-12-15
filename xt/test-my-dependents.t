@@ -23,6 +23,7 @@ use JSON::PP;
 use HTTP::Tiny;
 use List::Util ();
 use Cwd ();
+use Getopt::Long ();
 use Config;
 
 my @extra_libs = do {
@@ -32,6 +33,32 @@ my @extra_libs = do {
   map { Cwd::abs_path($_) } grep { !exists $libs{$_} } @INC;
 };
 $ENV{PERL5LIB} = join($Config{path_sep}, @extra_libs, $ENV{PERL5LIB}||());
+
+Getopt::Long::GetOptions(
+  'show'        => \(my $show),
+  'all'         => \(my $all),
+  'save-skip=s' => \(my $save_skip),
+  'skip-file=s' => \(my $skip_file),
+  'count=s'     => \(my $count),
+  'moox'        => \(my $moox),
+);
+
+my @pick = @ARGV;
+if (my $env = $ENV{MOO_TEST_MD}) {
+  if ($env eq 'MooX') {
+    $moox = 1;
+  }
+  elsif ($env eq 'all') {
+    $all = 1;
+  }
+  elsif ($env =~ /^\d+$/) {
+    $count = $env;
+  }
+  else {
+    @pick = split /,/, $env;
+    s/^\s+//, s/\s+$// for @pick;
+  }
+}
 
 # avoid any modules that depend on these
 my @bad_prereqs = qw(Gtk2 Padre Wx);
@@ -66,7 +93,16 @@ my %skip;
 my %todo;
 
 my $hash;
-while (my $line = <DATA>) {
+
+my $skip_fh;
+if ($skip_file) {
+  open $skip_fh, '<', $skip_file
+    or die "can't open $skip_file: $!";
+}
+else {
+  $skip_fh = \*DATA;
+}
+while (my $line = <$skip_fh>) {
   chomp $line;
   next unless $line =~ /\S/;
   if ( $line =~ /^#\s*(\w+)(?::\s*(.*?)\s*)?$/ ) {
@@ -84,6 +120,7 @@ while (my $line = <DATA>) {
 
 my %todo_module;
 my %skip_module;
+my %dists;
 my @modules;
 for my $hit (@{ $res->{hits}{hits} }) {
   my $dist = $hit->{fields}{distribution};
@@ -107,20 +144,17 @@ for my $hit (@{ $res->{hits}{hits} }) {
   if ($dist =~ /^(Task|Bundle|Acme)-/) {
     $skip_module{$module} = "not testing $1 dist";
   }
+  $dists{$module} = $dist;
   push @modules, $module;
   $module;
 }
 @modules = sort @modules;
 
-my @args = grep { $_ ne '--show' } @ARGV;
-my $show = @args != @ARGV;
-my $pick = $ENV{MOO_TEST_MD} || shift @args || 'all';
-
-if ( $pick eq 'MooX' ) {
+if ( $moox ) {
   @modules = grep /^MooX(?:$|::)/, @modules;
 }
-elsif ( $pick =~ /^\d+$/ ) {
-  my $count = $pick == 1 ? 200 : $pick;
+elsif ( $count ) {
+  $count = $count == 1 ? 200 : $count;
   diag(<<"EOF");
   Picking $count random dependents to test. Set MOO_TEST_MD=all to test all
   dependents or MOO_TEST_MD=MooX to test extension modules only.
@@ -128,20 +162,26 @@ EOF
   @modules = grep { !exists $skip_modules{$_} } List::Util::shuffle(@modules);
   @modules = @modules[0 .. $count-1];
 }
-elsif ( $pick ne 'all' ) {
-  my @chosen = split /,/, $pick;
+elsif ( @pick ) {
   my %modules = map { $_ => 1 } @modules;
-  if (my @unknown = grep { !$modules{$_} } @chosen) {
+  if (my @unknown = grep { !$modules{$_} } @pick) {
     die "Unknown modules: @unknown";
   }
-  delete @skip_modules{@chosen};
-  @modules = @chosen;
+  delete @skip_modules{@pick};
+  @modules = @pick;
 }
 
 if ($show) {
   print "Dependents:\n";
   print "  $_\n" for @modules;
   exit;
+}
+
+my $skip_report;
+if ($save_skip) {
+  open $skip_report, '>', $save_skip
+    or die "can't open $save_skip: $!";
+  print { $skip_report } "# SKIP: saved failures\n"
 }
 
 plan tests => scalar @modules;
@@ -151,7 +191,14 @@ for my $module (@modules) {
       if exists $todo_module{$module};
     skip "$module - " . ($skip_module{$module} || '???'), 1
       if exists $skip_module{$module};
-    test_module($module);
+    test_module($module) || do {
+      if ($skip_report) {
+        my $name = (Test::More->builder->details)[-1]{name};
+        $name =~ s/\s.*//;
+        $name =~ s/^\Q$dists{$module}-//;
+        print { $skip_report } "$dists{$module}  # $name\n";
+      }
+    };
   }
 }
 
