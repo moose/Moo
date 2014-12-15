@@ -267,7 +267,7 @@ version for convenience.
  my $prelude = capture_unroll '$captures', {
    '$x' => 1,
    '$y' => 2,
- };
+ }, 4;
 
  my $inlined_code = inlinify q{
    my ($x, $y) = @_;
