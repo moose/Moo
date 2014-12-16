@@ -191,14 +191,16 @@ for my $module (@modules) {
       if exists $todo_module{$module};
     skip "$module - " . ($skip_module{$module} || '???'), 1
       if exists $skip_module{$module};
-    test_module($module) || do {
-      if ($skip_report) {
-        my $name = (Test::More->builder->details)[-1]{name};
+    test_module($module);
+    if ($skip_report) {
+      my $last = (Test::More->builder->details)[-1];
+      if (! $last->{ok}) {
+        my $name = $last->{name};
         $name =~ s/\s.*//;
         $name =~ s/^\Q$dists{$module}-//;
         print { $skip_report } "$dists{$module}  # $name\n";
       }
-    };
+    }
   }
 }
 
