@@ -4,6 +4,7 @@ use strictures 1;
 use Sub::Quote qw(quote_sub unquote_sub quotify);
 use Sub::Defer;
 use Moo::_Utils qw(_getstash);
+use Moo;
 
 sub register_attribute_specs {
   my ($self, @new_specs) = @_;
@@ -199,7 +200,6 @@ sub _check_required {
     ."    }\n";
 }
 
-use Moo;
 # bootstrap our own constructor
 sub new {
   my $class = shift;

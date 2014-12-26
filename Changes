@@ -1,5 +1,6 @@
 Revision history for Moo
 
+  - fix Moose metaclass inflation of Method::Generate::Constructor (RT#101111)
   - clarify behavior of clearers for non-lazy attribute defaults
   - add Sub::Defer::undefer_package to undefer all subs from a given package
 
