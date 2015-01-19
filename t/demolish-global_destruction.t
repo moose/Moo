@@ -21,7 +21,7 @@ use Test::Fatal;
     my $foo = Foo->new;
 }
 
-chomp(my $out = `$^X t/global-destruction-helper.pl`);
+chomp(my $out = `"$^X" t/global-destruction-helper.pl`);
 
 is(
     $out, 'true',
