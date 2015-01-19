@@ -1,4 +1,5 @@
 use strictures 1;
+no warnings 'once';
 use Test::More tests => 2;
 use POSIX ();
 Test::More->builder->no_ending(1);
