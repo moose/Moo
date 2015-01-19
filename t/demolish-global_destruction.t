@@ -1,9 +1,10 @@
-
 use strictures 1;
-use Test::More;
-use Test::Fatal;
+use Test::More tests => 2;
+use POSIX ();
+Test::More->builder->no_ending(1);
 
-{
+our $fail = 2;
+BEGIN {
     package Foo;
     use Moo;
 
@@ -13,7 +14,7 @@ use Test::Fatal;
         ::ok(
             !$igd,
             'in_global_destruction state is passed to DEMOLISH properly (false)'
-        );
+        ) and $fail-- ;
     }
 }
 
@@ -21,11 +22,22 @@ use Test::Fatal;
     my $foo = Foo->new;
 }
 
-chomp(my $out = `$^X t/global-destruction-helper.pl`);
+END { $? = $fail }
 
-is(
-    $out, 'true',
-    'in_global_destruction state is passed to DEMOLISH properly (true)'
-);
+BEGIN {
+    package Bar;
+    use Moo;
 
-done_testing;
+    sub DEMOLISH {
+        my $self = shift;
+        my ($igd) = @_;
+
+        ::ok(
+            $igd,
+            'in_global_destruction state is passed to DEMOLISH properly (true)'
+        ) and $fail--;
+        POSIX::_exit($fail);
+    }
+}
+
+our $bar = Bar->new;
