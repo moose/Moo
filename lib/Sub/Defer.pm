@@ -5,7 +5,7 @@ use Exporter qw(import);
 use Moo::_Utils;
 use Scalar::Util qw(weaken);
 
-our $VERSION = '1.006001';
+our $VERSION = '1.007000';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(defer_sub undefer_sub undefer_all);

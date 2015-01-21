@@ -6,7 +6,7 @@ use Role::Tiny ();
 our @ISA = qw(Role::Tiny);
 use Import::Into;
 
-our $VERSION = '1.006001';
+our $VERSION = '1.007000';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
