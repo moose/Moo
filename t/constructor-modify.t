@@ -1,4 +1,5 @@
 use strictures 1;
+no warnings 'once';
 use Test::More;
 use Test::Fatal;
 
@@ -18,6 +19,7 @@ BEGIN {
 BEGIN {
   package ClassExistingNew;
   use Moo;
+  no warnings 'once';
 
   sub new {
     our $CALLED++;
@@ -33,6 +35,7 @@ BEGIN {
 BEGIN {
   package ClassDeferredNew;
   use Moo;
+  no warnings 'once';
   use Sub::Quote;
 
   quote_sub __PACKAGE__ . '::new' => q{
@@ -49,6 +52,7 @@ BEGIN {
 BEGIN {
   package ClassWithModifier;
   use Moo;
+  no warnings 'once';
 
   has attr1 => (is => 'ro');
 
@@ -74,6 +78,7 @@ BEGIN {
 BEGIN {
   package ClassWithRoleAttr;
   use Moo;
+  no warnings 'once';
 
   around new => sub {
     our $CALLED++;
@@ -92,6 +97,7 @@ BEGIN {
 BEGIN {
   package RoleModifyNew;
   use Moo::Role;
+  no warnings 'once';
 
   around new => sub {
     our $CALLED++;
@@ -103,6 +109,7 @@ BEGIN {
 BEGIN {
   package ClassWithModifyRole;
   use Moo;
+  no warnings 'once';
   with 'RoleModifyNew';
 
   ::like ::exception {
