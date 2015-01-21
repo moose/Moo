@@ -7,6 +7,11 @@ Revision history for Moo
     Previously, the attribute configuration used by the constructor would be
     overridden, but the attribute methods would not be.  This caused a mismatch
     in attribute behavior.
+  - link to Type::Tiny in docs rather than MooX::Types::MooseLike
+  - document exports of Sub::Defer
+  - fix capture_unroll usage in inlinify example
+  - fix needless re-assigning of variables in generated Sub::Quote subs
+  - fix global destruction test to work when perl path has spaces
 
 1.006001 - 2014-10-22
   - Name the ->DOES method installed by Role::Tiny
