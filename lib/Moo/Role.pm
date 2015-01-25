@@ -3,8 +3,8 @@ package Moo::Role;
 use strictures 1;
 use Moo::_Utils;
 use Role::Tiny ();
-our @ISA = qw(Role::Tiny);
 use Import::Into;
+use Exporter::Tiny;
 
 our $VERSION = '1.007000';
 $VERSION = eval $VERSION;
@@ -22,58 +22,33 @@ our %APPLIED_TO;
 our %APPLY_DEFAULTS;
 our @ON_ROLE_CREATE;
 
+# This sub just kept for compatibility with other modules that
+# make use of it, e.g. to install wrappers for `has`.
+#
 sub _install_tracked {
   my ($target, $name, $code) = @_;
-  $INFO{$target}{exports}{$name} = $code;
+  $Exporter::Tiny::TRACKED{+__PACKAGE__}{$target}{$name}
+    = $INFO{$target}{not_methods}{"$code"}
+    = $code;
   _install_coderef "${target}::${name}" => "Moo::Role::${name}" => $code;
 }
 
-sub import {
-  my $target = caller;
-  my ($me) = @_;
-  _set_loaded(caller);
-  strictures->import::into(1);
+our @ISA    = qw( Exporter::Tiny Role::Tiny );
+our @EXPORT = qw( requires with has before after around );
+
+sub _exporter_validate_opts {
+  my $me = shift;
+  my ($globals) = @_;
+  my $target = $globals->{into};
+  die "import into reference not supported" if ref $target;
+  _set_loaded($target);
+  strictures->import::into(2);
   if ($Moo::MAKERS{$target} and $Moo::MAKERS{$target}{is_class}) {
     die "Cannot import Moo::Role into a Moo class";
   }
   $INFO{$target} ||= {};
   # get symbol table reference
   my $stash = _getstash($target);
-  _install_tracked $target => has => sub {
-    my $name_proto = shift;
-    my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
-    if (@_ % 2 != 0) {
-      require Carp;
-      Carp::croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
-        . " attribute(s): even number of arguments expected, got " . scalar @_)
-    }
-    my %spec = @_;
-    foreach my $name (@name_proto) {
-      my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
-      ($INFO{$target}{accessor_maker} ||= do {
-        require Method::Generate::Accessor;
-        Method::Generate::Accessor->new
-      })->generate_method($target, $name, $spec_ref);
-      push @{$INFO{$target}{attributes}||=[]}, $name, $spec_ref;
-      $me->_maybe_reset_handlemoose($target);
-    }
-  };
-  # install before/after/around subs
-  foreach my $type (qw(before after around)) {
-    _install_tracked $target => $type => sub {
-      require Class::Method::Modifiers;
-      push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
-      $me->_maybe_reset_handlemoose($target);
-    };
-  }
-  _install_tracked $target => requires => sub {
-    push @{$INFO{$target}{requires}||=[]}, @_;
-    $me->_maybe_reset_handlemoose($target);
-  };
-  _install_tracked $target => with => sub {
-    $me->apply_roles_to_package($target, @_);
-    $me->_maybe_reset_handlemoose($target);
-  };
   return if $me->is_role($target); # already exported into this package
   $INFO{$target}{is_role} = 1;
   *{_getglob("${target}::meta")} = $me->can('meta');
@@ -85,9 +60,74 @@ sub import {
   @{$INFO{$target}{not_methods}={}}{@not_methods} = @not_methods;
   # a role does itself
   $APPLIED_TO{$target} = { $target => undef };
-
   $_->($target)
     for @ON_ROLE_CREATE;
+  $globals->{installer} ||= sub {
+    my ($name, $code) = @{ $_[1] };
+    $INFO{$target}{not_methods}{"$code"} = $code;
+    _install_coderef "${target}::${name}" => "Moo::${name}" => $code;
+  };
+}
+
+sub _generate_with {
+  my $me = shift;
+  my ($name, $args, $globals) = @_;
+  my $target = $globals->{into};
+  sub {
+    $me->apply_roles_to_package($target, @_);
+    $me->_maybe_reset_handlemoose($target);
+  };
+}
+
+sub _generate_has {
+  my $me = shift;
+  my ($name, $args, $globals) = @_;
+  my $target = $globals->{into};
+  my %defaults = map { $_ => $args->{$_} } grep { !/^-/ } keys %$args;
+  sub {
+    my $name_proto = shift;
+    my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
+    if (@_ % 2 != 0) {
+      require Carp;
+      Carp::croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
+        . " attribute(s): even number of arguments expected, got " . scalar @_)
+    }
+    my %spec = (%defaults, @_);
+    foreach my $name (@name_proto) {
+      my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
+      ($INFO{$target}{accessor_maker} ||= do {
+        require Method::Generate::Accessor;
+        Method::Generate::Accessor->new
+      })->generate_method($target, $name, $spec_ref);
+      push @{$INFO{$target}{attributes}||=[]}, $name, $spec_ref;
+      $me->_maybe_reset_handlemoose($target);
+    }
+  };
+}
+
+sub _generate_method_modifier {
+  my $me = shift;
+  my ($name, $args, $globals) = @_;
+  my $target = $globals->{into};
+  sub {
+    require Class::Method::Modifiers;
+    push @{$INFO{$target}{modifiers}||=[]}, [ $name => @_ ];
+    $me->_maybe_reset_handlemoose($target);
+  };
+}
+
+*_generate_before = \&_generate_method_modifier;
+*_generate_after  = \&_generate_method_modifier;
+*_generate_around = \&_generate_method_modifier;
+
+sub _generate_requires {
+  my $me = shift;
+  my ($name, $args, $globals) = @_;
+  my $target = $globals->{into};
+  sub {
+    push @{$INFO{$target}{requires}||=[]}, @_;
+    $me->_maybe_reset_handlemoose($target);
+  };
 }
 
 push @ON_ROLE_CREATE, sub {
@@ -102,11 +142,6 @@ sub meta {
   require Moo::HandleMoose::FakeMetaClass;
   my $class = ref($_[0])||$_[0];
   bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
-}
-
-sub unimport {
-  my $target = caller;
-  _unimport_coderefs($target, $INFO{$target});
 }
 
 sub _maybe_reset_handlemoose {

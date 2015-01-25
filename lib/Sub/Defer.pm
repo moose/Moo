@@ -1,13 +1,14 @@
 package Sub::Defer;
 
 use strictures 1;
-use Exporter qw(import);
+use Exporter::Tiny;
 use Moo::_Utils;
 use Scalar::Util qw(weaken);
 
 our $VERSION = '1.007000';
 $VERSION = eval $VERSION;
 
+our @ISA = qw(Exporter::Tiny);
 our @EXPORT = qw(defer_sub undefer_sub undefer_all);
 our @EXPORT_OK = qw(undefer_package);
 

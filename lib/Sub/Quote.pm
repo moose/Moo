@@ -6,7 +6,7 @@ sub _clean_eval { eval $_[0] }
 
 use Sub::Defer;
 use Scalar::Util qw(weaken);
-use Exporter qw(import);
+use Exporter::Tiny;
 use B ();
 BEGIN {
   *_HAVE_PERLSTRING = defined &B::perlstring ? sub(){1} : sub(){0};
@@ -15,6 +15,7 @@ BEGIN {
 our $VERSION = '1.007000';
 $VERSION = eval $VERSION;
 
+our @ISA = qw(Exporter::Tiny);
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub qsub);
 our @EXPORT_OK = qw(quotify capture_unroll inlinify);
 
