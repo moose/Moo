@@ -1,6 +1,6 @@
 package Method::Inliner;
 
-use strictures 1;
+use Moo::_strictures;
 use Text::Balanced qw(extract_bracketed);
 use Sub::Quote ();
 

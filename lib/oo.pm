@@ -1,6 +1,6 @@
 package oo;
 
-use strictures 1;
+use Moo::_strictures;
 use Moo::_Utils;
 
 sub moo {

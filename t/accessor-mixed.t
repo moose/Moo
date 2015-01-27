@@ -1,4 +1,4 @@
-use strictures 1;
+use Moo::_strictures;
 use Test::More;
 
 my @result;

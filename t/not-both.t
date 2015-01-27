@@ -1,4 +1,4 @@
-use strictures 1;
+use Moo::_strictures;
 use Test::More;
 
 # Compile-time exceptions, so need stringy eval; hence not Test::Fatal.

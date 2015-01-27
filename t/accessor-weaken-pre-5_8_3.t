@@ -1,4 +1,4 @@
-use strictures 1;
+use Moo::_strictures;
 
 BEGIN {
   $ENV{MOO_TEST_PRE_583} = 1;

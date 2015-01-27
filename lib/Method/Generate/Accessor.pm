@@ -1,6 +1,6 @@
 package Method::Generate::Accessor;
 
-use strictures 1;
+use Moo::_strictures;
 use Moo::_Utils;
 use Moo::Object ();
 our @ISA = qw(Moo::Object);

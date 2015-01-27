@@ -1,6 +1,6 @@
 package Moo::Role;
 
-use strictures 1;
+use Moo::_strictures;
 use Moo::_Utils;
 use Role::Tiny ();
 our @ISA = qw(Role::Tiny);

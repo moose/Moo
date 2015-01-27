@@ -1,6 +1,6 @@
 package Moo;
 
-use strictures 1;
+use Moo::_strictures;
 use Moo::_Utils;
 
 our $VERSION = '1.007000';

@@ -2,7 +2,7 @@
 
 # work around RT#67692
 use Moo::_Utils;
-use strictures 1;
+use Moo::_strictures;
 
 use Test::More;
 

@@ -1,6 +1,6 @@
 package Sub::Quote;
 
-use strictures 1;
+use Moo::_strictures;
 
 sub _clean_eval { eval $_[0] }
 

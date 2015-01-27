@@ -1,5 +1,5 @@
 package Moo::HandleMoose::_TypeMap;
-use strictures 1;
+use Moo::_strictures;
 
 package
   Moo::HandleMoose;

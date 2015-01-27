@@ -1,4 +1,4 @@
-use strictures;
+use Moo::_strictures;
 
 package load_module_error;
 

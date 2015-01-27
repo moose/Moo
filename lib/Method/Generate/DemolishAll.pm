@@ -1,6 +1,6 @@
 package Method::Generate::DemolishAll;
 
-use strictures 1;
+use Moo::_strictures;
 use Moo::Object ();
 our @ISA = qw(Moo::Object);
 use Sub::Quote qw(quote_sub quotify);

@@ -1,5 +1,5 @@
 package t::lib::INCModule;
-use strictures 1;
+use Moo::_strictures;
 use base qw(Exporter);
 our @EXPORT = qw(inc_module);
 

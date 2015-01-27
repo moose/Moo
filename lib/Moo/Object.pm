@@ -1,6 +1,6 @@
 package Moo::Object;
 
-use strictures 1;
+use Moo::_strictures;
 
 our %NO_BUILD;
 our %NO_DEMOLISH;

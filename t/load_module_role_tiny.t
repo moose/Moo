@@ -1,7 +1,7 @@
 # this test is replicated to t/load_module.t for Moo::_Utils
 
 use Role::Tiny ();
-use strictures 1;
+use Moo::_strictures;
 use Test::More;
 
 use t::lib::INCModule;
