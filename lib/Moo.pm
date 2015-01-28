@@ -226,17 +226,25 @@ sub _constructor_maker_for {
     my $con;
     my @isa = @{mro::get_linear_isa($target)};
     shift @isa;
+    my %attrs;
+    my $c3 = mro::get_mro($target) eq 'c3';
     no strict 'refs';
-    if (my ($parent_new) = grep +(defined &{$_.'::new'}), @isa) {
-      if ($parent_new eq 'Moo::Object') {
+    for my $ancestor (grep +(defined &{$_.'::new'}), @isa) {
+      if ($ancestor eq 'Moo::Object') {
         # no special constructor needed
       }
-      elsif (my $makers = $MAKERS{$parent_new}) {
-        $con = $makers->{constructor};
-        $construct_opts{construction_string} = $con->construction_string
-          if $con;
+      elsif (my $makers = $MAKERS{$ancestor}) {
+        my $maker = $makers->{constructor};
+        if ($maker) {
+          $con ||= $maker;
+          $construct_opts{construction_string} ||= $maker->construction_string;
+          my $add_attrs = $maker->all_attribute_specs;
+          $attrs{$_} ||= $add_attrs->{$_} for keys %$add_attrs;
+        }
+        next
+          if $c3;
       }
-      elsif ($parent_new->can('BUILDALL')) {
+      elsif ($ancestor->can('BUILDALL')) {
         $construct_opts{construction_builder} = sub {
           my $inv = $target->can('BUILDARGS') ? '' : 'Moo::Object::';
           'do {'
@@ -254,11 +262,12 @@ sub _constructor_maker_for {
             .')'
         };
       }
+      last;
     }
     ($con ? ref($con) : 'Method::Generate::Constructor')
       ->new(%construct_opts)
       ->install_delayed
-      ->register_attribute_specs(%{$con?$con->all_attribute_specs:{}})
+      ->register_attribute_specs(%attrs);
   }
 }
 
