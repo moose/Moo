@@ -195,7 +195,7 @@ sub _constructor_maker_for {
       }
       else {
         $construct_opts{construction_builder} = sub {
-          '$class->next::method('
+          '$class->'.$target.'::SUPER::new('
             .($target->can('FOREIGNBUILDARGS') ?
               '$class->FOREIGNBUILDARGS(@_)' : '@_')
             .')'
