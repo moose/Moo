@@ -73,7 +73,6 @@ my %MM_ARGS = (
     ($] >= 5.008 ? () : ('Task::Weaken' => 0)),
     ($] >= 5.010 ? () : ('MRO::Compat' => 0)),
   },
-  realclean => { FILES => 'Distar/' },
 );
 
 {
