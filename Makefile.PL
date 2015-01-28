@@ -82,6 +82,7 @@ my %MM_ARGS = (
 fulltest: test
 \tMOO_XS_DISABLE=1 \$(MAKE) test
 POSTAMBLE
+  }
 }
 
 ## BOILERPLATE ###############################################################
