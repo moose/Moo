@@ -76,6 +76,13 @@ my %MM_ARGS = (
 
 {
   package MY;
+  !-f 'META.yml' and $^O ne 'MSWin32' and eval q{
+    sub test_via_harness {
+      my($self, $perl, $tests) = @_;
+      return $self->SUPER::test_via_harness("MOO_FATAL_WARNINGS=1 $perl", $tests);
+    }
+  };
+
   sub postamble {
     <<"POSTAMBLE";
 fulltest: test
