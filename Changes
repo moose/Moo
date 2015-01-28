@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - use Sub::Util instead of Sub::Name if available
+
 1.007000 - 2015-01-21
   - fix Moose metaclass inflation of Method::Generate::Constructor (RT#101111)
   - clarify behavior of clearers for non-lazy attribute defaults

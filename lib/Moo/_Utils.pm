@@ -6,7 +6,8 @@ sub _getglob { \*{$_[0]} }
 sub _getstash { \%{"$_[0]::"} }
 
 use constant lt_5_8_3 => ( $] < 5.008003 or $ENV{MOO_TEST_PRE_583} ) ? 1 : 0;
-use constant can_haz_subname => eval { require Sub::Name };
+use constant can_haz_subutil => !$INC{"Sub/Name.pm"} && eval { require Sub::Util };
+use constant can_haz_subname => !$INC{"Sub/Util.pm"} && eval { require Sub::Name };
 
 use strictures 1;
 use Module::Runtime qw(use_package_optimistically module_notional_filename);
@@ -93,7 +94,8 @@ sub _install_coderef {
 
 sub _name_coderef {
   shift if @_ > 2; # three args is (target, name, sub)
-  can_haz_subname ? Sub::Name::subname(@_) : $_[1];
+  can_haz_subutil ? Sub::Util::set_subname(@_) :
+    can_haz_subname ? Sub::Name::subname(@_) : $_[1];
 }
 
 sub _unimport_coderefs {
