@@ -76,6 +76,15 @@ my %MM_ARGS = (
   realclean => { FILES => 'Distar/' },
 );
 
+{
+  package MY;
+  sub postamble {
+    <<"POSTAMBLE";
+fulltest: test
+\tMOO_XS_DISABLE=1 \$(MAKE) test
+POSTAMBLE
+}
+
 ## BOILERPLATE ###############################################################
 require ExtUtils::MakeMaker;
 (do 'maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
