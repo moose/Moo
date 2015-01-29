@@ -1,7 +1,28 @@
 Revision history for Moo
 
-  - use Sub::Util instead of Sub::Name if available
-  - fix classes without attributes storing all values passed to ->new
+  * Incompatible Changes
+    - Fatal warnings and the other additional checks from the strictures
+      module will no longer be applied to modules using Moo or Moo::Role.  We
+      now only apply strict and (non-fatal) warnings, matching the behavior of
+      Moose.
+    - Classes without attributes used to store everything passed to ->new
+      in the object.  This has been fixed to not store anything in the object,
+      making it consistent with classes that had attributes.
+    - Moo will now pass __no_BUILD__ to parent constructors when inheriting
+      from a Moose or Class::Tiny class, to prevent them from calling BUILD
+      functions.  Moo calls the BUILD functions itself, which previously led
+      to them being called multiple times.
+    - Attempting to replace an existing constructor, or modify one that has
+      been used, will throw an error.  This includes adding attributes.
+      Previously, this would result in some attributes being silently ignored
+      by the constructor.
+    - If a class's @ISA is modified without using 'extends' in a way that
+      affects object construction, Moo will detect this and throw an error.
+      This can happen in code that uses ->load_components from
+      Class::C3::Componentised, which is common in DBIx::Class modules.
+
+  * Miscellaneous
+    - use Sub::Util instead of Sub::Name if available
 
 1.007000 - 2015-01-21
   - fix Moose metaclass inflation of Method::Generate::Constructor (RT#101111)
