@@ -42,7 +42,7 @@ my %META = (
         indirect multidimensional bareword::filehandles
         Moose Mouse namespace::clean namespace::autoclean
         MooseX::Types::Common::Numeric
-        Type::Tiny
+        Type::Tiny Class::Tiny
       ) },
     },
   },
