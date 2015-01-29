@@ -78,12 +78,17 @@ sub install_delayed {
   $self->assert_constructor;
   my $package = $self->{package};
   my (undef, @isa) = @{mro::get_linear_isa($package)};
-  my ($expected_new) = grep { *{_getglob($_.'::new')}{CODE} } @isa;
+  my $isa = join ',', @isa;
   $self->{deferred_constructor} = defer_sub "${package}::new" => sub {
     my (undef, @new_isa) = @{mro::get_linear_isa($package)};
-    my ($found_new) = grep { *{_getglob($_.'::new')}{CODE} } @new_isa;
-    if (($found_new||'') ne ($expected_new||'')) {
-      die "Expected parent class of $expected_new, but found $found_new!";
+    if (join(',', @new_isa) ne $isa) {
+      my ($expected_new) = grep { *{_getglob($_.'::new')}{CODE} } @isa;
+      my ($found_new) = grep { *{_getglob($_.'::new')}{CODE} } @new_isa;
+      if (($found_new||'') ne ($expected_new||'')) {
+        $found_new ||= 'none';
+        $expected_new ||= 'none';
+        die "Parent constructor of $package was expected to be $expected_new, but found $found_new!";
+      }
     }
     unquote_sub $self->generate_method(
       $package, 'new', $self->{attribute_specs}, { no_install => 1 }

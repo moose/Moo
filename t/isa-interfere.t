@@ -33,7 +33,7 @@ BEGIN {
 
 like exception {
   ChildClass->new;
-}, qr/Expected parent class of BaseClass, but found ExtraClass/,
+}, qr/Parent constructor of ChildClass was expected to be BaseClass, but found ExtraClass/,
   'Interfering with @ISA after using extends triggers error';
 
 done_testing;
