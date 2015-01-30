@@ -25,7 +25,9 @@ sub generate_method {
       $@;
     };
 
-    no warnings 'misc';
+    # fatal warnings+die in DESTROY = bad times (perl rt#123398)
+    no warnings FATAL => 'all';
+    use warnings 'all';
     die $e if $e; # rethrow
   !;
 }
