@@ -1,8 +1,8 @@
 package Sub::Quote;
 
-use Moo::_strictures;
-
 sub _clean_eval { eval $_[0] }
+
+use Moo::_strictures;
 
 use Sub::Defer qw(defer_sub);
 use Scalar::Util qw(weaken);
