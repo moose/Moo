@@ -87,7 +87,9 @@ sub install_delayed {
       if (($found_new||'') ne ($expected_new||'')) {
         $found_new ||= 'none';
         $expected_new ||= 'none';
-        die "Parent constructor of $package was expected to be $expected_new, but found $found_new!";
+        die "Expected parent constructor of $package expected to be"
+        . " $expected_new, but found $found_new: changing the inheritance"
+        . " chain (\@ISA) at runtime is unsupported";
       }
     }
     unquote_sub $self->generate_method(
