@@ -2,7 +2,7 @@ package Sub::Defer;
 
 use strictures 1;
 use Exporter qw(import);
-use Moo::_Utils;
+use Moo::_Utils qw(_getglob _install_coderef);
 use Scalar::Util qw(weaken);
 
 our $VERSION = '1.007000';

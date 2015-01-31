@@ -4,7 +4,7 @@ use strictures 1;
 
 sub _clean_eval { eval $_[0] }
 
-use Sub::Defer;
+use Sub::Defer qw(defer_sub);
 use Scalar::Util qw(weaken);
 use Exporter qw(import);
 use B ();
