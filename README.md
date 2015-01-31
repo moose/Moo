@@ -3,7 +3,7 @@ Moo
 Moo is a minimalist Object Orientation system for Perl 5 that aims to be fully
 interoperable with Moose.
 
-  * [Moo on CPAN](https://metacpan.org/pod/Moo)
+  * [Moo on CPAN](https://metacpan.org/pod/Moo) contains the main documentation
   * [Role::Tiny on CPAN](https://metacpan.org/pod/Role::Tiny)
   * [Moose on CPAN](https://metacpan.org/pod/Moose)
 
