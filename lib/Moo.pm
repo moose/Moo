@@ -978,6 +978,8 @@ mattp - Matt Phillips (cpan:MATTP) <mattp@cpan.org>
 
 bluefeet - Aran Deltac (cpan:BLUEFEET) <bluefeet@gmail.com>
 
+bubaflub - Bob Kuo (cpan:BUBAFLUB) <bubaflub@cpan.org>
+
 =head1 COPYRIGHT
 
 Copyright (c) 2010-2015 the Moo L</AUTHOR> and L</CONTRIBUTORS>
