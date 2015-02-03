@@ -6,7 +6,7 @@ BEGIN {
   }
 }
 use threads;
-use strictures 1;
+use Moo::_strictures;
 use Test::More;
 
 use Sub::Defer;

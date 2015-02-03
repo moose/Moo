@@ -20,4 +20,5 @@ if [ -n "$AUTHOR_TESTING" ] && [ "$AUTHOR_TESTING" -eq 0 ]; then
   TEST_DIRS='t'
 fi
 
+export MOO_FATAL_WARNINGS=1
 prove -l $TEST_DIRS && MOO_XS_DISABLE=1 prove -l $TEST_DIRS

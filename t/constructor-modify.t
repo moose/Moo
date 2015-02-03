@@ -1,4 +1,4 @@
-use strictures 1;
+use Moo::_strictures;
 no warnings 'once';
 use Test::More;
 use Test::Fatal;

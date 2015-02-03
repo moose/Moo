@@ -1,5 +1,3 @@
-use strictures;
-
 package sub_class;
 
 use Moo;

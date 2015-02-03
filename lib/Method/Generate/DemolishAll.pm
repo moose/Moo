@@ -1,6 +1,6 @@
 package Method::Generate::DemolishAll;
 
-use strictures 1;
+use Moo::_strictures;
 use Moo::Object ();
 our @ISA = qw(Moo::Object);
 use Sub::Quote qw(quote_sub quotify);
@@ -25,7 +25,9 @@ sub generate_method {
       $@;
     };
 
-    no warnings 'misc';
+    # fatal warnings+die in DESTROY = bad times (perl rt#123398)
+    no warnings FATAL => 'all';
+    use warnings 'all';
     die $e if $e; # rethrow
   !;
 }

@@ -1,6 +1,6 @@
 package Sub::Defer;
 
-use strictures 1;
+use Moo::_strictures;
 use Exporter qw(import);
 use Moo::_Utils qw(_getglob _install_coderef);
 use Scalar::Util qw(weaken);

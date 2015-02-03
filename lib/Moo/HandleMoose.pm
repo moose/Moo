@@ -1,6 +1,6 @@
 package Moo::HandleMoose;
 
-use strictures 1;
+use Moo::_strictures;
 use Moo::_Utils;
 use Sub::Quote qw(quotify);
 

@@ -1,4 +1,4 @@
-use strictures;
+use Moo::_strictures;
 use Test::More;
 
 eval q{

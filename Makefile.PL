@@ -23,11 +23,9 @@ my %META = (
     runtime => {
       requires => {
         'Class::Method::Modifiers'  => 1.10,  # for RT#80194
-        'strictures'                => 1.004003,
         'Module::Runtime'           => 0.014, # for RT#86394
         'Role::Tiny'                => 1.003004,
         'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
-        'Import::Into'              => 1.002,
         'Scalar::Util'              => 0,
         'perl'                      => 5.006,
         'Exporter'                  => 5.57,  # Import 'import'
@@ -35,10 +33,12 @@ my %META = (
       recommends => {
         'Class::XSAccessor'         => 1.18,
         'Sub::Name'                 => 0,
+        'strictures'                => 1.004003,
       },
     },
     develop   => {
       requires => { map { $_ => 0 } qw(
+        strictures
         indirect multidimensional bareword::filehandles
         Moose Mouse namespace::clean namespace::autoclean
         MooseX::Types::Common::Numeric
@@ -77,6 +77,13 @@ my %MM_ARGS = (
 
 {
   package MY;
+  !-f 'META.yml' and $^O ne 'MSWin32' and eval q{
+    sub test_via_harness {
+      my($self, $perl, $tests) = @_;
+      return $self->SUPER::test_via_harness("MOO_FATAL_WARNINGS=1 $perl", $tests);
+    }
+  };
+
   sub postamble {
     <<"POSTAMBLE";
 fulltest: test

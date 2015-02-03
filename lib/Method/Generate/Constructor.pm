@@ -1,6 +1,6 @@
 package Method::Generate::Constructor;
 
-use strictures 1;
+use Moo::_strictures;
 use Sub::Quote qw(quote_sub unquote_sub quotify);
 use Sub::Defer;
 use Moo::_Utils qw(_getstash _getglob);

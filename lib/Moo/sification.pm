@@ -1,6 +1,6 @@
 package Moo::sification;
 
-use strictures 1;
+use Moo::_strictures;
 no warnings 'once';
 use Devel::GlobalDestruction qw(in_global_destruction);
 
