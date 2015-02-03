@@ -77,7 +77,21 @@ sub install_delayed {
   my ($self) = @_;
   $self->assert_constructor;
   my $package = $self->{package};
+  my (undef, @isa) = @{mro::get_linear_isa($package)};
+  my $isa = join ',', @isa;
   $self->{deferred_constructor} = defer_sub "${package}::new" => sub {
+    my (undef, @new_isa) = @{mro::get_linear_isa($package)};
+    if (join(',', @new_isa) ne $isa) {
+      my ($expected_new) = grep { *{_getglob($_.'::new')}{CODE} } @isa;
+      my ($found_new) = grep { *{_getglob($_.'::new')}{CODE} } @new_isa;
+      if (($found_new||'') ne ($expected_new||'')) {
+        $found_new ||= 'none';
+        $expected_new ||= 'none';
+        die "Expected parent constructor of $package expected to be"
+        . " $expected_new, but found $found_new: changing the inheritance"
+        . " chain (\@ISA) at runtime is unsupported";
+      }
+    }
     unquote_sub $self->generate_method(
       $package, 'new', $self->{attribute_specs}, { no_install => 1 }
     )

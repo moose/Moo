@@ -42,22 +42,16 @@ use Moo ();
     package Foo::Parent;
 
     use Moo;
-    extends 'Foo';
-
-    # this replicates what Class::C3::Componentized does
-    # aka ->load_components in DBIx::Class
-    unshift our @ISA, 'Foo::AddCD';
-    Class::C3::reinitialize() if $] < 5.009005;
+    use mro 'c3';
+    extends 'Foo::AddCD', 'Foo';
 }
 
 {
     package Foo::Parent::Child;
 
     use Moo;
-    extends 'Foo::Parent';
-
-    unshift our @ISA, 'Foo::AddEF';
-    Class::C3::reinitialize() if $] < 5.009005;
+    use mro 'c3';
+    extends 'Foo::AddEF', 'Foo::Parent';
 }
 
 my $foo = Foo::Parent::Child->new({a => 'b'});
