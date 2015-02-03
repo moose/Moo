@@ -1,12 +1,13 @@
 package Moo::sification;
 
 use strictures 1;
-use Moo::_Utils ();
+no warnings 'once';
+use Devel::GlobalDestruction qw(in_global_destruction);
 
 sub unimport { our $disarmed = 1 }
 
 sub Moo::HandleMoose::AuthorityHack::DESTROY {
-  unless (our $disarmed or Moo::_Utils::_in_global_destruction) {
+  unless (our $disarmed or in_global_destruction) {
     require Moo::HandleMoose;
     Moo::HandleMoose->import;
   }
