@@ -144,6 +144,6 @@ like( $@, qr/Single parameters to new\(\) must be a HASH ref/,
   "default BUILDARGS requires a list or a HASH ref"
 );
 my $noattr = NoAttr->new({ foo => 'bar' });
-is $noattr->{foo}, 'bar', 'without attributes, all params are stored';
+is $noattr->{foo}, undef, 'without attributes, no params are stored';
 
 done_testing;
