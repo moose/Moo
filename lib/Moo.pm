@@ -182,6 +182,16 @@ sub _constructor_maker_for {
         $construct_opts{construction_string} = $con->construction_string
           if $con;
       }
+      elsif ($parent_new->can('BUILDALL')) {
+        $construct_opts{construction_builder} = sub {
+          my $inv = $target->can('BUILDARGS') ? '' : 'Moo::Object::';
+          'do {'
+          .'  my $args = $class->'.$inv.'BUILDARGS(@_);'
+          .'  $args->{__no_BUILD__} = 1;'
+          .'  $class->'.$target.'::SUPER::new($args);'
+          .'}'
+        };
+      }
       else {
         $construct_opts{construction_builder} = sub {
           '$class->next::method('

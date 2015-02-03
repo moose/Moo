@@ -39,10 +39,7 @@ my $o = ClassD->new(foo => 1, bar => 2);
 isa_ok $o, 'ClassD';
 is $o->foo, 1, 'superclass attribute has correct value';
 is $o->bar, 2, 'subclass attribute has correct value';
-{
-  local $TODO = "BUILD called extra for mixed Moo/non-Moo classes";
-  is $o->built, 1, 'BUILD called correct number of times';
-}
+is $o->built, 1, 'BUILD called correct number of times';
 
 {
   package ClassE;
