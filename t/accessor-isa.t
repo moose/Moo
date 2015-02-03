@@ -178,7 +178,7 @@ ComplexWriter->test_with("isa");
   sub new { bless {}, $_[0] }
   sub DESTROY {
     eval {
-      # nop
+      1; # nop
     };
   }
 
