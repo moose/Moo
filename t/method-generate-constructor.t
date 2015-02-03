@@ -77,4 +77,15 @@ is(
   'required allowed with init_arg undef if given a default'
 );
 
+is ref($gen->current_constructor('Bar')), 'CODE',
+  'can find constructor';
+
+{
+  package Baz;
+  sub baz {};
+}
+
+is $gen->current_constructor('Baz'), undef,
+  'nonexistent constructor returns undef';
+
 done_testing;

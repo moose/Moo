@@ -3,11 +3,12 @@ package Method::Generate::Constructor;
 use strictures 1;
 use Sub::Quote qw(quote_sub unquote_sub quotify);
 use Sub::Defer;
-use Moo::_Utils qw(_getstash);
+use Moo::_Utils qw(_getstash _getglob);
 use Moo;
 
 sub register_attribute_specs {
   my ($self, @new_specs) = @_;
+  $self->assert_constructor;
   my $specs = $self->{attribute_specs}||={};
   while (my ($name, $new_spec) = splice @new_specs, 0, 2) {
     if ($name =~ s/^\+//) {
@@ -74,13 +75,35 @@ sub _build_construction_string {
 
 sub install_delayed {
   my ($self) = @_;
+  $self->assert_constructor;
   my $package = $self->{package};
-  defer_sub "${package}::new" => sub {
+  $self->{deferred_constructor} = defer_sub "${package}::new" => sub {
     unquote_sub $self->generate_method(
       $package, 'new', $self->{attribute_specs}, { no_install => 1 }
     )
   };
   $self;
+}
+
+sub current_constructor {
+  my ($self, $package) = @_;
+  return *{_getglob("${package}::new")}{CODE};
+}
+
+sub assert_constructor {
+  my ($self) = @_;
+  my $package = $self->{package} or return 1;
+  my $current = $self->current_constructor($package)
+    or return 1;
+  my $deferred = $self->{deferred_constructor}
+    or die "Unknown constructor for $package already exists";
+  return 1
+    if $deferred == $current;
+  my $current_deferred = (Sub::Defer::defer_info($current)||[])->[3];
+  if ($current_deferred && $current_deferred == $deferred) {
+    die "Constructor for $package has been inlined and cannot be updated";
+  }
+  die "Constructor for $package has been replaced with an unknown sub";
 }
 
 sub generate_method {
@@ -203,6 +226,7 @@ sub _check_required {
 # bootstrap our own constructor
 sub new {
   my $class = shift;
+  delete _getstash(__PACKAGE__)->{new};
   bless $class->BUILDARGS(@_), $class;
 }
 Moo->_constructor_maker_for(__PACKAGE__)

@@ -98,6 +98,7 @@ sub _set_superclasses {
   # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
   @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
   if (my $old = delete $Moo::MAKERS{$target}{constructor}) {
+    $old->assert_constructor;
     delete _getstash($target)->{new};
     Moo->_constructor_maker_for($target)
        ->register_attribute_specs(%{$old->all_attribute_specs});
