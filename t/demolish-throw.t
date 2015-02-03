@@ -34,11 +34,14 @@ my $o = Foo->new;
     $last_die = $location;
   };
 
-  undef $o;
-
-  # if undef is the last statement in a block, its effect is delayed until
-  # after the block is cleaned up (and our locals go away)
-  1;
+  {
+    no warnings FATAL => 'misc';
+    use warnings 'misc';
+    undef $o;
+    # if undef is the last statement in a block, its effect is delayed until
+    # after the block is cleaned up (and our warning settings won't be applied)
+    1;
+  }
 }
 
 like $warnings[0], qr/\(in cleanup\) Error in DEMOLISH/,
