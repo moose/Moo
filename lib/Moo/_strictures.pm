@@ -5,7 +5,7 @@ use warnings;
 sub import {
   if ($ENV{MOO_FATAL_WARNINGS}) {
     require strictures;
-    strictures->VERSION(1);
+    strictures->VERSION(2);
     @_ = ('strictures');
     goto &strictures::import;
   }

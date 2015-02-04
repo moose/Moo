@@ -33,12 +33,12 @@ my %META = (
       recommends => {
         'Class::XSAccessor'         => 1.18,
         'Sub::Name'                 => 0,
-        'strictures'                => 1.004003,
+        'strictures'                => 2,
       },
     },
     develop   => {
       requires => {
-        'strictures' => 1.004003,
+        'strictures' => 2,
         'indirect' => 0,
         'multidimensional' => 0,
         'bareword::filehandles' => 0,

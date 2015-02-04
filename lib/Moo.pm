@@ -244,7 +244,7 @@ Moo - Minimalist Object Orientation (with Moose compatibility)
  package Cat::Food;
 
  use Moo;
- use strictures 1;
+ use strictures 2;
  use namespace::clean;
 
  sub feed_lion {
@@ -902,7 +902,7 @@ module L<MooseX::AttributeShortcuts> as of its version 0.009+.  So if you:
 
     package MyClass;
     use Moo;
-    use strictures 1;
+    use strictures 2;
 
 The nearest L<Moose> invocation would be:
 

@@ -5,7 +5,11 @@ use Test::More;
 
 $INC{'strictures.pm'} = __FILE__;
 my $strictures = 0;
-sub strictures::VERSION {1}
+my $version;
+sub strictures::VERSION {
+  $version = $_[1];
+  2;;
+}
 sub strictures::import {
   $strictures++;
   strict->import;
@@ -26,6 +30,7 @@ eval q{
   0 + "string";
 };
 is $strictures, 1, 'strictures imported with MOO_FATAL_WARNINGS';
+is $version, 2, 'strictures version 2 requested with MOO_FATAL_WARNINGS';
 like $@, qr/isn't numeric/, 'warnings fatal with MOO_FATAL_WARNINGS';
 
 done_testing;

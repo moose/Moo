@@ -422,7 +422,7 @@ Moo::Role - Minimal Object Orientation support for Roles
  package My::Role;
 
  use Moo::Role;
- use strictures 1;
+ use strictures 2;
 
  sub foo { ... }
 
@@ -439,7 +439,7 @@ And elsewhere:
  package Some::Class;
 
  use Moo;
- use strictures 1;
+ use strictures 2;
 
  # bar gets imported, but not foo
  with('My::Role');
