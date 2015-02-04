@@ -1,6 +1,6 @@
 use Moo::_strictures;
 use Test::More;
-use Class::Tiny 1.0;
+use Class::Tiny 1.001;
 
 my %build;
 
