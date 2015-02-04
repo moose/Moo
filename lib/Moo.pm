@@ -820,12 +820,10 @@ C<use Moo::Role>, those imports and the ones L<Moo::Role> itself
 provides will not be composed into consuming classes so there's usually
 no need to use L<namespace::clean>.
 
-B<On L<namespace::autoclean>:> If you're coming to Moo from the Moose
-world, you may be accustomed to using L<namespace::autoclean> in all
-your packages. This is not recommended for L<Moo> packages, because
-L<namespace::autoclean> will inflate your class to a full L<Moose>
-class.  It'll work, but you will lose the benefits of L<Moo>.  Instead
-you are recommended to just use L<namespace::clean>.
+B<On L<namespace::autoclean>:> Older versions of L<namespace::autoclean> would
+inflate Moo classes to full L<Moose> classes, losing the benefits of Moo.  If
+you want to use L<namespace::autoclean> with a Moo class, make sure you are
+using version 0.16 or newer.
 
 =head1 INCOMPATIBILITIES WITH MOOSE
 
