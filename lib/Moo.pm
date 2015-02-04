@@ -3,7 +3,7 @@ package Moo;
 use Moo::_strictures;
 use Moo::_Utils;
 
-our $VERSION = '1.007000';
+our $VERSION = '1.999_001';
 $VERSION = eval $VERSION;
 
 require Moo::sification;

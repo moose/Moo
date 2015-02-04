@@ -5,7 +5,7 @@ use Moo::_Utils;
 use Role::Tiny ();
 our @ISA = qw(Role::Tiny);
 
-our $VERSION = '1.007000';
+our $VERSION = '1.999_001';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
