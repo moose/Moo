@@ -37,13 +37,19 @@ my %META = (
       },
     },
     develop   => {
-      requires => { map { $_ => 0 } qw(
-        strictures
-        indirect multidimensional bareword::filehandles
-        Moose Mouse namespace::clean namespace::autoclean
-        MooseX::Types::Common::Numeric
-        Type::Tiny Class::Tiny
-      ) },
+      requires => {
+        'strictures' => 1.004003,
+        'indirect' => 0,
+        'multidimensional' => 0,
+        'bareword::filehandles' => 0,
+        'Moose' => 0,
+        'Mouse' => 0,
+        'namespace::clean' => 0,
+        'namespace::autoclean' => 0,
+        'MooseX::Types::Common::Numeric' => 0,
+        'Type::Tiny' => 0,
+        'Class::Tiny' => 1.001,
+      },
     },
   },
   resources => {
