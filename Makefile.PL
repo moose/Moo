@@ -68,8 +68,13 @@ my %META = (
   no_index => {
     directory => [ 't', 'xt' ]
   },
-  x_breaks => { # add these entries to t/zzz-check-breaks.t
-    'HTML::Restrict' => '== 2.1.5',
+  x_breaks => {
+    'HTML::Restrict'            => '== 2.1.5',
+    'MySQL::Workbench::Parser'  => '<= 0.05',
+    'MooX::Emulate::Class::Accessor::Fast' => '<= 0.02',
+    'WebService::Shutterstock'  => '<= 0.006',
+    'File::DataClass'           => '<= 0.54.1',
+    'App::Commando'             => '<= 0.012',
   },
   x_authority => 'cpan:MSTROUT',
 );
