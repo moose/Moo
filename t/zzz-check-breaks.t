@@ -3,17 +3,18 @@ use warnings;
 use Test::More;
 
 BEGIN {
+  eval { require CPAN::Meta }
+    or plan skip_all => 'CPAN::Meta required for checking breakages';
   eval { require CPAN::Meta::Requirements }
     or plan skip_all => 'CPAN::Meta::Requirements required for checking breakages';
 }
 
 use ExtUtils::MakeMaker;
 use Module::Runtime qw(module_notional_filename);
-use Moo ();
 
-my $req = CPAN::Meta::Requirements->from_string_hash( {
-  'HTML::Restrict' => '== 2.1.5',
-} );
+my ($meta_file) = grep -f, qw(MYMETA.json MYMETA.yml META.json META.yml);
+my $meta = CPAN::Meta->load_file($meta_file)->as_struct;
+my $req = CPAN::Meta::Requirements->from_string_hash( $meta->{x_breaks} );
 
 pass 'checking breakages...';
 
@@ -35,7 +36,7 @@ for my $module ($req->required_modules) {
 }
 
 if (@breaks) {
-  diag "Installing Moo $Moo::VERSION will break these modules:\n\n"
+  diag "Installing Moo $meta->{version} will break these modules:\n\n"
   . (join '', map {
     "$_->[0] (found version $_->[1])\n"
     . "  Broken versions: $_->[2]\n"
