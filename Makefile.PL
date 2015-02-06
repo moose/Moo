@@ -17,6 +17,7 @@ my %META = (
         'Test::Fatal' => 0.003,
       },
       recommends => {
+        'CPAN::Meta' => 0,
         'CPAN::Meta::Requirements' => 0,
       },
     },
