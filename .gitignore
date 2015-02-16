@@ -14,6 +14,7 @@
 /Moo-*/
 /Moo-*.tar.gz
 /cover_db/
+/_eumm/
 
 # yes that's right, distar makes it for us
 /MANIFEST.SKIP
