@@ -37,7 +37,7 @@ sub demolishall_body_for {
   my @demolishers =
     grep *{_getglob($_)}{CODE},
     map "${_}::DEMOLISH",
-    @{Moo::_Utils::_get_linear_isa($into)};
+    @{mro::get_linear_isa($into)};
   join '', map qq{    ${me}->${_}(${args});\n}, @demolishers;
 }
 

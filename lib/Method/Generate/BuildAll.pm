@@ -27,7 +27,7 @@ sub buildall_body_for {
   my @builds =
     grep *{_getglob($_)}{CODE},
     map "${_}::BUILD",
-    reverse @{Moo::_Utils::_get_linear_isa($into)};
+    reverse @{mro::get_linear_isa($into)};
   '    unless (('.$args.')[0]->{__no_BUILD__}) {'."\n"
   .join('', map qq{      ${me}->${_}(${args});\n}, @builds)
   ."   }\n";
