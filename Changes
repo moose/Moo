@@ -1,5 +1,9 @@
 Revision history for Moo
 
+  * Bug Fixes
+    - Fix calling class methods on Moo::HandleMoose::FakeMetaClass, such as
+      modules scanning all classes
+
 1.999_001 - 2015-02-05
   * Incompatible Changes
     - Fatal warnings and the other additional checks from the strictures
