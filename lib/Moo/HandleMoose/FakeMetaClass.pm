@@ -5,16 +5,25 @@ sub DESTROY { }
 
 sub AUTOLOAD {
   my ($meth) = (our $AUTOLOAD =~ /([^:]+)$/);
+  my $self = shift;
+  die "Can't call $meth without object instance"
+    unless ref $self;
   require Moo::HandleMoose;
-  Moo::HandleMoose::inject_real_metaclass_for((shift)->{name})->$meth(@_)
+  Moo::HandleMoose::inject_real_metaclass_for($self->{name})->$meth(@_)
 }
 sub can {
+  my $self = shift;
+  return $self->SUPER::can(@_)
+    unless ref $self;
   require Moo::HandleMoose;
-  Moo::HandleMoose::inject_real_metaclass_for((shift)->{name})->can(@_)
+  Moo::HandleMoose::inject_real_metaclass_for($self->{name})->can(@_)
 }
 sub isa {
+  my $self = shift;
+  return $self->SUPER::isa(@_)
+    unless ref $self;
   require Moo::HandleMoose;
-  Moo::HandleMoose::inject_real_metaclass_for((shift)->{name})->isa(@_)
+  Moo::HandleMoose::inject_real_metaclass_for($self->{name})->isa(@_)
 }
 sub make_immutable { $_[0] }
 
