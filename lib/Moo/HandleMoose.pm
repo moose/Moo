@@ -57,21 +57,21 @@ sub inject_real_metaclass_for {
   return Class::MOP::get_metaclass_by_name($name) if $DID_INJECT{$name};
   require Moose; require Moo; require Moo::Role; require Scalar::Util;
   Class::MOP::remove_metaclass_by_name($name);
-  my ($am_role, $meta, $attr_specs, $attr_order) = do {
+  my ($am_role, $am_class, $meta, $attr_specs, $attr_order) = do {
     if (my $info = $Moo::Role::INFO{$name}) {
       my @attr_info = @{$info->{attributes}||[]};
-      (1, Moose::Meta::Role->initialize($name),
+      (1, 0, Moose::Meta::Role->initialize($name),
        { @attr_info },
        [ @attr_info[grep !($_ % 2), 0..$#attr_info] ]
       )
     } elsif ( my $cmaker = Moo->_constructor_maker_for($name) ) {
       my $specs = $cmaker->all_attribute_specs;
-      (0, Moose::Meta::Class->initialize($name), $specs,
+      (0, 1, Moose::Meta::Class->initialize($name), $specs,
        [ sort { $specs->{$a}{index} <=> $specs->{$b}{index} } keys %$specs ]
       );
     } else {
        # This codepath is used if $name does not exist in $Moo::MAKERS
-       (0, Moose::Meta::Class->initialize($name), {}, [] )
+       (0, 0, Moose::Meta::Class->initialize($name), {}, [] )
     }
   };
 
@@ -185,7 +185,8 @@ sub inject_real_metaclass_for {
       my $code = pop @args;
       $meta->${\"add_${type}_method_modifier"}($_, $code) for @args;
     }
-  } else {
+  }
+  elsif ($am_class) {
     foreach my $attr (@attrs) {
       foreach my $method (@{$attr->associated_methods}) {
         $method->{body} = $name->can($method->name);
