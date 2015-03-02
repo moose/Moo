@@ -1,10 +1,5 @@
 Revision history for Moo
 
-  * Bug Fixes
-    - Fix calling class methods on Moo::HandleMoose::FakeMetaClass, such as
-      modules scanning all classes
-
-1.999_001 - 2015-02-05
   * Incompatible Changes
     - Fatal warnings and the other additional checks from the strictures
       module will no longer be applied to modules using Moo or Moo::Role.  We
@@ -25,6 +20,10 @@ Revision history for Moo
       affects object construction, Moo will detect this and throw an error.
       This can happen in code that uses ->load_components from
       Class::C3::Componentised, which is common in DBIx::Class modules.
+
+  * Bug Fixes
+    - Fix calling class methods on Moo::HandleMoose::FakeMetaClass, such as
+      modules scanning all classes
 
   * Miscellaneous
     - use Sub::Util instead of Sub::Name if available
