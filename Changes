@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.000000 - 2015-03-02
   * Incompatible Changes
     - Fatal warnings and the other additional checks from the strictures
       module will no longer be applied to modules using Moo or Moo::Role.  We
