@@ -66,12 +66,9 @@ use Test::Fatal;
   use Moo;
   extends 'ClassyClass', 'ClassyClass2';
   ::is(::exception {
-    has '+f' => ();
-  }, undef, 'extend attribute from first parent');
-  ::like(::exception {
     has '+d' => ();
-  }, qr/no d attribute already exists/,
-    'can\'t extend attribute from second parent');
+    has '+f' => ();
+  }, undef, 'extend attributes from multiple parents')
 }
 
 is(UsesTheRole->new->f, 0, 'role attr');
