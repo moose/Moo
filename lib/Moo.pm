@@ -405,7 +405,7 @@ or
    unshift @args, "attr1" if @args % 2 == 1;
 
    return { @args };
- };
+ }
 
  Foo::Bar->new( 3 );
 
