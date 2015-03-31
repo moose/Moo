@@ -204,10 +204,14 @@ sub _constructor_maker_for {
         };
       }
     }
+    my @attr_specs = map { %{$_->all_attribute_specs } }
+      map { $_->{constructor} || () }
+      map { $MAKERS{$_} || () }
+      reverse @isa;
     ($con ? ref($con) : 'Method::Generate::Constructor')
       ->new(%construct_opts)
       ->install_delayed
-      ->register_attribute_specs(%{$con?$con->all_attribute_specs:{}})
+      ->register_attribute_specs(@attr_specs);
   }
 }
 
