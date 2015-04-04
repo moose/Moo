@@ -254,12 +254,15 @@ sub role_application_steps {
 
 sub apply_roles_to_package {
   my ($me, $to, @roles) = @_;
+  my @cleaned_roles;
   foreach my $role (@roles) {
+    next if ref($role) eq 'HASH';
+    push @cleaned_roles, $role;
     _load_module($role);
     $me->_inhale_if_moose($role);
     die "${role} is not a Moo::Role" unless $me->is_role($role);
   }
-  $me->SUPER::apply_roles_to_package($to, @roles);
+  $me->SUPER::apply_roles_to_package($to, @cleaned_roles);
 }
 
 sub apply_single_role_to_package {
