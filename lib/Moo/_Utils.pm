@@ -6,10 +6,14 @@ sub _getglob { \*{$_[0]} }
 sub _getstash { \%{"$_[0]::"} }
 
 use constant lt_5_8_3 => ( $] < 5.008003 or $ENV{MOO_TEST_PRE_583} ) ? 1 : 0;
-use constant can_haz_subutil => $INC{"Sub/Util.pm"}
-    || ( !$INC{"Sub/Name.pm"} && eval { require Sub::Util } );
-use constant can_haz_subname => $INC{"Sub/Name.pm"}
-    || ( !$INC{"Sub/Util.pm"} && eval { require Sub::Name } );
+use constant can_haz_subutil => (
+    $INC{"Sub/Util.pm"}
+    || ( !$INC{"Sub/Name.pm"} && eval { require Sub::Util } )
+  ) && defined &Sub::Util::set_subname;
+use constant can_haz_subname => (
+    $INC{"Sub/Name.pm"}
+    || ( !$INC{"Sub/Util.pm"} && eval { require Sub::Name } )
+  ) && defined &Sub::Name::subname;
 
 use Moo::_strictures;
 use Module::Runtime qw(use_package_optimistically module_notional_filename);
