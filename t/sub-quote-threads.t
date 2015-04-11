@@ -4,6 +4,10 @@ BEGIN {
     print "1..0 # SKIP your perl does not support ithreads\n";
     exit 0;
   }
+  if ($] <= 5.008004) {
+    print "1..0 # SKIP threads not reliable enough on perl <= 5.8.4\n";
+    exit 0;
+  }
 }
 use threads;
 use Moo::_strictures;
