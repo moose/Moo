@@ -1,5 +1,8 @@
 Revision history for Moo
 
+  - Allow stub methods (e.g. sub foo;) to be overwritten by accessors or other
+    generated methods. (RT#103804)
+
 2.000001 - 2015-03-16
   - Fix how we pick between Sub::Name and Sub::Util if they are both loaded.
     This fixes how we interact with Moose in some cases. (RT#102729) (GH#15)

@@ -85,6 +85,13 @@ ok(my $e = exception {
 like $e, qr{You cannot overwrite a locally defined method \(smash\) with a delegation},
   '... and has correct error message';
 
+is exception {
+  package Buzz;
+  use Moo;
+  has foo => ( is => 'ro', handles => 'Robot' );
+  sub smash;
+}, undef, 'handles can overwrite predeclared subs';
+
 ok(exception {
   package Fuzz;
   use Moo;
