@@ -81,7 +81,7 @@ sub generate_method {
     }
   }
 
-  for my $setting (qw( isa coerce )) {
+  foreach my $setting (qw( isa coerce )) {
     next if !exists $spec->{$setting};
     $self->_validate_codulatable($setting, $spec->{$setting}, "$into->$name");
   }
@@ -98,7 +98,7 @@ sub generate_method {
       $spec->{moosify} = [$spec->{moosify}];
     }
 
-    for my $spec (@{$spec->{moosify}}) {
+    foreach my $spec (@{$spec->{moosify}}) {
       $self->_validate_codulatable('moosify', $spec, "$into->$name");
     }
   }

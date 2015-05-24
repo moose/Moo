@@ -76,7 +76,7 @@ sub inject_real_metaclass_for {
     }
   };
 
-  for my $spec (values %$attr_specs) {
+  foreach my $spec (values %$attr_specs) {
     if (my $inflators = delete $spec->{moosify}) {
       $_->($spec) for @$inflators;
     }
@@ -173,7 +173,7 @@ sub inject_real_metaclass_for {
       }
     }
   }
-  for my $meth_name (keys %methods) {
+  foreach my $meth_name (keys %methods) {
     my $meth_code = $methods{$meth_name};
     $meta->add_method($meth_name, $meth_code) if $meth_code;
   }

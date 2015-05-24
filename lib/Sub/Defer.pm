@@ -72,7 +72,7 @@ sub defer_sub {
 
 sub CLONE {
   %DEFERRED = map { defined $_ && $_->[3] ? ($_->[3] => $_) : () } values %DEFERRED;
-  for my $info (values %DEFERRED) {
+  foreach my $info (values %DEFERRED) {
     weaken($info)
       unless $info->[0] && ${$info->[2]};
   }
