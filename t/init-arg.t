@@ -72,4 +72,25 @@ like(
   "lazy init_arg",
 );
 
+{
+  package Bar;
+  
+  use Moo;
+  
+  has sane_key_name => (
+    is => 'rw',
+    init_arg => 'stupid key name',
+    isa => sub { die "isa" if $_[0] % 2 },
+    required => 1
+  );
+}
+
+my $bar;
+is(
+  exception { $bar= Bar->new('stupid key name' => 4) },
+  undef, 'no error requiring init_arg with spaces',
+);
+
+is( $bar->sane_key_name, 4, 'key renamed correctly' );
+
 done_testing;
