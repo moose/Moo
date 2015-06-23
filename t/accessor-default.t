@@ -83,7 +83,9 @@ my $foo = Foo->new;
 is($foo->fifteen, undef, 'undef default');
 ok(exists $foo->{fifteen}, 'undef default is stored');
 
-is( Foo->new->default_with_coerce, "blah\n" );
-is( Foo->new->default_no_coerce,   "blah\n" );
+is( Foo->new->default_with_coerce, "blah\n",
+  "exceptions in defaults not modified with coerce" );
+is( Foo->new->default_no_coerce,   "blah\n",
+  "exceptions in defaults not modified without coerce" );
 
 done_testing;
