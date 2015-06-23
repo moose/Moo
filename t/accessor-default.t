@@ -1,5 +1,6 @@
 use Moo::_strictures;
 use Test::More;
+use Test::Fatal;
 
 my $c_ran;
 {
@@ -87,5 +88,14 @@ is( Foo->new->default_with_coerce, "blah\n",
   "exceptions in defaults not modified with coerce" );
 is( Foo->new->default_no_coerce,   "blah\n",
   "exceptions in defaults not modified without coerce" );
+
+{
+  package Bar;
+  use Moo;
+  has required_false_default => (is => 'ro', required => 1, default => 0);
+}
+
+is exception { Bar->new }, undef,
+  'required attributes with false defaults work';
 
 done_testing;
