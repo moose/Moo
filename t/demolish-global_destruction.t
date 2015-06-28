@@ -1,10 +1,23 @@
 use Moo::_strictures;
 no warnings 'once';
-use Test::More tests => 2;
 use POSIX ();
-Test::More->builder->no_ending(1);
+
+$| = 1;
 
 our $fail = 2;
+our $tests = 0;
+sub ok {
+  my ($ok, $message) = @_;
+  print
+    +($ok ? '' : 'not ')
+    . 'ok ' . ++$tests
+    . ($message ? " - $message" : '')
+    . "\n";
+  return $ok;
+}
+
+print "1..2\n";
+
 BEGIN {
     package Foo;
     use Moo;
