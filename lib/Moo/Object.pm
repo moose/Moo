@@ -64,6 +64,8 @@ sub DEMOLISHALL {
 }
 
 sub does {
+  return !!1
+    unless ($INC{'Moose/Role.pm'} || $INC{'Role/Tiny.pm'});
   require Moo::Role;
   my $does = Moo::Role->can("does_role");
   { no warnings 'redefine'; *does = $does }

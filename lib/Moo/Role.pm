@@ -379,6 +379,7 @@ sub does_role {
   if ($INC{'Moose.pm'}
       and $meta = Class::MOP::class_of($proto)
       and ref $meta ne 'Moo::HandleMoose::FakeMetaClass'
+      and $meta->can('does_role')
   ) {
     return $meta->does_role($role);
   }
