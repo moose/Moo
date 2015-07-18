@@ -215,7 +215,7 @@ sub generate_method {
       } elsif (!ref($hspec)) {
         require Moo::Role;
         _load_module $hspec;
-        map [ $_ => $_ ], Moo::Role->methods_provided_by($hspec)
+        Moo::Role->_copy_applied_list($into, $hspec);
       } else {
         croak "You gave me a handles of ${hspec} and I have no idea why";
       }

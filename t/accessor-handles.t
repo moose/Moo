@@ -83,6 +83,7 @@ is $bar->two, 2, 'handles works for more than one method';
 is $bar->un, 1, 'handles works for aliasing a method';
 
 is $bar->smash, 'smash', 'handles works for a role';
+ok $bar->does('Robot'), 'handles with role implies class does role';
 
 is $bar->beep, 'beep', 'handles loads roles';
 
