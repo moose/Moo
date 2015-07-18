@@ -241,6 +241,11 @@ sub is_simple_set {
   !grep $spec->{$_}, qw(coerce isa trigger weak_ref);
 }
 
+sub has_default {
+  my ($self, $name, $spec) = @_;
+  $spec->{builder} or exists $spec->{default} or (($spec->{is}||'') eq 'lazy');
+}
+
 sub has_eager_default {
   my ($self, $name, $spec) = @_;
   (!$spec->{lazy} and (exists $spec->{default} or $spec->{builder}));

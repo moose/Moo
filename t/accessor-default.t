@@ -93,6 +93,14 @@ is( Foo->new->default_no_coerce,   "blah\n",
   package Bar;
   use Moo;
   has required_false_default => (is => 'ro', required => 1, default => 0);
+
+  ::is ::exception {
+    has required_is_lazy_no_init_arg => (
+      is => 'lazy',
+      required => 1,
+      init_arg => undef,
+    );
+  }, undef, 'is => lazy satisfies requires';
 }
 
 is exception { Bar->new }, undef,

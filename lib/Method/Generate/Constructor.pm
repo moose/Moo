@@ -29,8 +29,7 @@ sub register_attribute_specs {
     }
     if ($new_spec->{required}
       && !(
-        exists $new_spec->{default}
-        || $new_spec->{builder}
+        $self->accessor_generator->has_default($name, $new_spec)
         || !exists $new_spec->{init_arg}
         || defined $new_spec->{init_arg}
       )
