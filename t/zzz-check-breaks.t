@@ -2,17 +2,19 @@ use strict;
 use warnings;
 use Test::More;
 
+my $meta_file;
 BEGIN {
   eval { require CPAN::Meta }
     or plan skip_all => 'CPAN::Meta required for checking breakages';
   eval { require CPAN::Meta::Requirements }
     or plan skip_all => 'CPAN::Meta::Requirements required for checking breakages';
+  ($meta_file) = grep -f, qw(MYMETA.json MYMETA.yml META.json META.yml)
+    or plan skip_all => 'no META file exists';
 }
 
 use ExtUtils::MakeMaker;
 use Module::Runtime qw(module_notional_filename);
 
-my ($meta_file) = grep -f, qw(MYMETA.json MYMETA.yml META.json META.yml);
 my $meta = CPAN::Meta->load_file($meta_file)->as_struct;
 my $req = CPAN::Meta::Requirements->from_string_hash( $meta->{x_breaks} );
 
