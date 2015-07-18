@@ -1,6 +1,6 @@
 package Moo::HandleMoose;
-
 use Moo::_strictures;
+no warnings 'once';
 use Moo::_Utils;
 use Sub::Quote qw(quotify);
 
@@ -11,6 +11,8 @@ our $SETUP_DONE;
 sub import { return if $SETUP_DONE; inject_all(); $SETUP_DONE = 1; }
 
 sub inject_all {
+  die "Can't inflate Moose metaclass with Moo::sification disabled"
+    if $Moo::sification::disabled;
   require Class::MOP;
   inject_fake_metaclass_for($_)
     for grep $_ ne 'Moo::Object', do { no warnings 'once'; keys %Moo::MAKERS };
