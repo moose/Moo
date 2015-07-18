@@ -13,11 +13,16 @@ sub Moo::HandleMoose::AuthorityHack::DESTROY {
   }
 }
 
-if ($INC{"Moose.pm"}) {
-  require Moo::HandleMoose;
-  Moo::HandleMoose->import;
-} else {
-  $Moose::AUTHORITY = bless({}, 'Moo::HandleMoose::AuthorityHack');
+sub import {
+  return
+    if our $setup_done;
+  if ($INC{"Moose.pm"}) {
+    require Moo::HandleMoose;
+    Moo::HandleMoose->import;
+  } else {
+    $Moose::AUTHORITY = bless({}, 'Moo::HandleMoose::AuthorityHack');
+  }
+  $setup_done = 1;
 }
 
 1;

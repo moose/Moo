@@ -9,6 +9,7 @@ our $VERSION = '2.000001';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
+Moo::sification->import;
 
 BEGIN {
     *INFO = \%Role::Tiny::INFO;
