@@ -230,8 +230,8 @@ sub _check_required {
         $s{required} and not($s{builder} or exists $s{default})
       } sort keys %$spec;
   return '' unless @required_init;
-  '    if (my @missing = grep !exists $args->{$_}, qw('
-    .join(' ',@required_init).')) {'."\n"
+  '    if (my @missing = grep !exists $args->{$_}, '
+    .join(', ', map quotify($_), @required_init).') {'."\n"
     .q{      die "Missing required arguments: ".join(', ', sort @missing);}."\n"
     ."    }\n";
 }
