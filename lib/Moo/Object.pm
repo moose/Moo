@@ -17,15 +17,13 @@ sub new {
       })->generate_method($class);
     }
   }
+  my $proto = $class->BUILDARGS(@_);
   $NO_BUILD{$class} and
     return bless({}, $class);
   $NO_BUILD{$class} = !$class->can('BUILD') unless exists $NO_BUILD{$class};
   $NO_BUILD{$class}
     ? bless({}, $class)
-    : do {
-        my $proto = ref($_[0]) eq 'HASH' ? $_[0] : { @_ };
-        bless({}, $class)->BUILDALL($proto);
-      };
+    : bless({}, $class)->BUILDALL($proto);
 }
 
 # Inlined into Method::Generate::Constructor::_generate_args() - keep in sync

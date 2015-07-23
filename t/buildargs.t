@@ -135,6 +135,9 @@ is $ext_non_moo->attr2, 'baz',
 {
   package NoAttr;
   use Moo;
+  before BUILDARGS => sub {
+    our $buildargs_called++;
+  };
 }
 
 eval {
@@ -143,7 +146,9 @@ eval {
 like( $@, qr/Single parameters to new\(\) must be a HASH ref/,
   "default BUILDARGS requires a list or a HASH ref"
 );
+$NoAttr::buildargs_called = 0;
 my $noattr = NoAttr->new({ foo => 'bar' });
 is $noattr->{foo}, undef, 'without attributes, no params are stored';
+is $NoAttr::buildargs_called, 1, 'BUILDARGS called even without attributes';
 
 done_testing;
