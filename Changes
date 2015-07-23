@@ -1,5 +1,20 @@
 Revision history for Moo
 
+  - BUILDARGS will now always be called on object creation, even if no
+    attributes exist
+  - fix required attributes with spaces or other odd characters in init_arg
+  - fix (is => 'lazy', required => 1, init_arg => undef), which previously
+    didn't think it provided a builder
+  - under 'no Moo::sification', prevent automatic Moose metaclass inflation
+    from ->meta calls
+  - don't load Moo::Role for a ->does check if no roles could exist
+  - make global destruction test more robust from outside interference
+  - fix false default values satisfying required attributes
+  - Fix Moose attribute delegation to a Moo class via a wildcard
+  - work around case where Sub::Util is loadable but doesn't provide
+    Sub::Util::set_subname
+  - skip thread tests on perl 5.8.4 and below where threads are extremely
+    unreliable
   - Allow stub methods (e.g. sub foo;) to be overwritten by accessors or other
     generated methods. (RT#103804)
 
