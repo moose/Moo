@@ -107,4 +107,27 @@ $o = $c->new(one => 1, two => 2, three => 3, four => 4);
 
 is_deeply([ @$o ], [ 1, 2, 3, 4 ], 'Generated subclass object w/role');
 
+{
+  package ArrayNonMoo;
+  sub new { bless [], $_[0] }
+}
+
+{
+  package ArrayTest4;
+
+  use Moo;
+  use MooX::ArrayRef;
+
+  extends 'ArrayNonMoo';
+
+  has one => (is => 'ro');
+  has two => (is => 'ro');
+  has three => (is => 'ro');
+  has four => (is => 'ro');
+}
+
+$o = ArrayTest4->new(one => 1, two => 2, three => 3, four => 4);
+
+is_deeply([ @$o ], [ 1, 2, 3, 4 ], 'Subclass of non-Moo object');
+
 done_testing;
