@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.000002 - 2015-07-24
   - BUILDARGS will now always be called on object creation, even if no
     attributes exist
   - fix required attributes with spaces or other odd characters in init_arg
