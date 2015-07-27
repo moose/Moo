@@ -28,9 +28,9 @@ sub buildall_body_for {
     grep *{_getglob($_)}{CODE},
     map "${_}::BUILD",
     reverse @{mro::get_linear_isa($into)};
-  '    unless (('.$args.')[0]->{__no_BUILD__}) {'."\n"
-  .join('', map qq{      ${me}->${_}(${args});\n}, @builds)
-  ."   }\n";
+  '    (('.$args.')[0]->{__no_BUILD__} or ('."\n"
+  .join('', map qq{      ${me}->${_}(${args}),\n}, @builds)
+  ."    )),\n";
 }
 
 1;
