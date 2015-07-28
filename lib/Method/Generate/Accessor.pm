@@ -427,24 +427,18 @@ sub _wrap_attr_exception {
   .'    name     => '.quotify($name).",\n"
   .'    step     => '.quotify($step).",\n"
   ."  };\n"
-  .($want_return ? '  my $_return;'."\n" : '')
-  .'  my $_error;'."\n"
-  ."  {\n"
-  .'    my $_old_error = $@;'."\n"
-  ."    if (!eval {\n"
-  .'      $@ = $_old_error;'."\n"
-  .($want_return ? '      $_return ='."\n" : '')
-  .'      '.$code.";\n"
-  ."      1;\n"
-  ."    }) {\n"
-  .'      $_error = $@;'."\n"
-  .'      if (!ref $_error) {'."\n"
-  .'        $_error = '.$prefix.'.$_error;'."\n"
-  ."      }\n"
-  ."    }\n"
-  .'    $@ = $_old_error;'."\n"
-  ."  }\n"
-  .'  die $_error if $_error;'."\n"
+  .($want_return ? '  my $_return,'."\n" : '')
+  .'  my $_error, my $_old_error = $@;'."\n"
+  ."  (eval {\n"
+  .'    ($@ = $_old_error),'."\n"
+  .'    ('
+  .($want_return ? '$_return ='."\n" : '')
+  .$code."),\n"
+  ."    1\n"
+  ."  } or\n"
+  .'    $_error = ref $@ ? $@ : '.$prefix.'.$@),'."\n"
+  .'  ($@ = $_old_error),'."\n"
+  .'  (defined $_error and die $_error);'."\n"
   .($want_return ? '  $_return;'."\n" : '')
   ."}\n"
 }
