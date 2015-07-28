@@ -30,7 +30,7 @@ sub new {
 sub BUILDARGS {
   my $class = shift;
   scalar @_ == 1
-    ? defined $_[0] && ref $_[0] eq 'HASH'
+    ? ref $_[0] eq 'HASH'
       ? { %{ $_[0] } }
       : die "Single parameters to new() must be a HASH ref"
           . " data => ". $_[0] ."\n"
