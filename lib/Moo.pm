@@ -418,6 +418,15 @@ it throws an error.
 You can override this method in your class to handle other types of options
 passed to the constructor.
 
+You can also use L</around> to augment the default argument parsing:
+
+ around BUILDARGS => sub {
+   my ( $orig, $class, @args ) = @_;
+   my $args_ref = $orig->($class, @args);
+   $args_ref->{foo} //= $args_ref->{bar};
+   return $args_ref;
+ };
+
 This method should always return a hash reference of named options.
 
 =head2 FOREIGNBUILDARGS
