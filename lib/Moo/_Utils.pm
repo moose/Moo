@@ -25,7 +25,7 @@ use Config;
 
 our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
-    _get_linear_isa _getstash _install_coderef _name_coderef
+    _getstash _install_coderef _name_coderef
     _unimport_coderefs _in_global_destruction _set_loaded
 );
 
@@ -78,10 +78,6 @@ sub _maybe_load_module {
 
 sub _set_loaded {
   $INC{Module::Runtime::module_notional_filename($_[0])} ||= $_[1];
-}
-
-sub _get_linear_isa {
-  return mro::get_linear_isa($_[0]);
 }
 
 sub _install_coderef {
