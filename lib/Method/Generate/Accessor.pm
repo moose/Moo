@@ -518,49 +518,49 @@ sub _generate_populate_set {
       )
     }
     ($spec->{isa}
-      ? "    {\n      my \$value = ".$get_value.";\n      "
+      ? "    do {\n      my \$value = ".$get_value.";\n      "
         .$self->_generate_isa_check(
           $name, '$value', $spec->{isa}, $init_arg
-        ).";\n"
+        ).",\n"
         .'      '.$self->_generate_simple_set($me, $name, $spec, '$value').";\n"
-        ."    }\n"
-      : '    '.$self->_generate_simple_set($me, $name, $spec, $get_value).";\n"
+        ."    },\n"
+      : '    ('.$self->_generate_simple_set($me, $name, $spec, $get_value)."),\n"
     )
     .($spec->{trigger}
-      ? '    '
+      ? "    ((${test}) and ("
         .$self->_generate_trigger(
           $name, $me, $self->_generate_simple_get($me, $name, $spec),
           $spec->{trigger}
-        )." if ${test};\n"
+        ).")),\n"
       : ''
     );
   } else {
-    "    if (${test}) {\n"
+    "    ((${test}) and (\n"
       .($spec->{coerce}
-        ? "      $source = "
+        ? "      ($source = "
           .$self->_generate_coerce(
             $name, $source,
             $spec->{coerce}, $init_arg
-          ).";\n"
+          )."),\n"
         : ""
       )
       .($spec->{isa}
-        ? "      "
+        ? "      ("
           .$self->_generate_isa_check(
             $name, $source, $spec->{isa}, $init_arg
-          ).";\n"
+          )."),\n"
         : ""
       )
-      ."      ".$self->_generate_simple_set($me, $name, $spec, $source).";\n"
+      ."      (".$self->_generate_simple_set($me, $name, $spec, $source)."),\n"
       .($spec->{trigger}
-        ? "      "
+        ? "      ("
           .$self->_generate_trigger(
             $name, $me, $self->_generate_simple_get($me, $name, $spec),
             $spec->{trigger}
-          ).";\n"
+          )."),\n"
         : ""
       )
-      ."    }\n";
+      ."    )),\n";
   }
 }
 
