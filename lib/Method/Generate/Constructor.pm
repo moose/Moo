@@ -125,8 +125,7 @@ sub generate_method {
     $spec->{$no_init}{init_arg} = $no_init;
   }
   local $self->{captures} = {};
-  my $body = '    my $class = shift;'."\n"
-            .'    $class = ref($class) if ref($class);'."\n";
+  my $body = '    my $class = ref($_[0]) ? ref(shift) : shift;';
   $body .= $self->_handle_subconstructor($into, $name);
   my $into_buildargs = $into->can('BUILDARGS');
   if ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS ) {
@@ -181,21 +180,16 @@ sub _generate_args_via_buildargs {
 sub _generate_args {
   my ($self) = @_;
   return <<'_EOA';
-    my $args;
-    if ( scalar @_ == 1 ) {
-        unless ( defined $_[0] && ref $_[0] eq 'HASH' ) {
-            die "Single parameters to new() must be a HASH ref"
-                ." data => ". $_[0] ."\n";
-        }
-        $args = { %{ $_[0] } };
-    }
-    elsif ( @_ % 2 ) {
-        die "The new() method for $class expects a hash reference or a"
-          . " key/value list. You passed an odd number of arguments\n";
-    }
-    else {
-        $args = {@_};
-    }
+    my $args = scalar @_ == 1
+      ? ref $_[0] eq 'HASH'
+        ? { %{ $_[0] } }
+        : die "Single parameters to new() must be a HASH ref"
+            . " data => ". $_[0] ."\n"
+      : @_ % 2
+        ? die "The new() method for $class expects a hash reference or a"
+            . " key/value list. You passed an odd number of arguments\n"
+        : {@_}
+    ;
 _EOA
 
 }

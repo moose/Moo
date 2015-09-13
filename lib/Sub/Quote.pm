@@ -137,8 +137,7 @@ sub unquote_sub {
         ? "  no warnings 'closure';\n  sub ${name} {\n"
         : "  \$\$_UNQUOTED = sub {\n"
     );
-    $make_sub .= "  \$_QUOTED if 0;\n";
-    $make_sub .= "  \$_UNQUOTED if 0;\n";
+    $make_sub .= "  (\$_QUOTED,\$_UNQUOTED) if 0;\n";
     $make_sub .= $code;
     $make_sub .= "  }".($name ? '' : ';')."\n";
     if ($name) {

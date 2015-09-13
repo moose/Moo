@@ -28,21 +28,17 @@ sub new {
 
 # Inlined into Method::Generate::Constructor::_generate_args() - keep in sync
 sub BUILDARGS {
-    my $class = shift;
-    if ( scalar @_ == 1 ) {
-        unless ( defined $_[0] && ref $_[0] eq 'HASH' ) {
-            die "Single parameters to new() must be a HASH ref"
-                ." data => ". $_[0] ."\n";
-        }
-        return { %{ $_[0] } };
-    }
-    elsif ( @_ % 2 ) {
-        die "The new() method for $class expects a hash reference or a"
-          . " key/value list. You passed an odd number of arguments\n";
-    }
-    else {
-        return {@_};
-    }
+  my $class = shift;
+  scalar @_ == 1
+    ? ref $_[0] eq 'HASH'
+      ? { %{ $_[0] } }
+      : die "Single parameters to new() must be a HASH ref"
+          . " data => ". $_[0] ."\n"
+    : @_ % 2
+      ? die "The new() method for $class expects a hash reference or a"
+          . " key/value list. You passed an odd number of arguments\n"
+      : {@_}
+  ;
 }
 
 sub BUILDALL {
