@@ -60,6 +60,29 @@ like $quoted2->[1], qr/return 5;/,
   "can still get quoted from installed sub after undefer";
 undef $quoted;
 
+{
+  package Bar;
+  ::quote_sub blorp => q{ 1; };
+}
+ok defined &Bar::blorp,
+  'bare sub name installed in current package';
+
+my $long = "a" x 252;
+is exception {
+  quote_sub "${long}::${long}", q{ return 1; };
+}, undef,
+  'long names work if package and sub are short enough';
+
+like exception {
+  quote_sub "${long}${long}::${long}", q{ return 1; };
+}, qr/^package name $long$long too long/,
+  'over long package names error';
+
+like exception {
+  quote_sub "${long}::${long}${long}", q{ return 1; };
+}, qr/^sub name $long$long too long/,
+  'over long sub names error';
+
 my $broken_quoted = quote_sub q{
   return 5<;
 };

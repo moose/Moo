@@ -161,7 +161,8 @@ sub _constructor_maker_for {
       subconstructor_handler => (
         '      if ($Moo::MAKERS{$class}) {'."\n"
         .'        if ($Moo::MAKERS{$class}{constructor}) {'."\n"
-        .'          return $class->'.$target.'::SUPER::new(@_);'."\n"
+        .'          package '.$target.';'."\n"
+        .'          return $class->SUPER::new(@_);'."\n"
         .'        }'."\n"
         .'        '.$class.'->_constructor_maker_for($class);'."\n"
         .'        return $class->new(@_)'.";\n"

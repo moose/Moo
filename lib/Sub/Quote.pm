@@ -75,6 +75,15 @@ sub quote_sub {
   undef($captures) if $captures && !keys %$captures;
   my $code = pop;
   my $name = $_[0];
+  if ($name) {
+    my $subname = $name;
+    my $package = $subname =~ s/(.*)::// ? $1 : caller;
+    $name = join '::', $package, $subname;
+    die "package name $package too long!"
+      if length $package > 252;
+    die "sub name $subname too long!"
+      if length $subname > 252;
+  }
   my ($package, $hints, $bitmask, $hintshash) = (caller(0))[0,8,9,10];
   my $context
     ="# BEGIN quote_sub PRELUDE\n"
@@ -121,6 +130,10 @@ sub unquote_sub {
   my $unquoted = $quoted->[3];
   unless ($unquoted && $$unquoted) {
     my ($name, $code, $captures) = @$quoted;
+    my $package;
+
+    ($package, $name) = $name =~ /(.*)::(.*)/
+      if $name;
 
     my $make_sub = "{\n";
 
@@ -134,7 +147,7 @@ sub unquote_sub {
           # disable the 'variable $x will not stay shared' warning since
           # we're not letting it escape from this scope anyway so there's
           # nothing trying to share it
-        ? "  no warnings 'closure';\n  sub ${name} {\n"
+        ? "  no warnings 'closure';\n  package ${package};\n  sub ${name} {\n"
         : "  \$\$_UNQUOTED = sub {\n"
     );
     $make_sub .= "  (\$_QUOTED,\$_UNQUOTED) if 0;\n";
@@ -147,7 +160,7 @@ sub unquote_sub {
     $ENV{SUB_QUOTE_DEBUG} && warn $make_sub;
     {
       no strict 'refs';
-      local *{$name} if $name;
+      local *{"${package}::${name}"} if $name;
       my ($success, $e);
       {
         local $@;
