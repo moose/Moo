@@ -6,6 +6,8 @@ use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quoted_from_sub quotify);
 use Scalar::Util 'blessed';
+use Carp qw(croak);
+BEGIN { our @CARP_NOT = qw(Moo::_Utils) }
 use overload ();
 BEGIN {
   *_CAN_WEAKEN_READONLY = (
@@ -29,7 +31,7 @@ my $module_name_only = qr/\A$Module::Runtime::module_name_rx\z/;
 sub _die_overwrite
 {
   my ($pkg, $method, $type) = @_;
-  die "You cannot overwrite a locally defined method ($method) with "
+  croak "You cannot overwrite a locally defined method ($method) with "
     . ( $type || 'an accessor' );
 }
 
@@ -38,7 +40,7 @@ sub generate_method {
   $quote_opts = { %{ $quote_opts||{} } };
   $quote_opts->{no_defer} = 1;
   $spec->{allow_overwrite}++ if $name =~ s/^\+//;
-  die "Must have an is" unless my $is = $spec->{is};
+  croak "Must have an is" unless my $is = $spec->{is};
   if ($is eq 'ro') {
     $spec->{reader} = $name unless exists $spec->{reader};
   } elsif ($is eq 'rw') {
@@ -52,7 +54,7 @@ sub generate_method {
     $spec->{reader} = $name unless exists $spec->{reader};
     $spec->{writer} = "_set_${name}" unless exists $spec->{writer};
   } elsif ($is ne 'bare') {
-    die "Unknown is ${is}";
+    croak "Unknown is ${is}";
   }
   if (exists $spec->{builder}) {
     if(ref $spec->{builder}) {
@@ -62,7 +64,7 @@ sub generate_method {
       $spec->{builder} = 1;
     }
     $spec->{builder} = '_build_'.$name if ($spec->{builder}||0) eq 1;
-    die "Invalid builder for $into->$name - not a valid method name"
+    croak "Invalid builder for $into->$name - not a valid method name"
       if $spec->{builder} !~ $module_name_only;
   }
   if (($spec->{predicate}||0) eq 1) {
@@ -81,7 +83,7 @@ sub generate_method {
     } elsif (blessed $isa and $isa->can('coerce')) {
       $spec->{coerce} = sub { $isa->coerce(@_) };
     } else {
-      die "Invalid coercion for $into->$name - no appropriate type constraint";
+      croak "Invalid coercion for $into->$name - no appropriate type constraint";
     }
   }
 
@@ -119,7 +121,7 @@ sub generate_method {
       $self->{captures} = {};
       $methods{$reader} =
         quote_sub "${into}::${reader}"
-          => '    die "'.$reader.' is a read-only accessor" if @_ > 1;'."\n"
+          => '    Carp::croak("'.$reader.' is a read-only accessor") if @_ > 1;'."\n"
              .$self->_generate_get($name, $spec)
           => delete $self->{captures}
           => $quote_opts
@@ -209,7 +211,7 @@ sub generate_method {
         _load_module $hspec;
         map [ $_ => $_ ], Moo::Role->methods_provided_by($hspec)
       } else {
-        die "You gave me a handles of ${hspec} and I have no idea why";
+        croak "You gave me a handles of ${hspec} and I have no idea why";
       }
     };
     foreach my $delegation_spec (@specs) {
@@ -608,7 +610,7 @@ sub _generate_asserter {
   "do {\n"
    ."  my \$val = ".$self->_generate_get($name, $spec).";\n"
    ."  unless (".$self->_generate_simple_has('$_[0]', $name, $spec).") {\n"
-   .qq!    die "Attempted to access '${name}' but it is not set";\n!
+   .qq!    Carp::croak("Attempted to access '${name}' but it is not set");\n!
    ."  }\n"
    ."  \$val;\n"
    ."}\n";
@@ -647,11 +649,11 @@ sub _validate_codulatable {
   $invalid .= " $appended" if $appended;
 
   unless (ref $value and (ref $value eq 'CODE' or blessed($value))) {
-    die "$invalid or code-convertible object";
+    croak "$invalid or code-convertible object";
   }
 
   unless (eval { \&$value }) {
-    die "$invalid and could not be converted to a coderef: $@";
+    croak "$invalid and could not be converted to a coderef: $@";
   }
 
   1;

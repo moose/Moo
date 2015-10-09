@@ -1,6 +1,7 @@
 package Moo::Object;
 
 use Moo::_strictures;
+use Carp ();
 
 our %NO_BUILD;
 our %NO_DEMOLISH;
@@ -32,11 +33,11 @@ sub BUILDARGS {
   scalar @_ == 1
     ? ref $_[0] eq 'HASH'
       ? { %{ $_[0] } }
-      : die "Single parameters to new() must be a HASH ref"
-          . " data => ". $_[0] ."\n"
+      : Carp::croak("Single parameters to new() must be a HASH ref"
+          . " data => ". $_[0])
     : @_ % 2
-      ? die "The new() method for $class expects a hash reference or a"
-          . " key/value list. You passed an odd number of arguments\n"
+      ? Carp::croak("The new() method for $class expects a hash reference or a"
+          . " key/value list. You passed an odd number of arguments")
       : {@_}
   ;
 }

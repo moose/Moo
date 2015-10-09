@@ -12,6 +12,15 @@ use Moo::_Utils qw(
   _unimport_coderefs
 );
 use Carp qw(croak);
+BEGIN {
+  our @CARP_NOT = qw(
+    Method::Generate::Constructor
+    Method::Generate::Accessor
+    Moo::sification
+    Moo::_Utils
+    Moo::Role
+  );
+}
 
 our $VERSION = '2.001001';
 $VERSION = eval $VERSION;
@@ -36,7 +45,7 @@ sub import {
   warnings->import;
 
   if ($INC{'Role/Tiny.pm'} and Role::Tiny->is_role($target)) {
-    die "Cannot import Moo into a role";
+    croak "Cannot import Moo into a role";
   }
   $MAKERS{$target} ||= {};
   _install_tracked $target => extends => sub {

@@ -8,6 +8,8 @@ use Sub::Defer qw(defer_sub);
 use Moo::_Utils qw(_install_coderef);
 use Scalar::Util qw(weaken);
 use Exporter qw(import);
+use Carp qw(croak);
+BEGIN { our @CARP_NOT = qw(Sub::Defer) }
 use B ();
 BEGIN {
   *_HAVE_PERLSTRING = defined &B::perlstring ? sub(){1} : sub(){0};
@@ -39,7 +41,7 @@ sub capture_unroll {
     '',
     map {
       /^([\@\%\$])/
-        or die "capture key should start with \@, \% or \$: $_";
+        or croak "capture key should start with \@, \% or \$: $_";
       (' ' x $indent).qq{my ${_} = ${1}{${from}->{${\quotify $_}}};\n};
     } keys %$captures
   );
@@ -86,9 +88,9 @@ sub quote_sub {
     my $subname = $name;
     my $package = $subname =~ s/(.*)::// ? $1 : caller;
     $name = join '::', $package, $subname;
-    die "package name $package too long!"
+    croak "package name $package too long!"
       if length $package > 252;
-    die "sub name $subname too long!"
+    croak "sub name $subname too long!"
       if length $subname > 252;
   }
   my @caller = caller(0);
@@ -188,7 +190,7 @@ sub unquote_sub {
         $e = $@;
       }
       unless ($success) {
-        die "Eval went very, very wrong:\n\n${make_sub}\n\n$e";
+        croak "Eval went very, very wrong:\n\n${make_sub}\n\n$e";
       }
       weaken($QUOTED{$$unquoted} = $quoted);
     }

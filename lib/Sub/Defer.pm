@@ -4,6 +4,7 @@ use Moo::_strictures;
 use Exporter qw(import);
 use Moo::_Utils qw(_getglob _install_coderef);
 use Scalar::Util qw(weaken);
+use Carp qw(croak);
 
 our $VERSION = '2.001001';
 $VERSION = eval $VERSION;
@@ -63,7 +64,7 @@ sub defer_sub {
   my $package;
   my $subname;
   ($package, $subname) = $target =~ /^(.*)::([^:]+)$/
-    or die "$target is not a fully qualified sub name!"
+    or croak "$target is not a fully qualified sub name!"
     if $target;
   my $deferred;
   my $undeferred;
