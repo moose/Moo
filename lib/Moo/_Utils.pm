@@ -45,6 +45,7 @@ sub _install_modifier {
     Sub::Defer::undefer_sub($to_modify);
   }
 
+  require Class::Method::Modifiers;
   Class::Method::Modifiers::install_modifier(@_);
 }
 

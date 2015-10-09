@@ -62,7 +62,6 @@ sub import {
   };
   foreach my $type (qw(before after around)) {
     _install_tracked $target => $type => sub {
-      require Class::Method::Modifiers;
       _install_modifier($target, $type, @_);
       return;
     };
