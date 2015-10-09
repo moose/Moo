@@ -4,6 +4,7 @@ use Moo::_strictures;
 use Moo::_Utils;
 use Sub::Defer ();
 use Role::Tiny ();
+use Carp qw(croak);
 our @ISA = qw(Role::Tiny);
 
 our $VERSION = '2.001000';
@@ -48,8 +49,7 @@ sub import {
     my $name_proto = shift;
     my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
     if (@_ % 2 != 0) {
-      require Carp;
-      Carp::croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
+      croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
         . " attribute(s): even number of arguments expected, got " . scalar @_)
     }
     my %spec = @_;

@@ -2,6 +2,7 @@ package Moo;
 
 use Moo::_strictures;
 use Moo::_Utils;
+use Carp qw(croak);
 
 our $VERSION = '2.001000';
 $VERSION = eval $VERSION;
@@ -43,9 +44,8 @@ sub import {
     my $name_proto = shift;
     my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
     if (@_ % 2 != 0) {
-      require Carp;
-      Carp::croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
-        . " attribute(s): even number of arguments expected, got " . scalar @_)
+      croak "Invalid options for " . join(', ', map "'$_'", @name_proto)
+        . " attribute(s): even number of arguments expected, got " . scalar @_;
     }
     my %spec = @_;
     foreach my $name (@name_proto) {
@@ -94,8 +94,7 @@ sub _set_superclasses {
   foreach my $superclass (@_) {
     _load_module($superclass);
     if ($INC{'Role/Tiny.pm'} && Role::Tiny->is_role($superclass)) {
-      require Carp;
-      Carp::croak("Can't extend role '$superclass'");
+      croak "Can't extend role '$superclass'";
     }
   }
   # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
