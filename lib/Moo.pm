@@ -905,10 +905,6 @@ Since C<coerce> does not require C<isa> to be defined but L<Moose> does
 require it, the metaclass inflation for coerce alone is a trifle insane
 and if you attempt to subtype the result will almost certainly break.
 
-C<BUILDARGS> is not triggered if your class does not have any attributes.
-Without attributes, C<BUILDARGS> return value would be ignored, so we just
-skip calling the method instead.
-
 Handling of warnings: when you C<use Moo> we enable strict and warnings, in a
 similar way to Moose. The authors recommend the use of C<strictures>, which
 enables FATAL warnings, and several extra pragmas when used in development:
