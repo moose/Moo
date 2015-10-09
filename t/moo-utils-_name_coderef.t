@@ -11,7 +11,7 @@ BEGIN {
   defined &Sub::Util::set_subname or *Sub::Util::set_subname = sub {};
 }
 
-use Moo::_Utils;
+use Moo::_Utils ();
 
 ok( Moo::_Utils::_CAN_SUBNAME,
   "_CAN_SUBNAME is true when both Sub::Name and Sub::Util are loaded"

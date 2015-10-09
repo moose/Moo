@@ -4,7 +4,7 @@ use Moo::_strictures;
 use Moo::Object ();
 our @ISA = qw(Moo::Object);
 use Sub::Quote qw(quote_sub quotify);
-use Moo::_Utils;
+use Moo::_Utils qw(_getglob);
 
 sub generate_method {
   my ($self, $into) = @_;

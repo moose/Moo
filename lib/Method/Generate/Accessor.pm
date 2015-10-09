@@ -1,7 +1,7 @@
 package Method::Generate::Accessor;
 
 use Moo::_strictures;
-use Moo::_Utils;
+use Moo::_Utils qw(_maybe_load_module _install_coderef);
 use Moo::Object ();
 our @ISA = qw(Moo::Object);
 use Sub::Quote qw(quote_sub quoted_from_sub quotify);

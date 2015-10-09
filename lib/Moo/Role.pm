@@ -1,7 +1,16 @@
 package Moo::Role;
 
 use Moo::_strictures;
-use Moo::_Utils;
+use Moo::_Utils qw(
+  _getglob
+  _getstash
+  _install_coderef
+  _install_modifier
+  _load_module
+  _name_coderef
+  _set_loaded
+  _unimport_coderefs
+);
 use Sub::Defer ();
 use Role::Tiny ();
 use Carp qw(croak);

@@ -1,7 +1,7 @@
 package Moo::HandleMoose;
 use Moo::_strictures;
 no warnings 'once';
-use Moo::_Utils;
+use Moo::_Utils qw(_getstash);
 use Sub::Quote qw(quotify);
 
 our %TYPE_MAP;

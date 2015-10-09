@@ -2,7 +2,7 @@ use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
 
-use Moo::_Utils;
+use Moo::_Utils qw(_maybe_load_module);
 
 use t::lib::INCModule;
 

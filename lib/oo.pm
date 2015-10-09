@@ -1,7 +1,7 @@
 package oo;
 
 use Moo::_strictures;
-use Moo::_Utils;
+use Moo::_Utils qw(_load_module);
 
 sub moo {
   print <<'EOMOO';

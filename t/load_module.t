@@ -1,7 +1,7 @@
 # this test is replicated to t/load_module_role_tiny.t for Role::Tiny
 
 # work around RT#67692
-use Moo::_Utils;
+use Moo::_Utils qw(_load_module);
 use Moo::_strictures;
 
 use Test::More;
