@@ -75,4 +75,20 @@ $o = Sub2->new(__no_BUILD__ => 1);
 
 is_deeply(\@ran, [], '__no_BUILD__ surpresses BUILD running');
 
+{
+  package WithCoerce;
+  use Moo;
+
+  has attr1 => ( is => 'ro', coerce => sub { $_[0] + 5 } );
+  has build_params => ( is => 'rw', init_arg => undef );
+
+  sub BUILD {
+    my ($self, $args) = @_;
+    $self->build_params($args);
+  }
+}
+
+$o = WithCoerce->new(attr1 => 2);
+is +$o->build_params->{attr1}, 2, 'BUILD gets uncoerced arguments';
+
 done_testing;
