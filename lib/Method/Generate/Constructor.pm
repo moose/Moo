@@ -205,12 +205,13 @@ sub _assign_new {
     $test{$name} = $attr_spec->{init_arg};
   }
   join '', map {
-    my $arg_key = quotify($test{$_});
-    my $test = "exists \$args->{$arg_key}";
-    my $source = "\$args->{$arg_key}";
+    my $arg = $test{$_};
+    my $arg_key = quotify($arg);
+    my $test = defined $arg ? "exists \$args->{$arg_key}" : undef;
+    my $source = defined $arg ? "\$args->{$arg_key}" : undef;
     my $attr_spec = $spec->{$_};
     $self->_cap_call($ag->generate_populate_set(
-      '$new', $_, $attr_spec, $source, $test, $test{$_},
+      '$new', $_, $attr_spec, $source, $test, $arg,
     ));
   } sort keys %test;
 }

@@ -342,36 +342,33 @@ sub _generate_simple_get {
 
 sub _generate_set {
   my ($self, $name, $spec) = @_;
+  my ($me, $source) = ('$_[0]', '$_[1]');
   if ($self->is_simple_set($name, $spec)) {
-    $self->_generate_simple_set('$_[0]', $name, $spec, '$_[1]');
-  } else {
-    my ($coerce, $trigger, $isa_check) = @{$spec}{qw(coerce trigger isa)};
-    my $value_store = '$_[0]';
-    my $code;
-    if ($coerce) {
-      $value_store = '$value';
-      $code = "do { my (\$self, \$value) = \@_;\n"
-        ."        \$value = "
-        .$self->_generate_coerce($name, $value_store, $coerce).";\n";
-    }
-    else {
-      $code = "do { my \$self = shift;\n";
-    }
-    if ($isa_check) {
-      $code .=
-        "        ".$self->_generate_isa_check($name, $value_store, $isa_check).";\n";
-    }
-    my $simple = $self->_generate_simple_set('$self', $name, $spec, $value_store);
-    if ($trigger) {
-      my $fire = $self->_generate_trigger($name, '$self', $value_store, $trigger);
-      $code .=
-        "        ".$simple.";\n        ".$fire.";\n"
-        ."        $value_store;\n";
-    } else {
-      $code .= "        ".$simple.";\n";
-    }
-    $code .= "      }";
-    $code;
+    return $self->_generate_simple_set($me, $name, $spec, $source);
+  }
+
+  my ($coerce, $trigger, $isa_check) = @{$spec}{qw(coerce trigger isa)};
+  if ($coerce) {
+    $source = $self->_generate_coerce($name, $source, $coerce);
+  }
+  if ($isa_check) {
+    $source = 'scalar do { my $value = '.$source.";\n"
+    .'  ('.$self->_generate_isa_check($name, '$value', $isa_check)."),\n"
+    .($trigger
+      ? '('.$self->_generate_trigger($name, $me, '$value', $trigger).'),'
+      : '')
+    ."  \$value\n"
+    ."}";
+  }
+  my $set = $self->_generate_simple_set($me, $name, $spec, $source);
+  if (!$isa_check && $trigger) {
+    "scalar (\n"
+    . '  ('.$self->_generate_trigger($name, $me, "($set)", $trigger)."),\n"
+    . '  ('.$self->_generate_simple_get($me, $name, $spec)."),\n"
+    . ")";
+  }
+  else {
+    "($set)";
   }
 }
 
@@ -493,68 +490,45 @@ sub generate_populate_set {
 
 sub _generate_populate_set {
   my ($self, $me, $name, $spec, $source, $test, $init_arg) = @_;
-  if ($self->has_eager_default($name, $spec)) {
-    my $get_indent = ' ' x ($spec->{isa} ? 6 : 4);
-    my $get_default = $self->_generate_get_default(
-                        '$new', $name, $spec
-                      );
-    my $get_value =
-      defined($spec->{init_arg})
-        ? "(\n${get_indent}  ${test}\n"
-            ."${get_indent}   ? ${source}\n${get_indent}   : "
+
+  my $has_default = $self->has_eager_default($name, $spec);
+  if (!($has_default || $test)) {
+    return '';
+  }
+  if ($has_default) {
+    my $get_default = $self->_generate_get_default($me, $name, $spec);
+    $source =
+      $test
+        ? "(\n  ${test}\n"
+            ."   ? ${source}\n   : "
             .$get_default
-            ."\n${get_indent})"
+            .")"
         : $get_default;
-    if ($spec->{coerce}) {
-      $get_value = $self->_generate_coerce(
-        $name, $get_value,
-        $spec->{coerce}, $init_arg
-      )
-    }
-    ($spec->{isa}
-      ? "    do {\n      my \$value = ".$get_value.";\n      "
-        .$self->_generate_isa_check(
-          $name, '$value', $spec->{isa}, $init_arg
-        ).",\n"
-        .'      '.$self->_generate_simple_set($me, $name, $spec, '$value').";\n"
-        ."    },\n"
-      : '    ('.$self->_generate_simple_set($me, $name, $spec, $get_value)."),\n"
+  }
+  if ($spec->{coerce}) {
+    $source = $self->_generate_coerce(
+      $name, $source,
+      $spec->{coerce}, $init_arg
     )
-    .($spec->{trigger}
-      ? "    ((${test}) and ("
-        .$self->_generate_trigger(
-          $name, $me, $self->_generate_simple_get($me, $name, $spec),
-          $spec->{trigger}
-        ).")),\n"
-      : ''
-    );
-  } else {
-    "    ((${test}) and (\n"
-      .($spec->{coerce}
-        ? "      ($source = "
-          .$self->_generate_coerce(
-            $name, $source,
-            $spec->{coerce}, $init_arg
-          )."),\n"
-        : ""
-      )
-      .($spec->{isa}
-        ? "      ("
-          .$self->_generate_isa_check(
-            $name, $source, $spec->{isa}, $init_arg
-          )."),\n"
-        : ""
-      )
-      ."      (".$self->_generate_simple_set($me, $name, $spec, $source)."),\n"
-      .($spec->{trigger}
-        ? "      ("
-          .$self->_generate_trigger(
-            $name, $me, $self->_generate_simple_get($me, $name, $spec),
-            $spec->{trigger}
-          )."),\n"
-        : ""
-      )
-      ."    )),\n";
+  }
+  if ($spec->{isa}) {
+    $source = 'scalar do { my $value = '.$source.";\n"
+    .'  ('.$self->_generate_isa_check(
+        $name, '$value', $spec->{isa}, $init_arg
+      )."),\n"
+    ."  \$value\n"
+    ."}\n";
+  }
+  my $set = $self->_generate_simple_set($me, $name, $spec, $source);
+  my $trigger = $spec->{trigger} ? $self->_generate_trigger(
+    $name, $me, $self->_generate_simple_get($me, $name, $spec),
+    $spec->{trigger}
+  ) : undef;
+  if ($has_default) {
+    "($set)," . ($trigger ? "($test and $trigger)," : '')
+  }
+  else {
+    "($test and ($set)" . ($trigger ? ", ($trigger)" : '') . "),";
   }
 }
 
