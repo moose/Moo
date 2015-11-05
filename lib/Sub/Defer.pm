@@ -44,8 +44,11 @@ sub undefer_all {
 
 sub undefer_package {
   my $package = shift;
-  my @subs = grep { $DEFERRED{$_}[0] =~ /^${package}::[^:]+$/ } keys %DEFERRED;
-  undefer_sub($_) for @subs;
+  undefer_sub($_)
+    for grep {
+      my $name = $DEFERRED{$_}[0];
+      $name && $name =~ /^${package}::[^:]+$/
+    } keys %DEFERRED;
   return;
 }
 
