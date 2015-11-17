@@ -78,6 +78,10 @@ my %META = (
     'App::Commando'             => '<= 0.012',
   },
   x_authority => 'cpan:MSTROUT',
+  x_cpants => { ignore => {
+    use_strict => 'internal module used to apply strict',
+    use_warnings => 'internal module used to apply warnings',
+  } },
 );
 
 my %MM_ARGS = (
