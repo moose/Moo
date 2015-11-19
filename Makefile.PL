@@ -33,7 +33,7 @@ my %META = (
       },
       recommends => {
         'Class::XSAccessor'         => '1.18',
-        'Sub::Name'                 => '0'
+        'Sub::Name'                 => '0.08',
         'strictures'                => '2',
       },
     },
@@ -103,6 +103,12 @@ fulltest: test
 POSTAMBLE
   }
 }
+
+# upgrade avoid older Sub::Name, which has a memory leak, if already installed
+$MM_ARGS{PREREQ_PM}{'Sub::Name'} = '0.08'
+    if eval { require Sub::Name; 1 } and not eval { Sub::Name->VERSION('0.08'); 1 };
+$META{dynamic_config} = 1;
+
 
 ## BOILERPLATE ###############################################################
 require ExtUtils::MakeMaker;
