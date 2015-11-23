@@ -2,6 +2,7 @@ package Moo::Role;
 
 use Moo::_strictures;
 use Moo::_Utils;
+use Sub::Defer ();
 use Role::Tiny ();
 our @ISA = qw(Role::Tiny);
 
@@ -248,8 +249,13 @@ sub _make_accessors {
   }
 }
 
+sub _undefer_subs {
+  my ($self, $target, $role) = @_;
+  Sub::Defer::undefer_package($role);
+}
+
 sub role_application_steps {
-  qw(_handle_constructor _maybe_make_accessors),
+  qw(_handle_constructor _undefer_subs _maybe_make_accessors),
     $_[0]->SUPER::role_application_steps;
 }
 

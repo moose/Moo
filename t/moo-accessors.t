@@ -1,5 +1,6 @@
 use Moo::_strictures;
 use Test::More;
+use Sub::Quote qw(quote_sub);
 
 {
   package Foo;
@@ -15,6 +16,7 @@ use Test::More;
   use Moo::Role;
 
   has four => (is => 'ro');
+  ::quote_sub 'Bar::quoted' => '1';
 
   package Baz;
 
@@ -50,5 +52,10 @@ is_deeply(
 
 ok(eval { Foo->meta->make_immutable }, 'make_immutable returns true');
 ok(!$INC{"Moose.pm"}, "Didn't load Moose");
+
+$baz->quoted;
+
+is +$baz->can('quoted'), Bar->can('quoted'),
+  'accessor from role is undeferred in consuming class';
 
 done_testing unless caller;
