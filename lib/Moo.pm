@@ -512,6 +512,13 @@ Declares an attribute for the class.
 
 Using the C<+> notation, it's possible to override an attribute.
 
+ has [qw(attr1 attr2 attr3)] => (
+   is => 'ro',
+ );
+
+Using an arrayref with multiple attribute names, it's possible to declare
+multiple attributes.
+
 The options for C<has> are as follows:
 
 =over 2
