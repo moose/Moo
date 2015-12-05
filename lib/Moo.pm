@@ -517,7 +517,7 @@ Using the C<+> notation, it's possible to override an attribute.
  );
 
 Using an arrayref with multiple attribute names, it's possible to declare
-multiple attributes.
+multiple attributes with the same options.
 
 The options for C<has> are as follows:
 
