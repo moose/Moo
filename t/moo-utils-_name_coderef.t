@@ -11,8 +11,8 @@ BEGIN {
 
 use Moo::_Utils;
 
-ok( Moo::_Utils::can_haz_subname || Moo::_Utils::can_haz_subutil,
-  "one of can_haz_subname or can_haz_subutil set with both loaded"
+ok( Moo::_Utils::_CAN_SUBNAME,
+  "_CAN_SUBNAME is true when both Sub::Name and Sub::Util are loaded"
 );
 
 done_testing;
