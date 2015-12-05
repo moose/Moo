@@ -4,6 +4,7 @@ use Moo::_strictures;
 use Sub::Quote qw(quote_sub unquote_sub quotify);
 use Sub::Defer;
 use Moo::_Utils qw(_getstash _getglob);
+use Scalar::Util qw(weaken);
 use Moo;
 
 sub register_attribute_specs {
@@ -95,6 +96,7 @@ sub install_delayed {
       $package, 'new', $self->{attribute_specs}, { no_install => 1 }
     )
   };
+  weaken $self->{deferred_constructor};
   $self;
 }
 
