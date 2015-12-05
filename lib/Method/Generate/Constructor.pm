@@ -79,7 +79,7 @@ sub install_delayed {
   my $package = $self->{package};
   my (undef, @isa) = @{mro::get_linear_isa($package)};
   my $isa = join ',', @isa;
-  $self->{deferred_constructor} = defer_sub "${package}::new" => sub {
+  my $constructor = defer_sub "${package}::new" => sub {
     my (undef, @new_isa) = @{mro::get_linear_isa($package)};
     if (join(',', @new_isa) ne $isa) {
       my ($expected_new) = grep { *{_getglob($_.'::new')}{CODE} } @isa;
@@ -92,11 +92,16 @@ sub install_delayed {
         . " chain (\@ISA) at runtime is unsupported";
       }
     }
-    unquote_sub $self->generate_method(
+
+    my $constructor = unquote_sub $self->generate_method(
       $package, 'new', $self->{attribute_specs}, { no_install => 1 }
-    )
+    );
+    $self->{inlined} = 1;
+    weaken($self->{constructor} = $constructor);
+    $constructor;
   };
-  weaken $self->{deferred_constructor};
+  $self->{inlined} = 0;
+  weaken($self->{constructor} = $constructor);
   $self;
 }
 
@@ -110,15 +115,12 @@ sub assert_constructor {
   my $package = $self->{package} or return 1;
   my $current = $self->current_constructor($package)
     or return 1;
-  my $deferred = $self->{deferred_constructor}
+  my $constructor = $self->{constructor}
     or die "Unknown constructor for $package already exists";
-  return 1
-    if $deferred == $current;
-  my $current_deferred = (Sub::Defer::defer_info($current)||[])->[3];
-  if ($current_deferred && $current_deferred == $deferred) {
-    die "Constructor for $package has been inlined and cannot be updated";
-  }
-  die "Constructor for $package has been replaced with an unknown sub";
+  die "Constructor for $package has been replaced with an unknown sub"
+    if $constructor != $current;
+  die "Constructor for $package has been inlined and cannot be updated"
+    if $self->{inlined};
 }
 
 sub generate_method {
