@@ -33,7 +33,7 @@ my %META = (
       },
       recommends => {
         'Class::XSAccessor'         => 1.18,
-        'Sub::Name'                 => 0,
+        'Sub::Name'                 => 0.08,
         'strictures'                => 2,
       },
     },
