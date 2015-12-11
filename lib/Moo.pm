@@ -310,7 +310,7 @@ If you want a full object system with a rich Metaprotocol, L<Moose> is
 already wonderful.
 
 But if you don't want to use L<Moose>, you may not want "less metaprotocol"
-like L<Mouse> offers, but you probalby want "no metaprotocol", which is what
+like L<Mouse> offers, but you probably want "no metaprotocol", which is what
 Moo provides. C<Moo> is ideal for some situations where deployment or startup
 time precludes using L<Moose> and L<Mouse>:
 
