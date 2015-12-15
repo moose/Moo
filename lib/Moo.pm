@@ -325,7 +325,7 @@ time precludes using L<Moose> and L<Mouse>:
 =back
 
 C<Moo> maintains transparent compatibility with L<Moose> so if you install and
-load L<Moose> you can use Moo clases and roles in L<Moose> code without
+load L<Moose> you can use Moo classes and roles in L<Moose> code without
 modification.
 
 Moo -- Minimal Object Orientation -- aims to make it smooth to upgrade to
@@ -487,7 +487,7 @@ or
 Composes one or more L<Moo::Role> (or L<Role::Tiny>) roles into the current
 class.  An error will be raised if these roles cannot be composed because they
 have conflicting method definitions.  The roles will be loaded using the same
-mechansim as C<extends> uses.
+mechanism as C<extends> uses.
 
 =head2 has
 
