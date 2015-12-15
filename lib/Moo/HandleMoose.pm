@@ -95,7 +95,7 @@ sub inject_real_metaclass_for {
   }
 
   # needed to ensure the method body is stable and get things named
-  Sub::Defer::undefer_sub($_) for grep defined, values %methods;
+  $_ = Sub::Defer::undefer_sub($_) for grep defined, values %methods;
   my @attrs;
   {
     # This local is completely not required for roles but harmless
