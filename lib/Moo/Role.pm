@@ -287,8 +287,9 @@ sub create_class_with_roles {
   return $new_name if $COMPOSED{class}{$new_name};
 
   foreach my $role (@roles) {
-      _load_module($role);
-      $me->_inhale_if_moose($role);
+    _load_module($role);
+    $me->_inhale_if_moose($role);
+    die "${role} is not a Moo::Role" unless $me->is_role($role);
   }
 
   my $m;
@@ -299,19 +300,12 @@ sub create_class_with_roles {
     *{_getglob("${new_name}::ISA")} = [ $superclass ];
     $Moo::MAKERS{$new_name} = {is_class => 1};
     $me->apply_roles_to_package($new_name, @roles);
-    _set_loaded($new_name, (caller)[1]);
-    return $new_name;
   }
-
-  $me->SUPER::create_class_with_roles($superclass, @roles);
-
-  foreach my $role (@roles) {
-    die "${role} is not a Moo::Role" unless $me->is_role($role);
+  else {
+    $me->SUPER::create_class_with_roles($superclass, @roles);
+    $Moo::MAKERS{$new_name} = {is_class => 1};
+    $me->_handle_constructor($new_name, $_) for @roles;
   }
-
-  $Moo::MAKERS{$new_name} = {is_class => 1};
-
-  $me->_handle_constructor($new_name, $_) for @roles;
 
   _set_loaded($new_name, (caller)[1]);
   return $new_name;
