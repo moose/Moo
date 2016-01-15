@@ -15,12 +15,14 @@ Moo::sification->import;
 BEGIN {
     *INFO = \%Role::Tiny::INFO;
     *APPLIED_TO = \%Role::Tiny::APPLIED_TO;
+    *COMPOSED = \%Role::Tiny::COMPOSED;
     *ON_ROLE_CREATE = \@Role::Tiny::ON_ROLE_CREATE;
 }
 
 our %INFO;
 our %APPLIED_TO;
 our %APPLY_DEFAULTS;
+our %COMPOSED;
 our @ON_ROLE_CREATE;
 
 sub _install_tracked {
@@ -282,7 +284,7 @@ sub create_class_with_roles {
 
   my ($new_name, $compose_name) = $me->_composite_name($superclass, @roles);
 
-  return $new_name if $Role::Tiny::COMPOSED{class}{$new_name};
+  return $new_name if $COMPOSED{class}{$new_name};
 
   foreach my $role (@roles) {
       _load_module($role);
@@ -360,7 +362,7 @@ sub apply_roles_to_object {
 sub _composable_package_for {
   my ($self, $role) = @_;
   my $composed_name = 'Role::Tiny::_COMPOSABLE::'.$role;
-  return $composed_name if $Role::Tiny::COMPOSED{role}{$composed_name};
+  return $composed_name if $COMPOSED{role}{$composed_name};
   $self->_make_accessors_if_moose($composed_name, $role);
   $self->SUPER::_composable_package_for($role);
 }
