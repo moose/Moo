@@ -78,4 +78,19 @@ is $app, 100,
   }, undef, 'extending class with prototype on new');
 }
 
+{
+  package NonHashref;
+  sub new { bless [], shift }
+}
+{
+  package NonHashref::Subclassed;
+  use Moo;
+  extends "NonHashref";
+  has thing => ( is => 'rw', default => sub { 1 } );
+}
+like
+  exception { NonHashref::Subclassed->new->thing },
+  qr/Constructor of parent class of NonHashref::Subclassed returned an object based on ARRAY.*extends-non-moo/,
+  'non-hashref constructor in parent class results in useful error message';
+
 done_testing();
