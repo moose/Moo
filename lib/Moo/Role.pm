@@ -307,6 +307,9 @@ sub create_class_with_roles {
     $me->_handle_constructor($new_name, $_) for @roles;
   }
 
+  if ($INC{'Moo/HandleMoose.pm'}) {
+    Moo::HandleMoose::inject_fake_metaclass_for($new_name);
+  }
   _set_loaded($new_name, (caller)[1]);
   return $new_name;
 }

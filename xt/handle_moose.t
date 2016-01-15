@@ -71,4 +71,18 @@ ok exception {
 ok(Moo::Role->is_role('AnotherMooseRole'),
   'Moose roles are Moo::Role->is_role');
 
+{
+  {
+    package AMooClass;
+    use Moo;
+  }
+  {
+    package AMooRole;
+    use Moo::Role;
+  }
+  my $c = Moo::Role->create_class_with_roles('AMooClass', 'AMooRole');
+  my $meta = Class::MOP::get_metaclass_by_name($c);
+  ok $meta, 'generated class via create_class_with_roles has metaclass';
+}
+
 done_testing;
