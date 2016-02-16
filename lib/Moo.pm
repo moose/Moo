@@ -851,7 +851,7 @@ will work seamlessly with both L<Moo> and L<Moose>.  L<Type::Tiny> can be
 considered the successor to L<MooseX::Types> and provides a similar API, so
 that you can write
 
-  use Types::Standard;
+  use Types::Standard qw(Int);
   has days_to_live => (is => 'ro', isa => Int);
 
 C<initializer> is not supported in core since the author considers it to be a
