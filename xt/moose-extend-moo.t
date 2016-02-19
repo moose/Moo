@@ -77,7 +77,7 @@ BEGIN {
 }
 
 is exception { MooseChild->new }, undef, 'NonMoo->Moo->Moose(mutable) works';
-MooseChild->meta->make_immutable;
+MooseChild->meta->make_immutable(inline_constructor => 0);
 is exception { MooseChild->new }, undef, 'NonMoo->Moo->Moose(immutable) works';
 
 ok +MooseChild->does('Role2'), "Moose child does parent's composed roles with non-Moo ancestor";
