@@ -1,17 +1,31 @@
 Revision history for Moo
 
-  - Fixed error message when @ISA changed before constructor generated
-  - The generated code in constructors and setters has had a number of
-    microoptimizations applied.
-  - Fix Moo classes and Sub::Quote subs in packages that are nearly 252
-    characters long.
-  - The values given to BUILD subs will be the original values passed to new,
-    rather than after coercions have been applied.  This brings the behavior in
-    line with Moose.
-  - fix Sub::Defer::undefer_package emitting warnings
-  - Deferred subs (and quoted subs like some accessors) will be undefered before
-    copying to classes.  This prevents the need for a goto on every call that
-    would slow down the subs.
+  * Documentation
+    - Added example of using around with BUILDARGS
+    - Document ability of has to accept an arrayref of attributes to create
+    - remove mention that we may not call BUILDARGS, since that behavior was
+      removed in 2.000002
+
+  * Fixes
+    - Fixed error message when @ISA changed before constructor generated
+    - Fix Moo classes and Sub::Quote subs in packages that are nearly 252
+      characters long.
+    - fix Sub::Defer::undefer_package emitting warnings
+    - fix detection of constructors that have already been inlined
+
+  * Performance
+    - The generated code in constructors and setters has had a number of
+      microoptimizations applied.
+    - Deferred subs (and quoted subs like some accessors) in roles will be
+      undefered before copying them to classes.  This prevents the need for a
+      goto on every call that would slow down the subs.
+    - Fix Moose inflation code resulting in accessors with deferred wrappers.
+
+  * Other
+    - recommend Sub::Name 0.08 to fix memory leaks
+    - The values given to BUILD subs will be the original values passed to new,
+      rather than after coercions have been applied.  This brings the behavior
+      in line with Moose.
 
 2.000002 - 2015-07-24
   - BUILDARGS will now always be called on object creation, even if no
