@@ -6,7 +6,7 @@ use Sub::Defer ();
 use Role::Tiny ();
 our @ISA = qw(Role::Tiny);
 
-our $VERSION = '2.000003';
+our $VERSION = '2.001000';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
