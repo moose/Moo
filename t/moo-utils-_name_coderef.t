@@ -1,11 +1,13 @@
 use Moo::_strictures;
 use Test::More;
+use List::Util;   # List::Util provides Sub::Util::set_subname, so load it early
+use Scalar::Util; # to make sure it doesn't warn about our fake subs
 
 BEGIN {
   no warnings 'redefine';
-  $INC{'Sub/Name.pm'} = 1;
+  $INC{'Sub/Name.pm'} ||= 1;
   defined &Sub::Name::subname or *Sub::Name::subname = sub {};
-  $INC{'Sub/Util.pm'} = 1;
+  $INC{'Sub/Util.pm'} ||= 1;
   defined &Sub::Util::set_subname or *Sub::Util::set_subname = sub {};
 }
 
