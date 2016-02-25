@@ -389,7 +389,9 @@ L<http://shadow.cat/blog/matt-s-trout/moo-versus-any-moose> which explains
 the differing strategies in more detail and provides a direct example of
 where L<Moo> succeeds and L<Any::Moose> fails.
 
-=head1 IMPORTED METHODS
+=head1 PUBLIC METHODS
+
+Moo provides several methods to any class using it.
 
 =head2 new
 
@@ -399,60 +401,9 @@ or
 
  Foo::Bar->new({ attr1 => 3 });
 
-=head2 BUILDARGS
-
- sub BUILDARGS {
-   my ( $class, @args ) = @_;
-
-   unshift @args, "attr1" if @args % 2 == 1;
-
-   return { @args };
- }
-
- Foo::Bar->new( 3 );
-
-The default implementation of this method accepts a hash or hash reference of
-named parameters. If it receives a single argument that isn't a hash reference
-it throws an error.
-
-You can override this method in your class to handle other types of options
-passed to the constructor.
-
-You can also use L</around> to augment the default argument parsing:
-
- around BUILDARGS => sub {
-   my ( $orig, $class, @args ) = @_;
-   my $args_ref = $orig->($class, @args);
-   $args_ref->{foo} //= $args_ref->{bar};
-   return $args_ref;
- };
-
-This method should always return a hash reference of named options.
-
-=head2 FOREIGNBUILDARGS
-
-If you are inheriting from a non-Moo class, the arguments passed to the parent
-class constructor can be manipulated by defining a C<FOREIGNBUILDARGS> method.
-It will receive the same arguments as C<BUILDARGS>, and should return a list
-of arguments to pass to the parent class constructor.
-
-=head2 BUILD
-
-Define a C<BUILD> method on your class and the constructor will automatically
-call the C<BUILD> method from parent down to child after the object has
-been instantiated.  Typically this is used for object validation or possibly
-logging.
-
-=head2 DEMOLISH
-
-If you have a C<DEMOLISH> method anywhere in your inheritance hierarchy,
-a C<DESTROY> method is created on first object construction which will call
-C<< $instance->DEMOLISH($in_global_destruction) >> for each C<DEMOLISH>
-method from child upwards to parents.
-
-Note that the C<DESTROY> method is created on first construction of an object
-of your class in order to not add overhead to classes without C<DEMOLISH>
-methods; this may prove slightly surprising if you try and define your own.
+The constructor for the class.  By default it will accept attributes either as a
+hashref, or a list of key value pairs.  This can be customized with the
+L</BUILDARGS> method.
 
 =head2 does
 
@@ -461,6 +412,80 @@ methods; this may prove slightly surprising if you try and define your own.
  }
 
 Returns true if the object composes in the passed role.
+
+=head2 LIFECYCLE METHODS
+
+There are several methods that you can define in your class to control
+construction and destruction of objects.  They should be used rather than trying
+to modify C<new> or C<DESTROY> yourself.
+
+=head2 BUILDARGS
+
+ around BUILDARGS => sub {
+   my ( $orig, $class, @args ) = @_;
+
+   return { attr1 => $args[0] }
+     if @args == 1 && !ref $args[0];
+
+   return $class->$orig(@args);
+ };
+
+ Foo::Bar->new( 3 );
+
+This class method is used to transform the arguments to C<new> into a hash
+reference of attribute values.
+
+The default implementation accepts a hash or hash reference of named parameters.
+If it receives a single argument that isn't a hash reference it will throw an
+error.
+
+You can override this method in your class to handle other types of options
+passed to the constructor.
+
+This method should always return a hash reference of named options.
+
+=head2 FOREIGNBUILDARGS
+
+ sub FOREIGNBUILDARGS {
+   my ( $class, $options ) = @_;
+   return $options->{foo};
+ }
+
+If you are inheriting from a non-Moo class, the arguments passed to the parent
+class constructor can be manipulated by defining a C<FOREIGNBUILDARGS> method.
+It will receive the same arguments as L</BUILDARGS>, and should return a list
+of arguments to pass to the parent class constructor.
+
+=head2 BUILD
+
+ sub BUILD {
+   my ($self, $args) = @_;
+   die "foo and bar cannot be used at the same time"
+     if exists $args->{foo} && exists $args->{bar};
+ }
+
+On object creation, any C<BUILD> methods in the class's inheritance hierarchy
+will be called on the object and given the results of L</BUILDARGS>.  They each
+will be called in order from the parent classes down to the child, and thus
+should not themselves call the parent's method.  Typically this is used for
+object validation or possibly logging.
+
+=head2 DEMOLISH
+
+ sub DEMOLISH {
+   my ($self, $in_global_destruction) = @_;
+   ...
+ }
+
+When an object is destroyed, any C<DEMOLISH> methods in the inheritance
+hierarchy will be called on the object.  They are given boolean to inform them
+if global destruction is in progress, and are called from the child class upwards
+to the parent.  This is similar to L</BUILD> methods but in the opposite order.
+
+Note that this is implemented by a C<DESTROY> method, which is only created on
+on the first construction of an object of your class.  This saves on overhead for
+classes that are never instantiated or those without C<DEMOLISH> methods.  If you
+try to define your own C<DESTROY>, this will cause undefined results.
 
 =head1 IMPORTED SUBROUTINES
 
