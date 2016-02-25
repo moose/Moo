@@ -243,48 +243,48 @@ Moo - Minimalist Object Orientation (with Moose compatibility)
 
 =head1 SYNOPSIS
 
- package Cat::Food;
+  package Cat::Food;
 
- use Moo;
- use strictures 2;
- use namespace::clean;
+  use Moo;
+  use strictures 2;
+  use namespace::clean;
 
- sub feed_lion {
-   my $self = shift;
-   my $amount = shift || 1;
+  sub feed_lion {
+    my $self = shift;
+    my $amount = shift || 1;
 
-   $self->pounds( $self->pounds - $amount );
- }
+    $self->pounds( $self->pounds - $amount );
+  }
 
- has taste => (
-   is => 'ro',
- );
+  has taste => (
+    is => 'ro',
+  );
 
- has brand => (
-   is  => 'ro',
-   isa => sub {
-     die "Only SWEET-TREATZ supported!" unless $_[0] eq 'SWEET-TREATZ'
-   },
- );
+  has brand => (
+    is  => 'ro',
+    isa => sub {
+      die "Only SWEET-TREATZ supported!" unless $_[0] eq 'SWEET-TREATZ'
+    },
+  );
 
- has pounds => (
-   is  => 'rw',
-   isa => sub { die "$_[0] is too much cat food!" unless $_[0] < 15 },
- );
+  has pounds => (
+    is  => 'rw',
+    isa => sub { die "$_[0] is too much cat food!" unless $_[0] < 15 },
+  );
 
- 1;
+  1;
 
 And elsewhere:
 
- my $full = Cat::Food->new(
-    taste  => 'DELICIOUS.',
-    brand  => 'SWEET-TREATZ',
-    pounds => 10,
- );
+  my $full = Cat::Food->new(
+      taste  => 'DELICIOUS.',
+      brand  => 'SWEET-TREATZ',
+      pounds => 10,
+  );
 
- $full->feed_lion;
+  $full->feed_lion;
 
- say $full->pounds;
+  say $full->pounds;
 
 =head1 DESCRIPTION
 
@@ -395,11 +395,11 @@ Moo provides several methods to any class using it.
 
 =head2 new
 
- Foo::Bar->new( attr1 => 3 );
+  Foo::Bar->new( attr1 => 3 );
 
 or
 
- Foo::Bar->new({ attr1 => 3 });
+  Foo::Bar->new({ attr1 => 3 });
 
 The constructor for the class.  By default it will accept attributes either as a
 hashref, or a list of key value pairs.  This can be customized with the
@@ -407,25 +407,25 @@ L</BUILDARGS> method.
 
 =head2 does
 
- if ($foo->does('Some::Role1')) {
-   ...
- }
+  if ($foo->does('Some::Role1')) {
+    ...
+  }
 
 Returns true if the object composes in the passed role.
 
 =head2 DOES
 
- if ($foo->DOES('Some::Role1') || $foo->DOES('Some::Class1')) {
-   ...
- }
+  if ($foo->DOES('Some::Role1') || $foo->DOES('Some::Class1')) {
+    ...
+  }
 
 Similar to L</does>, but will also return true for both composed roles and
 superclasses.
 
 =head2 meta
 
- my $meta = Foo::Bar->meta;
- my @methods = $meta->get_method_list;
+  my $meta = Foo::Bar->meta;
+  my @methods = $meta->get_method_list;
 
 Returns a L<Moose metaclass|Moose::Meta::Class> object for the class.  The
 metaclass will only be built on demand, loading Moose in the process.
@@ -438,16 +438,16 @@ to modify C<new> or C<DESTROY> yourself.
 
 =head2 BUILDARGS
 
- around BUILDARGS => sub {
-   my ( $orig, $class, @args ) = @_;
+  around BUILDARGS => sub {
+    my ( $orig, $class, @args ) = @_;
 
-   return { attr1 => $args[0] }
-     if @args == 1 && !ref $args[0];
+    return { attr1 => $args[0] }
+      if @args == 1 && !ref $args[0];
 
-   return $class->$orig(@args);
- };
+    return $class->$orig(@args);
+  };
 
- Foo::Bar->new( 3 );
+  Foo::Bar->new( 3 );
 
 This class method is used to transform the arguments to C<new> into a hash
 reference of attribute values.
@@ -463,10 +463,10 @@ This method should always return a hash reference of named options.
 
 =head2 FOREIGNBUILDARGS
 
- sub FOREIGNBUILDARGS {
-   my ( $class, $options ) = @_;
-   return $options->{foo};
- }
+  sub FOREIGNBUILDARGS {
+    my ( $class, $options ) = @_;
+    return $options->{foo};
+  }
 
 If you are inheriting from a non-Moo class, the arguments passed to the parent
 class constructor can be manipulated by defining a C<FOREIGNBUILDARGS> method.
@@ -475,11 +475,11 @@ of arguments to pass to the parent class constructor.
 
 =head2 BUILD
 
- sub BUILD {
-   my ($self, $args) = @_;
-   die "foo and bar cannot be used at the same time"
-     if exists $args->{foo} && exists $args->{bar};
- }
+  sub BUILD {
+    my ($self, $args) = @_;
+    die "foo and bar cannot be used at the same time"
+      if exists $args->{foo} && exists $args->{bar};
+  }
 
 On object creation, any C<BUILD> methods in the class's inheritance hierarchy
 will be called on the object and given the results of L</BUILDARGS>.  They each
@@ -489,10 +489,10 @@ object validation or possibly logging.
 
 =head2 DEMOLISH
 
- sub DEMOLISH {
-   my ($self, $in_global_destruction) = @_;
-   ...
- }
+  sub DEMOLISH {
+    my ($self, $in_global_destruction) = @_;
+    ...
+  }
 
 When an object is destroyed, any C<DEMOLISH> methods in the inheritance
 hierarchy will be called on the object.  They are given boolean to inform them
@@ -508,7 +508,7 @@ try to define your own C<DESTROY>, this will cause undefined results.
 
 =head2 extends
 
- extends 'Parent::Class';
+  extends 'Parent::Class';
 
 Declares a base class. Multiple superclasses can be passed for multiple
 inheritance but please consider using L<roles|Moo::Role> instead.  The class
@@ -520,11 +520,11 @@ them like 'use base' would.
 
 =head2 with
 
- with 'Some::Role1';
+  with 'Some::Role1';
 
 or
 
- with 'Some::Role1', 'Some::Role2';
+  with 'Some::Role1', 'Some::Role2';
 
 Composes one or more L<Moo::Role> (or L<Role::Tiny>) roles into the current
 class.  An error will be raised if these roles cannot be composed because they
@@ -533,30 +533,30 @@ mechanism as C<extends> uses.
 
 =head2 has
 
- has attr => (
-   is => 'ro',
- );
+  has attr => (
+    is => 'ro',
+  );
 
 Declares an attribute for the class.
 
- package Foo;
- use Moo;
- has 'attr' => (
-   is => 'ro'
- );
+  package Foo;
+  use Moo;
+  has 'attr' => (
+    is => 'ro'
+  );
 
- package Bar;
- use Moo;
- extends 'Foo';
- has '+attr' => (
-   default => sub { "blah" },
- );
+  package Bar;
+  use Moo;
+  extends 'Foo';
+  has '+attr' => (
+    default => sub { "blah" },
+  );
 
 Using the C<+> notation, it's possible to override an attribute.
 
- has [qw(attr1 attr2 attr3)] => (
-   is => 'ro',
- );
+  has [qw(attr1 attr2 attr3)] => (
+    is => 'ro',
+  );
 
 Using an arrayref with multiple attribute names, it's possible to declare
 multiple attributes with the same options.
@@ -595,11 +595,11 @@ Takes a coderef which is used to validate the attribute.  Unlike L<Moose>, Moo
 does not include a basic type system, so instead of doing C<< isa => 'Num' >>,
 one should do
 
- use Scalar::Util qw(looks_like_number);
- ...
- isa => sub {
-   die "$_[0] is not a number!" unless looks_like_number $_[0]
- },
+  use Scalar::Util qw(looks_like_number);
+  ...
+  isa => sub {
+    die "$_[0] is not a number!" unless looks_like_number $_[0]
+  },
 
 Note that the return value for C<isa> is discarded. Only if the sub dies does
 type validation fail.
@@ -658,13 +658,13 @@ becomes the list of methods to handle.
 
 Takes a list of methods
 
- handles => [ qw( one two ) ]
+  handles => [ qw( one two ) ]
 
 Takes a hashref
 
- handles => {
-   un => 'one',
- }
+  handles => {
+    un => 'one',
+  }
 
 =item * C<trigger>
 
@@ -784,21 +784,21 @@ possible extensibility.
 
 =head2 before
 
- before foo => sub { ... };
+  before foo => sub { ... };
 
 See L<< Class::Method::Modifiers/before method(s) => sub { ... }; >> for full
 documentation.
 
 =head2 around
 
- around foo => sub { ... };
+  around foo => sub { ... };
 
 See L<< Class::Method::Modifiers/around method(s) => sub { ... }; >> for full
 documentation.
 
 =head2 after
 
- after foo => sub { ... };
+  after foo => sub { ... };
 
 See L<< Class::Method::Modifiers/after method(s) => sub { ... }; >> for full
 documentation.
@@ -853,21 +853,21 @@ imports first, then C<use Moo>, then C<use namespace::clean>.
 Anything imported before L<namespace::clean> will be scrubbed.
 Anything imported or declared after will be still be available.
 
- package Record;
+  package Record;
 
- use Digest::MD5 qw(md5_hex);
+  use Digest::MD5 qw(md5_hex);
 
- use Moo;
- use namespace::clean;
+  use Moo;
+  use namespace::clean;
 
- has name => (is => 'ro', required => 1);
- has id => (is => 'lazy');
- sub _build_id {
-   my ($self) = @_;
-   return md5_hex($self->name);
- }
+  has name => (is => 'ro', required => 1);
+  has id => (is => 'lazy');
+  sub _build_id {
+    my ($self) = @_;
+    return md5_hex($self->name);
+  }
 
- 1;
+  1;
 
 If you were to import C<md5_hex> after L<namespace::clean> you would
 be able to call C<< ->md5_hex() >> on your C<Record> instances (and it
@@ -956,30 +956,30 @@ Additionally, L<Moo> supports a set of attribute option shortcuts intended to
 reduce common boilerplate.  The set of shortcuts is the same as in the L<Moose>
 module L<MooseX::AttributeShortcuts> as of its version 0.009+.  So if you:
 
-    package MyClass;
-    use Moo;
-    use strictures 2;
+  package MyClass;
+  use Moo;
+  use strictures 2;
 
 The nearest L<Moose> invocation would be:
 
-    package MyClass;
+  package MyClass;
 
-    use Moose;
-    use warnings FATAL => "all";
-    use MooseX::AttributeShortcuts;
+  use Moose;
+  use warnings FATAL => "all";
+  use MooseX::AttributeShortcuts;
 
 or, if you're inheriting from a non-Moose class,
 
-    package MyClass;
+  package MyClass;
 
-    use Moose;
-    use MooseX::NonMoose;
-    use warnings FATAL => "all";
-    use MooseX::AttributeShortcuts;
+  use Moose;
+  use MooseX::NonMoose;
+  use warnings FATAL => "all";
+  use MooseX::AttributeShortcuts;
 
 Finally, Moose requires you to call
 
-    __PACKAGE__->meta->make_immutable;
+  __PACKAGE__->meta->make_immutable;
 
 at the end of your class to get an inlined (i.e. not horribly slow)
 constructor. Moo does it automatically the first time ->new is called

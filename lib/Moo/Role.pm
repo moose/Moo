@@ -426,34 +426,34 @@ Moo::Role - Minimal Object Orientation support for Roles
 
 =head1 SYNOPSIS
 
- package My::Role;
+  package My::Role;
 
- use Moo::Role;
- use strictures 2;
+  use Moo::Role;
+  use strictures 2;
 
- sub foo { ... }
+  sub foo { ... }
 
- sub bar { ... }
+  sub bar { ... }
 
- has baz => (
-   is => 'ro',
- );
+  has baz => (
+    is => 'ro',
+  );
 
- 1;
+  1;
 
 And elsewhere:
 
- package Some::Class;
+  package Some::Class;
 
- use Moo;
- use strictures 2;
+  use Moo;
+  use strictures 2;
 
- # bar gets imported, but not foo
- with('My::Role');
+  # bar gets imported, but not foo
+  with('My::Role');
 
- sub foo { ... }
+  sub foo { ... }
 
- 1;
+  1;
 
 =head1 DESCRIPTION
 
@@ -468,9 +468,9 @@ imported by this module.
 
 =head2 has
 
- has attr => (
-   is => 'ro',
- );
+  has attr => (
+    is => 'ro',
+  );
 
 Declares an attribute for the class to be composed into.  See
 L<Moo/has> for all options.
@@ -482,18 +482,18 @@ declared before the C<use Moo::Role> statement automatically.
 Anything imported after C<use Moo::Role> will be composed into
 consuming packages.  A package that consumes this role:
 
- package My::Role::ID;
+  package My::Role::ID;
 
- use Digest::MD5 qw(md5_hex);
- use Moo::Role;
- use Digest::SHA qw(sha1_hex);
+  use Digest::MD5 qw(md5_hex);
+  use Moo::Role;
+  use Digest::SHA qw(sha1_hex);
 
- requires 'name';
+  requires 'name';
 
- sub as_md5  { my ($self) = @_; return md5_hex($self->name);  }
- sub as_sha1 { my ($self) = @_; return sha1_hex($self->name); }
+  sub as_md5  { my ($self) = @_; return md5_hex($self->name);  }
+  sub as_sha1 { my ($self) = @_; return sha1_hex($self->name); }
 
- 1;
+  1;
 
 ..will now have a C<< $self->sha1_hex() >> method available to it
 that probably does not do what you expect.  On the other hand, a call
