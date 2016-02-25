@@ -413,6 +413,23 @@ L</BUILDARGS> method.
 
 Returns true if the object composes in the passed role.
 
+=head2 DOES
+
+ if ($foo->DOES('Some::Role1') || $foo->DOES('Some::Class1')) {
+   ...
+ }
+
+Similar to L</does>, but will also return true for both composed roles and
+superclasses.
+
+=head2 meta
+
+ my $meta = Foo::Bar->meta;
+ my @methods = $meta->get_method_list;
+
+Returns a L<Moose metaclass|Moose::Meta::Class> object for the class.  The
+metaclass will only be built on demand, loading Moose in the process.
+
 =head2 LIFECYCLE METHODS
 
 There are several methods that you can define in your class to control
