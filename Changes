@@ -1,17 +1,26 @@
 Revision history for Moo
 
   * Documentation
-    - Added example of using around with BUILDARGS
-    - Document ability of has to accept an arrayref of attributes to create
-    - remove mention that we may not call BUILDARGS, since that behavior was
-      removed in 2.000002
+    - Added documentation for has's ability to accept an arrayref of attribute
+      names to create with the same options.
+    - Removed mention that we may not call BUILDARGS, since that behavior was
+      removed in 2.000002.
+    - Reorganized documentation of class methods to separate those provided as a
+      public API (new/does/meta) from those used by Moo in the object lifecycle
+      (BUILDARGS/FOREIGNBUILDARGS/BUILD/DEMOLISH).
+    - Updated documentation of most class methods for clarity.
+    - Updated BUILDARGS documentation to show an around rather than just
+      overriding.
+    - Added examples to FOREIGNBUILDARGS and BUILD.
+    - Added explicit documentation for DOES and meta methods.
 
   * Fixes
-    - Fixed error message when @ISA changed before constructor generated
-    - Fix Moo classes and Sub::Quote subs in packages that are nearly 252
+    - Fixed grammar in error message when @ISA is changed unexpectedly before
+      a constructor is fully generated.
+    - Fixed Moo classes and Sub::Quote subs in packages that are nearly 252
       characters long.
-    - fix Sub::Defer::undefer_package emitting warnings
-    - fix detection of constructors that have already been inlined
+    - Fixed Sub::Defer::undefer_package emitting warnings.
+    - Fixed detection of constructors that have already been inlined.
 
   * Performance
     - The generated code in constructors and setters has had a number of
@@ -19,10 +28,11 @@ Revision history for Moo
     - Deferred subs (and quoted subs like some accessors) in roles will be
       undefered before copying them to classes.  This prevents the need for a
       goto on every call that would slow down the subs.
-    - Fix Moose inflation code resulting in accessors with deferred wrappers.
+    - Fixed Moose inflation code resulting in constructors with deferred
+      wrappers.
 
   * Other
-    - recommend Sub::Name 0.08 to fix memory leaks
+    - Recommend Sub::Name 0.08, which fixes a memory leak.
     - The values given to BUILD subs will be the original values passed to new,
       rather than after coercions have been applied.  This brings the behavior
       in line with Moose.
