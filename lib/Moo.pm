@@ -430,7 +430,7 @@ superclasses.
 Returns a L<Moose metaclass|Moose::Meta::Class> object for the class.  The
 metaclass will only be built on demand, loading Moose in the process.
 
-=head2 LIFECYCLE METHODS
+=head1 LIFECYCLE METHODS
 
 There are several methods that you can define in your class to control
 construction and destruction of objects.  They should be used rather than trying
