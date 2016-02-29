@@ -138,4 +138,13 @@ is( $made{'Bar::Baz::one'}, undef, 'sub-package not undefered by undefer_package
     'CLONE removes expired entries that were kept alive externally';
 }
 
+{
+  my $foo = defer_sub undef, sub { sub { 'foo' } };
+  my $foo_string = "$foo";
+  undef $foo;
+  Sub::Defer::undefer_package 'Unused';
+  is exception { undefer_sub $foo_string }, undef,
+    "undeferring expired sub (or reused refaddr) after undefer_package lives";
+}
+
 done_testing;

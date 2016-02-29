@@ -46,7 +46,7 @@ sub undefer_package {
   my $package = shift;
   undefer_sub($_)
     for grep {
-      my $name = $DEFERRED{$_}[0];
+      my $name = $DEFERRED{$_} && $DEFERRED{$_}[0];
       $name && $name =~ /^${package}::[^:]+$/
     } keys %DEFERRED;
   return;
