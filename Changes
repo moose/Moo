@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.001000 - 2016-02-29
   * Documentation
     - Added documentation for has's ability to accept an arrayref of attribute
       names to create with the same options.
