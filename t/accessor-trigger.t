@@ -108,6 +108,20 @@ run_for 'LazyDefault';
 
 run_for 'Shaz';
 
+{
+  package AccessorValue;
+
+  use Moo;
+
+  has one => (
+    is => 'rw',
+    isa => sub { 1 },
+    trigger => sub { push @::tr, $_[0]->one },
+  );
+}
+
+run_for 'AccessorValue';
+
 ComplexWriter->test_with("trigger");
 
 done_testing;

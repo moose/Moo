@@ -352,23 +352,24 @@ sub _generate_set {
     $source = $self->_generate_coerce($name, $source, $coerce);
   }
   if ($isa_check) {
-    $source = 'scalar do { my $value = '.$source.";\n"
+    'scalar do { my $value = '.$source.";\n"
     .'  ('.$self->_generate_isa_check($name, '$value', $isa_check)."),\n"
+    .'  ('.$self->_generate_simple_set($me, $name, $spec, '$value')."),\n"
     .($trigger
-      ? '('.$self->_generate_trigger($name, $me, '$value', $trigger).'),'
+      ? '('.$self->_generate_trigger($name, $me, '$value', $trigger)."),\n"
       : '')
-    ."  \$value\n"
+    .'  ('.$self->_generate_simple_get($me, $name, $spec)."),\n"
     ."}";
   }
-  my $set = $self->_generate_simple_set($me, $name, $spec, $source);
-  if (!$isa_check && $trigger) {
+  elsif ($trigger) {
+    my $set = $self->_generate_simple_set($me, $name, $spec, $source);
     "scalar (\n"
     . '  ('.$self->_generate_trigger($name, $me, "($set)", $trigger)."),\n"
     . '  ('.$self->_generate_simple_get($me, $name, $spec)."),\n"
     . ")";
   }
   else {
-    "($set)";
+    '('.$self->_generate_simple_set($me, $name, $spec, $source).')';
   }
 }
 
