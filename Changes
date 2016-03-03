@@ -1,5 +1,9 @@
 Revision history for Moo
 
+  - Fixed order of attribute value being set and trigger running when there is
+    an isa check present. (RT#112677)
+  - Corrected LIFECYCLE METHODS to be a head1 section rather than head2.
+
 2.001000 - 2016-02-29
   * Documentation
     - Added documentation for has's ability to accept an arrayref of attribute
