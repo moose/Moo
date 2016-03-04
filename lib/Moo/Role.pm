@@ -16,7 +16,7 @@ use Role::Tiny ();
 use Carp qw(croak);
 our @ISA = qw(Role::Tiny);
 
-our $VERSION = '2.001000';
+our $VERSION = '2.001001';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
