@@ -1,5 +1,5 @@
 Revision history for Moo
-
+  - Fixed ambiguous error messages when using required in attribute (RT#109844)
 2.001001 - 2016-03-04
   - Fixed order of attribute value being set and trigger running when there is
     an isa check present. (RT#112677)
