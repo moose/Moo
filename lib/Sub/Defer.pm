@@ -135,7 +135,7 @@ Exported by default.
 
  undefer_all();
 
-This will undefer all defered subs in one go.  This can be very useful in a
+This will undefer all deferred subs in one go.  This can be very useful in a
 forking environment where child processes would each have to undefer the same
 subs.  By calling this just before you start forking children you can undefer
 all currently deferred subs in the parent so that the children do not have to
@@ -149,7 +149,7 @@ Exported by default.
 
   undefer_package($package);
 
-This undefers all defered subs in a package.
+This undefers all deferred subs in a package.
 
 Not exported by default.
 
