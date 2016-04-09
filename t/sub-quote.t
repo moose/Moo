@@ -67,9 +67,9 @@ undef $quoted;
 ok defined &Bar::blorp,
   'bare sub name installed in current package';
 
-my $long = "a" x 252;
+my $long = "a" x 251;
 is exception {
-  quote_sub "${long}::${long}", q{ return 1; };
+  (quote_sub "${long}a::${long}", q{ return 1; })->();
 }, undef,
   'long names work if package and sub are short enough';
 
