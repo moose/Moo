@@ -2,7 +2,7 @@ package Sub::Defer;
 
 use Moo::_strictures;
 use Exporter qw(import);
-use Moo::_Utils qw(_getglob _install_coderef);
+use Moo::_Utils qw(_getglob);
 use Scalar::Util qw(weaken);
 
 our $VERSION = '2.001001';
@@ -62,14 +62,27 @@ sub defer_sub {
   my ($target, $maker) = @_;
   my $undeferred;
   my $deferred_info;
-  my $deferred = sub {
-    $undeferred ||= undefer_sub($deferred_info->[3]);
-    goto &$undeferred;
+  my $body = q{
+    {
+      $undeferred ||= Sub::Defer::undefer_sub($deferred_info->[3]);
+      goto &$undeferred;
+    }
   };
+  my $code = $target ? do {
+    my ($package, $subname) = $target =~ /^(.*)::([^:]+)$/
+      or die "$target is not a fully qualified sub name!";
+    "package $package; sub $subname $body; \\&$subname";
+  } : qq{sub $body};
+  my $e;
+  my $deferred = do {
+    no warnings qw(redefine closure);
+    local $@;
+    eval $code or $e = $@;
+  };
+  die $e if defined $e;
   $deferred_info = [ $target, $maker, \$undeferred, $deferred ];
   weaken($deferred_info->[3]);
   weaken($DEFERRED{$deferred} = $deferred_info);
-  _install_coderef($target => $deferred) if defined $target;
   return $deferred;
 }
 
