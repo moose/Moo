@@ -1,5 +1,4 @@
-use strict;
-use warnings;
+use Moo::_strictures;
 use lib "t/lib";
 use Test::More;
 use InlineModule (

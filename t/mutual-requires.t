@@ -1,5 +1,4 @@
-use strict;
-use warnings FATAL => 'all';
+use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
 

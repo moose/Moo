@@ -1,5 +1,4 @@
-use strict;
-use warnings;
+use Moo::_strictures;
 # when using an Moose object and namespace::autoclean
 # lazy attributes that get a value on initialize still
 # have their builders run
