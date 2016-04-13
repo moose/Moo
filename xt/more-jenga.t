@@ -1,32 +1,41 @@
 use strict;
 use warnings;
 use Test::More;
-
-use FindBin qw/ $Bin /;
-use lib "$Bin/lib";
+use lib 't/lib';
+use InlineModule (
+  MooseRoleOne => q{
+    package MooseRoleOne;
+    use Moose::Role;
+    1;
+  },
+  MooseRoleTwo => q{
+    package MooseRoleTwo;
+    use Moose::Role;
+    1;
+  },
+);
 
 {
-    package ExampleRole;
-    use Moo::Role;
+  package MooRoleWithMooseRoles;
+  use Moo::Role;
 
-    requires 'foo';
+  requires 'foo';
 
-    with qw/
-        ExampleMooseRoleOne
-        ExampleMooseRoleTwo
-    /;
+  with qw/
+    MooseRoleOne
+    MooseRoleTwo
+  /;
 }
 
 {
-    package ExampleClass;
-    use Moose;
+  package MooseClassWithMooRole;
+  use Moose;
 
-    with 'ExampleRole';
+  with 'MooRoleWithMooseRoles';
 
-    sub foo {}
+  sub foo {}
 }
 
-ok 1;
+ok 1, 'classes and roles built without error';
 
 done_testing;
-

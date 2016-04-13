@@ -2,9 +2,6 @@ use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
 
-use lib "t/lib";
-use ComplexWriter;
-
 sub run_for {
   my $class = shift;
 
@@ -205,6 +202,15 @@ run_with_default_for 'Foo3';
 
 run_with_default_for 'Bar3';
 
-ComplexWriter->test_with("coerce");
+{
+  package CoerceWriter;
+  use Moo;
+  has attr => (
+    is     => 'rwp',
+    coerce => sub { die 'triggered' },
+  );
+}
+like exception { CoerceWriter->new->_set_attr( 4 ) },
+  qr/triggered/, "coerce triggered via writer";
 
 done_testing;

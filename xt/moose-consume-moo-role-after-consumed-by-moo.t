@@ -1,21 +1,32 @@
 use Moo::_strictures;
 use Test::More;
-use lib 'xt/lib';
+use lib 't/lib';
+use InlineModule (
+  'MooRole' => q{
+    package MooRole;
+    use Moo::Role;
 
-BEGIN { $::ExampleMooRole_LOADED = 0 }
+    $::MooRole_LOADED++;
+
+    no Moo::Role;
+    1;
+  },
+);
+
+BEGIN { $::MooRole_LOADED = 0 }
 BEGIN {
-    package ExampleMooConsumer;
-    use Moo;
+  package MooConsumer;
+  use Moo;
 
-    with "ExampleMooRole";
+  with "MooRole";
 }
 BEGIN {
-    package ExampleMooseConsumer;
-    use Moose;
+  package MooseConsumer;
+  use Moose;
 
-    with "ExampleMooRole";
+  with "MooRole";
 }
 
-is $::ExampleMooRole_LOADED, 1, "role loaded only once";
+is $::MooRole_LOADED, 1, "role loaded only once";
 
 done_testing;

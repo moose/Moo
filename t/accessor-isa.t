@@ -2,9 +2,6 @@ use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
 
-use lib "t/lib";
-use ComplexWriter;
-
 sub run_for {
   my $class = shift;
 
@@ -171,7 +168,16 @@ like exception { ClassUsingDeadlyIsa->new(bar => 1) },
   qr/isa check for "foo" failed: nope/,
   'isa check within isa check produces correct exception';
 
-ComplexWriter->test_with("isa");
+{
+  package IsaWriter;
+  use Moo;
+  has attr => (
+    is     => 'rwp',
+    isa    => sub { die 'triggered' },
+  );
+}
+like exception { IsaWriter->new->_set_attr( 4 ) },
+  qr/triggered/, "isa triggered via writer";
 
 {
   package ClassWithEvilDestroy;

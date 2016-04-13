@@ -35,6 +35,18 @@ use lib "t/lib";
   sub yum {$_[1]}
 }
 
+use InlineModule (
+  ExtRobot => q{
+    package ExtRobot;
+
+    use Moo::Role;
+
+    requires 'beep';
+
+    1;
+  },
+);
+
 {
   package Bar;
 

@@ -1,8 +1,6 @@
 use Moo::_strictures;
 use Test::More;
-
-use lib "t/lib";
-use ComplexWriter;
+use Test::Fatal;
 
 our @tr;
 
@@ -122,6 +120,15 @@ run_for 'Shaz';
 
 run_for 'AccessorValue';
 
-ComplexWriter->test_with("trigger");
+{
+  package TriggerWriter;
+  use Moo;
+  has attr => (
+    is      => 'rwp',
+    trigger => sub { die 'triggered' },
+  );
+}
+like exception { TriggerWriter->new->_set_attr( 4 ) },
+  qr/triggered/, "trigger triggered via writer";
 
 done_testing;
