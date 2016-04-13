@@ -15,7 +15,7 @@ use Test::More;
 }
 
 {
-    package t::non_moo;
+    package NonMooClass;
 
     sub new {
         my ($class, $arg) = @_;
@@ -24,9 +24,9 @@ use Test::More;
 
     sub attr { shift->{attr} }
 
-    package t::ext_non_moo::with_attr;
+    package Extends::NonMooClass::WithAttr;
     use Moo;
-    extends qw( t::non_moo );
+    extends qw( NonMooClass );
 
     has 'attr2' => ( is => 'ro' );
 
@@ -122,8 +122,8 @@ foreach my $class (qw(Qux Quux)) {
     );
 }
 
-my $non_moo = t::non_moo->new( 'bar' );
-my $ext_non_moo = t::ext_non_moo::with_attr->new( 'bar', attr2 => 'baz' );
+my $non_moo = NonMooClass->new( 'bar' );
+my $ext_non_moo = Extends::NonMooClass::WithAttr->new( 'bar', attr2 => 'baz' );
 
 is $non_moo->attr, 'bar',
     "non-moo accepts params";

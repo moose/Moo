@@ -2,7 +2,8 @@ use Moo::_strictures;
 use Test::More;
 
 {
-    package t::non_moo_strict;
+    package NonMooClass::Strict;
+    BEGIN { $INC{'NonMooClass/Strict.pm'} = __FILE__ }
 
     sub new {
         my ($class, $arg) = @_;
@@ -13,9 +14,18 @@ use Test::More;
 
     sub attr { shift->{attr} }
 
-    package t::ext_non_moo_strict::with_attr;
+    package NonMooClass::Strict::MooExtend;
     use Moo;
-    extends qw( t::non_moo_strict );
+    extends qw(NonMooClass::Strict);
+
+    sub FOREIGNBUILDARGS {
+        my ($class, %args) = @_;
+        return $args{attr2};
+    }
+
+    package NonMooClass::Strict::MooExtendWithAttr;
+    use Moo;
+    extends qw(NonMooClass::Strict);
 
     has 'attr2' => ( is => 'ro' );
 
@@ -23,30 +33,21 @@ use Test::More;
         my ($class, %args) = @_;
         return $args{attr};
     }
-
-    package t::ext_non_moo_strict::without_attr;
-    use Moo;
-    extends qw( t::non_moo_strict );
-
-    sub FOREIGNBUILDARGS {
-        my ($class, %args) = @_;
-        return $args{attr2};
-    }
 }
 
 
-my $non_moo = t::non_moo_strict->new( 'bar' );
-my $ext_non_moo = t::ext_non_moo_strict::with_attr->new( attr => 'bar', attr2 => 'baz' );
-my $ext_non_moo2 = t::ext_non_moo_strict::without_attr->new( attr => 'bar', attr2 => 'baz' );
+my $non_moo = NonMooClass::Strict->new( 'bar' );
+my $ext_non_moo = NonMooClass::Strict::MooExtend->new( attr => 'bar', attr2 => 'baz' );
+my $ext_non_moo2 = NonMooClass::Strict::MooExtendWithAttr->new( attr => 'bar', attr2 => 'baz' );
 
 is $non_moo->attr, 'bar',
     "non-moo accepts params";
-is $ext_non_moo->attr, 'bar',
+is $ext_non_moo->attr, 'baz',
     "extended non-moo passes params";
-is $ext_non_moo->attr2, 'baz',
+is $ext_non_moo2->attr, 'bar',
+    "extended non-moo passes params";
+is $ext_non_moo2->attr2, 'baz',
     "extended non-moo has own attributes";
-is $ext_non_moo2->attr, 'baz',
-    "extended non-moo passes params";
 
 
 done_testing;

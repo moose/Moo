@@ -3,8 +3,8 @@ use Test::More;
 use Test::Fatal;
 
 {
-    package t::moo::extends_non_moo::base;
-
+    package NonMooClass;
+    BEGIN { $INC{'NonMooClass.pm'} = __FILE__ }
     sub new {
         my ($proto, $args) = @_;
         bless $args, $proto;
@@ -14,8 +14,9 @@ use Test::Fatal;
         (shift)->{app};
     }
 
-    package t::moo::extends_non_moo::middle;
-    use base qw(t::moo::extends_non_moo::base);
+    package NonMooClass::Child;
+    BEGIN { $INC{'NonMooClass/Child.pm'} = __FILE__ }
+    use base qw(NonMooClass);
 
     sub wrap {
         my($class, $app) = @_;
@@ -23,43 +24,43 @@ use Test::Fatal;
               ->to_app;
     }
 
-    package t::moo::extends_non_moo::moo;
+    package NonMooClass::Child::MooExtend;
     use Moo;
-    extends 't::moo::extends_non_moo::middle';
+    extends 'NonMooClass::Child';
 
-    package t::moo::extends_non_moo::moo_with_attr;
+    package NonMooClass::Child::MooExtendWithAttr;
     use Moo;
-    extends 't::moo::extends_non_moo::middle';
+    extends 'NonMooClass::Child';
     has 'attr' => (is=>'ro');
 
-    package t::moo::extends_non_moo::second_level_moo;
+    package NonMooClass::Child::MooExtendWithAttr::Extend;
     use Moo;
-    extends 't::moo::extends_non_moo::moo_with_attr';
+    extends 'NonMooClass::Child::MooExtendWithAttr';
     has 'attr2' => (is=>'ro');
 }
 
 ok my $app = 100,
   'prepared $app';
 
-ok $app = t::moo::extends_non_moo::middle->wrap($app),
+ok $app = NonMooClass::Child->wrap($app),
   '$app from $app';
 
 is $app, 100,
   '$app still 100';
 
-ok $app = t::moo::extends_non_moo::moo->wrap($app),
+ok $app = NonMooClass::Child::MooExtend->wrap($app),
   '$app from $app';
 
 is $app, 100,
   '$app still 100';
 
-ok $app = t::moo::extends_non_moo::moo_with_attr->wrap($app),
+ok $app = NonMooClass::Child::MooExtendWithAttr->wrap($app),
   '$app from $app';
 
 is $app, 100,
   '$app still 100';
 
-ok $app = t::moo::extends_non_moo::second_level_moo->wrap($app),
+ok $app = NonMooClass::Child::MooExtendWithAttr::Extend->wrap($app),
   '$app from $app';
 
 is $app, 100,
@@ -67,6 +68,7 @@ is $app, 100,
 
 {
   package BadPrototype;
+  BEGIN { $INC{'BadPrototype.pm'} = __FILE__ }
   sub new () { bless {}, shift }
 }
 {
