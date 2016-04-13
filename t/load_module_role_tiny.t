@@ -1,15 +1,16 @@
 # this test is replicated to t/load_module.t for Moo::_Utils
 
-use Role::Tiny ();
 use Moo::_strictures;
 use Test::More;
-
-use t::lib::INCModule;
-
-local @INC = (sub {
-  return unless $_[1] eq 'Foo/Bar.pm';
-  inc_module("package Foo::Bar; sub baz { 1 } 1");
-}, @INC);
+use lib 't/lib';
+use Role::Tiny ();
+use InlineModule (
+  'Foo::Bar' => q{
+    package Foo::Bar;
+    sub baz { 1 }
+    1;
+  },
+);
 
 { package Foo::Bar::Baz; sub quux { } }
 

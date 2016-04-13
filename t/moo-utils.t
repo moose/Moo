@@ -1,22 +1,15 @@
 use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
-
-use Moo::_Utils qw(_maybe_load_module);
-
-use t::lib::INCModule;
-
-my %files = (
-  'Broken/Class.pm' => q{
+use Moo::_Utils;
+use lib 't/lib';
+use InlineModule (
+  'Broken::Class' => q{
     use strict;
     use warnings;
     my $f = flub;
   },
 );
-unshift @INC, sub {
-  my $out = $files{$_[1]} or return;
-  return inc_module($out);
-};
 
 {
   my @warn;
