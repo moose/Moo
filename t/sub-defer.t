@@ -28,6 +28,10 @@ is($one_defer->(), 'one', 'one (deferred) still runs');
 
 is(Foo->one, 'one', 'one (undeferred) runs');
 
+like exception { defer_sub 'welp' => sub { sub { 1 } } },
+  qr/^welp is not a fully qualified sub name!/,
+  'correct error for defer_sub with unqualified name';
+
 is(my $two_made = undefer_sub($two_defer), $made{'Foo::two'}, 'make two');
 
 is exception { undefer_sub($two_defer) }, undef,
