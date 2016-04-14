@@ -14,7 +14,7 @@ use Moo::_Utils qw(
 use Sub::Defer ();
 use Role::Tiny ();
 use Carp qw(croak);
-our @ISA = qw(Role::Tiny);
+BEGIN { our @ISA = qw(Role::Tiny) }
 
 our $VERSION = '2.001001';
 $VERSION = eval $VERSION;
