@@ -5,6 +5,7 @@ use Sub::Quote qw(quote_sub unquote_sub quotify);
 use Sub::Defer;
 use Moo::_Utils qw(_getstash _getglob);
 use Scalar::Util qw(weaken);
+use Carp qw(croak);
 use Moo;
 
 sub register_attribute_specs {
@@ -35,7 +36,7 @@ sub register_attribute_specs {
         || defined $new_spec->{init_arg}
       )
     ) {
-      die "You cannot have a required attribute (${name})"
+      croak "You cannot have a required attribute (${name})"
         . " without a default, builder, or an init_arg";
     }
     $new_spec->{index} = scalar keys %$specs
@@ -231,7 +232,7 @@ sub _check_required {
   return '' unless @required_init;
   '    if (my @missing = grep !exists $args->{$_}, '
     .join(', ', map quotify($_), @required_init).') {'."\n"
-    .q{      die "Missing required arguments: ".join(', ', sort @missing);}."\n"
+    .q{      croak "Missing required arguments: ".join(', ', sort @missing);}."\n"
     ."    }\n";
 }
 
