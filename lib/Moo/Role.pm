@@ -106,7 +106,7 @@ sub import {
 
 push @ON_ROLE_CREATE, sub {
   my $target = shift;
-  if ($INC{'Moo/HandleMoose.pm'}) {
+  if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
 };
@@ -125,7 +125,7 @@ sub unimport {
 
 sub _maybe_reset_handlemoose {
   my ($class, $target) = @_;
-  if ($INC{"Moo/HandleMoose.pm"}) {
+  if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::maybe_reinject_fake_metaclass_for($target);
   }
 }
@@ -316,7 +316,7 @@ sub create_class_with_roles {
     $me->_handle_constructor($new_name, $_) for @roles;
   }
 
-  if ($INC{'Moo/HandleMoose.pm'}) {
+  if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::inject_fake_metaclass_for($new_name);
   }
   _set_loaded($new_name, (caller)[1]);

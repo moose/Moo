@@ -85,7 +85,7 @@ sub import {
       require Moo::Object; ('Moo::Object');
     } unless @{"${target}::ISA"};
   }
-  if ($INC{'Moo/HandleMoose.pm'}) {
+  if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
 }
@@ -123,7 +123,7 @@ sub _set_superclasses {
 
 sub _maybe_reset_handlemoose {
   my ($class, $target) = @_;
-  if ($INC{"Moo/HandleMoose.pm"}) {
+  if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::maybe_reinject_fake_metaclass_for($target);
   }
 }
