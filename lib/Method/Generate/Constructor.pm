@@ -5,7 +5,11 @@ use Sub::Quote qw(quote_sub unquote_sub quotify);
 use Sub::Defer;
 use Moo::_Utils qw(_getstash _getglob);
 use Scalar::Util qw(weaken);
-use Moo;
+BEGIN {
+  local $Moo::sification::disabled = 1;
+  require Moo;
+  Moo->import;
+}
 
 sub register_attribute_specs {
   my ($self, @new_specs) = @_;
@@ -253,5 +257,8 @@ Moo->_constructor_maker_for(__PACKAGE__)
   subconstructor_handler => { is => 'ro' },
   package => { is => 'bare' },
 );
+if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
+  Moo::HandleMoose::inject_fake_metaclass_for(__PACKAGE__);
+}
 
 1;
