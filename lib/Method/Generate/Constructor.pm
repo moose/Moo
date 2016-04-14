@@ -132,6 +132,10 @@ sub assert_constructor {
 
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
+  $quote_opts = {
+    %{$quote_opts||{}},
+    package => $into,
+  };
   foreach my $no_init (grep !exists($spec->{$_}{init_arg}), keys %$spec) {
     $spec->{$no_init}{init_arg} = $no_init;
   }

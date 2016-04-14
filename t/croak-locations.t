@@ -140,6 +140,17 @@ package Elsewhere;
 $PACKAGE->new(5);
 END_CODE
 
+location_ok <<'END_CODE', 'Method::Generate::Constructor - inlined BUILDARGS output (wrapped)';
+use Moo;
+has attr => (is => 'ro');
+sub wrap_new {
+  my $class = shift;
+  $class->new(@_);
+}
+package Elsewhere;
+$PACKAGE->wrap_new(5);
+END_CODE
+
 location_ok <<'END_CODE', 'Method::Generate::Constructor - required attributes';
 use Moo;
 has attr => (is => 'ro', required => 1);
