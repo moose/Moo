@@ -133,23 +133,25 @@ sub generate_method {
     $spec->{$no_init}{init_arg} = $no_init;
   }
   local $self->{captures} = {};
-  my $body = '    my $class = ref($_[0]) ? ref(shift) : shift;';
-  $body .= $self->_handle_subconstructor($into, $name);
+
   my $into_buildargs = $into->can('BUILDARGS');
-  if ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS ) {
-      $body .= $self->_generate_args_via_buildargs;
-  } else {
-      $body .= $self->_generate_args;
-  }
-  $body .= $self->_check_required($spec);
-  $body .= '    my $new = '.$self->construction_string.";\n";
-  $body .= $self->_assign_new($spec);
-  if ($into->can('BUILD')) {
-    $body .= $self->buildall_generator->buildall_body_for(
-      $into, '$new', '$args'
-    );
-  }
-  $body .= '    return $new;'."\n";
+
+  my $body
+    = '    my $class = ref($_[0]) ? ref(shift) : shift;'."\n"
+    . $self->_handle_subconstructor($into, $name)
+    . ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS
+      ? $self->_generate_args_via_buildargs
+      : $self->_generate_args
+    )
+    . $self->_check_required($spec)
+    . '    my $new = '.$self->construction_string.";\n"
+    . $self->_assign_new($spec)
+    . ( $into->can('BUILD')
+      ? $self->buildall_generator->buildall_body_for( $into, '$new', '$args' )
+      : ''
+    )
+    . '    return $new;'."\n";
+
   if ($into->can('DEMOLISH')) {
     require Method::Generate::DemolishAll;
     Method::Generate::DemolishAll->new->generate_method($into);
