@@ -31,11 +31,8 @@ use Config;
 our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
     _getstash _install_coderef _name_coderef
-    _unimport_coderefs _in_global_destruction _set_loaded
+    _unimport_coderefs _set_loaded
 );
-
-sub _in_global_destruction ();
-*_in_global_destruction = \&Devel::GlobalDestruction::in_global_destruction;
 
 sub _install_modifier {
   my ($into, $type, $name, $code) = @_;
