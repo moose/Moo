@@ -23,4 +23,3 @@ like(
 );
 
 done_testing;
-

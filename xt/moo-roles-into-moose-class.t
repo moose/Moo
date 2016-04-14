@@ -75,4 +75,3 @@ is +Blorp->meta->get_attribute('attr')->name, 'attr',
   'role metaclass inflatable via ->meta';
 
 done_testing;
-

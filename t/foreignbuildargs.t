@@ -51,4 +51,3 @@ is $ext_non_moo2->attr2, 'baz',
 
 
 done_testing;
-

@@ -45,4 +45,3 @@ BEGIN {
 }
 
 done_testing;
-

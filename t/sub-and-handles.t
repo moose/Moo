@@ -82,4 +82,3 @@ is(Third->new->_bar, 'extended', '... even when you specify other delegates in s
 is(Third->new->_baz, 'unextended!', '... and said other delegate still works');
 
 done_testing;
-

@@ -27,4 +27,3 @@ is $i->foo, 'bar', "attribute from first role is correct";
 is $i->bar, 'baz', "attribute from second role is correct";
 
 done_testing;
-

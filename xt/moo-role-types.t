@@ -72,4 +72,3 @@ foreach my $name (qw/ TestMooClass TestMooseClass /) {
 }
 
 done_testing;
-

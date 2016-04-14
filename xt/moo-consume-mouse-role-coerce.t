@@ -29,4 +29,3 @@ my $i = Class->new( foo => 'bar' );
 is $i->foo, 3;
 
 done_testing;
-

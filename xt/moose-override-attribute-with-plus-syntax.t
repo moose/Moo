@@ -58,4 +58,3 @@ is(exception {
 }, undef, 'metaclass inflation of plus override works without warnings');
 
 done_testing;
-
