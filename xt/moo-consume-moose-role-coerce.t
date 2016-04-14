@@ -26,6 +26,6 @@ use Test::More;
 }
 
 my $i = Class->new( foo => 'bar' );
-is $i->foo, 3;
+is $i->foo, 3, 'coerce from type works';
 
 done_testing;
