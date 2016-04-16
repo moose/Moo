@@ -245,4 +245,29 @@ use Moo::HandleMoose ();
 Moo::HandleMoose->import;
 END_CODE
 
+location_ok <<'END_CODE', 'Method::Generate::Accessor::_generate_delegation - user croak';
+BEGIN {
+  eval qq{
+    package ${PACKAGE}::Class;
+    use Moo;
+    use Carp qw(croak);
+    sub method {
+      croak "AAA";
+    }
+    1;
+  } or die $@;
+}
+
+use Moo;
+has b => (
+  is  => 'ro',
+  handles => [ 'method' ],
+  default => sub { "${PACKAGE}::Class"->new },
+);
+
+package Elsewhere;
+my $o = $PACKAGE->new;
+$o->method;
+END_CODE
+
 done_testing;

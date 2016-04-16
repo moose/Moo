@@ -25,6 +25,11 @@ BEGIN {
     (eval { Class::XSAccessor->VERSION('1.17') })
   ;
 }
+BEGIN {
+  package
+    Method::Generate::Accessor::_Generated;
+  $Carp::Internal{+__PACKAGE__} = 1;
+}
 
 my $module_name_only = qr/\A$Module::Runtime::module_name_rx\z/;
 
@@ -37,8 +42,11 @@ sub _die_overwrite
 
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
-  $quote_opts = { %{ $quote_opts||{} } };
-  $quote_opts->{no_defer} = 1;
+  $quote_opts = {
+    no_defer => 1,
+    package => 'Method::Generate::Accessor::_Generated',
+    %{ $quote_opts||{} },
+  };
   $spec->{allow_overwrite}++ if $name =~ s/^\+//;
   croak "Must have an is" unless my $is = $spec->{is};
   if ($is eq 'ro') {
@@ -609,9 +617,8 @@ sub _generate_asserter {
 
   "do {\n"
    ."  my \$val = ".$self->_generate_get($name, $spec).";\n"
-   ."  unless (".$self->_generate_simple_has('$_[0]', $name, $spec).") {\n"
-   .qq!    Carp::croak("Attempted to access '${name}' but it is not set");\n!
-   ."  }\n"
+   ."  ".$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
+   ."    or Carp::croak(\"Attempted to access '${name}' but it is not set\");\n"
    ."  \$val;\n"
    ."}\n";
 }
