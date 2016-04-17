@@ -118,6 +118,7 @@ sub generate_method {
           => '    die "'.$reader.' is a read-only accessor" if @_ > 1;'."\n"
              .$self->_generate_get($name, $spec)
           => delete $self->{captures}
+          => { no_defer => 1 }
         ;
     }
   }
@@ -138,6 +139,7 @@ sub generate_method {
         quote_sub "${into}::${accessor}"
           => $self->_generate_getset($name, $spec)
           => delete $self->{captures}
+          => { no_defer => 1 }
         ;
     }
   }
@@ -157,6 +159,7 @@ sub generate_method {
         quote_sub "${into}::${writer}"
           => $self->_generate_set($name, $spec)
           => delete $self->{captures}
+          => { no_defer => 1 }
         ;
     }
   }

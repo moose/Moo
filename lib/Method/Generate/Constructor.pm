@@ -1,7 +1,7 @@
 package Method::Generate::Constructor;
 
 use Moo::_strictures;
-use Sub::Quote qw(quote_sub unquote_sub quotify);
+use Sub::Quote qw(quote_sub quotify);
 use Sub::Defer;
 use Moo::_Utils qw(_getstash _getglob);
 use Scalar::Util qw(weaken);
@@ -97,8 +97,8 @@ sub install_delayed {
       }
     }
 
-    my $constructor = unquote_sub $self->generate_method(
-      $package, 'new', $self->{attribute_specs}, { no_install => 1 }
+    my $constructor = $self->generate_method(
+      $package, 'new', $self->{attribute_specs}, { no_install => 1, no_defer => 1 }
     );
     $self->{inlined} = 1;
     weaken($self->{constructor} = $constructor);

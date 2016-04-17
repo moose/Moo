@@ -8,11 +8,16 @@ use Moo::_Utils qw(_getglob);
 
 sub generate_method {
   my ($self, $into) = @_;
-  quote_sub "${into}::BUILDALL", join '',
-    $self->_handle_subbuild($into),
-    qq{    my \$self = shift;\n},
-    $self->buildall_body_for($into, '$self', '@_'),
-    qq{    return \$self\n};
+  quote_sub "${into}::BUILDALL"
+    => join('',
+      $self->_handle_subbuild($into),
+      qq{    my \$self = shift;\n},
+      $self->buildall_body_for($into, '$self', '@_'),
+      qq{    return \$self\n},
+    )
+    => {}
+    => { no_defer => 1 }
+  ;
 }
 
 sub _handle_subbuild {
