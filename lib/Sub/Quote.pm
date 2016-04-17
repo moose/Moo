@@ -21,7 +21,12 @@ our @EXPORT_OK = qw(quotify capture_unroll inlinify);
 our %QUOTED;
 
 sub quotify {
+  no warnings 'numeric';
   ! defined $_[0]     ? 'undef()'
+  : (length( (my $dummy = '') & $_[0] )
+    && 0 + $_[0] eq $_[0]
+    && $_[0] * 0 == 0
+  ) ? $_[0]
   : _HAVE_PERLSTRING  ? B::perlstring($_[0])
   : qq["\Q$_[0]\E"];
 }
