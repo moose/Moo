@@ -75,7 +75,6 @@ sub import {
   # install before/after/around subs
   foreach my $type (qw(before after around)) {
     _install_tracked $target => $type => sub {
-      require Class::Method::Modifiers;
       push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
       $me->_maybe_reset_handlemoose($target);
     };
@@ -219,7 +218,6 @@ sub _inhale_if_moose {
         }
       }
     }
-    require Class::Method::Modifiers if @$mods;
     $INFO{$role}{inhaled_from_moose} = 1;
     $INFO{$role}{is_role} = 1;
   }
