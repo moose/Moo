@@ -5,6 +5,7 @@ sub _clean_eval { eval $_[0] }
 use Moo::_strictures;
 
 use Sub::Defer qw(defer_sub);
+use Moo::_Utils qw(_install_coderef);
 use Scalar::Util qw(weaken);
 use Exporter qw(import);
 use B ();
@@ -89,7 +90,11 @@ sub quote_sub {
     die "sub name $subname too long!"
       if length $subname > 252;
   }
-  my ($package, $hints, $bitmask, $hintshash) = (caller(0))[0,8,9,10];
+  my @caller = caller(0);
+  my $package   = $options->{package}      || $caller[0];
+  my $hints     = $options->{hints}        || $caller[8];
+  my $bitmask   = $options->{warning_bits} || $caller[9];
+  my $hintshash = $options->{hintshash}    || $caller[10];
   my $context
     ="# BEGIN quote_sub PRELUDE\n"
     ."package $package;\n"
@@ -104,17 +109,26 @@ sub quote_sub {
     ."}\n"
     ."# END quote_sub PRELUDE\n";
   $code = "$context$code";
-  my $quoted_info;
+
+  my $quoted_info = [ $name, $code, $captures ];
   my $unquoted;
-  my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
-    $unquoted if 0;
-    unquote_sub($quoted_info->[4]);
-  };
-  $quoted_info = [ $name, $code, $captures, \$unquoted, $deferred ];
-  weaken($quoted_info->[3]);
-  weaken($quoted_info->[4]);
-  weaken($QUOTED{$deferred} = $quoted_info);
-  return $deferred;
+  weaken($quoted_info->[3] = \$unquoted);
+  if ($options->{no_defer}) {
+    my $fake = \my $var;
+    local $QUOTED{$fake} = $quoted_info;
+    my $sub = unquote_sub($fake);
+    _install_coderef($name, $sub) if $name;
+    return $sub;
+  }
+  else {
+    my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
+      $unquoted if 0;
+      unquote_sub($quoted_info->[4]);
+    };
+    weaken($quoted_info->[4] = $deferred);
+    weaken($QUOTED{$deferred} = $quoted_info);
+    return $deferred;
+  }
 }
 
 sub quoted_from_sub {
