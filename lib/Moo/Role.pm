@@ -43,17 +43,15 @@ sub _install_tracked {
 
 sub import {
   my $target = caller;
-  my ($me) = @_;
-
-  _set_loaded(caller);
-  strict->import;
-  warnings->import;
   if ($Moo::MAKERS{$target} and $Moo::MAKERS{$target}{is_class}) {
     die "Cannot import Moo::Role into a Moo class";
   }
-  $INFO{$target} ||= {};
-  # get symbol table reference
-  my $stash = _getstash($target);
+  _set_loaded(caller);
+  goto &Role::Tiny::import;
+}
+
+sub _install_subs {
+  my ($me, $target) = @_;
   _install_tracked $target => has => sub {
     my $name_proto = shift;
     my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
@@ -87,20 +85,6 @@ sub import {
     $me->apply_roles_to_package($target, @_);
     $me->_maybe_reset_handlemoose($target);
   };
-  return if $me->is_role($target); # already exported into this package
-  $INFO{$target}{is_role} = 1;
-  *{_getglob("${target}::meta")} = $me->can('meta');
-  # grab all *non-constant* (stash slot is not a scalarref) subs present
-  # in the symbol table and store their refaddrs (no need to forcibly
-  # inflate constant subs into real subs) - also add '' to here (this
-  # is used later) with a map to the coderefs in case of copying or re-use
-  my @not_methods = ('', map { *$_{CODE}||() } grep !ref($_), values %$stash);
-  @{$INFO{$target}{not_methods}={}}{@not_methods} = @not_methods;
-  # a role does itself
-  $APPLIED_TO{$target} = { $target => undef };
-
-  $_->($target)
-    for @ON_ROLE_CREATE;
 }
 
 push @ON_ROLE_CREATE, sub {
