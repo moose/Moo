@@ -1,5 +1,24 @@
 Revision history for Moo
 
+  - require Role::Tiny 2.000002 for fixes to method modifiers being applied
+    via multiple role composition paths (RT#106668)
+  - Delay loading Class::Method::Modifiers until we actually need it
+  - Fix an explosion that could happen if meta inflation was attempted part way
+    through Moo's bootstrapping process, which was possible via a
+    CORE::GLOBAL::bless override (RT#113743)
+  - Accessor subs will be generated immediately, rather than being partially
+    deferred.  The deferal added extra sub layers and the delayed compilation
+    didn't provide any real benefit for them.
+  - Numeric values used as defaults will be inlined as numbers rather than
+    strings.
+  - Numerous test cleanups
+  - Fixed a typo in Sub::Defer docs (RT#113416)
+  - Deferred subs (including constructors) will always be named properly, even
+    if neither Sub::Name nor Sub::Util are available.  This improves
+    compatibility with namespace::autoclean, among other things.  Once the sub
+    is undeferred, it may not be given a correct name if Sub::Name or Sub::Util
+    aren't available.
+
 2.001001 - 2016-03-04
   - Fixed order of attribute value being set and trigger running when there is
     an isa check present. (RT#112677)
