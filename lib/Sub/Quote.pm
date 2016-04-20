@@ -24,6 +24,7 @@ our %QUOTED;
 sub quotify {
   no warnings 'numeric';
   ! defined $_[0]     ? 'undef()'
+  # numeric detection
   : (length( (my $dummy = '') & $_[0] )
     && 0 + $_[0] eq $_[0]
     && $_[0] * 0 == 0
