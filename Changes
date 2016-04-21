@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - Use Carp::croak rather than die to improve reported error locations
+    (RT#109844, RT#109632, RT#102622)
   - removed Method::Inliner module.  It was never intended to ship with Moo,
     and was undocumented, untested, and unused on CPAN.
   - require Role::Tiny 2.000002 for fixes to method modifiers being applied
