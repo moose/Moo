@@ -85,6 +85,7 @@ sub _install_subs {
     $me->apply_roles_to_package($target, @_);
     $me->_maybe_reset_handlemoose($target);
   };
+  *{_getglob("${target}::meta")} = $me->can('meta');
 }
 
 push @ON_ROLE_CREATE, sub {
