@@ -218,9 +218,9 @@ sub generate_method {
     }
   }
   if (my $asserter = $spec->{asserter}) {
-    $self->{captures} = {};
-
-
+    _die_overwrite($into, $asserter, 'an asserter')
+      if !$spec->{allow_overwrite} && defined &{"${into}::${asserter}"};
+    local $self->{captures} = {};
     $methods{$asserter} =
       quote_sub "${into}::${asserter}" =>
         $self->_generate_asserter($name, $spec),
