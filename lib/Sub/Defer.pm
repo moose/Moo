@@ -69,22 +69,25 @@ sub defer_sub {
   my $undeferred;
   my $deferred_info = [ $target, $maker, \$undeferred ];
   if ($target && !Moo::_Utils::_CAN_SUBNAME) {
-    my $code = qq{
-      package $package;
-      sub $subname {
+    my $code = sprintf <<'END_CODE', __LINE__+2, __FILE__, $package, $subname;
+#line %s "%s"
+      package %s;
+      sub %s {
         package Sub::Defer;
-        \$undeferred ||= undefer_sub(\$deferred_info->[3]);
-        goto &\$undeferred;
+        # uncoverable subroutine
+        # uncoverable statement
+        $undeferred ||= undefer_sub($deferred_info->[3]);
+        goto &$undeferred; # uncoverable statement
       }
-      \\&$subname;
-    };
+      \&$subname;
+END_CODE
     my $e;
     $deferred = do {
       no warnings qw(redefine closure);
       local $@;
-      eval $code or $e = $@;
+      eval $code or $e = $@; # uncoverable branch true
     };
-    die $e if defined $e;
+    die $e if defined $e; # uncoverable branch true
   }
   else {
     # duplicated from above
