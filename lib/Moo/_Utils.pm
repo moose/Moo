@@ -45,8 +45,6 @@ sub _install_modifier {
   Class::Method::Modifiers::install_modifier(@_);
 }
 
-our %MAYBE_LOADED;
-
 sub _load_module {
   my $module = $_[0];
   my $file = module_notional_filename($module);
@@ -65,6 +63,7 @@ sub _load_module {
   die $error;
 }
 
+our %MAYBE_LOADED;
 sub _maybe_load_module {
   my $module = $_[0];
   return $MAYBE_LOADED{$module}
