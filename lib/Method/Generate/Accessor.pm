@@ -12,23 +12,24 @@ BEGIN {
   *_CAN_WEAKEN_READONLY = (
     "$]" < 5.008_003 or $ENV{MOO_TEST_PRE_583}
   ) ? sub(){0} : sub(){1};
-  our $CAN_HAZ_XS =
+  *_CAN_XSACCESSOR = (
     !$ENV{MOO_XS_DISABLE}
-      &&
-    _maybe_load_module('Class::XSAccessor')
-      &&
-    (eval { Class::XSAccessor->VERSION('1.07') })
-  ;
-  our $CAN_HAZ_XS_PRED =
-    $CAN_HAZ_XS &&
-    (eval { Class::XSAccessor->VERSION('1.17') })
-  ;
+    && _maybe_load_module('Class::XSAccessor')
+    && eval { Class::XSAccessor->VERSION('1.07') }
+  ) ? sub(){1} : sub(){0};
+  *_CAN_XSACCESSOR_PRED = (
+    _CAN_XSACCESSOR()
+    && eval { Class::XSAccessor->VERSION('1.17') }
+  ) ? sub(){1} : sub(){0};
 }
 BEGIN {
   package
     Method::Generate::Accessor::_Generated;
   $Carp::Internal{+__PACKAGE__} = 1;
 }
+
+# global external disable
+our $CAN_HAZ_XS = _CAN_XSACCESSOR;
 
 sub _die_overwrite {
   my ($pkg, $method, $type) = @_;
@@ -117,7 +118,7 @@ sub generate_method {
   if (my $reader = $spec->{reader}) {
     _die_overwrite($into, $reader, 'a reader')
       if !$spec->{allow_overwrite} && defined &{"${into}::${reader}"};
-    if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
+    if (_CAN_XSACCESSOR && $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
       $methods{$reader} = $self->_generate_xs(
         getters => $into, $reader, $name, $spec
       );
@@ -136,7 +137,8 @@ sub generate_method {
     _die_overwrite($into, $accessor, 'an accessor')
       if !$spec->{allow_overwrite} && defined &{"${into}::${accessor}"};
     if (
-      our $CAN_HAZ_XS
+      _CAN_XSACCESSOR
+      && $CAN_HAZ_XS
       && $self->is_simple_get($name, $spec)
       && $self->is_simple_set($name, $spec)
     ) {
@@ -157,7 +159,8 @@ sub generate_method {
     _die_overwrite($into, $writer, 'a writer')
       if !$spec->{allow_overwrite} && defined &{"${into}::${writer}"};
     if (
-      our $CAN_HAZ_XS
+      _CAN_XSACCESSOR
+      && $CAN_HAZ_XS
       && $self->is_simple_set($name, $spec)
     ) {
       $methods{$writer} = $self->_generate_xs(
@@ -176,7 +179,7 @@ sub generate_method {
   if (my $pred = $spec->{predicate}) {
     _die_overwrite($into, $pred, 'a predicate')
       if !$spec->{allow_overwrite} && defined &{"${into}::${pred}"};
-    if (our $CAN_HAZ_XS && our $CAN_HAZ_XS_PRED) {
+    if (_CAN_XSACCESSOR && _CAN_XSACCESSOR_PRED && $CAN_HAZ_XS) {
       $methods{$pred} = $self->_generate_xs(
         exists_predicates => $into, $pred, $name, $spec
       );
