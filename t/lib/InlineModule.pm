@@ -18,8 +18,12 @@ sub inc_hook {
   } keys %modules;
 
   sub {
-    my $module = $files{$_[1]}
-      or return;
+    return
+      unless exists $files{$_[1]};
+    my $module = $files{$_[1]};
+    if (!defined $module) {
+      die "Can't locate $_[1] in \@INC (hidden) (\@INC contains: @INC).\n";
+    }
     inc_module($module);
   }
 }
