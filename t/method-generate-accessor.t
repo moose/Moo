@@ -158,6 +158,14 @@ ok $gen->is_simple_attribute('attr', { clearer => 'clear_attr' }),
   is_deeply $cap, {}, 'isa from quoted sub has no captures';
 }
 
+{
+  my ($code, $cap) = $gen->generate_populate_set(
+    '$obj', 'attr', { is => 'ro' }, undef, undef, 'attr',
+  );
+  is $code, '', 'populate without eager default or test is blank';
+  is_deeply $cap, {}, ' ... and has no captures';
+}
+
 my $foo = Foo->new;
 $foo->{one} = 1;
 
