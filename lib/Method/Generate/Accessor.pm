@@ -1,13 +1,12 @@
 package Method::Generate::Accessor;
 
 use Moo::_strictures;
-use Moo::_Utils qw(_maybe_load_module _install_coderef);
+use Moo::_Utils qw(_load_module _maybe_load_module _install_coderef);
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quoted_from_sub quotify);
 use Scalar::Util 'blessed';
 use overload ();
-use Module::Runtime qw(use_module);
 BEGIN {
   *_CAN_WEAKEN_READONLY = (
     "$]" < 5.008003 or $ENV{MOO_TEST_PRE_583}
@@ -200,7 +199,9 @@ sub generate_method {
         map [ $_ => ref($hspec->{$_}) ? @{$hspec->{$_}} : $hspec->{$_} ],
           keys %$hspec;
       } elsif (!ref($hspec)) {
-        map [ $_ => $_ ], use_module('Moo::Role')->methods_provided_by(use_module($hspec))
+        require Moo::Role;
+        _load_module $hspec;
+        map [ $_ => $_ ], Moo::Role->methods_provided_by($hspec)
       } else {
         die "You gave me a handles of ${hspec} and I have no idea why";
       }
