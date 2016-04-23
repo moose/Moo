@@ -9,6 +9,9 @@ use Scalar::Util 'blessed';
 use overload ();
 use Module::Runtime qw(use_module);
 BEGIN {
+  *_CAN_WEAKEN_READONLY = (
+    "$]" < 5.008003 or $ENV{MOO_TEST_PRE_583}
+  ) ? sub(){1} : sub(){0};
   our $CAN_HAZ_XS =
     !$ENV{MOO_XS_DISABLE}
       &&
@@ -560,21 +563,23 @@ sub _generate_simple_set {
     #
     # but requires Internal functions and is just too damn crazy
     # so simply throw a better exception
-    my $weak_simple = "do { Scalar::Util::weaken(${simple}); no warnings 'void'; $get }";
-    Moo::_Utils::lt_5_8_3() ? <<"EOC" : $weak_simple;
-      eval { Scalar::Util::weaken($simple); 1 }
-        ? do { no warnings 'void'; $get }
-        : do {
-          if( \$@ =~ /Modification of a read-only value attempted/) {
-            require Carp;
-            Carp::croak( sprintf (
-              'Reference to readonly value in "%s" can not be weakened on Perl < 5.8.3',
-              $name_str,
-            ) );
-          } else {
-            die \$@;
+    my $weak_simple = _CAN_WEAKEN_READONLY
+      ? "do { Scalar::Util::weaken(${simple}); no warnings 'void'; $get }"
+      : <<"EOC"
+        ( eval { Scalar::Util::weaken($simple); 1 }
+          ? do { no warnings 'void'; $get }
+          : do {
+            if( \$@ =~ /Modification of a read-only value attempted/) {
+              require Carp;
+              Carp::croak( sprintf (
+                'Reference to readonly value in "%s" can not be weakened on Perl < 5.8.3',
+                $name_str,
+              ) );
+            } else {
+              die \$@;
+            }
           }
-        }
+        )
 EOC
   } else {
     $simple;

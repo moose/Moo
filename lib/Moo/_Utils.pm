@@ -8,7 +8,6 @@ sub _getstash { \%{"$_[0]::"} }
 use Moo::_strictures;
 
 BEGIN {
-  *lt_5_8_3 = ( $] < 5.008003 or $ENV{MOO_TEST_PRE_583} ) ? sub(){1} : sub(){0};
   my ($su, $sn);
   $su = $INC{'Sub/Util.pm'} && defined &Sub::Util::set_subname
     or $sn = $INC{'Sub/Name.pm'}
