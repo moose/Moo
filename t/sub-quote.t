@@ -291,4 +291,37 @@ like exception {
     'got debug info with SUB_QUOTE_DEBUG';
 }
 
+{
+  my $sub = quote_sub q{
+    BEGIN { $::EVALED{'no_defer'} = 1 }
+    1;
+  }, {}, {no_defer => 1};
+  is $::EVALED{no_defer}, 1,
+    'evaled immediately with no_defer option';
+}
+
+{
+  my $sub = quote_sub 'No::Defer::Test', q{
+    BEGIN { $::EVALED{'no_defer'} = 1 }
+    1;
+  }, {}, {no_defer => 1};
+  is $::EVALED{no_defer}, 1,
+    'evaled immediately with no_defer option (named)';
+  ok defined &No::Defer::Test,
+    'sub installed with no_defer option';
+}
+
+{
+  sub No::Install::Tester {
+    is +(caller(1))[3], 'No::Install::Test',
+      'sub named properly with no_install option';
+  }
+  my $sub = quote_sub 'No::Install::Test', q{
+    No::Install::Tester();
+  }, {}, {no_install => 1};
+  ok !defined &No::Install::Test,
+    'sub not installed with no_install option';
+  $sub->();
+}
+
 done_testing;
