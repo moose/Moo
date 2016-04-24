@@ -221,6 +221,11 @@ my $out = eval
 is "$@", '', 'capture_unroll produces valid code';
 is_deeply $out, [ 1, 2 ], 'unrolled variables get correct values';
 
+like exception {
+  capture_unroll '$captures', { '&foo' => \sub { 5 } }, 4;
+}, qr/^capture key should start with @, % or \$/,
+  'capture_unroll rejects vars other than scalar, hash, or array';
+
 {
   my $inlined_code = inlinify q{
     my ($x, $y) = @_;
