@@ -24,7 +24,6 @@ use Module::Runtime qw(use_package_optimistically module_notional_filename);
 
 use Devel::GlobalDestruction ();
 use Exporter qw(import);
-use Moo::_mro;
 use Config;
 
 our @EXPORT = qw(

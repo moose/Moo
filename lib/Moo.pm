@@ -1,6 +1,7 @@
 package Moo;
 
 use Moo::_strictures;
+use Moo::_mro;
 use Moo::_Utils qw(
   _getglob
   _getstash

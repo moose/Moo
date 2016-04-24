@@ -1,6 +1,7 @@
 use Moo::_strictures;
 use Test::More;
 use Moo ();
+use Moo::_mro;
 
 {
     package Foo;

@@ -4,6 +4,7 @@ use Moo::_strictures;
 use Sub::Quote qw(quote_sub quotify);
 use Sub::Defer;
 use Moo::_Utils qw(_getstash _getglob);
+use Moo::_mro;
 use Scalar::Util qw(weaken);
 BEGIN {
   local $Moo::sification::disabled = 1;
