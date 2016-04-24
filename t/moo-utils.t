@@ -23,6 +23,10 @@ use InlineModule (
   _maybe_load_module('Broken::Class');
   is scalar @warn, 1,
     '_maybe_load_module only warns once per module';
+  ok !_maybe_load_module('Missing::Module::A'.int rand 10**10),
+    '_maybe_load_module returns false for missing module';
+  is scalar @warn, 1,
+    " ... and doesn't warn";
 }
 
 done_testing;
