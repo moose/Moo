@@ -18,6 +18,9 @@ my $two = quote_sub q{
 
 ok(!keys %EVALED, 'Nothing evaled yet');
 
+is unquote_sub(sub {}), undef,
+  'unquote_sub returns undef for unknown subs';
+
 my $u_one = unquote_sub $one;
 
 is_deeply(
