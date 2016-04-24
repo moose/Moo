@@ -83,4 +83,24 @@ is_deeply(
 
 is(MyClass5->foo, 'foo with around', 'method modifier');
 
+{
+  package MyClass6;
+  use Moo;
+  sub new {
+    bless {}, $_[0];
+  }
+}
+
+{
+  package MyClass7;
+  use Moo;
+
+  ::is ::exception {
+    extends 'MyClass6';
+    has foo => (is => 'ro');
+    __PACKAGE__->new;
+  }, undef,
+    'can extend Moo class with overridden new';
+}
+
 done_testing;
