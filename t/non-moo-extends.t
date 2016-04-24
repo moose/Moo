@@ -61,4 +61,25 @@ is $o->built, 1, 'BUILD called correct number of times';
   isa_ok $o, 'ClassF';
 }
 
+{
+  package ClassG;
+  use Sub::Defer;
+  defer_sub __PACKAGE__.'::new' => sub { sub { bless {}, $_[0] } };
+}
+
+{
+  package ClassH;
+  use Moo;
+  extends 'ClassG';
+}
+
+{
+  my $o = eval { ClassH->new };
+  ok $o,
+    'inheriting from non-Moo with deferred new works'
+    or diag $@;
+  isa_ok $o, 'ClassH';
+}
+
+
 done_testing;
