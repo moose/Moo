@@ -1,5 +1,6 @@
 use Moo::_strictures;
 use Test::More;
+use Test::Fatal;
 
 {
   package MyClass0;
@@ -73,6 +74,11 @@ is_deeply(
   sub foo { 'foo' }
 
   around foo => sub { my $orig = shift; $orig->(@_).' with around' };
+
+  ::like ::exception {
+    around bar => sub { 'bar' };
+  }, qr//,
+    'error thrown when modifiying missing method';
 }
 
 is(MyClass5->foo, 'foo with around', 'method modifier');
