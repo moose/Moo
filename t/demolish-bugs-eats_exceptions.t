@@ -1,8 +1,6 @@
-
 use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
-use FindBin;
 
 
 my $FilePath = sub { die "does not pass the type constraint" if $_[0] eq '/' };
@@ -130,11 +128,11 @@ sub check_em {
      }
      {
          local $@;
-         my $obj = eval { $pkg->new ( path => $FindBin::Bin ); };
+         my $obj = eval { $pkg->new ( path => __FILE__ ); };
          ::is( $@, '', "... $pkg no error" );
          ::isa_ok( $obj, $pkg );
          ::isa_ok( $obj, 'Moo::Object' );
-         ::is( $obj->path, $FindBin::Bin, "... $pkg got the right value" );
+         ::is( $obj->path, __FILE__, "... $pkg got the right value" );
      }
 }
 
