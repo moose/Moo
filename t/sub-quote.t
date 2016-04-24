@@ -280,4 +280,15 @@ like exception {
   is $out, 2, 'inlinified code get correct values';
 }
 
+{
+  my @warnings;
+  local $ENV{SUB_QUOTE_DEBUG} = 1;
+  local $SIG{__WARN__} = sub { push @warnings, @_ };
+  my $sub = quote_sub q{ "this is in the quoted sub" };
+  $sub->();
+  like $warnings[0],
+    qr/sub\s*{.*this is in the quoted sub/s,
+    'got debug info with SUB_QUOTE_DEBUG';
+}
+
 done_testing;
