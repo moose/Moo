@@ -88,4 +88,9 @@ is ref($gen->current_constructor('Bar')), 'CODE',
 is $gen->current_constructor('Baz'), undef,
   'nonexistent constructor returns undef';
 
+{
+  is $gen->_cap_call('welp'), 'welp',
+    "_cap_call returns code";
+}
+
 done_testing;
