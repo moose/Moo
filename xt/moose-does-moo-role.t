@@ -58,4 +58,17 @@ for my $parent (qw(MooseParent MooParent)) {
    }
 }
 
+{
+  package MooClass2;
+  use Moo;
+}
+
+{
+  ok !MooClass2->does('MooRole'),
+    'Moo class does not do unrelated role';
+  my $meta = Class::MOP::get_metaclass_by_name('MooClass2');
+  is ref $meta, 'Moo::HandleMoose::FakeMetaClass',
+    'does call for Moo only classes did not inflate';
+}
+
 done_testing;
