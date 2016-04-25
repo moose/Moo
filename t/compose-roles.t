@@ -161,4 +161,13 @@ is exception {
 }, undef,
   'apply_roles_to_package copes with missing attribute specs';
 
+{
+  package Non::Moo::Class;
+  sub new { bless {}, $_[0] }
+}
+
+Moo::Role->apply_roles_to_package('Non::Moo::Class', 'RoleWithAttr');
+ok +Non::Moo::Class->can('attr1'),
+  'can apply role with attributes to non Moo class';
+
 done_testing;
