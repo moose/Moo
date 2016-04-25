@@ -41,6 +41,9 @@ is +MyClass2->new({foo => 'bar'})->{foo}, undef,
 is +MyClass2->new({foo => 'bar'})->{foo}, undef,
   'arbitrary attributes not stored second time when BUILD exists';
 
+ok !MyClass->does('MyClass2'), 'does returns false for other class';
+is $INC{'Role/Tiny.pm'}, undef, " ... and doesn't load Role::Tiny";
+
 {
   my $meta = MyClass->meta;
   $meta->make_immutable;
