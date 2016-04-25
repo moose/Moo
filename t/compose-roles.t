@@ -134,5 +134,19 @@ foreach my $combo (
   }, undef, "apply_roles_to_object with multiple attrs with defaults (@$combo)";
 }
 
+{
+  package Some::Class;
+  sub foo { 1 }
+}
+
+like exception {
+  Moo::Role->apply_roles_to_package('EmptyClass', 'Some::Class');
+}, qr/Some::Class is not a Moo::Role/,
+  'can only apply roles to packages';
+
+like exception {
+  Moo::Role->create_class_with_roles('EmptyClass', 'Some::Class');
+}, qr/Some::Class is not a Moo::Role/,
+  'can only create class with roles';
 
 done_testing;
