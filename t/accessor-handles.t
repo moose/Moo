@@ -108,6 +108,13 @@ ok(exception {
   package Fuzz;
   use Moo;
   has foo => ( is => 'ro', handles => $bar );
-}, 'invalid handles throws exception');
+}, 'invalid handles (object) throws exception');
+
+like exception {
+  package Borf;
+  use Moo;
+  has foo => ( is => 'ro', handles => 'Bar' );
+}, qr/is not a Moo::Role/,
+  'invalid handles (class) throws exception';
 
 done_testing;
