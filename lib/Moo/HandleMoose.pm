@@ -97,7 +97,7 @@ sub inject_real_metaclass_for {
   # needed to ensure the method body is stable and get things named
   $methods{$_} = Sub::Defer::undefer_sub($methods{$_})
     for
-      grep $_ ne 'new' && defined $methods{$_},
+      grep $_ ne 'new',
       keys %methods;
   my @attrs;
   {
@@ -180,7 +180,7 @@ sub inject_real_metaclass_for {
   }
   foreach my $meth_name (keys %methods) {
     my $meth_code = $methods{$meth_name};
-    $meta->add_method($meth_name, $meth_code) if $meth_code;
+    $meta->add_method($meth_name, $meth_code);
   }
 
   if ($am_role) {
