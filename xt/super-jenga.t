@@ -25,14 +25,26 @@ use Test::More;
   has 'attr3' => (is => 'ro', required => 1);
 
   __PACKAGE__->meta->make_immutable;
+
+  package Tower4;
+  use Moo;
+
+  extends 'Tower1';
+
+  has 'attr1' => (is => 'ro', required => 1);
+  has 'attr2' => (is => 'ro', required => 1);
+  has 'attr3' => (is => 'ro', required => 1);
+  has 'attr4' => (is => 'ro', required => 1);
 }
 
-foreach my $num (1..3) {
+foreach my $num (4..4) {
   my $class = "Tower${num}";
   my @attrs = map "attr$_", 1..$num;
   my %args = map +($_ => "${_}_value"), @attrs;
   my $obj = $class->new(%args);
   is($obj->{$_}, "${_}_value", "Attribute $_ ok for $class") for @attrs;
+  is Class::MOP::get_metaclass_by_name($class)->name, $class,
+    'metaclass inflated correctly';
 }
 
 done_testing;
