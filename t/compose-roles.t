@@ -142,7 +142,12 @@ foreach my $combo (
 like exception {
   Moo::Role->apply_roles_to_package('EmptyClass', 'Some::Class');
 }, qr/Some::Class is not a Moo::Role/,
-  'can only apply roles to packages';
+  'apply_roles_to_package throws error on non-role';
+
+like exception {
+  Moo::Role->apply_single_role_to_package('EmptyClass', 'Some::Class');
+}, qr/Some::Class is not a Moo::Role/,
+  'apply_single_role_to_package throws error on non-role';
 
 like exception {
   Moo::Role->create_class_with_roles('EmptyClass', 'Some::Class');
