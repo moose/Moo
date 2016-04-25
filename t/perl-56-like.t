@@ -1,5 +1,5 @@
 use B ();
-delete $B::{perlstring};
+BEGIN { delete $B::{perlstring} };
 use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
