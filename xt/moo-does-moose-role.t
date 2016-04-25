@@ -291,4 +291,24 @@ is exception {
   Moo::Role->create_class_with_roles('HasMonkey', 'Splat', 'NeedTrap');
 }, undef, ' ... and when created by create_class_with_roles';
 
+{
+  package FishRole;
+  use Moose::Role;
+
+  has fish => (is => 'ro', isa => 'Plunker');
+}
+{
+  package FishClass;
+  use Moo;
+  with 'FishRole';
+}
+
+is exception {
+  FishClass->new(fish => Plunker->new);
+}, undef, 'inhaling attr with isa works';
+
+like exception {
+  FishClass->new(fish => 4);
+}, qr/Type constraint failed/, ' ... and isa check works';
+
 done_testing;
