@@ -37,7 +37,7 @@ use Test::More;
   has 'attr4' => (is => 'ro', required => 1);
 }
 
-foreach my $num (4..4) {
+foreach my $num (1..4) {
   my $class = "Tower${num}";
   my @attrs = map "attr$_", 1..$num;
   my %args = map +($_ => "${_}_value"), @attrs;
