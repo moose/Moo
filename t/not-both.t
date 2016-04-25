@@ -1,29 +1,44 @@
 use Moo::_strictures;
 use Test::More;
+use Test::Fatal;
 
-# Compile-time exceptions, so need stringy eval; hence not Test::Fatal.
+use Moo ();
+use Moo::Role ();
+
 {
-  local $@;
-  ok !eval q { package ZZZ; use Role::Tiny; use Moo; 1; },
+  like exception {
+    package ZZZ;
+    Role::Tiny->import;
+    Moo->import;
+  }, qr{Cannot import Moo into a role},
     "can't import Moo into a Role::Tiny role";
-  like $@, qr{Cannot import Moo into a role},
-    " ... with correct error message";
 }
 
 {
-  local $@;
-  ok !eval q { package XXX; use Moo; use Moo::Role; 1; },
+  like exception {
+    package XXX;
+    Moo->import;
+    Moo::Role->import;
+  }, qr{Cannot import Moo::Role into a Moo class},
     "can't import Moo::Role into a Moo class";
-  like $@, qr{Cannot import Moo::Role into a Moo class},
-    " ... with correct error message";
 }
 
 {
-  local $@;
-  ok !eval q { package YYY; use Moo::Role; use Moo; 1; },
+  like exception {
+    package YYY;
+    Moo::Role->import;
+    Moo->import;
+  }, qr{Cannot import Moo into a role},
     "can't import Moo into a Moo role";
-  like $@, qr{Cannot import Moo into a role},
-    " ... with correct error message";
+}
+
+{
+  is exception {
+    package FFF;
+    $Moo::MAKERS{+__PACKAGE__} = {};
+    Moo::Role->import;
+  }, undef,
+    "Moo::Role can be imported into a package with fake MAKERS";
 }
 
 done_testing;
