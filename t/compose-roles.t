@@ -136,6 +136,7 @@ foreach my $combo (
 
 {
   package Some::Class;
+  use Moo;
   sub foo { 1 }
 }
 
@@ -153,5 +154,11 @@ like exception {
   Moo::Role->create_class_with_roles('EmptyClass', 'Some::Class');
 }, qr/Some::Class is not a Moo::Role/,
   'can only create class with roles';
+
+delete Moo->_constructor_maker_for('Some::Class')->{attribute_specs};
+is exception {
+  Moo::Role->apply_roles_to_package('Some::Class', 'RoleWithAttr');
+}, undef,
+  'apply_roles_to_package copes with missing attribute specs';
 
 done_testing;
