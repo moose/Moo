@@ -35,6 +35,8 @@ sub _die_overwrite
 
 sub generate_method {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
+  $quote_opts = { %{ $quote_opts||{} } };
+  $quote_opts->{no_defer} = 1;
   $spec->{allow_overwrite}++ if $name =~ s/^\+//;
   die "Must have an is" unless my $is = $spec->{is};
   if ($is eq 'ro') {
@@ -120,7 +122,7 @@ sub generate_method {
           => '    die "'.$reader.' is a read-only accessor" if @_ > 1;'."\n"
              .$self->_generate_get($name, $spec)
           => delete $self->{captures}
-          => { no_defer => 1 }
+          => $quote_opts
         ;
     }
   }
@@ -141,7 +143,7 @@ sub generate_method {
         quote_sub "${into}::${accessor}"
           => $self->_generate_getset($name, $spec)
           => delete $self->{captures}
-          => { no_defer => 1 }
+          => $quote_opts
         ;
     }
   }
@@ -161,7 +163,7 @@ sub generate_method {
         quote_sub "${into}::${writer}"
           => $self->_generate_set($name, $spec)
           => delete $self->{captures}
-          => { no_defer => 1 }
+          => $quote_opts
         ;
     }
   }
@@ -174,8 +176,10 @@ sub generate_method {
       );
     } else {
       $methods{$pred} =
-        quote_sub "${into}::${pred}" =>
-          '    '.$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
+        quote_sub "${into}::${pred}"
+          => $self->_generate_simple_has('$_[0]', $name, $spec)."\n"
+          => {}
+          => $quote_opts
         ;
     }
   }
@@ -186,8 +190,10 @@ sub generate_method {
     _die_overwrite($into, $cl, 'a clearer')
       if !$spec->{allow_overwrite} && defined &{"${into}::${cl}"};
     $methods{$cl} =
-      quote_sub "${into}::${cl}" =>
-        $self->_generate_simple_clear('$_[0]', $name, $spec)."\n"
+      quote_sub "${into}::${cl}"
+        => $self->_generate_simple_clear('$_[0]', $name, $spec)."\n"
+        => {}
+        => $quote_opts
       ;
   }
   if (my $hspec = $spec->{handles}) {
@@ -212,9 +218,10 @@ sub generate_method {
         if !$spec->{allow_overwrite} && defined &{"${into}::${proxy}"};
       $self->{captures} = {};
       $methods{$proxy} =
-        quote_sub "${into}::${proxy}" =>
-          $self->_generate_delegation($asserter, $target, \@args),
-          delete $self->{captures}
+        quote_sub "${into}::${proxy}"
+          => $self->_generate_delegation($asserter, $target, \@args)
+          => delete $self->{captures}
+          => $quote_opts
         ;
     }
   }
@@ -223,9 +230,11 @@ sub generate_method {
       if !$spec->{allow_overwrite} && defined &{"${into}::${asserter}"};
     local $self->{captures} = {};
     $methods{$asserter} =
-      quote_sub "${into}::${asserter}" =>
-        $self->_generate_asserter($name, $spec),
-        delete $self->{captures};
+      quote_sub "${into}::${asserter}"
+        => $self->_generate_asserter($name, $spec)
+        => delete $self->{captures}
+        => $quote_opts
+      ;
   }
   \%methods;
 }
