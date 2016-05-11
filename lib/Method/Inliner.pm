@@ -12,18 +12,18 @@ sub splat {
 
 sub inlinify {
   my $file = $_[0];
-  my @chunks = split /(^sub.*?^}$)/sm, slurp $file;
+  my @chunks = split /(^sub.*?^\}$)/sm, slurp $file;
   warn join "\n--\n", @chunks;
   my %code;
   foreach my $chunk (@chunks) {
     if (my ($name, $body) =
-      $chunk =~ /^sub (\S+) {\n(.*)\n}$/s
+      $chunk =~ /^sub (\S+) \{\n(.*)\n\}$/s
     ) {
       $code{$name} = $body;
     }
   }
   foreach my $chunk (@chunks) {
-    my ($me) = $chunk =~ /^sub.*{\n  my \((\$\w+).*\) = \@_;\n/ or next;
+    my ($me) = $chunk =~ /^sub.*\{\n  my \((\$\w+).*\) = \@_;\n/ or next;
     my $meq = quotemeta $me;
     #warn $meq, $chunk;
     my $copy = $chunk;
