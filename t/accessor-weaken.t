@@ -56,14 +56,14 @@ ok(!defined $foo4->{four}, 'weak value gone');
 # test readonly SVs
 sub mk_ref { \ 'yay' };
 my $foo_ro = eval { Foo->new(one => mk_ref()) };
-if ($] < 5.008003) {
+if ("$]" < 5.008_003) {
   like(
     $@,
     qr/\QReference to readonly value in "one" can not be weakened on Perl < 5.8.3/,
     'Expected exception thrown on old perls'
   );
 }
-elsif ($^O eq 'cygwin' and $] < 5.012000) {
+elsif ($^O eq 'cygwin' and "$]" < 5.012_000) {
   SKIP: { skip 'Static coderef reaping seems nonfunctional on cygwin < 5.12', 1 }
 }
 else {

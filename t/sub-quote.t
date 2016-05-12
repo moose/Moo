@@ -198,7 +198,7 @@ ok !@failed, "evaling quotify returns same value for all strings"
 
 SKIP: {
   skip "working utf8 pragma not available", 1
-    if $] < 5.008000;
+    if "$]" < 5.008_000;
   my $eval_utf8 = eval 'sub { use utf8; eval Sub::Quote::quotify($_[0]) }';
 
   my @failed_utf8 = grep { my $o = $eval_utf8->($_); !defined $o || $o ne $_ }

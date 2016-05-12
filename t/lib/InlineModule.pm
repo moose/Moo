@@ -2,7 +2,7 @@ package InlineModule;
 use Moo::_strictures;
 
 BEGIN {
-  *_HAS_PERLIO = $] >= 5.008 ? sub(){1} : sub(){0};
+  *_HAS_PERLIO = "$]" >= 5.008_000 ? sub(){1} : sub(){0};
 }
 
 sub import {

@@ -9,7 +9,7 @@ use Scalar::Util 'blessed';
 use overload ();
 BEGIN {
   *_CAN_WEAKEN_READONLY = (
-    "$]" < 5.008003 or $ENV{MOO_TEST_PRE_583}
+    "$]" < 5.008_003 or $ENV{MOO_TEST_PRE_583}
   ) ? sub(){0} : sub(){1};
   our $CAN_HAZ_XS =
     !$ENV{MOO_XS_DISABLE}
