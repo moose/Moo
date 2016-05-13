@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - removed Method::Inliner module.  It was never intended to ship with Moo,
+    and was undocumented, untested, and unused on CPAN.
   - require Role::Tiny 2.000002 for fixes to method modifiers being applied
     via multiple role composition paths (RT#106668)
   - Delay loading Class::Method::Modifiers until we actually need it
