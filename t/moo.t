@@ -77,7 +77,7 @@ is_deeply(
 
   ::like ::exception {
     around bar => sub { 'bar' };
-  }, qr//,
+  }, qr/not found/,
     'error thrown when modifiying missing method';
 }
 
