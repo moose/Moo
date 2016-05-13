@@ -270,4 +270,28 @@ my $o = $PACKAGE->new;
 $o->method;
 END_CODE
 
+location_ok <<'END_CODE', 'Moo::Role::create_class_with_roles - default fails isa';
+BEGIN {
+  eval qq{
+    package ${PACKAGE}::Role;
+    use Moo::Role;
+    use Carp qw(croak);
+    has attr => (
+      is => 'ro',
+      default => sub { 0 },
+      isa => sub {
+        croak "must be true" unless \$_[0];
+      },
+    );
+    1;
+  } or die $@;
+}
+
+use Moo;
+my $o = $PACKAGE->new;
+package Elsewhere;
+use Moo::Role ();
+Moo::Role->apply_roles_to_object($o, "${PACKAGE}::Role");
+END_CODE
+
 done_testing;

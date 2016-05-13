@@ -317,42 +317,61 @@ sub create_class_with_roles {
 sub apply_roles_to_object {
   my ($me, $object, @roles) = @_;
   my $new = $me->SUPER::apply_roles_to_object($object, @roles);
-  _set_loaded(ref $new, (caller)[1]);
+  my $class = ref $new;
+  _set_loaded($class, (caller)[1]);
 
-  my $apply_defaults = $APPLY_DEFAULTS{ref $new} ||= do {
+  my $apply_defaults = exists $APPLY_DEFAULTS{$class} ? $APPLY_DEFAULTS{$class}
+    : $APPLY_DEFAULTS{$class} = do {
     my %attrs = map { @{$INFO{$_}{attributes}||[]} } @roles;
 
     if ($INC{'Moo.pm'}
         and keys %attrs
-        and my $con_gen = Moo->_constructor_maker_for(ref $new)
-        and my $m = Moo->_accessor_maker_for(ref $new)) {
+        and my $con_gen = Moo->_constructor_maker_for($class)
+        and my $m = Moo->_accessor_maker_for($class)) {
       require Sub::Quote;
 
       my $specs = $con_gen->all_attribute_specs;
 
-      my $assign = "{no warnings 'void';\n";
       my %captures;
-      foreach my $name ( keys %attrs ) {
-        my $spec = $specs->{$name};
-        if ($m->has_eager_default($name, $spec)) {
-          my ($has, $has_cap)
-            = $m->generate_simple_has('$_[0]', $name, $spec);
-          my ($code, $pop_cap)
-            = $m->generate_use_default('$_[0]', $name, $spec, $has);
+      my $code = join('',
+        "no warnings 'void';\n",
+        ( map {
+          my $name = $_;
+          my $spec = $specs->{$name};
+          if ($m->has_eager_default($name, $spec)) {
+            my ($has, $has_cap)
+              = $m->generate_simple_has('$_[0]', $name, $spec);
+            my ($set, $pop_cap)
+              = $m->generate_use_default('$_[0]', $name, $spec, $has);
 
-          $assign .= $code . ";\n";
-          @captures{keys %$has_cap, keys %$pop_cap}
-            = (values %$has_cap, values %$pop_cap);
+            @captures{keys %$has_cap, keys %$pop_cap}
+              = (values %$has_cap, values %$pop_cap);
+            "($set),";
+          }
+          else {
+            ();
+          }
+        } sort keys %attrs ),
+      );
+      Sub::Quote::quote_sub(
+        "${class}::_apply_defaults",
+        $code,
+        \%captures,
+        {
+          package => $class,
+          no_install => 1,
         }
-      }
-      $assign .= "}";
-      Sub::Quote::quote_sub($assign, \%captures);
+      );
     }
     else {
-      sub {};
+      0;
     }
   };
-  $new->$apply_defaults;
+  if ($apply_defaults) {
+    local $Carp::Internal{+__PACKAGE__} = 1;
+    local $Carp::Internal{$class} = 1;
+    $new->$apply_defaults;
+  }
   return $new;
 }
 
