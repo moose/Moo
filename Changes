@@ -15,7 +15,7 @@ Revision history for Moo
     didn't provide any real benefit for them.
   - Numeric values used as defaults will be inlined as numbers rather than
     strings.
-  - Numerous test cleanups
+  - Numerous test cleanups and additional test coverage
   - Fixed a typo in Sub::Defer docs (RT#113416)
   - Deferred subs (including constructors) will always be named properly, even
     if neither Sub::Name nor Sub::Util are available.  This improves
