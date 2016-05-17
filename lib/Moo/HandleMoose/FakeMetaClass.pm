@@ -1,14 +1,16 @@
 package Moo::HandleMoose::FakeMetaClass;
 use Moo::_strictures;
+use Carp ();
+BEGIN { our @CARP_NOT = qw(Moo::HandleMoose) }
 
 sub DESTROY { }
 
 sub AUTOLOAD {
   my ($meth) = (our $AUTOLOAD =~ /([^:]+)$/);
   my $self = shift;
-  die "Can't call $meth without object instance"
+  Carp::croak "Can't call $meth without object instance"
     if !ref $self;
-  die "Can't inflate Moose metaclass with Moo::sification disabled"
+  Carp::croak "Can't inflate Moose metaclass with Moo::sification disabled"
     if $Moo::sification::disabled;
   require Moo::HandleMoose;
   Moo::HandleMoose::inject_real_metaclass_for($self->{name})->$meth(@_)

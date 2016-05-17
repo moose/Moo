@@ -25,6 +25,7 @@ use Module::Runtime qw(use_package_optimistically module_notional_filename);
 use Devel::GlobalDestruction ();
 use Exporter qw(import);
 use Config;
+use Carp qw(croak);
 
 our @EXPORT = qw(
     _getglob _install_modifier _load_module _maybe_load_module
@@ -46,7 +47,7 @@ sub _install_modifier {
 
 sub _load_module {
   my $module = $_[0];
-  my $file = module_notional_filename($module);
+  my $file = eval { module_notional_filename($module) } or croak $@;
   use_package_optimistically($module);
   return 1
     if $INC{$file};
@@ -59,7 +60,7 @@ sub _load_module {
   return 1
     if $INC{"Moose.pm"} && Class::MOP::class_of($module)
     or Mouse::Util->can('find_meta') && Mouse::Util::find_meta($module);
-  die $error;
+  croak $error;
 }
 
 our %MAYBE_LOADED;
