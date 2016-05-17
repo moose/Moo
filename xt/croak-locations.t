@@ -19,4 +19,22 @@ has attr => (is => 'ro', isa => $isa);
 $PACKAGE->meta->name;
 END_CODE
 
+{
+  local $TODO = "croaks in roles don't skip consuming class";
+location_ok <<'END_CODE', 'Moo::Role::_inhale_if_moose - isa from type';
+BEGIN {
+  eval qq{
+    package ${PACKAGE}::Role;
+    use Moose::Role;
+    has attr1 => (is => 'ro', isa => 'HashRef');
+    1;
+  } or die $@;
+}
+use Moo;
+with "${PACKAGE}::Role";
+package Elsewhere;
+$PACKAGE->new(attr1 => []);
+END_CODE
+}
+
 done_testing;
