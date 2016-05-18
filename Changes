@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.002_000 - 2016-05-18
   - Use Carp::croak rather than die to improve reported error locations
     (RT#109844, RT#109632, RT#102622)
   - removed Method::Inliner module.  It was never intended to ship with Moo,
