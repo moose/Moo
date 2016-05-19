@@ -96,14 +96,16 @@ my %MM_ARGS = (
   !-f 'META.yml' and eval q{
     sub test_via_harness {
       my($self, $perl, $tests) = @_;
-      return $self->SUPER::test_via_harness("$perl -It/lib -MFatalWarnings", $tests);
+      $perl .= ' -It/lib -MTestEnv=MOO_FATAL_WARNINGS,$(MOO_TEST_ENV)';
+      return $self->SUPER::test_via_harness($perl, $tests);
     }
   };
 
   sub postamble {
     <<"POSTAMBLE";
-fulltest: test
-\tMOO_XS_DISABLE=1 \$(MAKE) test
+fulltest: test test_no_xs
+test_no_xs:
+\t\$(NOECHO)\$(MAKE) test \$(PASTHRU) MOO_TEST_ENV="\$(MOO_TEST_ENV),MOO_XS_DISABLE"
 POSTAMBLE
   }
 }
