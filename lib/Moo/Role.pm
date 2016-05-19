@@ -164,90 +164,92 @@ sub is_role {
 
 sub _inhale_if_moose {
   my ($self, $role) = @_;
+  return
+    if $self->SUPER::is_role($role);
+
   my $meta;
-  if (!$self->SUPER::is_role($role)
-      and (
-        $INC{"Moose.pm"}
-        and $meta = Class::MOP::class_of($role)
-        and ref $meta ne 'Moo::HandleMoose::FakeMetaClass'
-        and $meta->isa('Moose::Meta::Role')
-      )
-      or (
-        Mouse::Util->can('find_meta')
-        and $meta = Mouse::Util::find_meta($role)
-        and $meta->isa('Mouse::Meta::Role')
-     )
-  ) {
-    my $is_mouse = $meta->isa('Mouse::Meta::Role');
-    $INFO{$role}{methods} = {
-      map +($_ => $role->can($_)),
-        grep $role->can($_),
-        grep !($is_mouse && $_ eq 'meta'),
-        grep !$meta->get_method($_)->isa('Class::MOP::Method::Meta'),
-          $meta->get_method_list
-    };
-    $APPLIED_TO{$role} = {
-      map +($_->name => 1), $meta->calculate_all_roles
-    };
-    $INFO{$role}{requires} = [ $meta->get_required_method_list ];
-    $INFO{$role}{attributes} = [
-      map +($_ => do {
-        my $attr = $meta->get_attribute($_);
-        my $spec = { %{ $is_mouse ? $attr : $attr->original_options } };
+  (
+    $INC{"Moose/Meta/Role.pm"}
+    and $meta = Class::MOP::class_of($role)
+    and ref $meta ne 'Moo::HandleMoose::FakeMetaClass'
+    and $meta->isa('Moose::Meta::Role')
+  )
+  or (
+    Mouse::Util->can('find_meta')
+    and $meta = Mouse::Util::find_meta($role)
+    and $meta->isa('Mouse::Meta::Role')
+  )
+  or return;
 
-        if ($spec->{isa}) {
-          require Sub::Quote;
+  my $is_mouse = $meta->isa('Mouse::Meta::Role');
+  $INFO{$role}{methods} = {
+    map +($_ => $role->can($_)),
+      grep $role->can($_),
+      grep !($is_mouse && $_ eq 'meta'),
+      grep !$meta->get_method($_)->isa('Class::MOP::Method::Meta'),
+        $meta->get_method_list
+  };
+  $APPLIED_TO{$role} = {
+    map +($_->name => 1), $meta->calculate_all_roles
+  };
+  $INFO{$role}{requires} = [ $meta->get_required_method_list ];
+  $INFO{$role}{attributes} = [
+    map +($_ => do {
+      my $attr = $meta->get_attribute($_);
+      my $spec = { %{ $is_mouse ? $attr : $attr->original_options } };
 
-          my $get_constraint = do {
-            my $pkg = $is_mouse
-                        ? 'Mouse::Util::TypeConstraints'
-                        : 'Moose::Util::TypeConstraints';
-            _load_module($pkg);
-            $pkg->can('find_or_create_isa_type_constraint');
-          };
+      if ($spec->{isa}) {
+        require Sub::Quote;
 
-          my $tc = $get_constraint->($spec->{isa});
-          my $check = $tc->_compiled_type_constraint;
-          my $tc_var = '$_check_for_'.Sub::Quote::sanitize_identifier($tc->name);
+        my $get_constraint = do {
+          my $pkg = $is_mouse
+                      ? 'Mouse::Util::TypeConstraints'
+                      : 'Moose::Util::TypeConstraints';
+          _load_module($pkg);
+          $pkg->can('find_or_create_isa_type_constraint');
+        };
 
-          $spec->{isa} = Sub::Quote::quote_sub(
-            qq{
-              &${tc_var} or Carp::croak "Type constraint failed for \$_[0]"
-            },
-            { $tc_var => \$check },
-            {
-              package => $role,
-            },
-          );
+        my $tc = $get_constraint->($spec->{isa});
+        my $check = $tc->_compiled_type_constraint;
+        my $tc_var = '$_check_for_'.Sub::Quote::sanitize_identifier($tc->name);
 
-          if ($spec->{coerce}) {
+        $spec->{isa} = Sub::Quote::quote_sub(
+          qq{
+            &${tc_var} or Carp::croak "Type constraint failed for \$_[0]"
+          },
+          { $tc_var => \$check },
+          {
+            package => $role,
+          },
+        );
 
-             # Mouse has _compiled_type_coercion straight on the TC object
-             $spec->{coerce} = $tc->${\(
-               $tc->can('coercion')||sub { $_[0] }
-             )}->_compiled_type_coercion;
-          }
-        }
-        $spec;
-      }), $meta->get_attribute_list
-    ];
-    my $mods = $INFO{$role}{modifiers} = [];
-    foreach my $type (qw(before after around)) {
-      # Mouse pokes its own internals so we have to fall back to doing
-      # the same thing in the absence of the Moose API method
-      my $map = $meta->${\(
-        $meta->can("get_${type}_method_modifiers_map")
-        or sub { shift->{"${type}_method_modifiers"} }
-      )};
-      foreach my $method (keys %$map) {
-        foreach my $mod (@{$map->{$method}}) {
-          push @$mods, [ $type => $method => $mod ];
+        if ($spec->{coerce}) {
+
+            # Mouse has _compiled_type_coercion straight on the TC object
+            $spec->{coerce} = $tc->${\(
+              $tc->can('coercion')||sub { $_[0] }
+            )}->_compiled_type_coercion;
         }
       }
+      $spec;
+    }), $meta->get_attribute_list
+  ];
+  my $mods = $INFO{$role}{modifiers} = [];
+  foreach my $type (qw(before after around)) {
+    # Mouse pokes its own internals so we have to fall back to doing
+    # the same thing in the absence of the Moose API method
+    my $map = $meta->${\(
+      $meta->can("get_${type}_method_modifiers_map")
+      or sub { shift->{"${type}_method_modifiers"} }
+    )};
+    foreach my $method (keys %$map) {
+      foreach my $mod (@{$map->{$method}}) {
+        push @$mods, [ $type => $method => $mod ];
+      }
     }
-    $INFO{$role}{inhaled_from_moose} = 1;
-    $INFO{$role}{is_role} = 1;
   }
+  $INFO{$role}{inhaled_from_moose} = 1;
+  $INFO{$role}{is_role} = 1;
 }
 
 sub _maybe_make_accessors {
