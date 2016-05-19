@@ -182,4 +182,10 @@ is($foo->_build_fifteen, 15, 'builder installs code sub under the correct name')
 
 is($foo->sixteen, 16, 'builder installs quote_sub');
 
+{
+  my $var = $gen->_sanitize_name('erk-qro yuf (fid)');
+  eval qq{ my \$$var = 5; \$var };
+  is $@, '', '_sanitize_name gives valid identifier';
+}
+
 done_testing;
