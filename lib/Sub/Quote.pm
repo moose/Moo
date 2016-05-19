@@ -269,6 +269,8 @@ including the sigil.  The values should be references to the values.  The
 variables will contain copies of the values.  See the L</SYNOPSIS>'s
 C<Silly::dagron> for an example using captures.
 
+Exported by default.
+
 =head3 options
 
 =over 2
@@ -288,6 +290,8 @@ Forcibly replace subroutine with actual code.
 
 If $sub is not a quoted sub, this is a no-op.
 
+Exported by default.
+
 =head2 quoted_from_sub
 
  my $data = quoted_from_sub $sub;
@@ -299,6 +303,8 @@ sub has already been unquoted.
 
 Note that $sub can be either the original quoted version or the compiled
 version for convenience.
+
+Exported by default.
 
 =head2 inlinify
 
@@ -350,6 +356,8 @@ Arguments: $code
 
 Works exactly like L</quote_sub>, but includes a prototype to only accept a
 single parameter.  This makes it easier to include in hash structures or lists.
+
+Exported by default.
 
 =head2 sanitize_identifier
 
