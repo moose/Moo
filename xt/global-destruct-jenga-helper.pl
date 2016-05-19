@@ -1,5 +1,4 @@
 use Moo::_strictures;
-use lib 'lib';
 {
   package BaseClass;
   use Moo;
