@@ -182,19 +182,15 @@ sub _inhale_if_moose {
 
           my $tc = $get_constraint->($spec->{isa});
           my $check = $tc->_compiled_type_constraint;
-          my $tc_name = $tc->name;
-          $tc_name =~ s/([_\W])/sprintf('_%x', ord($1))/ge;
-          my $tc_var = "\$_check_for_${tc_name}";
+          my $tc_var = '$_check_for_'.sanitize_identifier($tc->name);
 
           $spec->{isa} = quote_sub
-            "${role}::${tc_name}",
             qq{
               &${tc_var} or Carp::croak "Type constraint failed for \$_[0]"
             },
             { $tc_var => \$check },
             {
               package => $role,
-              no_install => 1,
             },
           ;
 
