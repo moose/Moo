@@ -12,7 +12,7 @@ use Moo::_Utils qw(
   _unimport_coderefs
 );
 use Sub::Defer ();
-use Sub::Quote qw(quote_sub);
+use Sub::Quote qw(quote_sub sanitize_identifier);
 use Role::Tiny ();
 use Carp qw(croak);
 BEGIN { our @ISA = qw(Role::Tiny) }

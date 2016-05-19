@@ -2,7 +2,15 @@ use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
 
-use Sub::Quote qw(quote_sub quoted_from_sub unquote_sub qsub capture_unroll inlinify);
+use Sub::Quote qw(
+  quote_sub
+  quoted_from_sub
+  unquote_sub
+  qsub
+  capture_unroll
+  inlinify
+  sanitize_identifier
+);
 
 our %EVALED;
 
@@ -323,5 +331,9 @@ like exception {
     'sub not installed with no_install option';
   $sub->();
 }
+
+my $var = sanitize_identifier('erk-qro yuf (fid)');
+eval qq{ my \$$var = 5; \$var };
+is $@, '', 'sanitize_identifier gives valid identifier';
 
 done_testing;

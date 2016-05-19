@@ -4,7 +4,7 @@ use Moo::_strictures;
 use Moo::_Utils qw(_load_module _maybe_load_module _install_coderef);
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
-use Sub::Quote qw(quote_sub quoted_from_sub quotify);
+use Sub::Quote qw(quote_sub quoted_from_sub quotify sanitize_identifier);
 use Scalar::Util 'blessed';
 use Carp qw(croak);
 BEGIN { our @CARP_NOT = qw(Moo::_Utils) }
@@ -488,7 +488,7 @@ sub _generate_call_code {
     }
     my $code = $quoted->[1];
     if (my $captures = $quoted->[2]) {
-      my $cap_name = qq{\$${type}_captures_for_}.$self->_sanitize_name($name);
+      my $cap_name = qq{\$${type}_captures_for_}.sanitize_identifier($name);
       $self->{captures}->{$cap_name} = \$captures;
       Sub::Quote::inlinify($code, $values,
         Sub::Quote::capture_unroll($cap_name, $captures, 6), $local);
@@ -496,17 +496,13 @@ sub _generate_call_code {
       Sub::Quote::inlinify($code, $values, undef, $local);
     }
   } else {
-    my $cap_name = qq{\$${type}_for_}.$self->_sanitize_name($name);
+    my $cap_name = qq{\$${type}_for_}.sanitize_identifier($name);
     $self->{captures}->{$cap_name} = \$sub;
     "${cap_name}->(${values})";
   }
 }
 
-sub _sanitize_name {
-  my ($self, $name) = @_;
-  $name =~ s/([_\W])/sprintf('_%x', ord($1))/ge;
-  $name;
-}
+sub _sanitize_name { sanitize_identifier($_[1]) }
 
 sub generate_populate_set {
   my $self = shift;

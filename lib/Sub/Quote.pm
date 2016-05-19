@@ -19,7 +19,7 @@ our $VERSION = '2.002_000';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(quote_sub unquote_sub quoted_from_sub qsub);
-our @EXPORT_OK = qw(quotify capture_unroll inlinify);
+our @EXPORT_OK = qw(quotify capture_unroll inlinify sanitize_identifier);
 
 our %QUOTED;
 
@@ -33,6 +33,12 @@ sub quotify {
   ) ? $_[0]
   : _HAVE_PERLSTRING  ? B::perlstring($_[0])
   : qq["\Q$_[0]\E"];
+}
+
+sub sanitize_identifier {
+  my $name = shift;
+  $name =~ s/([_\W])/sprintf('_%x', ord($1))/ge;
+  $name;
 }
 
 sub capture_unroll {
@@ -344,6 +350,15 @@ Arguments: $code
 
 Works exactly like L</quote_sub>, but includes a prototype to only accept a
 single parameter.  This makes it easier to include in hash structures or lists.
+
+=head2 sanitize_identifier
+
+ my $var_name = '$variable_for_' . sanitize_identifier('@name');
+ quote_sub qq{ print \$${var_name} }, { $var_name => \$value };
+
+Arguments: $identifier
+
+Sanitizes a value so that it can be used in an identifier.
 
 =head1 CAVEATS
 
