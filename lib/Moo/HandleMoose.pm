@@ -225,18 +225,24 @@ sub inject_real_metaclass_for {
 }
 
 sub find_meta {
-  my ($name) = @_;
+  my ($name, $type) = @_;
   my $meta;
   (
     $INC{"Class/MOP.pm"}
     and $meta = Class::MOP::class_of($name)
     and ref $meta ne 'Moo::HandleMoose::FakeMetaClass'
-    and $meta->isa('Moose::Meta::Role')
+    and (
+      (!$type || $type eq 'class') && $meta->isa('Class::MOP::Class')
+      or (!$type || $type eq 'role') && $meta->isa('Moose::Meta::Role')
+    )
   )
   or (
     Mouse::Util->can('find_meta')
     and $meta = Mouse::Util::find_meta($name)
-    and $meta->isa('Mouse::Meta::Role')
+    and (
+      (!$type || $type eq 'class') && $meta->isa('Mouse::Meta::Class')
+      or (!$type || $type eq 'role') && $meta->isa('Mouse::Meta::Role')
+    )
   )
   or return undef;
   $meta;
@@ -246,10 +252,25 @@ sub inhale_attributes {
   my ($meta) = @_;
   require Sub::Quote;
   my $is_mouse = !$meta->isa('Class::MOP::Package');
+  my $is_role = $is_mouse ? $meta->isa('Mouse::Meta::Role')
+                          : $meta->isa('Moose::Meta::Role');
   [ map +($_ => do {
     my $attr = $meta->get_attribute($_);
     my $spec = {
-      $is_mouse ? %$attr : %{$attr->original_options}
+      $is_mouse ? (
+        $is_role ? %$attr
+        : do {
+          my %new_attr = %$attr;
+          delete @new_attr{qw(associated_class associated_methods)};
+          %new_attr;
+        }
+      )
+      : $is_role ? %{$attr->original_options}
+      : (
+        map +($_->init_arg => $_->get_raw_value($attr)),
+        grep defined $_->init_arg && $_->has_value($attr),
+        $attr->meta->get_all_attributes
+      )
     };
 
     if ($spec->{isa}) {

@@ -170,7 +170,7 @@ sub _inhale_if_moose {
     unless $INC{'Moose/Meta/Role.pm'} or $INC{'Mouse/Meta/Role.pm'};
 
   require Moo::HandleMoose;
-  my $meta = Moo::HandleMoose::find_meta($role)
+  my $meta = Moo::HandleMoose::find_meta($role, 'role')
     or return;
   my $is_mouse = $meta->isa('Mouse::Meta::Role');
   $INFO{$role}{methods} = {

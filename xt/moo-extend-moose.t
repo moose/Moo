@@ -55,5 +55,16 @@ ok +MooChild->does('MooseRole');
     'extends will allow empty Moose roles with no %INC entry';
 }
 
+is exception {
+  package MooChildWithMod;
+  use Moo;
+  extends 'MooseParent';
+
+  has '+attr_from_parent' => (default => 5);
+}, undef,
+  'modifying inherited Moose attributes works';
+
+is +MooChildWithMod->new->attr_from_parent, 5,
+  'modification takes effect';
 
 done_testing;
