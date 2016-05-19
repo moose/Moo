@@ -1,7 +1,6 @@
 package Moo::HandleMoose;
 use Moo::_strictures;
-use Moo::_Utils qw(_getstash);
-use Sub::Quote qw(quotify);
+use Moo::_Utils qw(_getstash _load_module);
 use Carp qw(croak);
 
 our %TYPE_MAP;
@@ -59,7 +58,7 @@ sub inject_real_metaclass_for {
   our %DID_INJECT;
   return Class::MOP::get_metaclass_by_name($name) if $DID_INJECT{$name};
   require Moose; require Moo; require Moo::Role; require Scalar::Util;
-  require Sub::Defer;
+  require Sub::Defer; require Sub::Quote;
   Class::MOP::remove_metaclass_by_name($name);
   my ($am_role, $am_class, $meta, $attr_specs, $attr_order) = do {
     if (my $info = $Moo::Role::INFO{$name}) {
@@ -150,7 +149,7 @@ sub inject_real_metaclass_for {
             $spec{coerce} = 1;
           }
         } elsif ($coerce) {
-          my $attr = quotify($attr_name);
+          my $attr = Sub::Quote::quotify($attr_name);
           my $tc = Moose::Meta::TypeConstraint->new(
                     constraint => sub { die "This is not going to work" },
                     inlined => sub {
@@ -223,6 +222,67 @@ sub inject_real_metaclass_for {
   }
   $DID_INJECT{$name} = 1;
   $meta;
+}
+
+sub find_meta {
+  my ($name) = @_;
+  my $meta;
+  (
+    $INC{"Class/MOP.pm"}
+    and $meta = Class::MOP::class_of($name)
+    and ref $meta ne 'Moo::HandleMoose::FakeMetaClass'
+    and $meta->isa('Moose::Meta::Role')
+  )
+  or (
+    Mouse::Util->can('find_meta')
+    and $meta = Mouse::Util::find_meta($name)
+    and $meta->isa('Mouse::Meta::Role')
+  )
+  or return undef;
+  $meta;
+}
+
+sub inhale_attributes {
+  my ($meta) = @_;
+  require Sub::Quote;
+  my $is_mouse = !$meta->isa('Class::MOP::Package');
+  [ map +($_ => do {
+    my $attr = $meta->get_attribute($_);
+    my $spec = {
+      $is_mouse ? %$attr : %{$attr->original_options}
+    };
+
+    if ($spec->{isa}) {
+      my $get_constraint = do {
+        my $pkg = $is_mouse
+                    ? 'Mouse::Util::TypeConstraints'
+                    : 'Moose::Util::TypeConstraints';
+        _load_module($pkg);
+        $pkg->can('find_or_create_isa_type_constraint');
+      };
+
+      my $tc = $get_constraint->($spec->{isa});
+      my $check = $tc->_compiled_type_constraint;
+      my $tc_var = '$_check_for_'.Sub::Quote::sanitize_identifier($tc->name);
+
+      $spec->{isa} = Sub::Quote::quote_sub(
+        qq{
+          &${tc_var} or Carp::croak "Type constraint failed for \$_[0]"
+        },
+        { $tc_var => \$check },
+        {
+          package => $meta->name,
+        },
+      );
+
+      # Mouse has _compiled_type_coercion straight on the TC object
+      if ($spec->{coerce}) {
+        $spec->{coerce}
+          = ($tc->can('coercion') ? $tc->coercion : $tc)->_compiled_type_coercion;
+      }
+    }
+    $spec;
+  }), $meta->get_attribute_list ];
 }
 
 1;
