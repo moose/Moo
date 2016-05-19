@@ -275,10 +275,21 @@ Exported by default.
 
 =over 2
 
-=item * no_install
+=item C<no_install>
 
 B<Boolean>.  Set this option to not install the generated coderef into the
 passed subroutine name on undefer.
+
+=item C<no_defer>
+
+B<Boolean>.  Prevents a Sub::Defer wrapper from being generated for the quoted
+sub.  If the sub will most likely be called at some point, setting this is a
+good idea.  For a sub that will most likely be inlined, it is not recommended.
+
+=item C<package>
+
+The package that the quoted sub will be evaluated in.  If not specified, the
+sub calling C<quote_sub> will be used.
 
 =back
 
