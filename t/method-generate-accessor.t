@@ -4,6 +4,7 @@ use Test::Fatal;
 
 use Method::Generate::Accessor;
 use Sub::Quote 'quote_sub';
+use Sub::Defer ();
 
 my $gen = Method::Generate::Accessor->new;
 
@@ -110,6 +111,11 @@ is(
   exception { $gen->generate_method('Foo' => 'sixteen' => { is => 'lazy', builder => quote_sub q{ 16 } }) },
   undef, 'builder - quote_sub accepted'
 );
+
+{
+  my $methods = $gen->generate_method('Foo' => 'seventeen' => { is => 'lazy', default => 0 }, { no_defer => 0 });
+  ok Sub::Defer::defer_info($methods->{seventeen}), 'quote opts are passed on';
+}
 
 ok !$gen->is_simple_attribute('attr', { builder => 'build_attr' }),
   "attribute with builder isn't simple";
