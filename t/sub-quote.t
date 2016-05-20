@@ -104,11 +104,88 @@ like(
 );
 
 sub in_main { 1 }
-is exception { quote_sub(q{ in_main(); })->(); }, undef, 'context preserved in quoted sub';
+is exception { quote_sub(q{ in_main(); })->(); }, undef,
+  'package preserved from context';
+
+{
+  package Arf;
+  sub in_arf { 1 }
+}
+
+is exception { quote_sub(q{ in_arf(); }, {}, { package => 'Arf' })->(); }, undef,
+  'package used from options';
 
 {
   no strict 'refs';
-  is exception { quote_sub(q{ my $foo = "some_variable"; $$foo; })->(); }, undef, 'hints are preserved';
+  is exception { quote_sub(q{ ${"string_ref"} })->(); }, undef,
+    'hints preserved from context';
+}
+
+is exception { quote_sub(q{ ${"byname"} }, {}, { hints => 0 })->(); }, undef,
+  'hints used from options';
+
+{
+  my @warnings;
+  local $SIG{__WARN__} = sub { push @warnings, @_ };
+  no warnings;
+  quote_sub(q{ 0 + undef })->();
+  is scalar @warnings, 0,
+    '"no warnings" preserved from context';
+  use warnings;
+  quote_sub(q{ 0 + undef })->();
+  like $warnings[0],
+    qr/uninitialized/,
+    '"use warnings" preserved from context';
+}
+
+{
+  my $warn_bits;
+  eval q{
+    use warnings FATAL => 'uninitialized';
+    BEGIN { $warn_bits = ${^WARNING_BITS} }
+    1;
+  } or die $@;
+  no warnings 'uninitialized';
+  like exception { quote_sub(q{ 0 + undef }, {}, { warning_bits => $warn_bits })->(); },
+    qr/uninitialized/,
+    'warnings used from options';
+}
+
+BEGIN {
+  package UseHintHash;
+  $INC{'UseHintHash.pm'} = 1;
+
+  sub import {
+    $^H{__PACKAGE__.'/enabled'} = 1;
+  }
+}
+
+{
+  my %hints;
+  {
+    use UseHintHash;
+    BEGIN { %hints = %^H }
+  }
+
+  {
+    local $TODO = 'hints hash from context not available on perl 5.8'
+      if "$]" < 5.010_000;
+
+    use UseHintHash;
+    is_deeply quote_sub(q{
+      our %temp_hints_hash;
+      BEGIN { %temp_hints_hash = %^H }
+      \%temp_hints_hash;
+    })->(), \%hints,
+      'hints hash preserved from context';
+  }
+
+  is_deeply quote_sub(q{
+    our %temp_hints_hash;
+    BEGIN { %temp_hints_hash = %^H }
+    \%temp_hints_hash;
+  }, {}, { hintshash => \%hints })->(), \%hints,
+    'hints hash used from options';
 }
 
 {
