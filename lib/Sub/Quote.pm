@@ -100,10 +100,10 @@ sub quote_sub {
       if length $subname > 252;
   }
   my @caller = caller(0);
-  my $package   = $options->{package}      || $caller[0];
-  my $hints     = $options->{hints}        || $caller[8];
-  my $bitmask   = $options->{warning_bits} || $caller[9];
-  my $hintshash = $options->{hintshash}    || $caller[10];
+  my $package   = exists $options->{package}      ? $options->{package}      : $caller[0];
+  my $hints     = exists $options->{hints}        ? $options->{hint}         : $caller[8];
+  my $bitmask   = exists $options->{warning_bits} ? $options->{warning_bits} : $caller[9];
+  my $hintshash = exists $options->{hintshash}    ? $options->{hintshash}    : $caller[10];
   my $context
     ="# BEGIN quote_sub PRELUDE\n"
     ."package $package;\n"
