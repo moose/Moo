@@ -215,6 +215,10 @@ SKIP: {
     or diag "Failed strings: " . join(' ', map { $dump->($_) } @failed_utf8);
 }
 
+unlike Sub::Quote::quotify($_), qr/[^0-9.-]/,
+  "quotify preserves $_ as number"
+  for 0, 1, 1.5, 0.5, -10;
+
 my @stuff = (qsub q{ print "hello"; }, 1, 2);
 is scalar @stuff, 3, 'qsub only accepts a single parameter';
 
