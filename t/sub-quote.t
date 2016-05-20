@@ -125,14 +125,26 @@ is exception { quote_sub(q{ ${"byname"} }, {}, { hints => 0 })->(); }, undef,
   'hints used from options';
 
 {
+  my $sub = do {
+    no warnings;
+    unquote_sub quote_sub(q{ 0 + undef });
+  };
   my @warnings;
   local $SIG{__WARN__} = sub { push @warnings, @_ };
-  no warnings;
-  quote_sub(q{ 0 + undef })->();
+  $sub->();
   is scalar @warnings, 0,
     '"no warnings" preserved from context';
-  use warnings;
-  quote_sub(q{ 0 + undef })->();
+}
+
+{
+  my $sub = do {
+    no warnings;
+    use warnings;
+    unquote_sub quote_sub(q{ 0 + undef });
+  };
+  my @warnings;
+  local $SIG{__WARN__} = sub { push @warnings, @_ };
+  $sub->();
   like $warnings[0],
     qr/uninitialized/,
     '"use warnings" preserved from context';
