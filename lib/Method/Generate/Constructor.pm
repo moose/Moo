@@ -6,13 +6,13 @@ use Sub::Defer;
 use Moo::_Utils qw(_getstash _getglob);
 use Moo::_mro;
 use Scalar::Util qw(weaken);
+use Carp qw(croak);
+BEGIN { our @CARP_NOT = qw(Sub::Defer) }
 BEGIN {
   local $Moo::sification::disabled = 1;
   require Moo;
   Moo->import;
 }
-use Carp qw(croak);
-BEGIN { our @CARP_NOT = qw(Sub::Defer) }
 
 sub register_attribute_specs {
   my ($self, @new_specs) = @_;
