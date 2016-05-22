@@ -201,6 +201,21 @@ BEGIN {
 }
 
 {
+  BEGIN { %^H = () }
+  my $sub = quote_sub(q{
+    our %temp_hints_hash;
+    BEGIN { %temp_hints_hash = %^H }
+    \%temp_hints_hash;
+  });
+  my $wrap_sub = do {
+    use UseHintHash;
+    my (undef, $code, $cap) = @{quoted_from_sub($sub)};
+    quote_sub $code, $cap||();
+  };
+  is_deeply $wrap_sub->(), {}, 'empty hints maintained when inlined';
+}
+
+{
   my $foo = quote_sub '{}';
   my $foo_string = "$foo";
   undef $foo;
