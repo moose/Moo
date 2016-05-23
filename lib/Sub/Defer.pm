@@ -60,28 +60,30 @@ sub defer_info {
 }
 
 sub defer_sub {
-  my ($target, $maker) = @_;
+  my ($target, $maker, $options) = @_;
   my $package;
   my $subname;
   ($package, $subname) = $target =~ /^(.*)::([^:]+)$/
     or croak "$target is not a fully qualified sub name!"
     if $target;
+  $package ||= $options && $options->{package} || caller;
+  my @attributes = @{$options && $options->{attributes} || []};
   my $deferred;
   my $undeferred;
   my $deferred_info = [ $target, $maker, \$undeferred ];
-  if ($target && !Moo::_Utils::_CAN_SUBNAME) {
-    my $code = sprintf <<'END_CODE', __LINE__+2, __FILE__, $package, $subname;
-#line %s "%s"
-      package %s;
-      sub %s {
+  if (@attributes || $target && !Moo::_Utils::_CAN_SUBNAME) {
+    my $code
+      =  q[#line ].(__LINE__+2).q[ "].__FILE__.qq["\n]
+      . qq[package $package;\n]
+      . ($target ? "sub $subname" : '+sub') . join(' ', map ":$_", @attributes)
+      . q[ {
         package Sub::Defer;
         # uncoverable subroutine
         # uncoverable statement
         $undeferred ||= undefer_sub($deferred_info->[3]);
         goto &$undeferred; # uncoverable statement
-      }
-      \&$subname;
-END_CODE
+      }]."\n"
+      . ($target ? "\\&$subname" : '');
     my $e;
     $deferred = do {
       no warnings qw(redefine closure);

@@ -151,4 +151,11 @@ is( $made{'Bar::Baz::one'}, undef, 'sub-package not undefered by undefer_package
     "undeferring expired sub (or reused refaddr) after undefer_package lives";
 }
 
+{
+  my $foo;
+  my $sub = defer_sub undef, sub { +sub :lvalue { $foo } }, { attributes => [ 'lvalue' ]};
+  $sub->() = 'foo';
+  is $foo, 'foo', 'attributes are applied to deferred subs';
+}
+
 done_testing;
