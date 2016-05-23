@@ -116,13 +116,24 @@ is exception { quote_sub(q{ in_arf(); }, {}, { package => 'Arf' })->(); }, undef
   'package used from options';
 
 {
-  no strict 'refs';
-  is exception { quote_sub(q{ ${"string_ref"} })->(); }, undef,
+  use strict;
+  no strict 'subs';
+  like exception { quote_sub(q{ my $f = SomeBareword; ${"string_ref"} })->(); },
+    qr/strict refs/,
     'hints preserved from context';
 }
 
-is exception { quote_sub(q{ ${"byname"} }, {}, { hints => 0 })->(); }, undef,
-  'hints used from options';
+{
+  my $hints;
+  {
+    use strict;
+    no strict 'subs';
+    BEGIN { $hints = $^H }
+  }
+  like exception { quote_sub(q{ my $f = SomeBareword; ${"string_ref"} }, {}, { hints => $hints })->(); },
+    qr/strict refs/,
+    'hints used from options';
+}
 
 {
   my $sub = do {

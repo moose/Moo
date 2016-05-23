@@ -101,7 +101,7 @@ sub quote_sub {
   }
   my @caller = caller(0);
   my $package   = exists $options->{package}      ? $options->{package}      : $caller[0];
-  my $hints     = exists $options->{hints}        ? $options->{hint}         : $caller[8];
+  my $hints     = exists $options->{hints}        ? $options->{hints}        : $caller[8];
   my $bitmask   = exists $options->{warning_bits} ? $options->{warning_bits} : $caller[9];
   my $hintshash = exists $options->{hintshash}    ? $options->{hintshash}    : $caller[10];
   my $context
