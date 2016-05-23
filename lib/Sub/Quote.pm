@@ -126,7 +126,7 @@ sub quote_sub {
     my $fake = \my $var;
     local $QUOTED{$fake} = $quoted_info;
     my $sub = unquote_sub($fake);
-    _install_coderef($name, $sub) if $name;
+    _install_coderef($name, $sub) if $name && !$options->{no_install};
     return $sub;
   }
   else {

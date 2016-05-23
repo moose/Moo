@@ -428,9 +428,9 @@ like exception {
 }
 
 {
+  my $caller;
   sub No::Install::Tester {
-    is +(caller(1))[3], 'No::Install::Test',
-      'sub named properly with no_install option';
+    $caller = (caller(1))[3];
   }
   my $sub = quote_sub 'No::Install::Test', q{
     No::Install::Tester();
@@ -438,6 +438,23 @@ like exception {
   ok !defined &No::Install::Test,
     'sub not installed with no_install option';
   $sub->();
+  is $caller, 'No::Install::Test',
+    'sub named properly with no_install option';
+}
+
+{
+  my $caller;
+  sub No::Install::No::Defer::Tester {
+    $caller = (caller(1))[3];
+  }
+  my $sub = quote_sub 'No::Install::No::Defer::Test', q{
+    No::Install::No::Defer::Tester();
+  }, {}, {no_install => 1, no_defer => 1};
+  ok !defined &No::Install::No::Defer::Test,
+    'sub not installed with no_install and no_defer options';
+  $sub->();
+  is $caller, 'No::Install::No::Defer::Test',
+    'sub named properly with no_install and no_defer options';
 }
 
 my $var = sanitize_identifier('erk-qro yuf (fid)');
