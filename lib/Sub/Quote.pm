@@ -170,8 +170,8 @@ sub unquote_sub {
   my $quoted_info = $QUOTED{$sub} or return undef;
   my $unquoted = $quoted_info->{unquoted};
   unless ($unquoted && $$unquoted) {
-    my ($name, $code, $captures) = @{$quoted_info}{qw(name code captures)};
-    my $package;
+    my ($name, $code, $captures, $package)
+      = @{$quoted_info}{qw(name code captures package)};
 
     ($package, $name) = $name =~ /(.*)::(.*)/
       if $name;
@@ -183,12 +183,13 @@ sub unquote_sub {
     my $make_sub
       = "{\n"
       . capture_unroll("\$_[1]", \%captures, 2)
+      . "  package ${package};\n"
       . (
         $name
           # disable the 'variable $x will not stay shared' warning since
           # we're not letting it escape from this scope anyway so there's
           # nothing trying to share it
-          ? "  no warnings 'closure';\n  package ${package};\n  sub ${name} {\n"
+          ? "  no warnings 'closure';\n  sub ${name} {\n"
           : "  \$\$_UNQUOTED = sub {\n"
       )
       . "  (\$_QUOTED,\$_UNQUOTED) if 0;\n"
