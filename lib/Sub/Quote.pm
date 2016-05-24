@@ -100,29 +100,14 @@ sub quote_sub {
       if length $subname > 252;
   }
   my @caller = caller(0);
-  my $package   = exists $options->{package}      ? $options->{package}      : $caller[0];
-  my $hints     = exists $options->{hints}        ? $options->{hints}        : $caller[8];
-  my $bitmask   = exists $options->{warning_bits} ? $options->{warning_bits} : $caller[9];
-  my $hintshash = exists $options->{hintshash}    ? $options->{hintshash}    : $caller[10];
-  my $context
-    ="# BEGIN quote_sub PRELUDE\n"
-    ."package $package;\n"
-    ."BEGIN {\n"
-    ."  \$^H = ".quotify($hints).";\n"
-    ."  \${^WARNING_BITS} = ".quotify($bitmask).";\n"
-    ."  \%^H = (\n"
-    . join('', map
-     "    ".quotify($_)." => ".quotify($hintshash->{$_}).",",
-      keys %$hintshash)
-    ."  );\n"
-    ."}\n"
-    ."# END quote_sub PRELUDE\n";
-  $code = "$context$code";
-
   my $quoted_info = {
     name     => $name,
     code     => $code,
     captures => $captures,
+    package      => (exists $options->{package}      ? $options->{package}      : $caller[0]),
+    hints        => (exists $options->{hints}        ? $options->{hints}        : $caller[8]),
+    warning_bits => (exists $options->{warning_bits} ? $options->{warning_bits} : $caller[9]),
+    hintshash    => (exists $options->{hintshash}    ? $options->{hintshash}    : $caller[10]),
   };
   my $unquoted;
   weaken($quoted_info->{unquoted} = \$unquoted);
@@ -144,11 +129,34 @@ sub quote_sub {
   }
 }
 
+sub _context {
+  my $info = shift;
+  $info->{context} ||= do {
+    my ($package, $hints, $warning_bits, $hintshash)
+      = @{$info}{qw(package hints warning_bits hintshash)};
+
+    $info->{context}
+      ="# BEGIN quote_sub PRELUDE\n"
+      ."package $package;\n"
+      ."BEGIN {\n"
+      ."  \$^H = ".quotify($hints).";\n"
+      ."  \${^WARNING_BITS} = ".quotify($warning_bits).";\n"
+      ."  \%^H = (\n"
+      . join('', map
+      "    ".quotify($_)." => ".quotify($hintshash->{$_}).",\n",
+        keys %$hintshash)
+      ."  );\n"
+      ."}\n"
+      ."# END quote_sub PRELUDE\n";
+  };
+}
+
 sub quoted_from_sub {
   my ($sub) = @_;
   my $quoted_info = $QUOTED{$sub||''} or return undef;
   my ($name, $code, $captures, $unquoted, $deferred)
     = @{$quoted_info}{qw(name code captures unquoted deferred)};
+  $code = _context($quoted_info) . $code;
   $unquoted &&= $$unquoted;
   if (($deferred && $deferred eq $sub)
       || ($unquoted && $unquoted eq $sub)) {
@@ -184,6 +192,7 @@ sub unquote_sub {
           : "  \$\$_UNQUOTED = sub {\n"
       )
       . "  (\$_QUOTED,\$_UNQUOTED) if 0;\n"
+      . _context($quoted_info)
       . $code
       . "  }".($name ? "\n  \$\$_UNQUOTED = \\&${name}" : '') . ";\n"
       . "}\n"
