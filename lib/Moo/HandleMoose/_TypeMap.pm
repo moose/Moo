@@ -17,12 +17,13 @@ sub _str_to_ref {
   return $in
     if ref $in;
 
-  if ($in =~ /(?:^|=)[A-Z]+\(0x([0-9a-zA-Z]+)\)$/) {
-    my $id = do { no warnings 'portable'; hex "$1" };
+  if ($in =~ /(?:^|=)([A-Z]+)\(0x([0-9a-zA-Z]+)\)$/) {
+    my $type = $1;
+    my $id = do { no warnings 'portable'; hex "$2" };
     require B;
     my $sv = bless \$id, 'B::SV';
     my $ref = eval { $sv->object_2svref };
-    if (!defined $ref) {
+    if (!defined $ref or Scalar::Util::reftype($ref) ne $type) {
       die <<'END_ERROR';
 Moo initialization encountered types defined in a parent thread - ensure that
 Moo is require()d before any further thread spawns following a type definition.
