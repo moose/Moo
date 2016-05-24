@@ -119,9 +119,13 @@ sub quote_sub {
     ."# END quote_sub PRELUDE\n";
   $code = "$context$code";
 
-  my $quoted_info = [ $name, $code, $captures ];
+  my $quoted_info = {
+    name     => $name,
+    code     => $code,
+    captures => $captures,
+  };
   my $unquoted;
-  weaken($quoted_info->[3] = \$unquoted);
+  weaken($quoted_info->{unquoted} = \$unquoted);
   if ($options->{no_defer}) {
     my $fake = \my $var;
     local $QUOTED{$fake} = $quoted_info;
@@ -132,9 +136,9 @@ sub quote_sub {
   else {
     my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
       $unquoted if 0;
-      unquote_sub($quoted_info->[4]);
+      unquote_sub($quoted_info->{deferred});
     };
-    weaken($quoted_info->[4] = $deferred);
+    weaken($quoted_info->{deferred} = $deferred);
     weaken($QUOTED{$deferred} = $quoted_info);
     return $deferred;
   }
@@ -143,21 +147,22 @@ sub quote_sub {
 sub quoted_from_sub {
   my ($sub) = @_;
   my $quoted_info = $QUOTED{$sub||''} or return undef;
-  my ($name, $code, $captured, $unquoted, $deferred) = @{$quoted_info};
+  my ($name, $code, $captures, $unquoted, $deferred)
+    = @{$quoted_info}{qw(name code captures unquoted deferred)};
   $unquoted &&= $$unquoted;
   if (($deferred && $deferred eq $sub)
       || ($unquoted && $unquoted eq $sub)) {
-    return [ $name, $code, $captured, $unquoted, $deferred ];
+    return [ $name, $code, $captures, $unquoted, $deferred ];
   }
   return undef;
 }
 
 sub unquote_sub {
   my ($sub) = @_;
-  my $quoted = $QUOTED{$sub} or return undef;
-  my $unquoted = $quoted->[3];
+  my $quoted_info = $QUOTED{$sub} or return undef;
+  my $unquoted = $quoted_info->{unquoted};
   unless ($unquoted && $$unquoted) {
-    my ($name, $code, $captures) = @$quoted;
+    my ($name, $code, $captures) = @{$quoted_info}{qw(name code captures)};
     my $package;
 
     ($package, $name) = $name =~ /(.*)::(.*)/
@@ -167,7 +172,7 @@ sub unquote_sub {
 
     my %captures = $captures ? %$captures : ();
     $captures{'$_UNQUOTED'} = \$unquoted;
-    $captures{'$_QUOTED'} = \$quoted;
+    $captures{'$_QUOTED'} = \$quoted_info;
     $make_sub .= capture_unroll("\$_[1]", \%captures, 2);
 
     $make_sub .= (
@@ -198,7 +203,7 @@ sub unquote_sub {
       unless ($success) {
         croak "Eval went very, very wrong:\n\n${make_sub}\n\n$e";
       }
-      weaken($QUOTED{$$unquoted} = $quoted);
+      weaken($QUOTED{$$unquoted} = $quoted_info);
     }
   }
   $$unquoted;
@@ -210,8 +215,8 @@ sub qsub ($) {
 
 sub CLONE {
   %QUOTED = map { defined $_ ? (
-    $_->[3] && ${$_->[3]} ? (${ $_->[3] } => $_) : (),
-    $_->[4] ? ($_->[4] => $_) : (),
+    $_->{unquoted} && ${$_->{unquoted}} ? (${ $_->{unquoted} } => $_) : (),
+    $_->{deferred} ? ($_->{deferred} => $_) : (),
   ) : () } values %QUOTED;
   weaken($_) for values %QUOTED;
 }
