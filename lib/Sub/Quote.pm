@@ -168,28 +168,26 @@ sub unquote_sub {
     ($package, $name) = $name =~ /(.*)::(.*)/
       if $name;
 
-    my $make_sub = "{\n";
-
     my %captures = $captures ? %$captures : ();
     $captures{'$_UNQUOTED'} = \$unquoted;
     $captures{'$_QUOTED'} = \$quoted_info;
-    $make_sub .= capture_unroll("\$_[1]", \%captures, 2);
 
-    $make_sub .= (
-      $name
+    my $make_sub
+      = "{\n"
+      . capture_unroll("\$_[1]", \%captures, 2)
+      . (
+        $name
           # disable the 'variable $x will not stay shared' warning since
           # we're not letting it escape from this scope anyway so there's
           # nothing trying to share it
-        ? "  no warnings 'closure';\n  package ${package};\n  sub ${name} {\n"
-        : "  \$\$_UNQUOTED = sub {\n"
-    );
-    $make_sub .= "  (\$_QUOTED,\$_UNQUOTED) if 0;\n";
-    $make_sub .= $code;
-    $make_sub .= "  }".($name ? '' : ';')."\n";
-    if ($name) {
-      $make_sub .= "  \$\$_UNQUOTED = \\&${name}\n";
-    }
-    $make_sub .= "}\n1;\n";
+          ? "  no warnings 'closure';\n  package ${package};\n  sub ${name} {\n"
+          : "  \$\$_UNQUOTED = sub {\n"
+      )
+      . "  (\$_QUOTED,\$_UNQUOTED) if 0;\n"
+      . $code
+      . "  }".($name ? "\n  \$\$_UNQUOTED = \\&${name}" : '') . ";\n"
+      . "}\n"
+      . "1;\n";
     $ENV{SUB_QUOTE_DEBUG} && warn $make_sub;
     {
       no strict 'refs';
