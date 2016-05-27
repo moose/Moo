@@ -100,6 +100,7 @@ sub quote_sub {
       if length $subname > 252;
   }
   my @caller = caller(0);
+  my $attributes = $options->{attributes};
   my $quoted_info = {
     name     => $name,
     code     => $code,
@@ -108,6 +109,7 @@ sub quote_sub {
     hints        => (exists $options->{hints}        ? $options->{hints}        : $caller[8]),
     warning_bits => (exists $options->{warning_bits} ? $options->{warning_bits} : $caller[9]),
     hintshash    => (exists $options->{hintshash}    ? $options->{hintshash}    : $caller[10]),
+    ($attributes ? (attributes => $attributes) : ()),
   };
   my $unquoted;
   weaken($quoted_info->{unquoted} = \$unquoted);
@@ -122,7 +124,7 @@ sub quote_sub {
     my $deferred = defer_sub +($options->{no_install} ? undef : $name) => sub {
       $unquoted if 0;
       unquote_sub($quoted_info->{deferred});
-    };
+    }, ($attributes ? { attributes => $attributes } : ());
     weaken($quoted_info->{deferred} = $deferred);
     weaken($QUOTED{$deferred} = $quoted_info);
     return $deferred;
@@ -170,8 +172,8 @@ sub unquote_sub {
   my $quoted_info = $QUOTED{$sub} or return undef;
   my $unquoted = $quoted_info->{unquoted};
   unless ($unquoted && $$unquoted) {
-    my ($name, $code, $captures, $package)
-      = @{$quoted_info}{qw(name code captures package)};
+    my ($name, $code, $captures, $package, $attributes)
+      = @{$quoted_info}{qw(name code captures package attributes)};
 
     ($package, $name) = $name =~ /(.*)::(.*)/
       if $name;
@@ -189,9 +191,10 @@ sub unquote_sub {
           # disable the 'variable $x will not stay shared' warning since
           # we're not letting it escape from this scope anyway so there's
           # nothing trying to share it
-          ? "  no warnings 'closure';\n  sub ${name} {\n"
-          : "  \$\$_UNQUOTED = sub {\n"
+          ? "  no warnings 'closure';\n  sub ${name} "
+          : "  \$\$_UNQUOTED = sub "
       )
+      . ($attributes ? join('', map ":$_ ", @$attributes) : '') . "{\n"
       . "  (\$_QUOTED,\$_UNQUOTED) if 0;\n"
       . _context($quoted_info)
       . $code

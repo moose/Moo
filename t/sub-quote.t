@@ -556,4 +556,20 @@ my $var = sanitize_identifier('erk-qro yuf (fid)');
 eval qq{ my \$$var = 5; \$var };
 is $@, '', 'sanitize_identifier gives valid identifier';
 
+{
+  my $var;
+  my $sub = quote_sub q{ $$var }, { '$var' => \\$var }, { attributes => [ 'lvalue' ] };
+  $sub->() = 5;
+  is $var, 5,
+    'attributes applied to quoted sub';
+}
+
+{
+  my $var;
+  my $sub = quote_sub q{ $$var }, { '$var' => \\$var }, { attributes => [ 'lvalue' ], no_defer => 1 };
+  $sub->() = 5;
+  is $var, 5,
+    'attributes applied to quoted sub with no_defer';
+}
+
 done_testing;
