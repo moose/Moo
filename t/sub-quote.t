@@ -226,6 +226,90 @@ BEGIN {
   is_deeply $wrap_sub->(), {}, 'empty hints maintained when inlined';
 }
 
+BEGIN {
+  package BetterNumbers;
+  $INC{'BetterNumbers.pm'} = 1;
+  use overload ();
+
+  sub import {
+    my ($class, $add) = @_;
+    # closure vs not
+    if (defined $add) {
+      overload::constant 'integer', sub { $_[0] + $add };
+    }
+    else {
+      overload::constant 'integer', sub { $_[0] + 1 };
+    }
+  }
+}
+
+{
+  my ($options, $context_sub, $direct_val);
+  {
+    use BetterNumbers;
+    BEGIN { $options = { hints => $^H, hintshash => { %^H } } }
+    $direct_val = 10;
+    $context_sub = quote_sub(q{ 10 });
+  }
+  my $options_sub = quote_sub(q{ 10 }, {}, $options);
+
+  is $direct_val, 11,
+    'integer overload is working';
+
+  local $TODO = "refs in hints hash not yet implemented";
+  {
+    my $context_val;
+    is exception { $context_val = $context_sub->() }, undef,
+      'hints hash refs from context not broken';
+    local $TODO = 'hints hash from context not available on perl 5.8'
+      if !$TODO && "$]" < 5.010_000;
+    is $context_val, 11,
+      'hints hash refs preserved from context';
+  }
+
+  {
+    my $options_val;
+    is exception { $options_val = $options_sub->() }, undef,
+      'hints hash refs from options not broken';
+    is $options_val, 11,
+      'hints hash refs used from options';
+  }
+}
+
+{
+  my ($options, $context_sub, $direct_val);
+  {
+    use BetterNumbers +2;
+    BEGIN { $options = { hints => $^H, hintshash => { %^H } } }
+    $direct_val = 10;
+    $context_sub = quote_sub(q{ 10 });
+  }
+  my $options_sub = quote_sub(q{ 10 }, {}, $options);
+
+  is $direct_val, 12,
+    'closure integer overload is working';
+
+  local $TODO = "refs in hints hash not yet implemented";
+
+  {
+    my $context_val;
+    is exception { $context_val = $context_sub->() }, undef,
+      'hints hash closure refs from context not broken';
+    local $TODO = 'hints hash from context not available on perl 5.8'
+      if !$TODO && "$]" < 5.010_000;
+    is $context_val, 12,
+      'hints hash closure refs preserved from context';
+  }
+
+  {
+    my $options_val;
+    is exception { $options_val = $options_sub->() }, undef,
+      'hints hash closure refs from options not broken';
+    is $options_val, 12,
+      'hints hash closure refs used from options';
+  }
+}
+
 {
   my $foo = quote_sub '{}';
   my $foo_string = "$foo";
