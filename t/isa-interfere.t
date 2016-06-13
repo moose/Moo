@@ -26,15 +26,18 @@ BEGIN {
 BEGIN {
   package ChildClass;
   use Moo;
-  extends 'BaseClass';
+  extends 'BaseClass'; our $EXTEND_FILE = __FILE__; our $EXTEND_LINE = __LINE__;
 
   unshift our @ISA, 'ExtraClass';
 }
 
-like exception {
+my $ex = exception {
   ChildClass->new;
-}, qr/Expected parent constructor of ChildClass to be BaseClass, but found ExtraClass/,
+};
+like $ex, qr{Expected parent constructor of ChildClass to be BaseClass, but found ExtraClass},
   'Interfering with @ISA after using extends triggers error';
+like $ex, qr{\Q(after $ChildClass::EXTEND_FILE line $ChildClass::EXTEND_LINE)\E},
+  ' ... reporting location triggering constructor generation';
 
 BEGIN {
   package ExtraClass2;

@@ -86,6 +86,9 @@ sub install_delayed {
   my $package = $self->{package};
   my (undef, @isa) = @{mro::get_linear_isa($package)};
   my $isa = join ',', @isa;
+  my $from = Carp::shortmess();
+  $from =~ s/\.?\n?\z//;
+  $from =~ s/\A at //;
   my $constructor = defer_sub "${package}::new" => sub {
     my (undef, @new_isa) = @{mro::get_linear_isa($package)};
     if (join(',', @new_isa) ne $isa) {
@@ -96,7 +99,7 @@ sub install_delayed {
         $expected_new ||= 'none';
         croak "Expected parent constructor of $package to be"
         . " $expected_new, but found $found_new: changing the inheritance"
-        . " chain (\@ISA) at runtime is unsupported";
+        . " chain (\@ISA) at runtime (after $from) is unsupported";
       }
     }
 
