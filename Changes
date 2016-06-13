@@ -1,5 +1,18 @@
 Revision history for Moo
 
+  - added Sub::Quote::sanitize_identifier to generate an identifier from an
+    arbitrary string.
+  - Sub::Defer::defer_info is now exportable.
+  - improved documentation for Sub::Quote.
+  - fix quoted subs with no_defer ignoring no_install option. (RT#114605)
+  - internals of Sub::Quote were refactored.
+  - error message when @ISA changes now includes the location that the
+    constructor was generated.
+  - original invoker will be used when calling a non-Moo parent constructor.
+    (RT#115189)
+  - added testing for preserving context into quote_sub subs. (RT#114511)
+  - quote_sub context options will be used even when zero. (RT#114512)
+
 2.002_000 - 2016-05-18
   - Use Carp::croak rather than die to improve reported error locations
     (RT#109844, RT#109632, RT#102622)
