@@ -81,5 +81,30 @@ is $o->built, 1, 'BUILD called correct number of times';
   isa_ok $o, 'ClassH';
 }
 
+{
+  package ClassI;
+  sub new {
+    my $self = shift;
+    my $class = ref $self ? ref $self : $self;
+    bless {
+      (ref $self ? %$self : ()),
+      @_,
+    }, $class;
+  }
+}
+
+{
+  package ClassJ;
+  use Moo;
+  extends 'ClassI';
+  has 'attr' => (is => 'ro');
+}
+
+{
+  my $o1 = ClassJ->new(attr => 1);
+  my $o2 = $o1->new;
+  is $o2->attr, 1,
+    'original invoker passed to parent new';
+}
 
 done_testing;

@@ -178,10 +178,10 @@ sub _constructor_maker_for {
         '      if ($Moo::MAKERS{$class}) {'."\n"
         .'        if ($Moo::MAKERS{$class}{constructor}) {'."\n"
         .'          package '.$target.';'."\n"
-        .'          return $class->SUPER::new(@_);'."\n"
+        .'          return $invoker->SUPER::new(@_);'."\n"
         .'        }'."\n"
         .'        '.$class.'->_constructor_maker_for($class);'."\n"
-        .'        return $class->new(@_)'.";\n"
+        .'        return $invoker->new(@_)'.";\n"
         .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
         .'        return $meta->new_object('."\n"
         .'          $class->can("BUILDARGS") ? $class->BUILDARGS(@_)'."\n"
@@ -209,13 +209,13 @@ sub _constructor_maker_for {
           'do {'
           .'  my $args = $class->'.$inv.'BUILDARGS(@_);'
           .'  $args->{__no_BUILD__} = 1;'
-          .'  $class->'.$target.'::SUPER::new($args);'
+          .'  $invoker->'.$target.'::SUPER::new($args);'
           .'}'
         };
       }
       else {
         $construct_opts{construction_builder} = sub {
-          '$class->'.$target.'::SUPER::new('
+          '$invoker->'.$target.'::SUPER::new('
             .($target->can('FOREIGNBUILDARGS') ?
               '$class->FOREIGNBUILDARGS(@_)' : '@_')
             .')'

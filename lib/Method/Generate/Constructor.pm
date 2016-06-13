@@ -147,7 +147,8 @@ sub generate_method {
   my $into_buildargs = $into->can('BUILDARGS');
 
   my $body
-    = '    my $class = ref($_[0]) ? ref(shift) : shift;'."\n"
+    = '    my $invoker = shift;'."\n"
+    . '    my $class = ref($invoker) ? ref($invoker) : $invoker;'."\n"
     . $self->_handle_subconstructor($into, $name)
     . ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS
       ? $self->_generate_args_via_buildargs
