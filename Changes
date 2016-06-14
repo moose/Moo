@@ -12,6 +12,8 @@ Revision history for Moo
     (RT#115189)
   - added testing for preserving context into quote_sub subs. (RT#114511)
   - quote_sub context options will be used even when zero. (RT#114512)
+  - Sub::Defer::defer_sub gained attributes option to specify sub attributes.
+  - Sub::Quote::quote_sub gained attributes option to specify sub attributes.
 
 2.002_000 - 2016-05-18
   - Use Carp::croak rather than die to improve reported error locations
