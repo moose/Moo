@@ -8,6 +8,7 @@ interoperable with Moose.
   * [Moose on CPAN](https://metacpan.org/pod/Moose)
 
 --------
-[![Build Status](https://travis-ci.org/moose/Moo.png?branch=master)](https://travis-ci.org/moose/Moo)
+[![Travis Build Status](https://travis-ci.org/moose/Moo.png?branch=master)](https://travis-ci.org/moose/Moo)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/xfs4yv5131geoe6k/branch/master?svg=true)](https://ci.appveyor.com/project/moose/moo/branch/master)
 [![Coverage Status](http://codecov.io/github/moose/Moo/coverage.svg?branch=master)](http://codecov.io/github/moose/Moo?branch=master)
 [![CPAN version](https://badge.fury.io/pl/Moo.svg)](https://metacpan.org/pod/Moo)
