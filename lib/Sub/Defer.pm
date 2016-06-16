@@ -82,6 +82,7 @@ sub defer_sub {
         # uncoverable statement
         $undeferred ||= undefer_sub($deferred_info->[3]);
         goto &$undeferred; # uncoverable statement
+        $undeferred; # fake lvalue return
       }]."\n"
       . ($target ? "\\&$subname" : '');
     my $e;
