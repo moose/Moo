@@ -1,5 +1,7 @@
 use Moo::_strictures;
-use Test::More;
+use Test::More "$]" < 5.008009
+  ? (skip_all => 'Mouse is broken on perl <= 5.8.8')
+  : ();
 
 {
   package Tower1;

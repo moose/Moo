@@ -39,34 +39,6 @@ BEGIN {
 }
 
 BEGIN {
-  package Splat2;
-
-  use Mouse::Role;
-
-  requires 'monkey';
-
-  sub punch { 1 }
-
-  sub jab { 0 }
-
-  around monkey => sub { 'OW' };
-
-  has trap => (is => 'ro', default => sub { -1 });
-
-  sub has_splat {}
-}
-
-BEGIN {
-    package KerSplat2;
-    use Moo::Role;
-
-    with qw/
-        Ker
-        Splat2
-    /;
-}
-
-BEGIN {
   package Splattered;
 
   use Moo;
@@ -74,18 +46,6 @@ BEGIN {
   sub monkey { 'WHAT' }
 
   with 'Splat';
-
-  sub jab { 3 }
-}
-
-BEGIN {
-  package Splattered2;
-
-  use Moo;
-
-  sub monkey { 'WHAT' }
-
-  with 'Splat2';
 
   sub jab { 3 }
 }
@@ -103,18 +63,6 @@ BEGIN {
 }
 
 BEGIN {
-  package Ker::Splattered2;
-
-  use Moo;
-
-  sub monkey { 'WHAT' }
-
-  with qw/ Ker Splat2 /;
-
-  sub jab { 3 }
-}
-
-BEGIN {
   package KerSplattered;
 
   use Moo;
@@ -122,18 +70,6 @@ BEGIN {
   sub monkey { 'WHAT' }
 
   with qw/ KerSplat /;
-
-  sub jab { 3 }
-}
-
-BEGIN {
-  package KerSplattered2;
-
-  use Moo;
-
-  sub monkey { 'WHAT' }
-
-  with qw/ KerSplat2 /;
 
   sub jab { 3 }
 }
@@ -201,11 +137,8 @@ BEGIN{
 
 foreach my $s (
     Splattered->new,
-    Splattered2->new,
     Ker::Splattered->new,
-    Ker::Splattered2->new,
     KerSplattered->new,
-    KerSplattered2->new,
     SplatteredMoose->new
 ) {
   can_ok($s, 'punch')
@@ -220,9 +153,7 @@ foreach my $s (
 
 foreach my $c (qw/
     Ker::Splattered
-    Ker::Splattered2
     KerSplattered
-    KerSplattered2
 /) {
   can_ok($c, 'has_ker');
   can_ok($c, 'has_splat');
@@ -234,9 +165,6 @@ is(Planker->meta->find_attribute_by_name('vv')->documentation, 'moosify foo', 'm
 is( Plonker->meta->find_attribute_by_name('kk')->documentation,
     'parentchild',
     'moosify applies for overridden attributes with roles');
-
-is ref Splattered2->meta, 'Moo::HandleMoose::FakeMetaClass',
-  'Mouse::Role meta method not copied';
 
 {
   package MooseAttrTrait;
