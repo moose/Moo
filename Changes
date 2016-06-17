@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.002_001 - 2016-06-17
   - added Sub::Quote::sanitize_identifier to generate an identifier from an
     arbitrary string.
   - Sub::Defer::defer_info is now exportable.
