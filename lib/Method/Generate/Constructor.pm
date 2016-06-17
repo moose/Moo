@@ -7,6 +7,7 @@ use Moo::_Utils qw(_getstash _getglob);
 use Moo::_mro;
 use Scalar::Util qw(weaken);
 use Carp qw(croak);
+use Carp::Heavy ();
 BEGIN { our @CARP_NOT = qw(Sub::Defer) }
 BEGIN {
   local $Moo::sification::disabled = 1;
