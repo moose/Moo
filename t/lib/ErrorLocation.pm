@@ -24,10 +24,11 @@ $code
   my $last_location;
   my $immediate;
   my $trace_capture = sub {
+    my @c = caller;
     my ($location) = $_[0] =~ /^.* at (.*? line \d+)\.?$/;
-    if (!$last_location || !$location || $last_location ne $location) {
+    $location ||= sprintf "%s line %s", (caller(0))[1,2];
+    if (!$last_location || $last_location ne $location) {
       $last_location = $location;
-      my @c = caller;
       $immediate = $c[1] eq 'LocationTestFile';
       {
         local %Carp::Internal;
