@@ -94,9 +94,11 @@ my %MM_ARGS = (
 {
   package MY;
 
+  use File::Spec;
+
   sub test_via_harness {
     my($self, $perl, $tests) = @_;
-    $perl .= ' -It/lib -MTestEnv=$(MOO_TEST_ENV)';
+    $perl .= ' -I' . File::Spec->catdir(qw(t lib)) . ' -MTestEnv=$(MOO_TEST_ENV)';
     return $self->SUPER::test_via_harness($perl, $tests);
   }
 
