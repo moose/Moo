@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.002002 - 2016-06-21
   - fix handling of Carp < 1.12
 
 2.002_001 - 2016-06-17
