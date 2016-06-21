@@ -118,6 +118,8 @@ is exception { quote_sub(q{ in_arf(); }, {}, { package => 'Arf' })->(); }, undef
 {
   use strict;
   no strict 'subs';
+  local $TODO = "hints from caller not available on perl < 5.8"
+    if "$]" < 5.008_000;
   like exception { quote_sub(q{ my $f = SomeBareword; ${"string_ref"} })->(); },
     qr/strict refs/,
     'hints preserved from context';
