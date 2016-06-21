@@ -179,6 +179,7 @@ BEGIN {
   $INC{'UseHintHash.pm'} = 1;
 
   sub import {
+    $^H |= 0x020000;
     $^H{__PACKAGE__.'/enabled'} = 1;
   }
 }
@@ -186,6 +187,10 @@ BEGIN {
 {
   my %hints;
   {
+    BEGIN {
+      $^H |= 0x020000;
+      %^H = ();
+    }
     use UseHintHash;
     BEGIN { %hints = %^H }
   }
@@ -194,6 +199,10 @@ BEGIN {
     local $TODO = 'hints hash from context not available on perl 5.8'
       if "$]" < 5.010_000;
 
+    BEGIN {
+      $^H |= 0x020000;
+      %^H = ();
+    }
     use UseHintHash;
     is_deeply quote_sub(q{
       our %temp_hints_hash;
