@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - fix handling of Carp < 1.12
+
 2.002_001 - 2016-06-17
   - added Sub::Quote::sanitize_identifier to generate an identifier from an
     arbitrary string.
