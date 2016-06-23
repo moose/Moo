@@ -6,7 +6,7 @@ use Moo::_Utils qw(_getglob _install_coderef);
 use Scalar::Util qw(weaken);
 use Carp qw(croak);
 
-our $VERSION = '2.002002';
+our $VERSION = '2.002003';
 $VERSION = eval $VERSION;
 
 our @EXPORT = qw(defer_sub undefer_sub undefer_all);
