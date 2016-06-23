@@ -146,8 +146,8 @@ sub generate_method {
   my $into_buildargs = $into->can('BUILDARGS');
 
   my $body
-    = '    my $invoker = shift;'."\n"
-    . '    my $class = ref($invoker) ? ref($invoker) : $invoker;'."\n"
+    = '    my $invoker = CORE::shift();'."\n"
+    . '    my $class = CORE::ref($invoker) ? CORE::ref($invoker) : $invoker;'."\n"
     . $self->_handle_subconstructor($into, $name)
     . ( $into_buildargs && $into_buildargs != \&Moo::Object::BUILDARGS
       ? $self->_generate_args_via_buildargs
@@ -201,7 +201,7 @@ sub _generate_args {
   my ($self) = @_;
   return <<'_EOA';
     my $args = scalar @_ == 1
-      ? ref $_[0] eq 'HASH'
+      ? CORE::ref $_[0] eq 'HASH'
         ? { %{ $_[0] } }
         : Carp::croak("Single parameters to new() must be a HASH ref"
             . " data => ". $_[0])
@@ -247,7 +247,7 @@ sub _check_required {
   return '' unless @required_init;
   '    if (my @missing = grep !exists $args->{$_}, '
     .join(', ', map quotify($_), @required_init).') {'."\n"
-    .q{      Carp::croak("Missing required arguments: ".join(', ', sort @missing));}."\n"
+    .q{      Carp::croak("Missing required arguments: ".CORE::join(', ', sort @missing));}."\n"
     ."    }\n";
 }
 

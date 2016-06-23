@@ -460,9 +460,9 @@ sub _wrap_attr_exception {
   .$code."),\n"
   ."    1\n"
   ."  } or\n"
-  .'    $_error = ref $@ ? $@ : '.$prefix.'.$@);'."\n"
+  .'    $_error = CORE::ref $@ ? $@ : '.$prefix.'.$@);'."\n"
   .'  ($@ = $_old_error),'."\n"
-  .'  (defined $_error and die $_error);'."\n"
+  .'  (defined $_error and CORE::die $_error);'."\n"
   .($want_return ? '  $_return;'."\n" : '')
   ."}\n"
 }
