@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.002003 - 2016-06-23
   - prevent local functions with same names as core functions from interfering
     with generated code (RT#115529)
   - Work around nmake bug that corrupts commands that include slashes
