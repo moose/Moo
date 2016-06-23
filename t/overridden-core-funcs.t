@@ -57,7 +57,9 @@ is exception { $o->welp }, undef,
   'delegates ignores local functions';
 
 {
-  my $w;
+  no warnings FATAL => 'all';
+  use warnings 'all';
+  my $w = '';
   local $SIG{__WARN__} = sub { $w .= $_[0] };
   local $::FATAL_DEMOLISH = 1;
   undef $o;
