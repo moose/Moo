@@ -96,7 +96,7 @@ my %MM_ARGS = (
 
   sub test_via_harness {
     my($self, $perl, $tests) = @_;
-    $perl .= ' "-MTestEnv=$(MOO_TEST_ENV)" -It/lib';
+    $perl .= ' -I'.$self->catdir('t','lib').' "-MTestEnv=$(MOO_TEST_ENV)"';
     return $self->SUPER::test_via_harness($perl, $tests);
   }
 
