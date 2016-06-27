@@ -192,7 +192,7 @@ sub _cap_call {
 sub _generate_args_via_buildargs {
   my ($self) = @_;
   q{    my $args = $class->BUILDARGS(@_);}."\n"
-  .q{    Carp::croak("BUILDARGS did not return a hashref") unless ref($args) eq 'HASH';}
+  .q{    Carp::croak("BUILDARGS did not return a hashref") unless CORE::ref($args) eq 'HASH';}
   ."\n";
 }
 
