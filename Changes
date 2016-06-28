@@ -1,5 +1,9 @@
 Revision history for Moo
 
+  - fixed another case of local functions interfering with generated code.
+    (RT#115655)
+  - prevent infinite recursion on some Moose metaclass inflation errors.
+
 2.002003 - 2016-06-23
   - prevent local functions with same names as core functions from interfering
     with generated code (RT#115529)
