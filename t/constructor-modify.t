@@ -1,5 +1,4 @@
 use Moo::_strictures;
-no warnings 'once';
 use Test::More;
 use Test::Fatal;
 

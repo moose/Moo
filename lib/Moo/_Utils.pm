@@ -1,11 +1,11 @@
 package Moo::_Utils;
-
-no warnings 'once'; # guard against -w
-
-sub _getglob { \*{$_[0]} }
-sub _getstash { \%{"$_[0]::"} }
-
 use Moo::_strictures;
+
+{
+  no strict 'refs';
+  sub _getglob { \*{$_[0]} }
+  sub _getstash { \%{"$_[0]::"} }
+}
 
 BEGIN {
   my ($su, $sn);

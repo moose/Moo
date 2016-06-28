@@ -92,19 +92,15 @@ is(NoMooClass->has, "has!", 'has left alone');
 
 ok(!GlobalConflict->can('extends'), 'extends cleaned');
 is(GlobalConflict->has, "has!", 'has left alone');
-{
-  no warnings 'once';
-  is($GlobalConflict::around, "has!", 'package global left alone');
-}
+
+is($GlobalConflict::around, "has!", 'package global left alone');
 
 ok(RollerTiny->can('around'), 'around left alone');
 is(RollerTiny->with, "with!", 'with left alone');
 
 ok(!GlobalConflict2->can('extends'), 'extends cleaned');
 is(GlobalConflict2->has, "has!", 'has left alone');
-{
-  no warnings 'once';
-  is($GlobalConflict2::after, "has!", 'package global left alone');
-}
+
+is($GlobalConflict2::after, "has!", 'package global left alone');
 
 done_testing;

@@ -12,6 +12,7 @@ sub import {
   else {
     strict->import;
     warnings->import;
+    warnings->unimport('once');
   }
 }
 

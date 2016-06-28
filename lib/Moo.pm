@@ -125,7 +125,6 @@ sub _set_superclasses {
   elsif (!$target->isa('Moo::Object')) {
     Moo->_constructor_maker_for($target);
   }
-  no warnings 'once'; # piss off. -- mst
   $Moo::HandleMoose::MOUSE{$target} = [
     grep defined, map Mouse::Util::find_meta($_), @_
   ] if Mouse::Util->can('find_meta');

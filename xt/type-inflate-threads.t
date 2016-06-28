@@ -13,7 +13,6 @@ use Type::Tiny;
 my $str = sub {
   die unless defined $_[0] && !ref $_[0];
 };
-no warnings 'once';
 $Moo::HandleMoose::TYPE_MAP{$str} = sub {
   require Moose::Util::TypeConstraints;
   Moose::Util::TypeConstraints::find_type_constraint("Str");

@@ -463,7 +463,6 @@ like exception {
 }
 
 {
-  no warnings 'once';
   $Bar::baz = 3;
   my $inlined_code = inlinify q{
     package Bar;

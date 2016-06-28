@@ -1,6 +1,5 @@
 package Moo::HandleMoose;
 use Moo::_strictures;
-no warnings 'once';
 use Moo::_Utils qw(_getstash);
 use Sub::Quote qw(quotify);
 use Carp qw(croak);
@@ -16,7 +15,7 @@ sub inject_all {
     if $Moo::sification::disabled;
   require Class::MOP;
   inject_fake_metaclass_for($_)
-    for grep $_ ne 'Moo::Object', do { no warnings 'once'; keys %Moo::MAKERS };
+    for grep $_ ne 'Moo::Object', keys %Moo::MAKERS;
   inject_fake_metaclass_for($_) for keys %Moo::Role::INFO;
   require Moose::Meta::Method::Constructor;
   @Moo::HandleMoose::FakeConstructor::ISA = 'Moose::Meta::Method::Constructor';
@@ -219,7 +218,7 @@ sub inject_real_metaclass_for {
     }
     $meta->add_role(Class::MOP::class_of($_))
       for grep !/\|/ && $_ ne $name, # reject Foo|Bar and same-role-as-self
-        do { no warnings 'once'; keys %{$Moo::Role::APPLIED_TO{$name}} };
+        keys %{$Moo::Role::APPLIED_TO{$name}}
   }
   $DID_INJECT{$name} = 1;
   $meta;

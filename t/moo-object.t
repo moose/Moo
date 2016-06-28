@@ -2,8 +2,6 @@ use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
 
-no warnings 'once';
-
 {
   package MyClass;
   use base 'Moo::Object';
