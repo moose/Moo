@@ -36,12 +36,15 @@ sub inc_module {
     return $fh;
   }
   else {
-    return sub {
-      return 0 unless length $code;
-      $code =~ s/^([^\n]*\n?)//;
-      $_ = $1;
+    my $pos = 0;
+    my $last = length $code;
+    return (sub {
+      return 0 if $pos == $last;
+      my $next = (1 + index $code, "\n", $pos) || $last;
+      $_ .= substr $code, $pos, $next - $pos;
+      $pos = $next;
       return 1;
-    };
+    });
   }
 }
 
