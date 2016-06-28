@@ -40,6 +40,11 @@ BEGIN {
 
   sub BUILD { 1 }
   sub DEMOLISH { CORE::die "demolish\n" if $::FATAL_DEMOLISH }
+  around BUILDARGS => sub {
+    my $orig = CORE::shift();
+    my $self = CORE::shift();
+    $self->$orig(@_);
+  };
 
   has attr1 => (is => 'ro', required => 1, handles => ['welp']);
   has attr2 => (is => 'ro', default => CORE::undef());
