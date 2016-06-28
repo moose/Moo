@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.002004 - 2016-06-28
   - fixed another case of local functions interfering with generated code.
     (RT#115655)
   - prevent infinite recursion on some Moose metaclass inflation errors.
