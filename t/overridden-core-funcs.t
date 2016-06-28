@@ -2,6 +2,31 @@ use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
 
+
+BEGIN {
+  package AddOverrides;
+  $INC{"AddOverrides.pm"} = __FILE__;
+  use Carp ();
+  sub import {
+    my $package = caller;
+    for my $sub (
+      'defined',
+      'join',
+      'ref',
+      'die',
+      'shift',
+      'sort',
+      'undef',
+    ) {
+      my $proto = prototype "CORE::$sub";
+      no strict 'refs';
+      *{"${package}::$sub"} = \&{"${package}::$sub"};
+      eval "sub ${package}::$sub ".($proto ? "($proto)" : '') . ' { Carp::confess("local '.$sub.'") }; 1'
+        or die $@;
+    }
+  }
+}
+
 {
   package Foo;
   use Moo;
@@ -10,28 +35,7 @@ use Test::Fatal;
 
 {
   package WithOverridden;
-  use Carp ();
-  BEGIN {
-    my $package = __PACKAGE__;
-    for my $sub (qw(
-      defined
-      join
-      ref
-      die
-      shift
-      sort
-      undef
-    )) {
-      my $proto = prototype "CORE::$sub";
-      {
-        package Elsewhere;
-        no strict 'refs';
-        *{"${package}::$sub"} = \&{"${package}::$sub"};
-      }
-      eval "sub $sub ".($proto ? "($proto)" : '') . ' { Carp::confess("local '.$sub.'") }; 1'
-        or die $@;
-    }
-  }
+  use AddOverrides;
   use Moo;
 
   sub BUILD { 1 }
