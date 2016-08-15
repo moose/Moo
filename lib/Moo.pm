@@ -757,7 +757,7 @@ C<builder> the next time it is accessed. If it is not lazy, it will be C<undef>.
 =item * C<lazy>
 
 B<Boolean>.  Set this if you want values for the attribute to be grabbed
-lazily.  This is usually a good idea if you have a L</builder> which requires
+lazily.  This is usually a good idea if you have a L<builder|/* C<builder>> which requires
 another attribute to be set.
 
 =item * C<required>
