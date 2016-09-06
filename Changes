@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - clarify meta method documentation
+
 2.002004 - 2016-06-28
   - fixed another case of local functions interfering with generated code.
     (RT#115655)
