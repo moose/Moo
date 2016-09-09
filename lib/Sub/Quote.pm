@@ -96,8 +96,12 @@ sub quote_sub {
     $name = join '::', $package, $subname;
     croak qq{package name "$package" too long!}
       if length $package > 252;
+    croak qq{package name "$package" is not valid!}
+      unless $package =~ /^[^\d\W]\w*(?:::\w+)*$/;
     croak qq{sub name "$subname" too long!}
       if length $subname > 252;
+    croak qq{sub name "$subname" is not valid!}
+      unless $subname =~ /^[^\d\W]\w*$/;
   }
   my @caller = caller(0);
   my $attributes = $options->{attributes};

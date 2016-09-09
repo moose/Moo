@@ -94,6 +94,26 @@ like exception {
 }, qr/^sub name "$long$long" too long/,
   'over long sub names error';
 
+like exception {
+  quote_sub "got a space::gorp", q{ return 1; };
+}, qr/^package name "got a space" is not valid!/,
+  'packages with spaces are invalid';
+
+like exception {
+  quote_sub "Gorp::got a space", q{ return 1; };
+}, qr/^sub name "got a space" is not valid!/,
+  'sub names with spaces are invalid';
+
+like exception {
+  quote_sub "0welp::gorp", q{ return 1; };
+}, qr/^package name "0welp" is not valid!/,
+  'package names starting with numbers are not valid';
+
+like exception {
+  quote_sub "Gorp::0welp", q{ return 1; };
+}, qr/^sub name "0welp" is not valid!/,
+  'sub names starting with numbers are not valid';
+
 my $broken_quoted = quote_sub q{
   return 5<;
 };
