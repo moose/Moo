@@ -86,12 +86,12 @@ is exception {
 
 like exception {
   quote_sub "${long}${long}::${long}", q{ return 1; };
-}, qr/^package name $long$long too long/,
+}, qr/^package name "$long$long" too long/,
   'over long package names error';
 
 like exception {
   quote_sub "${long}::${long}${long}", q{ return 1; };
-}, qr/^sub name $long$long too long/,
+}, qr/^sub name "$long$long" too long/,
   'over long sub names error';
 
 my $broken_quoted = quote_sub q{

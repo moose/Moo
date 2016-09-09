@@ -94,9 +94,9 @@ sub quote_sub {
     my $subname = $name;
     my $package = $subname =~ s/(.*)::// ? $1 : caller;
     $name = join '::', $package, $subname;
-    croak "package name $package too long!"
+    croak qq{package name "$package" too long!}
       if length $package > 252;
-    croak "sub name $subname too long!"
+    croak qq{sub name "$subname" too long!}
       if length $subname > 252;
   }
   my @caller = caller(0);
