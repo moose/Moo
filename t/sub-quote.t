@@ -1,3 +1,15 @@
+BEGIN {
+  %^H = ();
+  my %clear_hints = sub { %{(caller(0))[10]||{}} }->();
+  $INC{'ClearHintsHash.pm'} = __FILE__;
+  package ClearHintsHash;
+  sub hints { %clear_hints }
+  sub import {
+    $^H |= 0x020000;
+    %^H = hints;
+  }
+}
+
 use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
@@ -209,10 +221,7 @@ BEGIN {
 {
   my %hints;
   {
-    BEGIN {
-      $^H |= 0x020000;
-      %^H = ();
-    }
+    use ClearHintsHash;
     use UseHintHash;
     BEGIN { %hints = %^H }
   }
@@ -221,10 +230,7 @@ BEGIN {
     local $TODO = 'hints hash from context not available on perl 5.8'
       if "$]" < 5.010_000;
 
-    BEGIN {
-      $^H |= 0x020000;
-      %^H = ();
-    }
+    use ClearHintsHash;
     use UseHintHash;
     is_deeply quote_sub(q{
       our %temp_hints_hash;
@@ -243,7 +249,7 @@ BEGIN {
 }
 
 {
-  BEGIN { %^H = () }
+  use ClearHintsHash;
   my $sub = quote_sub(q{
     our %temp_hints_hash;
     BEGIN { %temp_hints_hash = %^H }
@@ -254,7 +260,8 @@ BEGIN {
     my (undef, $code, $cap) = @{quoted_from_sub($sub)};
     quote_sub $code, $cap||();
   };
-  is_deeply $wrap_sub->(), {}, 'empty hints maintained when inlined';
+  is_deeply $wrap_sub->(), { ClearHintsHash::hints },
+    'empty hints maintained when inlined';
 }
 
 BEGIN {
