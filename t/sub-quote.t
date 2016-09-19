@@ -274,7 +274,7 @@ BEGIN {
   }
 }
 
-{
+TODO: {
   my ($options, $context_sub, $direct_val);
   {
     use BetterNumbers;
@@ -287,7 +287,7 @@ BEGIN {
   is $direct_val, 11,
     'integer overload is working';
 
-  local $TODO = "refs in hints hash not yet implemented";
+  todo_skip "refs in hints hash not yet implemented", 4;
   {
     my $context_val;
     is exception { $context_val = $context_sub->() }, undef,
@@ -307,7 +307,7 @@ BEGIN {
   }
 }
 
-{
+TODO: {
   my ($options, $context_sub, $direct_val);
   {
     use BetterNumbers +2;
@@ -320,7 +320,7 @@ BEGIN {
   is $direct_val, 12,
     'closure integer overload is working';
 
-  local $TODO = "refs in hints hash not yet implemented";
+  todo_skip "refs in hints hash not yet implemented", 4;
 
   {
     my $context_val;
