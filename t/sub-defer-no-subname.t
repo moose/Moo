@@ -4,6 +4,6 @@ use InlineModule
   'Sub::Name' => undef,
   'Sub::Util' => undef,
 ;
-do 't/sub-defer.t';
+do './t/sub-defer.t';
 die $@
   if $@;

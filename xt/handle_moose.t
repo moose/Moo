@@ -1,7 +1,7 @@
 use Moo::_strictures;
 use Test::Fatal;
 
-BEGIN { require "t/moo-accessors.t"; }
+BEGIN { require "./t/moo-accessors.t"; }
 
 require Moose;
 
