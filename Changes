@@ -8,7 +8,7 @@ Revision history for Moo
   - improved error messages for invalid sub names in Sub::Quote (RT#116416,
     RT#117711)
   - clarify meta method documentation
-  - bump Role::Tiny prereq version to get sub in role fix (RT#116674)
+  - bump Role::Tiny prereq version to get stub in role fix (RT#116674)
 
 2.002004 - 2016-06-28
   - fixed another case of local functions interfering with generated code.
