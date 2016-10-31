@@ -4,7 +4,9 @@ Revision history for Moo
     predicates. (RT#118453)
   - avoid relying on '.' being in @INC in tests
   - fix Sub::Quote test when run with perl -C or PERL_UNICODE on perl 5.10
-  - improved error messages for invalid sub names in Sub::Quote
+    (RT#117844)
+  - improved error messages for invalid sub names in Sub::Quote (RT#116416,
+    RT#117711)
   - clarify meta method documentation
 
 2.002004 - 2016-06-28
