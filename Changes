@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.002005 - 2016-10-31
   - fix accessor extensions that need captured variables for clearers and
     predicates. (RT#118453)
   - avoid relying on '.' being in @INC in tests
