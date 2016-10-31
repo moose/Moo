@@ -25,7 +25,7 @@ BEGIN {
   );
 }
 
-our $VERSION = '2.002004';
+our $VERSION = '2.002005';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
