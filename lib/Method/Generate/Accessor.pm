@@ -185,10 +185,11 @@ sub generate_method {
         exists_predicates => $into, $pred, $name, $spec
       );
     } else {
+      $self->{captures} = {};
       $methods{$pred} =
         quote_sub "${into}::${pred}"
           => $self->_generate_simple_has('$_[0]', $name, $spec)."\n"
-          => {}
+          => delete $self->{captures}
           => $quote_opts
         ;
     }
@@ -199,10 +200,11 @@ sub generate_method {
   if (my $cl = $spec->{clearer}) {
     _die_overwrite($into, $cl, 'a clearer')
       if !$spec->{allow_overwrite} && defined &{"${into}::${cl}"};
+    $self->{captures} = {};
     $methods{$cl} =
       quote_sub "${into}::${cl}"
         => $self->_generate_simple_clear('$_[0]', $name, $spec)."\n"
-        => {}
+        => delete $self->{captures}
         => $quote_opts
       ;
   }
