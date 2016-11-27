@@ -15,7 +15,7 @@ use Sub::Quote;
   has four => (is => 'ro', lazy => 1, default => sub { 'four' }, predicate => 1);
 
   package One::P3; use Moo::Role;
-  has '+three' => (is => 'ro', default => sub { 'three' });
+  has 'three' => (is => 'ro', default => sub { 'three' });
 }
 
 my $combined = Moo::Role->create_class_with_roles('One', qw(One::P1 One::P2));
