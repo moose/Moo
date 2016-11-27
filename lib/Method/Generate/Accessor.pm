@@ -251,6 +251,25 @@ sub generate_method {
   \%methods;
 }
 
+sub merge_specs {
+  my ($self, @specs) = @_;
+  my $spec = shift @specs;
+  for my $old_spec (@specs) {
+    foreach my $key (keys %$old_spec) {
+      next
+        if $key eq 'handles' || exists $spec->{$key};
+      $spec->{$key}
+        = $key eq 'moosify'
+          ? [
+            map { ref $_ eq 'ARRAY' ? @$_ : $_ }
+              ($old_spec->{$key}, $spec->{$key})
+          ]
+        : $old_spec->{$key};
+    }
+  }
+  $spec;
+}
+
 sub is_simple_attribute {
   my ($self, $name, $spec) = @_;
   # clearer doesn't have to be listed because it doesn't

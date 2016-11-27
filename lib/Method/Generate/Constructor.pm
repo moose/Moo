@@ -19,26 +19,16 @@ sub register_attribute_specs {
   my ($self, @new_specs) = @_;
   $self->assert_constructor;
   my $specs = $self->{attribute_specs}||={};
+  my $ag = $self->accessor_generator;
   while (my ($name, $new_spec) = splice @new_specs, 0, 2) {
     if ($name =~ s/^\+//) {
       croak "has '+${name}' given but no ${name} attribute already exists"
         unless my $old_spec = $specs->{$name};
-      foreach my $key (keys %$old_spec) {
-        if (!exists $new_spec->{$key}) {
-          $new_spec->{$key} = $old_spec->{$key}
-            unless $key eq 'handles';
-        }
-        elsif ($key eq 'moosify') {
-          $new_spec->{$key} = [
-            map { ref $_ eq 'ARRAY' ? @$_ : $_ }
-              ($old_spec->{$key}, $new_spec->{$key})
-          ];
-        }
-      }
+      $ag->merge_specs($new_spec, $old_spec);
     }
     if ($new_spec->{required}
       && !(
-        $self->accessor_generator->has_default($name, $new_spec)
+        $ag->has_default($name, $new_spec)
         || !exists $new_spec->{init_arg}
         || defined $new_spec->{init_arg}
       )
