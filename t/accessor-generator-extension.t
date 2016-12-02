@@ -1,5 +1,6 @@
 use Moo::_strictures;
 use Test::More;
+use Test::Fatal;
 
 BEGIN {
   package Method::Generate::Accessor::Role::ArrayRefInstance;
@@ -106,6 +107,11 @@ my $c = Moo::Role->create_class_with_roles('ArrayTest1', 'ArrayTestRole');
 $o = $c->new(one => 1, two => 2, three => 3, four => 4);
 
 is_deeply([ @$o ], [ 1, 2, 3, 4 ], 'Generated subclass object w/role');
+
+is exception {
+  Moo::Role->create_class_with_roles('ArrayTest1', 'ArrayTestRole');
+}, undef,
+  'creating class with role again';
 
 {
   package ArrayNonMoo;
