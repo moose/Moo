@@ -11,7 +11,7 @@ use Test::Fatal;
   around foo => sub { my $orig = shift; (__PACKAGE__, $orig->(@_)) };
   package Four; use Moo::Role;
   around foo => sub { my $orig = shift; (__PACKAGE__, $orig->(@_)) };
-  package Base; sub foo { __PACKAGE__ }
+  package BaseClass; sub foo { __PACKAGE__ }
 }
 
 foreach my $combo (
@@ -19,12 +19,12 @@ foreach my $combo (
   [ qw(Two Four Three) ],
   [ qw(One Two) ]
 ) {
-  my $combined = Moo::Role->create_class_with_roles('Base', @$combo);
+  my $combined = Moo::Role->create_class_with_roles('BaseClass', @$combo);
   is_deeply(
-    [ $combined->foo ], [ reverse(@$combo), 'Base' ],
+    [ $combined->foo ], [ reverse(@$combo), 'BaseClass' ],
     "${combined} ok"
   );
-  my $object = bless({}, 'Base');
+  my $object = bless({}, 'BaseClass');
   Moo::Role->apply_roles_to_object($object, @$combo);
   is(ref($object), $combined, 'Object reblessed into correct class');
 }
