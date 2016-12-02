@@ -317,7 +317,7 @@ sub create_class_with_roles {
       and $m = Moo->_accessor_maker_for($superclass)
       and ref($m) ne 'Method::Generate::Accessor') {
     # old fashioned way time.
-    *{_getglob("${new_name}::ISA")} = [ $superclass ];
+    @{*{_getglob("${new_name}::ISA")}{ARRAY}} = ($superclass);
     $Moo::MAKERS{$new_name} = {is_class => 1};
     $me->apply_roles_to_package($new_name, @roles);
   }

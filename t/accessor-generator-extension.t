@@ -136,4 +136,24 @@ $o = ArrayTest4->new(one => 1, two => 2, three => 3, four => 4);
 
 is_deeply([ @$o ], [ 1, 2, 3, 4 ], 'Subclass of non-Moo object');
 
+
+{
+  package ArrayTestRole2;
+  use Moo::Role;
+
+  has four => (is => 'ro');
+}
+
+{
+  my ($new_c) = Moo::Role->_composite_name('ArrayTest1', 'ArrayTestRole2');
+  {
+    no strict 'refs';
+    # cause ISA to exist somehow
+    @{"${new_c}::ISA"} = ();
+  }
+  my $c = Moo::Role->create_class_with_roles('ArrayTest1', 'ArrayTestRole2');
+  is_deeply mro::get_linear_isa($c), [$c, 'ArrayTest1', 'Moo::Object'],
+    'mro::get_linear_isa is correct if create_class_with_roles target class @ISA existed';
+}
+
 done_testing;
