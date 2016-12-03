@@ -75,22 +75,6 @@ is( $bar->TWO, '!!!', 'accessor works for writing' );
   }, undef, 'declaring non-identifier attribute with proper reader works');
 }
 
-{
-  package Guff;
-  use Moo;
-
-  sub foo { 1 }
-
-  for my $type (qw(accessor reader writer predicate clearer asserter)) {
-    my $an = $type =~ /^a/ ? 'an' : 'a';
-    ::like ::exception {
-      has "attr_w_$type" => ( is => 'ro', $type => 'foo' );
-    },
-      qr/^You cannot overwrite a locally defined method \(foo\) with $an $type/,
-      "overwriting a sub with $an $type fails";
-  }
-}
-
 is( Baz->new->three, 3, '... and reader works');
 
 done_testing;

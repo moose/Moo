@@ -47,4 +47,20 @@ is_deeply(
   'Stuff fired in expected order'
 );
 
+{
+  package Guff;
+  use Moo;
+
+  sub foo { 1 }
+
+  for my $type (qw(accessor reader writer predicate clearer asserter)) {
+    my $an = $type =~ /^a/ ? 'an' : 'a';
+    ::like ::exception {
+      has "attr_w_$type" => ( is => 'ro', $type => 'foo' );
+    },
+      qr/^You cannot overwrite a locally defined method \(foo\) with $an $type/,
+      "overwriting a sub with $an $type fails";
+  }
+}
+
 done_testing;
