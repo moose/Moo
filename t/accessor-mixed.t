@@ -63,4 +63,18 @@ is_deeply(
   }
 }
 
+{
+  package NWFG;
+  use Moo;
+  ::is ::exception {
+    has qq{odd"na;me\n} => (
+      is => 'bare',
+      map +($_ => 'attr_'.$_),
+        qw(accessor reader writer predicate clearer asserter)
+    );
+  }, undef,
+    'all accessor methods work with oddly named attribute';
+}
+
+
 done_testing;
