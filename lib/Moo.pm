@@ -585,7 +585,7 @@ The options for C<has> are as follows:
 
 =over 2
 
-=item * C<is>
+=item C<is>
 
 B<required>, may be C<ro>, C<lazy>, C<rwp> or C<rw>.
 
@@ -609,7 +609,7 @@ This feature comes from L<MooseX::AttributeShortcuts>.
 C<rw> stands for "read-write" and generates a normal getter/setter by
 defaulting the C<accessor> to the name of the attribute specified.
 
-=item * C<isa>
+=item C<isa>
 
 Takes a coderef which is used to validate the attribute.  Unlike L<Moose>, Moo
 does not include a basic type system, so instead of doing C<< isa => 'Num' >>,
@@ -648,7 +648,7 @@ Note that this example is purely illustrative; anything that returns a
 L<Moose::Meta::TypeConstraint> object or something similar enough to it to
 make L<Moose> happy is fine.
 
-=item * C<coerce>
+=item C<coerce>
 
 Takes a coderef which is meant to coerce the attribute.  The basic idea is to
 do something like the following:
@@ -667,7 +667,7 @@ L<Sub::Quote aware|/SUB QUOTE AWARE>
 If the C<isa> option is a blessed object providing a C<coerce> or
 C<coercion> method, then the C<coerce> option may be set to just C<1>.
 
-=item * C<handles>
+=item C<handles>
 
 Takes a string
 
@@ -686,7 +686,7 @@ Takes a hashref
     un => 'one',
   }
 
-=item * C<trigger>
+=item C<trigger>
 
 Takes a coderef which will get called any time the attribute is set. This
 includes the constructor, but not default or built values. The coderef will be
@@ -701,7 +701,7 @@ supported.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
-=item * C<default>
+=item C<default>
 
 Takes a coderef which will get called with $self as its only argument to
 populate an attribute if no value for that attribute was supplied to the
@@ -718,7 +718,7 @@ existence.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
-=item * C<predicate>
+=item C<predicate>
 
 Takes a method name which will return true if an attribute has a value.
 
@@ -727,7 +727,7 @@ C<has_${attr_name}> if your attribute's name does not start with an
 underscore, or C<_has_${attr_name_without_the_underscore}> if it does.
 This feature comes from L<MooseX::AttributeShortcuts>.
 
-=item * C<builder>
+=item C<builder>
 
 Takes a method name which will be called to create the attribute - functions
 exactly like default except that instead of calling
@@ -747,7 +747,7 @@ If you set this to a coderef or code-convertible object, that variable will be
 installed under C<$class::_build_${attr_name}> and the builder set to the same
 name.
 
-=item * C<clearer>
+=item C<clearer>
 
 Takes a method name which will clear the attribute.
 
@@ -759,41 +759,41 @@ This feature comes from L<MooseX::AttributeShortcuts>.
 B<NOTE:> If the attribute is C<lazy>, it will be regenerated from C<default> or
 C<builder> the next time it is accessed. If it is not lazy, it will be C<undef>.
 
-=item * C<lazy>
+=item C<lazy>
 
 B<Boolean>.  Set this if you want values for the attribute to be grabbed
 lazily.  This is usually a good idea if you have a L</builder> which requires
 another attribute to be set.
 
-=item * C<required>
+=item C<required>
 
 B<Boolean>.  Set this if the attribute must be passed on object instantiation.
 
-=item * C<reader>
+=item C<reader>
 
 The name of the method that returns the value of the attribute.  If you like
 Java style methods, you might set this to C<get_foo>
 
-=item * C<writer>
+=item C<writer>
 
 The value of this attribute will be the name of the method to set the value of
 the attribute.  If you like Java style methods, you might set this to
 C<set_foo>.
 
-=item * C<weak_ref>
+=item C<weak_ref>
 
 B<Boolean>.  Set this if you want the reference that the attribute contains to
 be weakened. Use this when circular references, which cause memory leaks, are
 possible.
 
-=item * C<init_arg>
+=item C<init_arg>
 
 Takes the name of the key to look for at instantiation time of the object.  A
 common use of this is to make an underscored attribute have a non-underscored
 initialization name. C<undef> means that passing the value in on instantiation
 is ignored.
 
-=item * C<moosify>
+=item C<moosify>
 
 Takes either a coderef or array of coderefs which is meant to transform the
 given attributes specifications if necessary when upgrading to a Moose role or
