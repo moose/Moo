@@ -71,23 +71,11 @@ sub _install_subs {
     my %spec = @_;
     foreach my $name (@name_proto) {
       my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
-      my $ag = $INFO{$target}{accessor_maker} ||= do {
+      ($INFO{$target}{accessor_maker} ||= do {
         require Method::Generate::Accessor;
         Method::Generate::Accessor->new
-      };
-      my $attrs = $INFO{$target}{attributes}||=[];
-      if ($name =~ /^\+(.*)/) {
-        my $attr_name = $1;
-        my ($old_spec) =
-          map $attrs->[$_+1],
-          grep $attrs->[$_] eq $attr_name,
-          0 .. @$attrs/2 - 1;
-        croak "has '${name}' given but no ${attr_name} attribute already exists"
-          unless $old_spec;
-        $ag->merge_specs($spec_ref, $old_spec);
-      }
-      $ag->generate_method($target, $name, $spec_ref);
-      push @$attrs, $name, $spec_ref;
+      })->generate_method($target, $name, $spec_ref);
+      push @{$INFO{$target}{attributes}||=[]}, $name, $spec_ref;
       $me->_maybe_reset_handlemoose($target);
     }
   };

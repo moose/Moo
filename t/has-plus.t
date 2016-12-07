@@ -48,33 +48,9 @@ use Test::Fatal;
 }
 
 {
-  package RoleWithTheRole;
-  use Moo::Role;
-
-  with 'RollyRole';
-
-  has '+f' => (default => sub { 4 });
-}
-
-{
-  package UsesTheOtherRole;
-  use Moo;
-
-  with 'RoleWithTheRole';
-}
-
-{
   package BlowsUp;
 
   use Moo;
-
-  ::like(::exception { has '+f' => () }, qr/\Qhas '+f'/, 'Kaboom');
-}
-
-{
-  package RoleBlowsUp;
-
-  use Moo::Role;
 
   ::like(::exception { has '+f' => () }, qr/\Qhas '+f'/, 'Kaboom');
 }
@@ -102,6 +78,5 @@ is(UsesTheRole->new->f, 0, 'role attr');
 is(ClassyClass->new->f, 1, 'class attr');
 is(UsesTheRole2->new->f, 2, 'role attr with +');
 is(ExtendsTheClass->new->f, 3, 'class attr with +');
-is(UsesTheOtherRole->new->f, 4, 'role attr with + in role');
 
 done_testing;
