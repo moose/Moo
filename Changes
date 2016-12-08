@@ -1,5 +1,10 @@
 Revision history for Moo
 
+  - fix create_class_with_roles being used multiple times with the same packages
+  - fix edge case with @ISA assignment on perl 5.10.0
+  - minor test adjustments
+  - fix handles on oddly named attributes
+
 2.002005 - 2016-10-31
   - fix accessor extensions that need captured variables for clearers and
     predicates. (RT#118453)
