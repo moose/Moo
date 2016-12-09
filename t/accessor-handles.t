@@ -66,6 +66,10 @@ use InlineModule (
                 handles => { foobar => '${\\Baz->can("is_passed_undefined")}'},
                 default => sub { undef } );
 
+  has foo8 => (
+    is => 'rw',
+    handles => [ 'foo8_gone' ],
+  );
 }
 
 my $bar = Bar->new(
@@ -87,6 +91,11 @@ is $bar->eat_curry, 'Curry!', 'handles works for currying';
 is $bar->foobot, 'beep', 'asserter checks for existence not truth, on false value';
 
 is $bar->foobar, 'bar', 'asserter checks for existence not truth, on undef ';
+
+like exception {
+  $bar->foo8_gone;
+}, qr/^Attempted to access 'foo8' but it is not set/,
+  'asserter fails with correct message';
 
 ok(my $e = exception {
   package Baz;

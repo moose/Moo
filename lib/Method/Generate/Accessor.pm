@@ -638,7 +638,7 @@ sub _generate_asserter {
   "do {\n"
    ."  my \$val = ".$self->_generate_get($name, $spec).";\n"
    ."  ".$self->_generate_simple_has('$_[0]', $name, $spec)."\n"
-   ."    or Carp::croak('Attempted to access '.${name_str}.' but it is not set');\n"
+   ."    or Carp::croak(q{Attempted to access '}.${name_str}.q{' but it is not set});\n"
    ."  \$val;\n"
    ."}\n";
 }
