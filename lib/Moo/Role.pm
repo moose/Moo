@@ -11,10 +11,8 @@ use Moo::_Utils qw(
   _set_loaded
   _unimport_coderefs
 );
-use Sub::Defer ();
-use Sub::Quote qw(quote_sub sanitize_identifier);
-use Role::Tiny ();
 use Carp qw(croak);
+use Role::Tiny ();
 BEGIN { our @ISA = qw(Role::Tiny) }
 BEGIN {
   our @CARP_NOT = qw(
@@ -171,6 +169,7 @@ sub _inhale_if_moose {
         my $spec = { %{ $is_mouse ? $attr : $attr->original_options } };
 
         if ($spec->{isa}) {
+          require Sub::Quote;
 
           my $get_constraint = do {
             my $pkg = $is_mouse
@@ -182,9 +181,9 @@ sub _inhale_if_moose {
 
           my $tc = $get_constraint->($spec->{isa});
           my $check = $tc->_compiled_type_constraint;
-          my $tc_var = '$_check_for_'.sanitize_identifier($tc->name);
+          my $tc_var = '$_check_for_'.Sub::Quote::sanitize_identifier($tc->name);
 
-          $spec->{isa} = quote_sub
+          $spec->{isa} = Sub::Quote::quote_sub(
             qq{
               &${tc_var} or Carp::croak "Type constraint failed for \$_[0]"
             },
@@ -192,7 +191,7 @@ sub _inhale_if_moose {
             {
               package => $role,
             },
-          ;
+          );
 
           if ($spec->{coerce}) {
 
@@ -261,7 +260,9 @@ sub _make_accessors {
 
 sub _undefer_subs {
   my ($self, $target, $role) = @_;
-  Sub::Defer::undefer_package($role);
+  if ($INC{'Sub/Defer.pm'}) {
+    Sub::Defer::undefer_package($role);
+  }
 }
 
 sub role_application_steps {
@@ -337,13 +338,11 @@ sub apply_roles_to_object {
         and keys %attrs
         and my $con_gen = Moo->_constructor_maker_for($class)
         and my $m = Moo->_accessor_maker_for($class)) {
-      require Sub::Quote;
 
       my $specs = $con_gen->all_attribute_specs;
 
       my %captures;
       my $code = join('',
-        "no warnings 'void';\n",
         ( map {
           my $name = $_;
           my $spec = $specs->{$name};
@@ -362,15 +361,21 @@ sub apply_roles_to_object {
           }
         } sort keys %attrs ),
       );
-      Sub::Quote::quote_sub(
-        "${class}::_apply_defaults",
-        $code,
-        \%captures,
-        {
-          package => $class,
-          no_install => 1,
-        }
-      );
+      if ($code) {
+        require Sub::Quote;
+        Sub::Quote::quote_sub(
+          "${class}::_apply_defaults",
+          "no warnings 'void';\n$code",
+          \%captures,
+          {
+            package => $class,
+            no_install => 1,
+          }
+        );
+      }
+      else {
+        0;
+      }
     }
     else {
       0;

@@ -36,8 +36,7 @@ our @EXPORT = qw(
 sub _install_modifier {
   my ($into, $type, $name, $code) = @_;
 
-  if (my $to_modify = $into->can($name)) { # CMM will throw for us if not
-    require Sub::Defer;
+  if ($INC{'Sub/Defer.pm'} and my $to_modify = $into->can($name)) { # CMM will throw for us if not
     Sub::Defer::undefer_sub($to_modify);
   }
 

@@ -59,6 +59,7 @@ sub inject_real_metaclass_for {
   our %DID_INJECT;
   return Class::MOP::get_metaclass_by_name($name) if $DID_INJECT{$name};
   require Moose; require Moo; require Moo::Role; require Scalar::Util;
+  require Sub::Defer;
   Class::MOP::remove_metaclass_by_name($name);
   my ($am_role, $am_class, $meta, $attr_specs, $attr_order) = do {
     if (my $info = $Moo::Role::INFO{$name}) {

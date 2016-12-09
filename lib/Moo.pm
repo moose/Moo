@@ -168,7 +168,6 @@ sub _constructor_maker_for {
   return unless $MAKERS{$target};
   $MAKERS{$target}{constructor} ||= do {
     require Method::Generate::Constructor;
-    require Sub::Defer;
 
     my %construct_opts = (
       package => $target,
