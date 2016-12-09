@@ -1,5 +1,6 @@
 use Moo::_strictures;
 use Test::More;
+use Test::Fatal;
 
 my @result;
 
