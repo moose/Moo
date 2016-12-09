@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.003000 - 2016-12-09
   - fix create_class_with_roles being used multiple times with the same packages
   - fix edge case with @ISA assignment on perl 5.10.0
   - minor test adjustments
