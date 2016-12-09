@@ -4,6 +4,7 @@ Revision history for Moo
   - fix edge case with @ISA assignment on perl 5.10.0
   - minor test adjustments
   - fix handles on oddly named attributes
+  - make has options linkable in documentation
   - Sub::Quote and Sub::Defer have been split into a separate dist
 
 2.002005 - 2016-10-31
