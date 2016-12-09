@@ -256,15 +256,18 @@ sub merge_specs {
   my $spec = shift @specs;
   for my $old_spec (@specs) {
     foreach my $key (keys %$old_spec) {
-      next
-        if $key eq 'handles' || exists $spec->{$key};
-      $spec->{$key}
-        = $key eq 'moosify'
-          ? [
-            map { ref $_ eq 'ARRAY' ? @$_ : $_ }
-              ($old_spec->{$key}, $spec->{$key})
-          ]
-        : $old_spec->{$key};
+      if ($key eq 'handles') {
+      }
+      elsif ($key eq 'moosify') {
+        $spec->{$key} = [
+          map { ref $_ eq 'ARRAY' ? @$_ : $_ }
+          grep defined,
+          ($old_spec->{$key}, $spec->{$key})
+        ];
+      }
+      elsif (!exists $spec->{$key}) {
+        $spec->{$key} = $old_spec->{$key};
+      }
     }
   }
   $spec;
