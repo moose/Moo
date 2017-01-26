@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - fix trigger with a default value and init_arg of undef
+
 2.003000 - 2016-12-09
   - fix create_class_with_roles being used multiple times with the same packages
   - fix edge case with @ISA assignment on perl 5.10.0

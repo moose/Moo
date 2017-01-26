@@ -131,4 +131,19 @@ run_for 'AccessorValue';
 like exception { TriggerWriter->new->_set_attr( 4 ) },
   qr/triggered/, "trigger triggered via writer";
 
+is exception {
+  package TriggerNoInit;
+  use Moo;
+  has attr => (
+    is      => 'rw',
+    default => 1,
+    init_arg => undef,
+    trigger => sub { die 'triggered' },
+  );
+}, undef,
+  'trigger+default+init_arg undef works';
+
+is exception { TriggerNoInit->new }, undef,
+  'trigger not called on default without init_arg';
+
 done_testing;
