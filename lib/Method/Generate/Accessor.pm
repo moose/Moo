@@ -572,10 +572,10 @@ sub _generate_populate_set {
     $spec->{trigger}
   ) : undef;
   if ($has_default) {
-    "($set)," . ($trigger ? "($test and $trigger)," : '')
+    "($set)," . ($trigger ? "($test and $trigger)," : '') . "\n";
   }
   else {
-    "($test and ($set)" . ($trigger ? ", ($trigger)" : '') . "),";
+    "($test and ($set)" . ($trigger ? ", ($trigger)" : '') . "),\n";
   }
 }
 
