@@ -3,7 +3,7 @@ use Test::More;
 use Test::Fatal;
 
 BEGIN {
-  package Parent;
+  package MooParent;
   use Moo;
   has message => ( is => 'ro', required => 1 ),
 }
@@ -11,7 +11,7 @@ BEGIN {
 BEGIN {
   package Child;
   use Moose;
-  extends 'Parent';
+  extends 'MooParent';
   use Moose::Util::TypeConstraints;
   use namespace::clean;   # <-- essential
   has message => (
