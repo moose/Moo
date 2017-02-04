@@ -19,7 +19,14 @@ sub AUTOLOAD {
 sub can {
   my $self = shift;
   return $self->SUPER::can(@_)
-    if !ref $self or $Moo::sification::disabled;
+    if !ref $self or @_ != 1 or !defined $_[0] or !length $_[0] or $Moo::sification::disabled;
+
+  {
+    no strict 'refs';
+    return \&{$_[0]}
+      if defined &{$_[0]};
+  }
+
   require Moo::HandleMoose;
   Moo::HandleMoose::inject_real_metaclass_for($self->{name}, $self)->can(@_);
 }
