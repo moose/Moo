@@ -107,9 +107,9 @@ sub inject_real_metaclass_for {
       # This local is completely not required for roles but harmless
       local @{_getstash($name)}{keys %methods};
       my %seen_name;
-      foreach my $name (@$attr_order) {
-        $seen_name{$name} = 1;
-        my %spec = %{$attr_specs->{$name}};
+      foreach my $attr_name (@$attr_order) {
+        $seen_name{$attr_name} = 1;
+        my %spec = %{$attr_specs->{$attr_name}};
         my %spec_map = (
           map { $_->name => $_->init_arg||$_->name }
           (
@@ -134,7 +134,7 @@ sub inject_real_metaclass_for {
               my $type = $mapped->();
               unless ( Scalar::Util::blessed($type)
                   && $type->isa("Moose::Meta::TypeConstraint") ) {
-                croak "error inflating attribute '$name' for package '$_[0]': "
+                croak "error inflating attribute '$attr_name' for package '$name': "
                   ."\$TYPE_MAP{$isa} did not return a valid type constraint'";
               }
               $coerce ? $type->create_child_type(name => $type->name) : $type;
@@ -150,7 +150,7 @@ sub inject_real_metaclass_for {
             $spec{coerce} = 1;
           }
         } elsif ($coerce) {
-          my $attr = quotify($name);
+          my $attr = quotify($attr_name);
           my $tc = Moose::Meta::TypeConstraint->new(
                     constraint => sub { die "This is not going to work" },
                     inlined => sub {
@@ -166,7 +166,7 @@ sub inject_real_metaclass_for {
           map { $spec_map{$_} => $spec{$_} }
           grep { exists $spec_map{$_} }
           keys %spec;
-        push @attrs, $meta->add_attribute($name => %spec);
+        push @attrs, $meta->add_attribute($attr_name => %spec);
       }
       foreach my $mouse (do { our %MOUSE; @{$MOUSE{$name}||[]} }) {
         foreach my $attr ($mouse->get_all_attributes) {
@@ -175,9 +175,9 @@ sub inject_real_metaclass_for {
             associated_class associated_methods __METACLASS__
             provides curries
           )};
-          my $name = delete $spec{name};
-          next if $seen_name{$name}++;
-          push @attrs, $meta->add_attribute($name => %spec);
+          my $attr_name = delete $spec{name};
+          next if $seen_name{$attr_name}++;
+          push @attrs, $meta->add_attribute($attr_name => %spec);
         }
       }
     }
