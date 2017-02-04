@@ -118,9 +118,11 @@ push @ON_ROLE_CREATE, sub {
 
 # duplicate from Moo::Object
 sub meta {
-  require Moo::HandleMoose::FakeMetaClass;
   my $class = ref($_[0])||$_[0];
-  bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
+  $Moo::HandleMoose::INJECTED{$class} ||= do {
+    require Moo::HandleMoose::FakeMetaClass;
+    bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
+  };
 }
 
 sub unimport {

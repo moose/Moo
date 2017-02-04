@@ -13,15 +13,17 @@ sub AUTOLOAD {
   Carp::croak "Can't inflate Moose metaclass with Moo::sification disabled"
     if $Moo::sification::disabled;
   require Moo::HandleMoose;
-  Moo::HandleMoose::inject_real_metaclass_for($self->{name})->$meth(@_)
+  Moo::HandleMoose::inject_real_metaclass_for($self->{name}, $self)->$meth(@_);
 }
+
 sub can {
   my $self = shift;
   return $self->SUPER::can(@_)
     if !ref $self or $Moo::sification::disabled;
   require Moo::HandleMoose;
-  Moo::HandleMoose::inject_real_metaclass_for($self->{name})->can(@_)
+  Moo::HandleMoose::inject_real_metaclass_for($self->{name}, $self)->can(@_);
 }
+
 sub isa {
   my $self = shift;
   return $self->SUPER::isa(@_)
@@ -34,8 +36,9 @@ sub isa {
     if @_ == 1 && $_[0] eq 'Exception::Class::Base';
 
   require Moo::HandleMoose;
-  Moo::HandleMoose::inject_real_metaclass_for($self->{name})->isa(@_)
+  Moo::HandleMoose::inject_real_metaclass_for($self->{name}, $self)->isa(@_);
 }
+
 sub make_immutable { $_[0] }
 
 1;

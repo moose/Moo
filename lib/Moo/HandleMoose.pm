@@ -5,6 +5,7 @@ use Sub::Quote qw(quotify);
 use Carp qw(croak);
 
 our %TYPE_MAP;
+our %INJECTED;
 
 our $SETUP_DONE;
 
@@ -29,6 +30,7 @@ sub maybe_reinject_fake_metaclass_for {
     unless ($Moo::Role::INFO{$name}) {
       Moo->_constructor_maker_for($name)->install_delayed;
     }
+    delete $INJECTED{$name};
     inject_fake_metaclass_for($name);
   }
 }
@@ -37,9 +39,10 @@ sub inject_fake_metaclass_for {
   my ($name) = @_;
   require Class::MOP;
   require Moo::HandleMoose::FakeMetaClass;
-  Class::MOP::store_metaclass_by_name(
-    $name, bless({ name => $name }, 'Moo::HandleMoose::FakeMetaClass')
-  );
+
+  my $meta = $INJECTED{$name} || bless { name => $name }, 'Moo::HandleMoose::FakeMetaClass';
+  $INJECTED{$name} = $meta;
+  Class::MOP::store_metaclass_by_name($name, $meta);
   require Moose::Util::TypeConstraints;
   if ($Moo::Role::INFO{$name}) {
     Moose::Util::TypeConstraints::find_or_create_does_type_constraint($name);
@@ -55,32 +58,42 @@ sub inject_fake_metaclass_for {
 }
 
 sub inject_real_metaclass_for {
-  my ($name) = @_;
+  my ($name, $instance) = @_;
   our %DID_INJECT;
   return Class::MOP::get_metaclass_by_name($name) if $DID_INJECT{$name};
   require Moose; require Moo; require Moo::Role; require Scalar::Util;
   require Sub::Defer;
   Class::MOP::remove_metaclass_by_name($name);
-  my ($am_role, $am_class, $meta, $attr_specs, $attr_order) = do {
+  my ($am_role, $am_class, $meta_class, $attr_specs, $attr_order) = do {
     if (my $info = $Moo::Role::INFO{$name}) {
       my @attr_info = @{$info->{attributes}||[]};
-      (1, 0, Moose::Meta::Role->initialize($name),
+      (1, 0, 'Moose::Meta::Role',
        { @attr_info },
        [ @attr_info[grep !($_ % 2), 0..$#attr_info] ]
       )
     } elsif ( my $cmaker = Moo->_constructor_maker_for($name) ) {
       my $specs = $cmaker->all_attribute_specs;
-      (0, 1, Moose::Meta::Class->initialize($name), $specs,
+      (0, 1, 'Moose::Meta::Class', $specs,
        [ sort { $specs->{$a}{index} <=> $specs->{$b}{index} } keys %$specs ]
       );
     } else {
        # This codepath is used if $name does not exist in $Moo::MAKERS
-       (0, 0, Moose::Meta::Class->initialize($name), {}, [] )
+       (0, 0, 'Moose::Meta::Class', {}, [] )
     }
   };
 
+  my $meta = $meta_class->initialize($name);
+  delete $INJECTED{$name};
+  if (defined $instance) {
+    %$instance = %$meta;
+    bless $instance, $meta_class;
+    $meta = $instance;
+    Class::MOP::store_metaclass_by_name($name, $meta);
+  }
+
   {
     local $DID_INJECT{$name} = 1;
+    local $INJECTED{$name} = $meta;
     foreach my $spec (values %$attr_specs) {
       if (my $inflators = delete $spec->{moosify}) {
         $_->($spec) for @$inflators;
@@ -222,6 +235,7 @@ sub inject_real_metaclass_for {
         keys %{$Moo::Role::APPLIED_TO{$name}}
   }
   $DID_INJECT{$name} = 1;
+  $INJECTED{$name} = $meta;
   $meta;
 }
 

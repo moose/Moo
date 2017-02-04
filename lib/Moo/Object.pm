@@ -69,9 +69,11 @@ sub does {
 
 # duplicated in Moo::Role
 sub meta {
-  require Moo::HandleMoose::FakeMetaClass;
   my $class = ref($_[0])||$_[0];
-  bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
+  $Moo::HandleMoose::INJECTED{$class} ||= do {
+    require Moo::HandleMoose::FakeMetaClass;
+    bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
+  };
 }
 
 1;
