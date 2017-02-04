@@ -46,6 +46,12 @@ sub isa {
   Moo::HandleMoose::inject_real_metaclass_for($self->{name}, $self)->isa(@_);
 }
 
+sub does_role {
+  require Moo::Role;
+  my ($self, $role) = @_;
+  Moo::Role::does_role($self->{name}, $role);
+}
+
 sub make_immutable { $_[0] }
 
 1;
