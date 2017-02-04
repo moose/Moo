@@ -4,10 +4,17 @@ use Test::Fatal;
 
 use Moose ();
 BEGIN {
+  my $sigwarn = $SIG{__WARN__};
   $SIG{__WARN__} = sub {
     die $_[0]
       if $_[0] =~ /Deep recursion/;
-    warn $_[0];
+    if ($sigwarn) {
+      no strict 'refs';
+      goto &$sigwarn;
+    }
+    else {
+      warn $_[0];
+    }
   };
 }
 
