@@ -1,7 +1,34 @@
 use Moo::_strictures;
+use Test::More;
 use Test::Fatal;
+use Sub::Quote qw(quote_sub);
 
-BEGIN { require "./t/moo-accessors.t"; }
+{
+  package Foo;
+
+  use Moo;
+
+  has one => (is => 'ro');
+  has two => (is => 'rw', init_arg => undef);
+  has three => (is => 'ro', init_arg => 'THREE', required => 1);
+
+  package Bar;
+
+  use Moo::Role;
+
+  has four => (is => 'ro');
+  ::quote_sub 'Bar::quoted' => '1';
+
+  package Baz;
+
+  use Moo;
+
+  extends 'Foo';
+
+  with 'Bar';
+
+  has five => (is => 'rw');
+}
 
 require Moose;
 
