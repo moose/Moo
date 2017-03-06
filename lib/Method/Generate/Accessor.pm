@@ -194,8 +194,8 @@ sub generate_method {
         ;
     }
   }
-  if (my $pred = $spec->{builder_sub}) {
-    _install_coderef( "${into}::$spec->{builder}" => $spec->{builder_sub} );
+  if (my $builder = delete $spec->{builder_sub}) {
+    _install_coderef( "${into}::$spec->{builder}" => $builder );
   }
   if (my $cl = $spec->{clearer}) {
     _die_overwrite($into, $cl, 'a clearer')

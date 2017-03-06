@@ -79,4 +79,23 @@ is(ClassyClass->new->f, 1, 'class attr');
 is(UsesTheRole2->new->f, 2, 'role attr with +');
 is(ExtendsTheClass->new->f, 3, 'class attr with +');
 
+{
+  package HasBuilderSub;
+  use Moo;
+  has f => (is => 'ro', builder => sub { __PACKAGE__ });
+}
+
+{
+  package ExtendsBuilderSub;
+  use Moo;
+  extends 'HasBuilderSub';
+  has '+f' => (init_arg => undef);
+  sub _build_f { __PACKAGE__ }
+}
+
+is +ExtendsBuilderSub->new->_build_f, 'ExtendsBuilderSub',
+  'build sub not replaced by +attr';
+is +ExtendsBuilderSub->new->f, 'ExtendsBuilderSub',
+  'correct build sub used after +attr';
+
 done_testing;

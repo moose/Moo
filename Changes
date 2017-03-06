@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - fix +attributes replacing builder subs if parent attribute was defined with
+    builder => $subref
   - fix trigger with a default value and init_arg of undef
 
 2.003000 - 2016-12-09
