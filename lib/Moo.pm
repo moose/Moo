@@ -22,7 +22,7 @@ BEGIN {
   );
 }
 
-our $VERSION = '2.003000';
+our $VERSION = '2.003001';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
