@@ -40,8 +40,10 @@ sub inject_fake_metaclass_for {
   require Class::MOP;
   require Moo::HandleMoose::FakeMetaClass;
 
+  # not using ||= because it can cause "panic: attempt to copy value X to a freed scalar" crashes
   my $meta = $INJECTED{$name} || bless { name => $name }, 'Moo::HandleMoose::FakeMetaClass';
   $INJECTED{$name} = $meta;
+
   Class::MOP::store_metaclass_by_name($name, $meta);
   require Moose::Util::TypeConstraints;
   if ($Moo::Role::INFO{$name}) {
@@ -85,8 +87,15 @@ sub inject_real_metaclass_for {
   my $meta = $meta_class->initialize($name);
   delete $INJECTED{$name};
   if (defined $instance) {
+    # there are a variety of different or extra things we would consider doing
+    # here, but many of them will result in "Bizarre copy" errors in the tests
+
+    # Bizarre copy: Class::MOP::remove_metaclass_by_name($name);
     %$instance = %$meta;
     bless $instance, $meta_class;
+    # Bizarre copy: %$meta = ();
+    # Bizarre copy: bless $meta, 'Moo::HandleMoose::FakeMetaDelete'
+    # storing the new metaclass before changing $meta causes "Bizarre copy"
     $meta = $instance;
     Class::MOP::store_metaclass_by_name($name, $meta);
   }
