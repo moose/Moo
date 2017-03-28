@@ -1,5 +1,7 @@
 Revision history for Moo
 
+    - ensure tarball does not contain SCHILY headers
+
 2.003001 - 2017-03-06
   - fix +attributes replacing builder subs if parent attribute was defined with
     builder => $subref
