@@ -108,14 +108,17 @@ sub unimport {
 sub _set_superclasses {
   my $class = shift;
   my $target = shift;
+  my @classes;
   foreach my $superclass (@_) {
+    next if ref($superclass) eq 'HASH';
+    push @classes, $superclass;
     _load_module($superclass);
     if ($INC{'Role/Tiny.pm'} && Role::Tiny->is_role($superclass)) {
       croak "Can't extend role '$superclass'";
     }
   }
   # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
-  @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
+  @{*{_getglob("${target}::ISA")}{ARRAY}} = @classes;
   if (my $old = delete $Moo::MAKERS{$target}{constructor}) {
     $old->assert_constructor;
     delete _getstash($target)->{new};
@@ -126,7 +129,7 @@ sub _set_superclasses {
     Moo->_constructor_maker_for($target);
   }
   $Moo::HandleMoose::MOUSE{$target} = [
-    grep defined, map Mouse::Util::find_meta($_), @_
+    grep defined, map Mouse::Util::find_meta($_), @classes
   ] if Mouse::Util->can('find_meta');
 }
 
@@ -532,7 +535,10 @@ try to define your own C<DESTROY>, this will cause undefined results.
 Declares a base class. Multiple superclasses can be passed for multiple
 inheritance but please consider using L<roles|Moo::Role> instead.  The class
 will be loaded but no errors will be triggered if the class can't be found and
-there are already subs in the class.
+there are already subs in the class. Ignores version constraints if specifies 
+like so.
+
+ extends 'Parent::Class' => { -version => 1.022 };
 
 Calling extends more than once will REPLACE your superclasses, not add to
 them like 'use base' would.
@@ -544,6 +550,12 @@ them like 'use base' would.
 or
 
   with 'Some::Role1', 'Some::Role2';
+
+or ignores the version constraints if specified like so to maintain syntax 
+compatiblity with L<Moose::Role>.
+
+ with 'Some::Role1' => { -version => 0.023 },
+      'Some::Role2' => { -version => 4.32 };
 
 Composes one or more L<Moo::Role> (or L<Role::Tiny>) roles into the current
 class.  An error will be raised if these roles cannot be composed because they
