@@ -1,32 +1,12 @@
 package Moo;
 
 use Moo::_strictures;
-use Moo::_mro;
-use Moo::_Utils qw(
-  _getglob
-  _getstash
-  _install_coderef
-  _install_modifier
-  _load_module
-  _set_loaded
-  _unimport_coderefs
-);
-use Carp qw(croak);
-BEGIN {
-  our @CARP_NOT = qw(
-    Method::Generate::Constructor
-    Method::Generate::Accessor
-    Moo::sification
-    Moo::_Utils
-    Moo::Role
-  );
-}
+use Moo::_Utils;
 
-our $VERSION = '2.003002';
+our $VERSION = '2.000001';
 $VERSION = eval $VERSION;
 
 require Moo::sification;
-Moo::sification->import;
 
 our %MAKERS;
 
@@ -45,7 +25,7 @@ sub import {
   warnings->import;
 
   if ($INC{'Role/Tiny.pm'} and Role::Tiny->is_role($target)) {
-    croak "Cannot import Moo into a role";
+    die "Cannot import Moo into a role";
   }
   $MAKERS{$target} ||= {};
   _install_tracked $target => extends => sub {
@@ -62,8 +42,9 @@ sub import {
     my $name_proto = shift;
     my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
     if (@_ % 2 != 0) {
-      croak "Invalid options for " . join(', ', map "'$_'", @name_proto)
-        . " attribute(s): even number of arguments expected, got " . scalar @_;
+      require Carp;
+      Carp::croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
+        . " attribute(s): even number of arguments expected, got " . scalar @_)
     }
     my %spec = @_;
     foreach my $name (@name_proto) {
@@ -80,6 +61,7 @@ sub import {
   };
   foreach my $type (qw(before after around)) {
     _install_tracked $target => $type => sub {
+      require Class::Method::Modifiers;
       _install_modifier($target, $type, @_);
       return;
     };
@@ -95,7 +77,7 @@ sub import {
       require Moo::Object; ('Moo::Object');
     } unless @{"${target}::ISA"};
   }
-  if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
+  if ($INC{'Moo/HandleMoose.pm'}) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
 }
@@ -108,15 +90,18 @@ sub unimport {
 sub _set_superclasses {
   my $class = shift;
   my $target = shift;
+  my @classes;
   foreach my $superclass (@_) {
     next if ref($superclass) eq 'HASH';
+    push @classes, $superclass;
     _load_module($superclass);
     if ($INC{'Role/Tiny.pm'} && Role::Tiny->is_role($superclass)) {
-      croak "Can't extend role '$superclass'";
+      require Carp;
+      Carp::croak("Can't extend role '$superclass'");
     }
   }
   # Can't do *{...} = \@_ or 5.10.0's mro.pm stops seeing @ISA
-  @{*{_getglob("${target}::ISA")}{ARRAY}} = @_;
+  @{*{_getglob("${target}::ISA")}{ARRAY}} = @classes;
   if (my $old = delete $Moo::MAKERS{$target}{constructor}) {
     $old->assert_constructor;
     delete _getstash($target)->{new};
@@ -126,14 +111,15 @@ sub _set_superclasses {
   elsif (!$target->isa('Moo::Object')) {
     Moo->_constructor_maker_for($target);
   }
+  no warnings 'once'; # piss off. -- mst
   $Moo::HandleMoose::MOUSE{$target} = [
-    grep defined, map Mouse::Util::find_meta($_), @_
+    grep defined, map Mouse::Util::find_meta($_), @classes
   ] if Mouse::Util->can('find_meta');
 }
 
 sub _maybe_reset_handlemoose {
   my ($class, $target) = @_;
-  if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
+  if ($INC{"Moo/HandleMoose.pm"}) {
     Moo::HandleMoose::maybe_reinject_fake_metaclass_for($target);
   }
 }
@@ -169,6 +155,7 @@ sub _constructor_maker_for {
   return unless $MAKERS{$target};
   $MAKERS{$target}{constructor} ||= do {
     require Method::Generate::Constructor;
+    require Sub::Defer;
 
     my %construct_opts = (
       package => $target,
@@ -176,11 +163,10 @@ sub _constructor_maker_for {
       subconstructor_handler => (
         '      if ($Moo::MAKERS{$class}) {'."\n"
         .'        if ($Moo::MAKERS{$class}{constructor}) {'."\n"
-        .'          package '.$target.';'."\n"
-        .'          return $invoker->SUPER::new(@_);'."\n"
+        .'          return $class->'.$target.'::SUPER::new(@_);'."\n"
         .'        }'."\n"
         .'        '.$class.'->_constructor_maker_for($class);'."\n"
-        .'        return $invoker->new(@_)'.";\n"
+        .'        return $class->new(@_)'.";\n"
         .'      } elsif ($INC{"Moose.pm"} and my $meta = Class::MOP::get_metaclass_by_name($class)) {'."\n"
         .'        return $meta->new_object('."\n"
         .'          $class->can("BUILDARGS") ? $class->BUILDARGS(@_)'."\n"
@@ -208,13 +194,13 @@ sub _constructor_maker_for {
           'do {'
           .'  my $args = $class->'.$inv.'BUILDARGS(@_);'
           .'  $args->{__no_BUILD__} = 1;'
-          .'  $invoker->'.$target.'::SUPER::new($args);'
+          .'  $class->'.$target.'::SUPER::new($args);'
           .'}'
         };
       }
       else {
         $construct_opts{construction_builder} = sub {
-          '$invoker->'.$target.'::SUPER::new('
+          '$class->'.$target.'::SUPER::new('
             .($target->can('FOREIGNBUILDARGS') ?
               '$class->FOREIGNBUILDARGS(@_)' : '@_')
             .')'
@@ -258,48 +244,48 @@ Moo - Minimalist Object Orientation (with Moose compatibility)
 
 =head1 SYNOPSIS
 
-  package Cat::Food;
+ package Cat::Food;
 
-  use Moo;
-  use strictures 2;
-  use namespace::clean;
+ use Moo;
+ use strictures 2;
+ use namespace::clean;
 
-  sub feed_lion {
-    my $self = shift;
-    my $amount = shift || 1;
+ sub feed_lion {
+   my $self = shift;
+   my $amount = shift || 1;
 
-    $self->pounds( $self->pounds - $amount );
-  }
+   $self->pounds( $self->pounds - $amount );
+ }
 
-  has taste => (
-    is => 'ro',
-  );
+ has taste => (
+   is => 'ro',
+ );
 
-  has brand => (
-    is  => 'ro',
-    isa => sub {
-      die "Only SWEET-TREATZ supported!" unless $_[0] eq 'SWEET-TREATZ'
-    },
-  );
+ has brand => (
+   is  => 'ro',
+   isa => sub {
+     die "Only SWEET-TREATZ supported!" unless $_[0] eq 'SWEET-TREATZ'
+   },
+ );
 
-  has pounds => (
-    is  => 'rw',
-    isa => sub { die "$_[0] is too much cat food!" unless $_[0] < 15 },
-  );
+ has pounds => (
+   is  => 'rw',
+   isa => sub { die "$_[0] is too much cat food!" unless $_[0] < 15 },
+ );
 
-  1;
+ 1;
 
 And elsewhere:
 
-  my $full = Cat::Food->new(
-      taste  => 'DELICIOUS.',
-      brand  => 'SWEET-TREATZ',
-      pounds => 10,
-  );
+ my $full = Cat::Food->new(
+    taste  => 'DELICIOUS.',
+    brand  => 'SWEET-TREATZ',
+    pounds => 10,
+ );
 
-  $full->feed_lion;
+ $full->feed_lion;
 
-  say $full->pounds;
+ say $full->pounds;
 
 =head1 DESCRIPTION
 
@@ -325,7 +311,7 @@ If you want a full object system with a rich Metaprotocol, L<Moose> is
 already wonderful.
 
 But if you don't want to use L<Moose>, you may not want "less metaprotocol"
-like L<Mouse> offers, but you probably want "no metaprotocol", which is what
+like L<Mouse> offers, but you probalby want "no metaprotocol", which is what
 Moo provides. C<Moo> is ideal for some situations where deployment or startup
 time precludes using L<Moose> and L<Mouse>:
 
@@ -340,7 +326,7 @@ time precludes using L<Moose> and L<Mouse>:
 =back
 
 C<Moo> maintains transparent compatibility with L<Moose> so if you install and
-load L<Moose> you can use Moo classes and roles in L<Moose> code without
+load L<Moose> you can use Moo clases and roles in L<Moose> code without
 modification.
 
 Moo -- Minimal Object Orientation -- aims to make it smooth to upgrade to
@@ -378,11 +364,11 @@ global and turns the mechanism off entirely so don't put this in library code.
 
 =head1 MOO AND CLASS::XSACCESSOR
 
-If a new enough version of L<Class::XSAccessor> is available, it will be used
-to generate simple accessors, readers, and writers for better performance.
-Simple accessors are those without lazy defaults, type checks/coercions, or
-triggers.  Simple readers are those without lazy defaults. Readers and writers
-generated by L<Class::XSAccessor> will behave slightly differently: they will
+If a new enough version of L<Class::XSAccessor> is available, it
+will be used to generate simple accessors, readers, and writers for
+better performance.  Simple accessors are those without lazy defaults,
+type checks/coercions, or triggers.  Readers and writers generated
+by L<Class::XSAccessor> will behave slightly differently: they will
 reject attempts to call them with the incorrect number of parameters.
 
 =head1 MOO VERSUS ANY::MOOSE
@@ -404,77 +390,31 @@ L<http://shadow.cat/blog/matt-s-trout/moo-versus-any-moose> which explains
 the differing strategies in more detail and provides a direct example of
 where L<Moo> succeeds and L<Any::Moose> fails.
 
-=head1 PUBLIC METHODS
-
-Moo provides several methods to any class using it.
+=head1 IMPORTED METHODS
 
 =head2 new
 
-  Foo::Bar->new( attr1 => 3 );
+ Foo::Bar->new( attr1 => 3 );
 
 or
 
-  Foo::Bar->new({ attr1 => 3 });
-
-The constructor for the class.  By default it will accept attributes either as a
-hashref, or a list of key value pairs.  This can be customized with the
-L</BUILDARGS> method.
-
-=head2 does
-
-  if ($foo->does('Some::Role1')) {
-    ...
-  }
-
-Returns true if the object composes in the passed role.
-
-=head2 DOES
-
-  if ($foo->DOES('Some::Role1') || $foo->DOES('Some::Class1')) {
-    ...
-  }
-
-Similar to L</does>, but will also return true for both composed roles and
-superclasses.
-
-=head2 meta
-
-  my $meta = Foo::Bar->meta;
-  my @methods = $meta->get_method_list;
-
-Returns an object that will behave as if it is a
-L<Moose metaclass|Moose::Meta::Class> object for the class. If you call
-anything other than C<make_immutable> on it, the object will be transparently
-upgraded to a genuine L<Moose::Meta::Class> instance, loading Moose in the
-process if required. C<make_immutable> itself is a no-op, since we generate
-metaclasses that are already immutable, and users converting from Moose had
-an unfortunate tendency to accidentally load Moose by calling it.
-
-=head1 LIFECYCLE METHODS
-
-There are several methods that you can define in your class to control
-construction and destruction of objects.  They should be used rather than trying
-to modify C<new> or C<DESTROY> yourself.
+ Foo::Bar->new({ attr1 => 3 });
 
 =head2 BUILDARGS
 
-  around BUILDARGS => sub {
-    my ( $orig, $class, @args ) = @_;
+ sub BUILDARGS {
+   my ( $class, @args ) = @_;
 
-    return { attr1 => $args[0] }
-      if @args == 1 && !ref $args[0];
+   unshift @args, "attr1" if @args % 2 == 1;
 
-    return $class->$orig(@args);
-  };
+   return { @args };
+ };
 
-  Foo::Bar->new( 3 );
+ Foo::Bar->new( 3 );
 
-This class method is used to transform the arguments to C<new> into a hash
-reference of attribute values.
-
-The default implementation accepts a hash or hash reference of named parameters.
-If it receives a single argument that isn't a hash reference it will throw an
-error.
+The default implementation of this method accepts a hash or hash reference of
+named parameters. If it receives a single argument that isn't a hash reference
+it throws an error.
 
 You can override this method in your class to handle other types of options
 passed to the constructor.
@@ -483,52 +423,42 @@ This method should always return a hash reference of named options.
 
 =head2 FOREIGNBUILDARGS
 
-  sub FOREIGNBUILDARGS {
-    my ( $class, $options ) = @_;
-    return $options->{foo};
-  }
-
 If you are inheriting from a non-Moo class, the arguments passed to the parent
 class constructor can be manipulated by defining a C<FOREIGNBUILDARGS> method.
-It will receive the same arguments as L</BUILDARGS>, and should return a list
+It will receive the same arguments as C<BUILDARGS>, and should return a list
 of arguments to pass to the parent class constructor.
 
 =head2 BUILD
 
-  sub BUILD {
-    my ($self, $args) = @_;
-    die "foo and bar cannot be used at the same time"
-      if exists $args->{foo} && exists $args->{bar};
-  }
-
-On object creation, any C<BUILD> methods in the class's inheritance hierarchy
-will be called on the object and given the results of L</BUILDARGS>.  They each
-will be called in order from the parent classes down to the child, and thus
-should not themselves call the parent's method.  Typically this is used for
-object validation or possibly logging.
+Define a C<BUILD> method on your class and the constructor will automatically
+call the C<BUILD> method from parent down to child after the object has
+been instantiated.  Typically this is used for object validation or possibly
+logging.
 
 =head2 DEMOLISH
 
-  sub DEMOLISH {
-    my ($self, $in_global_destruction) = @_;
-    ...
-  }
+If you have a C<DEMOLISH> method anywhere in your inheritance hierarchy,
+a C<DESTROY> method is created on first object construction which will call
+C<< $instance->DEMOLISH($in_global_destruction) >> for each C<DEMOLISH>
+method from child upwards to parents.
 
-When an object is destroyed, any C<DEMOLISH> methods in the inheritance
-hierarchy will be called on the object.  They are given boolean to inform them
-if global destruction is in progress, and are called from the child class upwards
-to the parent.  This is similar to L</BUILD> methods but in the opposite order.
+Note that the C<DESTROY> method is created on first construction of an object
+of your class in order to not add overhead to classes without C<DEMOLISH>
+methods; this may prove slightly surprising if you try and define your own.
 
-Note that this is implemented by a C<DESTROY> method, which is only created on
-on the first construction of an object of your class.  This saves on overhead for
-classes that are never instantiated or those without C<DEMOLISH> methods.  If you
-try to define your own C<DESTROY>, this will cause undefined results.
+=head2 does
+
+ if ($foo->does('Some::Role1')) {
+   ...
+ }
+
+Returns true if the object composes in the passed role.
 
 =head1 IMPORTED SUBROUTINES
 
 =head2 extends
 
-  extends 'Parent::Class';
+ extends 'Parent::Class';
 
 Declares a base class. Multiple superclasses can be passed for multiple
 inheritance but please consider using L<roles|Moo::Role> instead.  The class
@@ -543,14 +473,13 @@ them like 'use base' would.
 
 =head2 with
 
-  with 'Some::Role1';
+ with 'Some::Role1';
 
 or
 
-  with 'Some::Role1', 'Some::Role2';
+ with 'Some::Role1', 'Some::Role2';
 
-or ignores the version constraints if specified like so to maintain syntax 
-compatiblity with L<Moose::Role>.
+or ignores the version constraints if specified like so.
 
  with 'Some::Role1' => { -version => 0.023 },
       'Some::Role2' => { -version => 4.32 };
@@ -558,43 +487,36 @@ compatiblity with L<Moose::Role>.
 Composes one or more L<Moo::Role> (or L<Role::Tiny>) roles into the current
 class.  An error will be raised if these roles cannot be composed because they
 have conflicting method definitions.  The roles will be loaded using the same
-mechanism as C<extends> uses.
+mechansim as C<extends> uses.
 
 =head2 has
 
-  has attr => (
-    is => 'ro',
-  );
+ has attr => (
+   is => 'ro',
+ );
 
 Declares an attribute for the class.
 
-  package Foo;
-  use Moo;
-  has 'attr' => (
-    is => 'ro'
-  );
+ package Foo;
+ use Moo;
+ has 'attr' => (
+   is => 'ro'
+ );
 
-  package Bar;
-  use Moo;
-  extends 'Foo';
-  has '+attr' => (
-    default => sub { "blah" },
-  );
+ package Bar;
+ use Moo;
+ extends 'Foo';
+ has '+attr' => (
+   default => sub { "blah" },
+ );
 
 Using the C<+> notation, it's possible to override an attribute.
-
-  has [qw(attr1 attr2 attr3)] => (
-    is => 'ro',
-  );
-
-Using an arrayref with multiple attribute names, it's possible to declare
-multiple attributes with the same options.
 
 The options for C<has> are as follows:
 
 =over 2
 
-=item C<is>
+=item * C<is>
 
 B<required>, may be C<ro>, C<lazy>, C<rwp> or C<rw>.
 
@@ -618,17 +540,17 @@ This feature comes from L<MooseX::AttributeShortcuts>.
 C<rw> stands for "read-write" and generates a normal getter/setter by
 defaulting the C<accessor> to the name of the attribute specified.
 
-=item C<isa>
+=item * C<isa>
 
 Takes a coderef which is used to validate the attribute.  Unlike L<Moose>, Moo
 does not include a basic type system, so instead of doing C<< isa => 'Num' >>,
 one should do
 
-  use Scalar::Util qw(looks_like_number);
-  ...
-  isa => sub {
-    die "$_[0] is not a number!" unless looks_like_number $_[0]
-  },
+ use Scalar::Util qw(looks_like_number);
+ ...
+ isa => sub {
+   die "$_[0] is not a number!" unless looks_like_number $_[0]
+ },
 
 Note that the return value for C<isa> is discarded. Only if the sub dies does
 type validation fail.
@@ -657,7 +579,7 @@ Note that this example is purely illustrative; anything that returns a
 L<Moose::Meta::TypeConstraint> object or something similar enough to it to
 make L<Moose> happy is fine.
 
-=item C<coerce>
+=item * C<coerce>
 
 Takes a coderef which is meant to coerce the attribute.  The basic idea is to
 do something like the following:
@@ -676,7 +598,7 @@ L<Sub::Quote aware|/SUB QUOTE AWARE>
 If the C<isa> option is a blessed object providing a C<coerce> or
 C<coercion> method, then the C<coerce> option may be set to just C<1>.
 
-=item C<handles>
+=item * C<handles>
 
 Takes a string
 
@@ -687,15 +609,15 @@ becomes the list of methods to handle.
 
 Takes a list of methods
 
-  handles => [ qw( one two ) ]
+ handles => [ qw( one two ) ]
 
 Takes a hashref
 
-  handles => {
-    un => 'one',
-  }
+ handles => {
+   un => 'one',
+ }
 
-=item C<trigger>
+=item * C<trigger>
 
 Takes a coderef which will get called any time the attribute is set. This
 includes the constructor, but not default or built values. The coderef will be
@@ -710,7 +632,7 @@ supported.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
-=item C<default>
+=item * C<default>
 
 Takes a coderef which will get called with $self as its only argument to
 populate an attribute if no value for that attribute was supplied to the
@@ -727,7 +649,7 @@ existence.
 
 L<Sub::Quote aware|/SUB QUOTE AWARE>
 
-=item C<predicate>
+=item * C<predicate>
 
 Takes a method name which will return true if an attribute has a value.
 
@@ -736,7 +658,7 @@ C<has_${attr_name}> if your attribute's name does not start with an
 underscore, or C<_has_${attr_name_without_the_underscore}> if it does.
 This feature comes from L<MooseX::AttributeShortcuts>.
 
-=item C<builder>
+=item * C<builder>
 
 Takes a method name which will be called to create the attribute - functions
 exactly like default except that instead of calling
@@ -756,7 +678,7 @@ If you set this to a coderef or code-convertible object, that variable will be
 installed under C<$class::_build_${attr_name}> and the builder set to the same
 name.
 
-=item C<clearer>
+=item * C<clearer>
 
 Takes a method name which will clear the attribute.
 
@@ -768,41 +690,41 @@ This feature comes from L<MooseX::AttributeShortcuts>.
 B<NOTE:> If the attribute is C<lazy>, it will be regenerated from C<default> or
 C<builder> the next time it is accessed. If it is not lazy, it will be C<undef>.
 
-=item C<lazy>
+=item * C<lazy>
 
 B<Boolean>.  Set this if you want values for the attribute to be grabbed
 lazily.  This is usually a good idea if you have a L</builder> which requires
 another attribute to be set.
 
-=item C<required>
+=item * C<required>
 
 B<Boolean>.  Set this if the attribute must be passed on object instantiation.
 
-=item C<reader>
+=item * C<reader>
 
 The name of the method that returns the value of the attribute.  If you like
 Java style methods, you might set this to C<get_foo>
 
-=item C<writer>
+=item * C<writer>
 
 The value of this attribute will be the name of the method to set the value of
 the attribute.  If you like Java style methods, you might set this to
 C<set_foo>.
 
-=item C<weak_ref>
+=item * C<weak_ref>
 
 B<Boolean>.  Set this if you want the reference that the attribute contains to
 be weakened. Use this when circular references, which cause memory leaks, are
 possible.
 
-=item C<init_arg>
+=item * C<init_arg>
 
 Takes the name of the key to look for at instantiation time of the object.  A
 common use of this is to make an underscored attribute have a non-underscored
 initialization name. C<undef> means that passing the value in on instantiation
 is ignored.
 
-=item C<moosify>
+=item * C<moosify>
 
 Takes either a coderef or array of coderefs which is meant to transform the
 given attributes specifications if necessary when upgrading to a Moose role or
@@ -813,21 +735,21 @@ possible extensibility.
 
 =head2 before
 
-  before foo => sub { ... };
+ before foo => sub { ... };
 
 See L<< Class::Method::Modifiers/before method(s) => sub { ... }; >> for full
 documentation.
 
 =head2 around
 
-  around foo => sub { ... };
+ around foo => sub { ... };
 
 See L<< Class::Method::Modifiers/around method(s) => sub { ... }; >> for full
 documentation.
 
 =head2 after
 
-  after foo => sub { ... };
+ after foo => sub { ... };
 
 See L<< Class::Method::Modifiers/after method(s) => sub { ... }; >> for full
 documentation.
@@ -882,21 +804,21 @@ imports first, then C<use Moo>, then C<use namespace::clean>.
 Anything imported before L<namespace::clean> will be scrubbed.
 Anything imported or declared after will be still be available.
 
-  package Record;
+ package Record;
 
-  use Digest::MD5 qw(md5_hex);
+ use Digest::MD5 qw(md5_hex);
 
-  use Moo;
-  use namespace::clean;
+ use Moo;
+ use namespace::clean;
 
-  has name => (is => 'ro', required => 1);
-  has id => (is => 'lazy');
-  sub _build_id {
-    my ($self) = @_;
-    return md5_hex($self->name);
-  }
+ has name => (is => 'ro', required => 1);
+ has id => (is => 'lazy');
+ sub _build_id {
+   my ($self) = @_;
+   return md5_hex($self->name);
+ }
 
-  1;
+ 1;
 
 If you were to import C<md5_hex> after L<namespace::clean> you would
 be able to call C<< ->md5_hex() >> on your C<Record> instances (and it
@@ -922,7 +844,7 @@ will work seamlessly with both L<Moo> and L<Moose>.  L<Type::Tiny> can be
 considered the successor to L<MooseX::Types> and provides a similar API, so
 that you can write
 
-  use Types::Standard qw(Int);
+  use Types::Standard;
   has days_to_live => (is => 'ro', isa => Int);
 
 C<initializer> is not supported in core since the author considers it to be a
@@ -976,6 +898,10 @@ Since C<coerce> does not require C<isa> to be defined but L<Moose> does
 require it, the metaclass inflation for coerce alone is a trifle insane
 and if you attempt to subtype the result will almost certainly break.
 
+C<BUILDARGS> is not triggered if your class does not have any attributes.
+Without attributes, C<BUILDARGS> return value would be ignored, so we just
+skip calling the method instead.
+
 Handling of warnings: when you C<use Moo> we enable strict and warnings, in a
 similar way to Moose. The authors recommend the use of C<strictures>, which
 enables FATAL warnings, and several extra pragmas when used in development:
@@ -985,30 +911,30 @@ Additionally, L<Moo> supports a set of attribute option shortcuts intended to
 reduce common boilerplate.  The set of shortcuts is the same as in the L<Moose>
 module L<MooseX::AttributeShortcuts> as of its version 0.009+.  So if you:
 
-  package MyClass;
-  use Moo;
-  use strictures 2;
+    package MyClass;
+    use Moo;
+    use strictures 2;
 
 The nearest L<Moose> invocation would be:
 
-  package MyClass;
+    package MyClass;
 
-  use Moose;
-  use warnings FATAL => "all";
-  use MooseX::AttributeShortcuts;
+    use Moose;
+    use warnings FATAL => "all";
+    use MooseX::AttributeShortcuts;
 
 or, if you're inheriting from a non-Moose class,
 
-  package MyClass;
+    package MyClass;
 
-  use Moose;
-  use MooseX::NonMoose;
-  use warnings FATAL => "all";
-  use MooseX::AttributeShortcuts;
+    use Moose;
+    use MooseX::NonMoose;
+    use warnings FATAL => "all";
+    use MooseX::AttributeShortcuts;
 
 Finally, Moose requires you to call
 
-  __PACKAGE__->meta->make_immutable;
+    __PACKAGE__->meta->make_immutable;
 
 at the end of your class to get an inlined (i.e. not horribly slow)
 constructor. Moo does it automatically the first time ->new is called
@@ -1072,8 +998,6 @@ mattp - Matt Phillips (cpan:MATTP) <mattp@cpan.org>
 bluefeet - Aran Deltac (cpan:BLUEFEET) <bluefeet@gmail.com>
 
 bubaflub - Bob Kuo (cpan:BUBAFLUB) <bubaflub@cpan.org>
-
-ether = Karen Etheridge (cpan:ETHER) <ether@cpan.org>
 
 =head1 COPYRIGHT
 
