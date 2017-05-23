@@ -491,8 +491,9 @@ And elsewhere:
 =head1 DESCRIPTION
 
 C<Moo::Role> builds upon L<Role::Tiny>, so look there for most of the
-documentation on how this works.  The main addition here is extra bits to make
-the roles more "Moosey;" which is to say, it adds L</has>.
+documentation on how this works (in particular, using C<Moo::Role> also
+enables L<strict> and L<warnings>).  The main addition here is extra bits to
+make the roles more "Moosey;" which is to say, it adds L</has>.
 
 =head1 IMPORTED SUBROUTINES
 
