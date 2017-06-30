@@ -10,6 +10,7 @@ my %expects = (
     2 => {
         class => "MyClass2",
         in    => 2,
+        out   => 6.28,
     },
     3 => {
         class => "MyClass3",
@@ -65,10 +66,13 @@ sub run_for {
           sub { print "  filter(", join( ", ", @_ ), ")\n"; return $_[1]; },
     );
 }
+
 {
 
     package MyClass2;
     use Moo;
+
+    has multiplier => ( is => 'rw', default => 3.14, );
 
     has attr => (
         is     => 'rw',
@@ -76,10 +80,12 @@ sub run_for {
     );
 
     sub _filter_attr {
-        print "  _filter_attr(", join( ", ", @_ ), ")\n";
-        return $_[1];
+        my $this = shift;
+        my $val  = shift;
+        return $val * $this->multiplier;
     }
 }
+
 {
 
     package MyClass3;
@@ -96,6 +102,7 @@ sub run_for {
         return "COERCED into string from $_[1]";
     }
 }
+
 {
 
     package MyClass4;
@@ -116,6 +123,7 @@ sub run_for {
         return "Converted into string from $val";
     }
 }
+
 {
 
     package MyClass5;
