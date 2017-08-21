@@ -12,18 +12,9 @@ BEGIN {
   *_CAN_WEAKEN_READONLY = (
     "$]" < 5.008_003 or $ENV{MOO_TEST_PRE_583}
   ) ? sub(){0} : sub(){1};
-  our $CAN_HAZ_XS =
-    !$ENV{MOO_XS_DISABLE}
-      &&
-    _maybe_load_module('Class::XSAccessor')
-      &&
-    (eval { Class::XSAccessor->VERSION('1.07') })
-  ;
-  our $CAN_HAZ_XS_PRED =
-    $CAN_HAZ_XS &&
-    (eval { Class::XSAccessor->VERSION('1.17') })
-  ;
+  our $CAN_HAZ_XS = !$ENV{MOO_XS_DISABLE};
 }
+
 BEGIN {
   package
     Method::Generate::Accessor::_Generated;
@@ -117,10 +108,13 @@ sub generate_method {
   if (my $reader = $spec->{reader}) {
     _die_overwrite($into, $reader, 'a reader')
       if !$spec->{allow_overwrite} && defined &{"${into}::${reader}"};
-    if (our $CAN_HAZ_XS && $self->is_simple_get($name, $spec)) {
-      $methods{$reader} = $self->_generate_xs(
+    if (
+      $self->is_simple_get($name, $spec)
+      and my $method = $self->_try_xs(
         getters => $into, $reader, $name, $spec
-      );
+      )
+    ) {
+      $methods{$reader} = $method;
     } else {
       $self->{captures} = {};
       $methods{$reader} =
@@ -136,13 +130,13 @@ sub generate_method {
     _die_overwrite($into, $accessor, 'an accessor')
       if !$spec->{allow_overwrite} && defined &{"${into}::${accessor}"};
     if (
-      our $CAN_HAZ_XS
-      && $self->is_simple_get($name, $spec)
-      && $self->is_simple_set($name, $spec)
-    ) {
-      $methods{$accessor} = $self->_generate_xs(
+      $self->is_simple_get($name, $spec)
+      and $self->is_simple_set($name, $spec)
+      and my $method = $self->_try_xs(
         accessors => $into, $accessor, $name, $spec
-      );
+      )
+    ) {
+      $methods{$accessor} = $method;
     } else {
       $self->{captures} = {};
       $methods{$accessor} =
@@ -157,12 +151,12 @@ sub generate_method {
     _die_overwrite($into, $writer, 'a writer')
       if !$spec->{allow_overwrite} && defined &{"${into}::${writer}"};
     if (
-      our $CAN_HAZ_XS
-      && $self->is_simple_set($name, $spec)
-    ) {
-      $methods{$writer} = $self->_generate_xs(
+      $self->is_simple_set($name, $spec)
+      and my $method = $self->_try_xs(
         setters => $into, $writer, $name, $spec
-      );
+      )
+    ) {
+      $methods{$writer} = $method;
     } else {
       $self->{captures} = {};
       $methods{$writer} =
@@ -176,10 +170,12 @@ sub generate_method {
   if (my $pred = $spec->{predicate}) {
     _die_overwrite($into, $pred, 'a predicate')
       if !$spec->{allow_overwrite} && defined &{"${into}::${pred}"};
-    if (our $CAN_HAZ_XS && our $CAN_HAZ_XS_PRED) {
-      $methods{$pred} = $self->_generate_xs(
+    if (
+      my $method = $self->_try_xs(
         exists_predicates => $into, $pred, $name, $spec
-      );
+      )
+    ) {
+      $methods{$pred} = $method;
     } else {
       $self->{captures} = {};
       $methods{$pred} =
@@ -655,6 +651,84 @@ sub _generate_delegation {
     }
   };
   "shift->${asserter}->${target}(${arg_string});";
+}
+
+my %mod_ver;
+sub _module_version {
+  $mod_ver{$_[0]} ||= (
+    (_maybe_load_module($_[0])
+      && $_[0]->VERSION
+    ) || !!0
+  )
+}
+
+sub _try_xs {
+  my ($self, $type, $into, $name, $slot, $spec) = @_;
+  return 0
+    if ! our $CAN_HAZ_XS;
+  if ($self->can('_generate_xs') != \&_generate_xs) {
+    if (_module_version('Class::XSAccessor') < ($type eq 'exists_predicate' ? 1.17 : 1.07)) {
+      return 0;
+    }
+    return $self->_generate_xs($type, $into, $name, $slot, $spec);
+  }
+  if ($type eq 'getters') {
+    if (_module_version('Class::Accessor::Inherited::XS') >= 0.31) {
+      no warnings 'redefine';
+      Class::Accessor::Inherited::XS::install_object_accessor("${into}::${name}", $slot, 1);
+    }
+    elsif (_module_version('Class::XSAccessor') >= 1.07) {
+      Class::XSAccessor->import(
+        class   => $into,
+        getters => { $name => $slot },
+        replace => 1,
+      );
+    }
+    else {
+      return 0;
+    }
+  }
+  elsif ($type eq 'setters') {
+    if (_module_version('Class::XSAccessor') >= 1.07) {
+      Class::XSAccessor->import(
+        class   => $into,
+        setters => { $name => $slot },
+        replace => 1,
+      );
+    }
+    else {
+      return 0;
+    }
+  }
+  elsif ($type eq 'accessors') {
+    if (_module_version('Class::Accessor::Inherited::XS') >= 0.31) {
+      no warnings 'redefine';
+      Class::Accessor::Inherited::XS::install_object_accessor("${into}::${name}", $slot, 0);
+    }
+    elsif (_module_version('Class::XSAccessor') >= 1.07) {
+      Class::XSAccessor->import(
+        class     => $into,
+        accessors => { $name => $slot },
+        replace   => 1,
+      );
+    }
+    else {
+      return 0;
+    }
+  }
+  elsif ($type eq 'exists_predicate') {
+    if (_module_version('Class::XSAccessor') >= 1.17) {
+      Class::XSAccessor->import(
+        class     => $into,
+        exists_predicate => { $name => $slot },
+        replace   => 1,
+      );
+    }
+    else {
+      return 0;
+    }
+  }
+  return $into->can($name);
 }
 
 sub _generate_xs {
