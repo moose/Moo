@@ -7,7 +7,6 @@ use Test::More "$]" < 5.008009
     package RoleOne;
     use Mouse::Role;
     use Mouse::Util::TypeConstraints;
-    use namespace::clean;
 
     subtype 'Foo', as 'Int';
     coerce 'Foo', from 'Str', via { 3 };
@@ -22,7 +21,6 @@ use Test::More "$]" < 5.008009
 {
     package Class;
     use Moo; # Works if use Moose..
-    use namespace::clean -except => 'meta';
 
     with 'RoleOne';
 }

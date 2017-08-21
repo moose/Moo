@@ -5,7 +5,6 @@ use Test::More;
     package RoleOne;
     use Moose::Role;
     use Moose::Util::TypeConstraints;
-    use namespace::autoclean;
 
     subtype 'Foo', as 'Int';
     coerce 'Foo', from 'Str', via { 3 };
@@ -20,7 +19,6 @@ use Test::More;
 {
     package Class;
     use Moo; # Works if use Moose..
-    use namespace::clean -except => 'meta';
 
     with 'RoleOne';
 }

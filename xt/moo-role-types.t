@@ -5,7 +5,6 @@ use Test::Fatal;
 {
     package TestClientClass;
     use Moo;
-    use namespace::clean -except => 'meta';
 
     sub consume {}
 }
@@ -13,7 +12,6 @@ use Test::Fatal;
 {
     package TestBadClientClass;
     use Moo;
-    use namespace::clean -except => 'meta';
 
     sub not_consume {}
 }
@@ -22,8 +20,6 @@ use Test::Fatal;
     package TestRole;
     use Moo::Role;
     use Sub::Quote;
-    use namespace::clean -except => 'meta';
-
 
     has output_to => (
         isa => quote_sub(q{
