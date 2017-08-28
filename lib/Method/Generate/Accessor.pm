@@ -94,6 +94,22 @@ sub generate_method {
       croak "Invalid coercion for $into->$name - no appropriate type constraint";
     }
   }
+  if ($spec->{filter}) {
+    if (ref $spec->{filter}) {
+      $self->_validate_codulatable('filter', $spec->{filter},
+        "$into->$name", 'or a method name');
+      $spec->{filter_sub} = $spec->{filter};
+      $spec->{filter} = 1;
+    }
+    else {
+        my $filter_sub = length($spec->{filter}) == 1 
+                           && $spec->{filter} eq 1 
+                             ? "_filter_".$name 
+                             : $spec->{filter};
+        $spec->{filter_sub} = quote_sub('shift->'.$filter_sub.'(@_)');
+        $spec->{filter} = 1;
+    }
+  }
 
   foreach my $setting (qw( isa coerce )) {
     next if !exists $spec->{$setting};
@@ -278,7 +294,7 @@ sub is_simple_attribute {
   # clearer doesn't have to be listed because it doesn't
   # affect whether defined/exists makes a difference
   !grep $spec->{$_},
-    qw(lazy default builder coerce isa trigger predicate weak_ref);
+    qw(lazy default builder coerce filter isa trigger predicate weak_ref);
 }
 
 sub is_simple_get {
@@ -288,7 +304,7 @@ sub is_simple_get {
 
 sub is_simple_set {
   my ($self, $name, $spec) = @_;
-  !grep $spec->{$_}, qw(coerce isa trigger weak_ref);
+  !grep $spec->{$_}, qw(coerce filter isa trigger weak_ref);
 }
 
 sub has_default {
@@ -401,6 +417,9 @@ sub _generate_set {
   if ($coerce) {
     $source = $self->_generate_coerce($name, $source, $coerce);
   }
+  if ($spec->{filter}) {
+    $source = $self->_generate_filter($name, $me, $source, $spec->{filter_sub} );
+  }
   if ($isa_check) {
     'scalar do { my $value = '.$source.";\n"
     .'  ('.$self->_generate_isa_check($name, '$value', $isa_check)."),\n"
@@ -457,6 +476,11 @@ sub generate_trigger {
 sub _generate_trigger {
   my ($self, $name, $obj, $value, $trigger) = @_;
   $self->_generate_call_code($name, 'trigger', "${obj}, ${value}", $trigger);
+}
+
+sub _generate_filter {
+  my ($self, $name, $obj, $value, $filter) = @_;
+  $self->_generate_call_code($name, 'filter', "${obj}, ${value}", $filter);
 }
 
 sub generate_isa_check {
@@ -671,6 +695,7 @@ sub default_construction_string { '{}' }
 
 sub _validate_codulatable {
   my ($self, $setting, $value, $into, $appended) = @_;
+  local $Carp::Verbose = 1;
   my $invalid = "Invalid $setting '" . overload::StrVal($value)
     . "' for $into not a coderef";
   $invalid .= " $appended" if $appended;
