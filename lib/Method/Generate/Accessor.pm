@@ -8,7 +8,6 @@ use Sub::Quote qw(quote_sub quoted_from_sub quotify sanitize_identifier);
 use Scalar::Util 'blessed';
 use Carp qw(croak);
 BEGIN { our @CARP_NOT = qw(Moo::_Utils) }
-use overload ();
 BEGIN {
   *_CAN_WEAKEN_READONLY = (
     "$]" < 5.008_003 or $ENV{MOO_TEST_PRE_583}
@@ -671,19 +670,29 @@ sub default_construction_string { '{}' }
 
 sub _validate_codulatable {
   my ($self, $setting, $value, $into, $appended) = @_;
-  my $invalid = "Invalid $setting '" . overload::StrVal($value)
-    . "' for $into not a coderef";
-  $invalid .= " $appended" if $appended;
 
-  unless (ref $value and (ref $value eq 'CODE' or blessed($value))) {
-    croak "$invalid or code-convertible object";
+  my $error;
+
+  if (blessed $value) {
+    local $@;
+    no warnings 'void';
+    eval { \&$value; 1 }
+      and return 1;
+    $error = "could not be converted to a coderef: $@";
+  }
+  elsif (ref $value eq 'CODE') {
+    defined &$value
+      and return 1;
+    $error = 'is a stub';
+  }
+  else {
+    $error = 'is not a coderef or code-convertible object';
   }
 
-  unless (eval { \&$value }) {
-    croak "$invalid and could not be converted to a coderef: $@";
-  }
-
-  1;
+  croak "Invalid $setting '"
+    . ($INC{'overload.pm'} ? overload::StrVal($value) : $value)
+    . "' for $into" . $error
+    . ($appended ? " $appended" : '');
 }
 
 1;
