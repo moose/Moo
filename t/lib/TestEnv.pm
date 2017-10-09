@@ -4,7 +4,7 @@ use warnings;
 
 sub import {
   $ENV{$_} = 1
-    for grep defined && length, @_[1 .. $#_];
+    for grep defined && length && !exists $ENV{$_}, @_[1 .. $#_];
 }
 
 1;
