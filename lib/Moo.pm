@@ -237,8 +237,9 @@ sub _concrete_methods_of {
   my $not_methods = { reverse %{$makers->{not_methods}||{}} };
   +{
     # grab all code entries that aren't in the not_methods list
-    map {
-      my $code = *{$stash->{$_}}{CODE};
+    map {;
+      no strict 'refs';
+      my $code = exists &{"${role}::$_"} ? \&{"${role}::$_"} : undef;
       ( ! $code or exists $not_methods->{$code} ) ? () : ($_ => $code)
     } grep !ref($stash->{$_}), keys %$stash
   };
