@@ -26,7 +26,6 @@ my %META = (
         'Class::Method::Modifiers'  => 1.10,  # for RT#80194
         'Module::Runtime'           => 0.014, # for RT#86394
         'Role::Tiny'                => 2.000004,
-        'Devel::GlobalDestruction'  => 0.11,  # for RT#78617
         'Scalar::Util'              => 0,
         'perl'                      => 5.006,
         'Exporter'                  => 5.57,  # Import 'import'
@@ -91,6 +90,7 @@ my %MM_ARGS = (
   PREREQ_PM => {
     ("$]" >= 5.008_000 ? () : ('Task::Weaken' => 0)),
     ("$]" >= 5.010_000 ? () : ('MRO::Compat' => 0)),
+    ("$]" >= 5.014_000 ? () : ('Devel::GlobalDestruction' => 0.11)),
   },
   ($xt ? (
     TEST_REQUIRES => {

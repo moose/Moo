@@ -22,7 +22,6 @@ BEGIN {
 
 use Module::Runtime qw(use_package_optimistically module_notional_filename);
 
-use Devel::GlobalDestruction ();
 use Exporter qw(import);
 use Config;
 use Carp qw(croak);
