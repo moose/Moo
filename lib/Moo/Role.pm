@@ -24,7 +24,7 @@ BEGIN {
 }
 
 our $VERSION = '2.003002';
-$VERSION = eval $VERSION;
+$VERSION =~ tr/_//d;
 
 require Moo::sification;
 Moo::sification->import;
