@@ -55,7 +55,7 @@ sub _load_module {
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
   my $stash = _getstash($module)||{};
-  return 1 if grep +(!ref($_) and *$_{CODE}), values %$stash;
+  return 1 if grep +(ref($_) || *$_{CODE}), values %$stash;
   return 1
     if $INC{"Moose.pm"} && Class::MOP::class_of($module)
     or Mouse::Util->can('find_meta') && Mouse::Util::find_meta($module);
