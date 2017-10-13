@@ -11,6 +11,7 @@ use Moo::_Utils qw(
   _set_loaded
   _unimport_coderefs
 );
+use Scalar::Util qw(reftype);
 use Carp qw(croak);
 BEGIN {
   our @CARP_NOT = qw(
@@ -86,7 +87,9 @@ sub import {
   }
   return if $MAKERS{$target}{is_class}; # already exported into this package
   my $stash = _getstash($target);
-  my @not_methods = map { *$_{CODE}||() } grep !ref($_), values %$stash;
+  my @not_methods = map +(
+    !ref($_) ? *$_{CODE}||() : reftype($_) eq 'CODE' ? $_ : ()
+  ), values %$stash;
   @{$MAKERS{$target}{not_methods}={}}{@not_methods} = @not_methods;
   $MAKERS{$target}{is_class} = 1;
   {
@@ -192,7 +195,8 @@ sub _constructor_maker_for {
     my $con;
     my @isa = @{mro::get_linear_isa($target)};
     shift @isa;
-    if (my ($parent_new) = grep { *{_getglob($_.'::new')}{CODE} } @isa) {
+    no strict 'refs';
+    if (my ($parent_new) = grep +(defined &{$_.'::new'}), @isa) {
       if ($parent_new eq 'Moo::Object') {
         # no special constructor needed
       }
@@ -241,7 +245,7 @@ sub _concrete_methods_of {
       no strict 'refs';
       my $code = exists &{"${class}::$_"} ? \&{"${class}::$_"} : undef;
       ( ! $code or exists $not_methods->{$code} ) ? () : ($_ => $code)
-    } grep !ref($stash->{$_}), keys %$stash
+    } grep +(!ref($stash->{$_}) || reftype($stash->{$_}) eq 'CODE'), keys %$stash
   };
 }
 
