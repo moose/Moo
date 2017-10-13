@@ -228,10 +228,10 @@ sub _constructor_maker_for {
 }
 
 sub _concrete_methods_of {
-  my ($me, $role) = @_;
-  my $makers = $MAKERS{$role};
-  # grab role symbol table
-  my $stash = _getstash($role);
+  my ($me, $class) = @_;
+  my $makers = $MAKERS{$class};
+  # grab class symbol table
+  my $stash = _getstash($class);
   # reverse so our keys become the values (captured coderefs) in case
   # they got copied or re-used since
   my $not_methods = { reverse %{$makers->{not_methods}||{}} };
@@ -239,7 +239,7 @@ sub _concrete_methods_of {
     # grab all code entries that aren't in the not_methods list
     map {;
       no strict 'refs';
-      my $code = exists &{"${role}::$_"} ? \&{"${role}::$_"} : undef;
+      my $code = exists &{"${class}::$_"} ? \&{"${class}::$_"} : undef;
       ( ! $code or exists $not_methods->{$code} ) ? () : ($_ => $code)
     } grep !ref($stash->{$_}), keys %$stash
   };
