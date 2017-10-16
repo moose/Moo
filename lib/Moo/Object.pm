@@ -71,7 +71,12 @@ sub does {
 sub meta {
   require Moo::HandleMoose::FakeMetaClass;
   my $class = ref($_[0])||$_[0];
-  bless({ name => $class }, 'Moo::HandleMoose::FakeMetaClass');
+  my $info = $Moo::MAKERS{$class};
+  my $gen = $info->{constructor};
+  $info->{fake_meta} ||= bless({
+    name => $class,
+    immutable => ($gen && $gen->immutable),
+  }, 'Moo::HandleMoose::FakeMetaClass');
 }
 
 1;

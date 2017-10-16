@@ -96,6 +96,8 @@ sub install_delayed {
       $package, 'new', $self->{attribute_specs}, { no_install => 1, no_defer => 1 }
     );
     $self->{inlined} = 1;
+    my $meta = $Moo::MAKERS{$self->{package}{fake_meta};
+    $meta and $meta->{immutable} = 1;
     weaken($self->{constructor} = $constructor);
     $constructor;
   };

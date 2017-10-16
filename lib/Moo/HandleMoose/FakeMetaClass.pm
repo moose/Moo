@@ -36,6 +36,12 @@ sub isa {
   require Moo::HandleMoose;
   Moo::HandleMoose::inject_real_metaclass_for($self->{name})->isa(@_)
 }
-sub make_immutable { $_[0] }
+sub make_immutable {
+  require Sub::Defer;
+  Sub::Defer::undefer_package($_[0]{name});
+  $_[0];
+}
+sub is_mutable { !$_[0]{immutable} }
+sub is_immutable { $_[0]{immutable} }
 
 1;
