@@ -1,7 +1,7 @@
 package Method::Generate::Accessor;
 
 use Moo::_strictures;
-use Moo::_Utils qw(_load_module _maybe_load_module _install_coderef);
+use Moo::_Utils qw(_load_module _maybe_load_module _install_coderef _module_name_rx);
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quoted_from_sub quotify sanitize_identifier);
@@ -30,10 +30,7 @@ BEGIN {
   $Carp::Internal{+__PACKAGE__} = 1;
 }
 
-my $module_name_only = qr/\A$Module::Runtime::module_name_rx\z/;
-
-sub _die_overwrite
-{
+sub _die_overwrite {
   my ($pkg, $method, $type) = @_;
   croak "You cannot overwrite a locally defined method ($method) with "
     . ( $type || 'an accessor' );
@@ -72,7 +69,7 @@ sub generate_method {
     }
     $spec->{builder} = '_build_'.$name if ($spec->{builder}||0) eq 1;
     croak "Invalid builder for $into->$name - not a valid method name"
-      if $spec->{builder} !~ $module_name_only;
+      if $spec->{builder} !~ _module_name_rx;
   }
   if (($spec->{predicate}||0) eq 1) {
     $spec->{predicate} = $name =~ /^_/ ? "_has${name}" : "has_${name}";
