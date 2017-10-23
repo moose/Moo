@@ -893,9 +893,17 @@ Anything imported or declared after will be still be available.
 
   1;
 
-If you were to import C<md5_hex> after L<namespace::clean> you would
-be able to call C<< ->md5_hex() >> on your C<Record> instances (and it
-probably wouldn't do what you expect!).
+For example if you were to import these subroutines after
+L<namespace::clean> like this
+
+  use namespace::clean;
+
+  use Digest::MD5 qw(md5_hex);
+  use Moo;
+
+then any C<Record> C<$r> would have methods such as C<< $r->md5_hex() >>, 
+C<< $r->has() >> and C<< $r->around() >> - almost certainly not what you
+intend!
 
 L<Moo::Role>s behave slightly differently.  Since their methods are
 composed into the consuming class, they can do a little more for you
