@@ -42,8 +42,10 @@ sub import {
   my $class = shift;
   _set_loaded(caller);
 
+  my $no_warnings = grep /:no_warnings/, @_;
+
   strict->import;
-  warnings->import;
+  warnings->import unless $no_warnings;
 
   if ($INC{'Role/Tiny.pm'} and Role::Tiny->is_role($target)) {
     croak "Cannot import Moo into a role";

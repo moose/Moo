@@ -103,4 +103,38 @@ is(MyClass5->foo, 'foo with around', 'method modifier');
     'can extend Moo class with overridden new';
 }
 
+{
+  no strict 'refs';
+  no warnings 'redefine';
+
+  my $import = 0;
+
+  local *{"warnings::import"} = sub { $import++ };
+
+  eval  {
+    package MyClass8;
+    require Moo;
+    Moo->import;
+  };
+
+  ::is $import, 1, "use Moo imports warnings";
+}
+
+{
+  no strict 'refs';
+  no warnings 'redefine';
+
+  my $import = 0;
+
+  local *{"warnings::import"} = sub { $import++ };
+
+  eval {
+    package MyClass9;
+    require Moo;
+    Moo->import( qw(:no_warnings) );
+  };
+
+  ::is $import, 0, "use Moo :no_warnings";
+}
+
 done_testing;
