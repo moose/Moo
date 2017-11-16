@@ -1,7 +1,13 @@
 Revision history for Moo
 
+  - test tweaks
+  - fix handling of code refs stored directly in the stash (for perl 5.28)
+  - consider inline packages with constants in them as being loaded
+  - stubs will be treated as methods that exist when inflating to Moose
+  - avoid loading overload.pm unless required
+
 2.003002 - 2017-03-28
-    - ensure tarball does not contain SCHILY headers
+  - ensure tarball does not contain SCHILY headers
 
 2.003001 - 2017-03-06
   - fix +attributes replacing builder subs if parent attribute was defined with
