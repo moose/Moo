@@ -30,53 +30,52 @@ use InlineModule (
 }
 
 {
-  local @INC = ();
   {
-    package Module::WithVariable;
+    package MooTest::Module::WithVariable;
     our $VARIABLE = 219;
   }
-  like exception { Moo::_Utils::_load_module('Module::WithVariable') },
-    qr{^Can't locate Module/WithVariable.pm },
+  like exception { Moo::_Utils::_load_module('MooTest::Module::WithVariable') },
+    qr{^Can't locate MooTest/Module/WithVariable.pm },
     '_load_module: inline package with only variable not treated as loaded';
 
   {
-    package Module::WithSub;
+    package MooTest::Module::WithSub;
     sub glorp { $_[0] + 1 }
   }
-  is exception { Moo::_Utils::_load_module('Module::WithSub') }, undef,
+  is exception { Moo::_Utils::_load_module('MooTest::Module::WithSub') }, undef,
     '_load_module: inline package with sub treated as loaded';
 
   {
-    package Module::WithConstant;
+    package MooTest::Module::WithConstant;
     use constant GORP => "GLUB";
   }
-  is exception { Moo::_Utils::_load_module('Module::WithConstant') }, undef,
+  is exception { Moo::_Utils::_load_module('MooTest::Module::WithConstant') }, undef,
     '_load_module: inline package with constant treated as loaded';
 
   {
-    package Module::WithListConstant;
+    package MooTest::Module::WithListConstant;
     use constant GORP => "GLUB", "BOGGLE";
   }
-  is exception { Moo::_Utils::_load_module('Module::WithListConstant') }, undef,
+  is exception { Moo::_Utils::_load_module('MooTest::Module::WithListConstant') }, undef,
     '_load_module: inline package with constant treated as loaded';
 
   {
-    package Module::WithBEGIN;
+    package MooTest::Module::WithBEGIN;
     my $var;
     BEGIN { $var = 1 }
   }
-  like exception { Moo::_Utils::_load_module('Module::WithBEGIN') },
-    qr{^Can't locate Module/WithBEGIN.pm },
+  like exception { Moo::_Utils::_load_module('MooTest::Module::WithBEGIN') },
+    qr{^Can't locate MooTest/Module/WithBEGIN.pm },
     '_load_module: inline package with only BEGIN not treated as loaded';
 
   {
-    package Module::WithSubPackage;
-    package Module::WithSubPackage::SubPackage;
+    package MooTest::Module::WithSubPackage;
+    package MooTest::Module::WithSubPackage::SubPackage;
     our $grop = 1;
     sub grop { 1 }
   }
-  like exception { Moo::_Utils::_load_module('Module::WithSubPackage') },
-    qr{^Can't locate Module/WithSubPackage.pm },
+  like exception { Moo::_Utils::_load_module('MooTest::Module::WithSubPackage') },
+    qr{^Can't locate MooTest/Module/WithSubPackage.pm },
     '_load_module: inline package with sub package not treated as loaded';
 
 }
