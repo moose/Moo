@@ -35,7 +35,7 @@ use InlineModule (
     our $VARIABLE = 219;
   }
   like exception { Moo::_Utils::_load_module('MooTest::Module::WithVariable') },
-    qr{^Can't locate MooTest/Module/WithVariable.pm },
+    qr{^Can't locate MooTest/Module/WithVariable\.pm },
     '_load_module: inline package with only variable not treated as loaded';
 
   {
@@ -65,7 +65,7 @@ use InlineModule (
     BEGIN { $var = 1 }
   }
   like exception { Moo::_Utils::_load_module('MooTest::Module::WithBEGIN') },
-    qr{^Can't locate MooTest/Module/WithBEGIN.pm },
+    qr{^Can't locate MooTest/Module/WithBEGIN\.pm },
     '_load_module: inline package with only BEGIN not treated as loaded';
 
   {
@@ -75,7 +75,7 @@ use InlineModule (
     sub grop { 1 }
   }
   like exception { Moo::_Utils::_load_module('MooTest::Module::WithSubPackage') },
-    qr{^Can't locate MooTest/Module/WithSubPackage.pm },
+    qr{^Can't locate MooTest/Module/WithSubPackage\.pm },
     '_load_module: inline package with sub package not treated as loaded';
 
 }
