@@ -132,6 +132,9 @@ $MM_ARGS{NO_MYMETA} = 1
   if $mymeta_broken;
 $MM_ARGS{META_ADD} = { 'meta-spec' => { version => 2 }, %META }
   unless -f 'META.yml';
+$MM_ARGS{PL_FILES} ||= {};
+$MM_ARGS{NORECURS} = 1
+  if not exists $MM_ARGS{NORECURS};
 
 for (qw(configure build test runtime)) {
   my $key = $_ eq 'runtime' ? 'PREREQ_PM' : uc $_.'_REQUIRES';
