@@ -691,7 +691,7 @@ sub _validate_codulatable {
 
   croak "Invalid $setting '"
     . ($INC{'overload.pm'} ? overload::StrVal($value) : $value)
-    . "' for $into" . $error
+    . "' for $into " . $error
     . ($appended ? " $appended" : '');
 }
 
