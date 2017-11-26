@@ -1,5 +1,8 @@
 Revision history for Moo
 
+  - fix accidentally removed space in coderef error message (GH#33)
+  - fix test errors with old Carp versions
+
 2.003003 - 2017-11-16
   - test tweaks
   - fix handling of code refs stored directly in the stash (for perl 5.28)
