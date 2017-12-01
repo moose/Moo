@@ -1,5 +1,6 @@
 Revision history for Moo
 
+  - re-allow stubs for attribute parameters like isa or coerce (RT#123753)
   - fix accidentally removed space in coderef error message (GH#33)
   - fix test errors with old Carp versions
 
