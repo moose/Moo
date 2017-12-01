@@ -681,9 +681,7 @@ sub _validate_codulatable {
     $error = "could not be converted to a coderef: $@";
   }
   elsif (ref $value eq 'CODE') {
-    defined &$value
-      and return 1;
-    $error = 'is a stub';
+    return 1;
   }
   else {
     $error = 'is not a coderef or code-convertible object';

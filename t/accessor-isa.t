@@ -217,4 +217,22 @@ like exception { IsaWriter->new->_set_attr( 4 ) },
   ::is $@, $error, '$@ unchanged after successful isa';
 }
 
+{
+  package TestClassWithStub;
+  use Moo;
+  sub stub_isa;
+
+  ::is ::exception { has attr1 => (is => 'ro', isa => \&stub_isa); }, undef,
+    'stubs allowed for isa checks';
+
+  eval q{
+    sub stub_isa { die "stub isa check"; }
+    1;
+  } or die $@;
+
+  ::like ::exception { __PACKAGE__->new(attr1 => 1) },
+    qr/stub isa check/,
+    'stub isa works after being defined';
+}
+
 done_testing;
