@@ -268,4 +268,16 @@ use Moo::Role ();
 Moo::Role->apply_roles_to_object($o, "${PACKAGE}::Role");
 END_CODE
 
+location_ok <<'END_CODE', 'Method::Generate::DemolishAll - user croak';
+use Carp qw(croak);
+use Moo;
+sub DEMOLISH {
+  croak "demolish" unless $_[0]->{demolished}++;
+}
+my $o = $PACKAGE->new;
+package Elsewhere;
+# object destruction normally can't throw, so run this manually
+$o->DESTROY;
+END_CODE
+
 done_testing;

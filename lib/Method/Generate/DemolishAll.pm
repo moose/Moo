@@ -20,6 +20,7 @@ sub generate_method {
       local $?;
       local $@;
       require Devel::GlobalDestruction;
+      package !.$into.q!;
       eval {
         $self->DEMOLISHALL(Devel::GlobalDestruction::in_global_destruction);
       };
@@ -39,12 +40,15 @@ sub demolishall_body_for {
     grep *{_getglob($_)}{CODE},
     map "${_}::DEMOLISH",
     @{mro::get_linear_isa($into)};
-  join '', map qq{    ${me}->${_}(${args});\n}, @demolishers;
+  join '',
+    qq{    package $into;\n},
+    map qq{    ${me}->${_}(${args});\n}, @demolishers;
 }
 
 sub _handle_subdemolish {
   my ($self, $into) = @_;
   '    if (ref($_[0]) ne '.quotify($into).') {'."\n".
+  "      package $into;\n".
   '      return shift->Moo::Object::DEMOLISHALL(@_)'.";\n".
   '    }'."\n";
 }
