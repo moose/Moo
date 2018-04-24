@@ -86,11 +86,20 @@ my %META = (
   } },
 );
 
+my $xt = $ENV{EXTENDED_TESTING};
 my %MM_ARGS = (
   PREREQ_PM => {
     ("$]" >= 5.008_000 ? () : ('Task::Weaken' => 0)),
     ("$]" >= 5.010_000 ? () : ('MRO::Compat' => 0)),
   },
+  ($xt ? (
+    TEST_REQUIRES => {
+      %{ $META{prereqs}{runtime}{recommends} },
+      %{ $META{prereqs}{test}{recommends} },
+      %{ $META{prereqs}{develop}{requires} },
+    },
+    test => { TESTS => 't/*.t xt/*.t' },
+  ):()),
 );
 
 {
@@ -103,13 +112,21 @@ my %MM_ARGS = (
   }
 
   sub postamble {
-    my $MOO_TEST_ENV = !-f 'META.yml' ? "MOO_FATAL_WARNINGS" : '';
-    <<"POSTAMBLE";
+    my $MOO_TEST_ENV = (!-f 'META.yml' || $xt) ? "MOO_FATAL_WARNINGS" : '';
+    ($xt ? <<"XT" : '')
+test :: test_no_xs
+XT
+    .<<"POSTAMBLE"
 MOO_TEST_ENV=$MOO_TEST_ENV
 fulltest: test test_no_xs
-test_no_xs: pure_all
-\t\$(NOECHO)\$(MAKE) test MOO_TEST_ENV="\$(MOO_TEST_ENV),MOO_XS_DISABLE"
+\t\$(NOECHO) \$(NOOP)
+test_no_xs: \$(TEST_TYPE)_no_xs
+\t\$(NOECHO) \$(NOOP)
 POSTAMBLE
+    .join('', map <<"TEST_TYPE", 'dynamic', 'static', '')
+test_${_}_no_xs: pure_all
+\t\$(NOECHO)\$(MAKE) test_$_ MOO_TEST_ENV="\$(MOO_TEST_ENV),MOO_XS_DISABLE"
+TEST_TYPE
   }
 }
 
