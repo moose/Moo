@@ -11,6 +11,7 @@
 *#
 .#*
 /Moo-*/
+/Moo-*.tar
 /Moo-*.tar.gz
 /cover_db/
 /_eumm/
