@@ -62,8 +62,8 @@ BEGIN {
 }
 
 SKIP: {
-  skip 'code refs directly in the stash not supported until perl 5.22', 1
-    unless "$]" >= 5.021004; # perl5 2eaf799e
+  skip 'code refs directly in the stash not stable until perl 5.26', 1
+    unless "$]" >= 5.026;
 
   eval '#line '.(__LINE__).' "'.__FILE__.qq["\n].q{
     package Gwaf;
