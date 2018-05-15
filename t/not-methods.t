@@ -65,7 +65,7 @@ SKIP: {
   skip 'code refs directly in the stash not supported until perl 5.22', 1
     unless "$]" >= 5.021004; # perl5 2eaf799e
 
-  eval '#line '.(__LINE__+1).' "'.__FILE__.qq["\n].q{
+  eval '#line '.(__LINE__).' "'.__FILE__.qq["\n].q{
     package Gwaf;
     BEGIN { $Gwaf::{foo} = sub { 'foo' }; }
     use constant plorp => 1;
@@ -73,7 +73,7 @@ SKIP: {
     BEGIN { $Gwaf::{frab} = sub { 'frab' }; }
     use constant terg => 1;
     1;
-  } or die "$@";
+  } or die $@;
 
   is_deeply
     [sort keys %{Moo->_concrete_methods_of('Gwaf')}],
