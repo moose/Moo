@@ -43,4 +43,17 @@ is $o->attr_from_child, 4;
 ok +MooChild->meta->does_role('MooseRole');
 ok +MooChild->does('MooseRole');
 
+{
+  my $meta = Moose::Meta::Class->initialize('MooseClassByMeta');
+
+  package WithWuff;
+  use Moo;
+
+  ::is ::exception {
+    extends 'MooseClassByMeta';
+  }, undef,
+    'extends will allow empty Moose roles with no %INC entry';
+}
+
+
 done_testing;
