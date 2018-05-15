@@ -17,6 +17,9 @@ BEGIN {
 }
 
 BEGIN {
+  # lie about overload.pm just in case
+  local $INC{'overload.pm'};
+  delete $INC{'overload.pm'};
   my $c = bless {}, 'Gorf';
   like(
     exception { $gen->generate_method('Foo' => 'gorf' => { is => 'ro', coerce => $c } ) },
