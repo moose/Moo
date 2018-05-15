@@ -404,7 +404,7 @@ dependencies but is also fully usable by L<Moose> users, you should be using
 L<Moo>.
 
 For a full explanation, see the article
-L<http://shadow.cat/blog/matt-s-trout/moo-versus-any-moose> which explains
+L<https://shadow.cat/blog/matt-s-trout/moo-versus-any-moose> which explains
 the differing strategies in more detail and provides a direct example of
 where L<Moo> succeeds and L<Any::Moose> fails.
 
@@ -1017,12 +1017,12 @@ to Moo by providing a more Moose-like interface.
 Users' IRC: #moose on irc.perl.org
 
 =for :html
-L<(click for instant chatroom login)|http://chat.mibbit.com/#moose@irc.perl.org>
+L<(click for instant chatroom login)|https://chat.mibbit.com/#moose@irc.perl.org>
 
 Development and contribution IRC: #web-simple on irc.perl.org
 
 =for :html
-L<(click for instant chatroom login)|http://chat.mibbit.com/#web-simple@irc.perl.org>
+L<(click for instant chatroom login)|https://chat.mibbit.com/#web-simple@irc.perl.org>
 
 Bugtracker: L<https://rt.cpan.org/Public/Dist/Display.html?Name=Moo>
 
@@ -1078,6 +1078,6 @@ as listed above.
 =head1 LICENSE
 
 This library is free software and may be distributed under the same terms
-as perl itself. See L<http://dev.perl.org/licenses/>.
+as perl itself. See L<https://dev.perl.org/licenses/>.
 
 =cut

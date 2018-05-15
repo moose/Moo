@@ -66,7 +66,7 @@ my %META = (
       web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Moo',
       mailto => 'bug-Moo@rt.cpan.org',
     },
-    license => [ 'http://dev.perl.org/licenses/' ],
+    license => [ 'https://dev.perl.org/licenses/' ],
   },
   no_index => {
     directory => [ 't', 'xt' ]
