@@ -1007,7 +1007,26 @@ However, if you load L<Moose>, then
 
 will return an appropriate metaclass pre-populated by L<Moo>.
 
-=head1 IMMUTABILITY
+Occasionally you see something like the following L<Moose> code in the
+wild:
+
+   $class->meta->add_attribute( $name => is => 'ro', default => $subref);
+
+While this isn't great from a maintainability / self documenting
+perspective it can result in dramatically reducing the amount of
+boilerplate required to create a non-trivial but mechanical class
+definition.  So if you really need it, the equivalent L<Moo> invocation is:
+
+    $class->can('has')->($name, is => 'ro', default => $subref);
+
+Note that you may find that this does not coexist well with
+L<namespace::autoclean> and that you will have to take care abour the
+timing of your use of L<namespace::clean> in that the C<<
+$class->can('has') >> call should happen prior to its use.
+
+For more complex use-cases, see L<Package::Variant>.
+
+=head2 IMMUTABILITY
 
 Finally, Moose requires you to call
 
