@@ -911,6 +911,8 @@ using version 0.16 or newer.
 
 =head1 INCOMPATIBILITIES WITH MOOSE
 
+=head2 TYPES
+
 There is no built-in type system.  C<isa> is verified with a coderef; if you
 need complex types, L<Type::Tiny> can provide types, type libraries, and
 will work seamlessly with both L<Moo> and L<Moose>.  L<Type::Tiny> can be
@@ -920,17 +922,11 @@ that you can write
   use Types::Standard qw(Int);
   has days_to_live => (is => 'ro', isa => Int);
 
+=head2 API INCOMPATIBILITIES
+
 C<initializer> is not supported in core since the author considers it to be a
 bad idea and Moose best practices recommend avoiding it. Meanwhile C<trigger> or
 C<coerce> are more likely to be able to fulfill your needs.
-
-There is no meta object.  If you need this level of complexity you need
-L<Moose> - Moo is small because it explicitly does not provide a metaprotocol.
-However, if you load L<Moose>, then
-
-  Class::MOP::class_of($moo_class_or_role)
-
-will return an appropriate metaclass pre-populated by L<Moo>.
 
 No support for C<super>, C<override>, C<inner>, or C<augment> - the author
 considers augment to be a bad idea, and override can be translated:
@@ -1000,6 +996,18 @@ or, if you're inheriting from a non-Moose class,
   use MooseX::NonMoose;
   use warnings FATAL => "all";
   use MooseX::AttributeShortcuts;
+
+=head2 META OBJECT
+
+There is no meta object.  If you need this level of complexity you need
+L<Moose> - Moo is small because it explicitly does not provide a metaprotocol.
+However, if you load L<Moose>, then
+
+  Class::MOP::class_of($moo_class_or_role)
+
+will return an appropriate metaclass pre-populated by L<Moo>.
+
+=head1 IMMUTABILITY
 
 Finally, Moose requires you to call
 
