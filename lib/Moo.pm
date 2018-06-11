@@ -1020,9 +1020,9 @@ definition.  So if you really need it, the equivalent L<Moo> invocation is:
     $class->can('has')->($name, is => 'ro', default => $subref);
 
 Note that you may find that this does not coexist well with
-L<namespace::autoclean> and that you will have to take care abour the
-timing of your use of L<namespace::clean> in that the C<<
-$class->can('has') >> call should happen prior to its use.
+L<namespace::autoclean> and that you will have to take care with the timing
+of your use of L<namespace::clean> in that the C<< $class->can('has') >>
+call should happen prior to its use.
 
 For more complex use-cases, see L<Package::Variant>.
 
