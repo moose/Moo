@@ -7,6 +7,7 @@ use Moo::_Utils qw(
   _getstash
   _install_coderef
   _install_modifier
+  _install_tracked
   _load_module
   _set_loaded
   _unimport_coderefs
@@ -30,12 +31,6 @@ require Moo::sification;
 Moo::sification->import;
 
 our %MAKERS;
-
-sub _install_tracked {
-  my ($target, $name, $code) = @_;
-  $MAKERS{$target}{exports}{$name} = $code;
-  _install_coderef "${target}::${name}" => "Moo::${name}" => $code;
-}
 
 sub import {
   my $target = caller;
@@ -109,7 +104,7 @@ sub import {
 
 sub unimport {
   my $target = caller;
-  _unimport_coderefs($target, $MAKERS{$target});
+  _unimport_coderefs($target);
 }
 
 sub _set_superclasses {
