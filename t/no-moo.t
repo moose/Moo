@@ -103,4 +103,22 @@ is(GlobalConflict2->has, "has!", 'has left alone');
 
 is($GlobalConflict2::after, "has!", 'package global left alone');
 
+{
+  package WrappedHas;
+  use Moo;
+
+  BEGIN {
+    after has => sub {
+      1;
+    };
+  }
+
+  has welp => (is => 'ro');
+
+  no Moo;
+}
+
+is +WrappedHas->can('has'), undef,
+  'has with modifier applied is cleaned';
+
 done_testing;

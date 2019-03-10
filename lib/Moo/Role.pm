@@ -6,6 +6,7 @@ use Moo::_Utils qw(
   _getstash
   _install_coderef
   _install_modifier
+  _install_tracked
   _load_module
   _name_coderef
   _set_loaded
@@ -41,12 +42,6 @@ our %APPLIED_TO;
 our %APPLY_DEFAULTS;
 our %COMPOSED;
 our @ON_ROLE_CREATE;
-
-sub _install_tracked {
-  my ($target, $name, $code) = @_;
-  $INFO{$target}{exports}{$name} = $code;
-  _install_coderef "${target}::${name}" => "Moo::Role::${name}" => $code;
-}
 
 sub import {
   my $target = caller;
@@ -117,7 +112,7 @@ sub meta {
 
 sub unimport {
   my $target = caller;
-  _unimport_coderefs($target, $INFO{$target});
+  _unimport_coderefs($target);
 }
 
 sub _maybe_reset_handlemoose {
