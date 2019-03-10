@@ -34,10 +34,19 @@ our @EXPORT = qw(
 );
 
 sub _install_modifier {
-  my ($into, $type, $name, $code) = @_;
+  if ($INC{'Sub/Defer.pm'}) {
+    my $into = $_[0];
+    # 1 is type, -1 is code
+    my @names = @_[2 .. $#_ - 1];
+    @names = @{ $names[0] }
+      if ref($names[0]) eq 'ARRAY';
 
-  if ($INC{'Sub/Defer.pm'} and my $to_modify = $into->can($name)) { # CMM will throw for us if not
-    Sub::Defer::undefer_sub($to_modify);
+    for my $name (@names) {
+      # CMM will throw for us if it doesn't exist
+      if (my $to_modify = $into->can($name)) {
+        Sub::Defer::undefer_sub($to_modify);
+      }
+    }
   }
 
   require Class::Method::Modifiers;
