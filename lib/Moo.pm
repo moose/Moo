@@ -314,7 +314,8 @@ optimised for rapid startup.
 
 C<Moo> avoids depending on any XS modules to allow for simple deployments.  The
 name C<Moo> is based on the idea that it provides almost -- but not quite --
-two thirds of L<Moose>.
+two thirds of L<Moose>.  As such, the L<Moose::Manual> can serve as an effective
+guide to C<Moo> aside from the MOP and Types sections.
 
 Unlike L<Mouse> this module does not aim at full compatibility with
 L<Moose>'s surface syntax, preferring instead to provide full interoperability
