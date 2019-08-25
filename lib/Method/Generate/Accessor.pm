@@ -264,6 +264,10 @@ sub merge_specs {
           ($old_spec->{$key}, $spec->{$key})
         ];
       }
+      elsif ($key eq 'builder' || $key eq 'default') {
+        $spec->{$key} = $old_spec->{$key}
+          if !(exists $spec->{builder} || exists $spec->{default});
+      }
       elsif (!exists $spec->{$key}) {
         $spec->{$key} = $old_spec->{$key};
       }

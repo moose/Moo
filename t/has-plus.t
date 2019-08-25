@@ -98,4 +98,20 @@ is +ExtendsBuilderSub->new->_build_f, 'ExtendsBuilderSub',
 is +ExtendsBuilderSub->new->f, 'ExtendsBuilderSub',
   'correct build sub used after +attr';
 
+{
+  package HasDefault;
+  use Moo;
+  has guff => (is => 'ro', default => sub { 'guff' });
+}
+
+{
+  package ExtendsWithBuilder;
+  use Moo;
+  extends 'HasDefault';
+  has '+guff' => (builder => sub { 'welp' });
+}
+
+is +ExtendsWithBuilder->new->guff, 'welp',
+  'builder can override default';
+
 done_testing;
