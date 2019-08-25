@@ -1,5 +1,8 @@
 Revision history for Moo
 
+  - fix extending attributes (has +) to allow overriding a default with a
+    builder (RT#130361)
+
 2.003004 - 2017-12-01
   - re-allow stubs for attribute parameters like isa or coerce (RT#123753)
   - fix accidentally removed space in coderef error message (GH#33)
