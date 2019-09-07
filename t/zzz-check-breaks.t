@@ -4,8 +4,8 @@ use Test::More;
 
 my $meta_file;
 BEGIN {
-  eval { require CPAN::Meta }
-    or plan skip_all => 'CPAN::Meta required for checking breakages';
+  eval { require Parse::CPAN::Meta }
+    or plan skip_all => 'Parse::CPAN::Meta required for checking breakages';
   eval { require CPAN::Meta::Requirements }
     or plan skip_all => 'CPAN::Meta::Requirements required for checking breakages';
   ($meta_file) = grep -f, qw(MYMETA.json MYMETA.yml META.json META.yml)
@@ -15,7 +15,7 @@ BEGIN {
 use ExtUtils::MakeMaker;
 use Module::Runtime qw(module_notional_filename);
 
-my $meta = CPAN::Meta->load_file($meta_file)->as_struct;
+my $meta = Parse::CPAN::Meta->load_file($meta_file);
 my $req = CPAN::Meta::Requirements->from_string_hash( $meta->{x_breaks} );
 
 pass 'checking breakages...';
