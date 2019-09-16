@@ -27,10 +27,22 @@ use Exporter qw(import);
 use Config;
 use Carp qw(croak);
 
+# this should be empty, but some CPAN modules expect these
 our @EXPORT = qw(
-    _getglob _install_modifier _load_module _maybe_load_module
-    _getstash _install_coderef _name_coderef
-    _unimport_coderefs _set_loaded
+  _install_coderef
+  _load_module
+);
+
+our @EXPORT_OK = qw(
+  _getglob
+  _getstash
+  _install_coderef
+  _install_modifier
+  _load_module
+  _maybe_load_module
+  _name_coderef
+  _set_loaded
+  _unimport_coderefs
 );
 
 sub _install_modifier {
