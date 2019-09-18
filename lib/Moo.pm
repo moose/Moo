@@ -86,11 +86,15 @@ sub import {
     };
   }
   return if $MAKERS{$target}{is_class}; # already exported into this package
+
   my $stash = _getstash($target);
-  my @not_methods = map +(
-    !ref($_) ? *$_{CODE}||() : reftype($_) eq 'CODE' ? $_ : ()
-  ), values %$stash;
-  @{$MAKERS{$target}{not_methods}={}}{@not_methods} = @not_methods;
+  $MAKERS{$target}{non_methods} = {
+    map +($_ => \&{"${target}::${_}"}),
+    grep exists &{"${target}::${_}"},
+    grep !/::\z/ && !/\A\(/,
+    keys %$stash
+  };
+
   $MAKERS{$target}{is_class} = 1;
   {
     no strict 'refs';
@@ -234,18 +238,21 @@ sub _constructor_maker_for {
 sub _concrete_methods_of {
   my ($me, $class) = @_;
   my $makers = $MAKERS{$class};
-  # grab class symbol table
+
+  my $non_methods = $makers->{non_methods} || {};
   my $stash = _getstash($class);
-  # reverse so our keys become the values (captured coderefs) in case
-  # they got copied or re-used since
-  my $not_methods = { reverse %{$makers->{not_methods}||{}} };
-  +{
-    # grab all code entries that aren't in the not_methods list
-    map {;
-      no strict 'refs';
-      my $code = exists &{"${class}::$_"} ? \&{"${class}::$_"} : undef;
-      ( ! $code or exists $not_methods->{$code} ) ? () : ($_ => $code)
-    } grep +(!ref($stash->{$_}) || reftype($stash->{$_}) eq 'CODE'), keys %$stash
+
+  my $subs = {
+    map +($_ => \&{"${class}::${_}"}),
+    grep exists &{"${class}::${_}"},
+    grep !/::\z/,
+    keys %$stash
+  };
+
+  return {
+    map +($_ => \&{"${class}::${_}"}),
+    grep !($non_methods->{$_} && $non_methods->{$_} == $subs->{$_}),
+    keys %$subs
   };
 }
 
