@@ -2,6 +2,7 @@ package Moo::Role;
 
 use Moo::_strictures;
 use Moo::_Utils qw(
+  _check_tracked
   _getglob
   _getstash
   _install_coderef
@@ -120,6 +121,19 @@ sub _maybe_reset_handlemoose {
   if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::maybe_reinject_fake_metaclass_for($target);
   }
+}
+
+sub _non_methods {
+  my $self = shift;
+  my ($role) = @_;
+
+  my $non_methods = $self->SUPER::_non_methods(@_);
+
+  my $all_subs = $self->_all_subs($role);
+  $non_methods->{$_} = $all_subs->{$_}
+    for _check_tracked($role, [ keys %$all_subs ]);
+
+  return $non_methods;
 }
 
 sub methods_provided_by {

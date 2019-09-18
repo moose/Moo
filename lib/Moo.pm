@@ -3,6 +3,7 @@ package Moo;
 use Moo::_strictures;
 use Moo::_mro;
 use Moo::_Utils qw(
+  _check_tracked
   _getglob
   _getstash
   _install_coderef
@@ -244,9 +245,12 @@ sub _concrete_methods_of {
     keys %$stash
   };
 
+  my %tracked = map +($_ => 1), _check_tracked($class, [ keys %$subs ]);
+
   return {
     map +($_ => \&{"${class}::${_}"}),
     grep !($non_methods->{$_} && $non_methods->{$_} == $subs->{$_}),
+    grep !exists $tracked{$_},
     keys %$subs
   };
 }

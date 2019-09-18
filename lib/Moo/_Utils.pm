@@ -34,6 +34,7 @@ our @EXPORT = qw(
 );
 
 our @EXPORT_OK = qw(
+  _check_tracked
   _getglob
   _getstash
   _install_coderef
