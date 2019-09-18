@@ -24,6 +24,7 @@ use Module::Runtime qw(use_package_optimistically module_notional_filename);
 
 use Exporter qw(import);
 use Config;
+use Scalar::Util qw(weaken);
 use Carp qw(croak);
 
 # this should be empty, but some CPAN modules expect these
@@ -72,7 +73,7 @@ sub _install_modifier {
 
   if (@tracked) {
     my $exports = $EXPORTS{$target};
-    $exports->{$_} = $target->can($_)
+    weaken($exports->{$_} = $target->can($_))
       for @tracked;
   }
 
@@ -82,7 +83,7 @@ sub _install_modifier {
 sub _install_tracked {
   my ($target, $name, $code) = @_;
   my $from = caller;
-  $EXPORTS{$target}{$name} = $code;
+  weaken($EXPORTS{$target}{$name} = $code);
   _install_coderef("${target}::${name}", "${from}::${name}", $code);
 }
 
@@ -149,12 +150,15 @@ sub _check_tracked {
 
   $names = [keys %$exports]
     if !$names;
-  my %rev = reverse %$exports;
+  my %rev =
+    map +($exports->{$_} => $_),
+    grep defined $exports->{$_},
+    keys %$exports;
 
   return
     grep {
       my $g = $stash->{$_};
-      $g && defined &$g && $rev{\&$g};
+      $g && defined &$g && exists $rev{\&$g};
     }
     @$names;
 }
