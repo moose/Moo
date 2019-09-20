@@ -1,3 +1,5 @@
+use strict;
+use warnings;
 use Test::More;
 BEGIN {
   plan skip_all => <<'END_HELP' unless $ENV{MOO_TEST_MD} || @ARGV;
@@ -19,9 +21,12 @@ END_HELP
 }
 
 use Test::DependentModules qw( test_module );
-use JSON::PP;
-use HTTP::Tiny;
-use List::Util ();
+BEGIN {
+  eval { require Cpanel::JSON::XS; Cpane::JSON::XS->import(qw(decode_json encode_json)); }
+  or
+  do { require JSON::PP; JSON::PP->import(qw(decode_json encode_json)); }
+}
+use List::Util qw(uniq);
 use Cwd ();
 use Getopt::Long ();
 use Config;
@@ -51,6 +56,9 @@ if (my $env = $ENV{MOO_TEST_MD}) {
   elsif ($env eq 'all') {
     $all = 1;
   }
+  elsif ($env eq '1') {
+    $count = 200;
+  }
   elsif ($env =~ /^\d+$/) {
     $count = $env;
   }
@@ -60,32 +68,39 @@ if (my $env = $ENV{MOO_TEST_MD}) {
   }
 }
 
-# avoid any modules that depend on these
-my @bad_prereqs = qw(Gtk2 Padre Wx);
-
-my $res = decode_json(HTTP::Tiny->new->post(
-  'http://api.metacpan.org/v0/search/reverse_dependencies/Moo',
-  { content => encode_json({
-    query => {
-      filtered => {
-        query => { "match_all" => {} },
-        filter => {
-          and => [
-            { term => { 'release.status' => 'latest' } },
-            { term => { 'release.authorized' => \1 } },
-            { not => { filter => {
-              or => [
-                map { { term => { 'dependency.module' => $_ } } } @bad_prereqs,
-              ],
-            } } }
-          ],
-        },
-      },
-    },
-    size => 5000,
-    fields => ['distribution', 'provides', 'metadata.provides'],
-  }) },
-)->{content});
+my %dists;
+my $cache_file = 'xt/.dependents.json';
+if (open my $fh, '<', $cache_file) {
+  if (-M $fh < 1) {
+    %dists = %{ decode_json(scalar do { local $/; <$fh> }) };
+  }
+}
+if (! %dists) {
+  my %bad_prereqs = map +($_ => 1), qw(Gtk2 Padre Wx);
+  require HTTP::Tiny;
+  my $res = HTTP::Tiny->new->get(
+    'https://fastapi.metacpan.org/v1/reverse_dependencies/dist/Moo?size=5000'
+  );
+  if ($res->{success}) {
+    my $deps = decode_json($res->{content});
+    for my $dep ( @{ $deps->{data} } ) {
+      if (grep exists $bad_prereqs{$_->{module}}, @{ $dep->{dependency} }) {
+        next;
+      }
+      $dists{ $dep->{distribution} } = $dep->{main_module};
+    }
+    if (open my $fh, '>', $cache_file) {
+      print { $fh } encode_json(\%dists);
+      close $fh;
+    }
+    else {
+      warn "Unable to write to cache file $cache_file: $!\n";
+    }
+  }
+  else {
+    die "Unable to fetch dependents: $res->{status} $res->{reason}\n$res->{content}\n";
+  }
+}
 
 my %bad_dist;
 my $sec_reason;
@@ -120,23 +135,11 @@ while (my $line = <$skip_fh>) {
 
 my %todo_module;
 my %skip_module;
-my %dists;
 my @modules;
-for my $hit (@{ $res->{hits}{hits} }) {
-  my $dist = $hit->{fields}{distribution};
+my %module_to_dist;
+for my $dist ( keys %dists ) {
+  my $module = $dists{$dist};
 
-  my $module = (sort { length $a <=> length $b || $a cmp $b } do {
-    if (my $provides = $hit->{fields}{provides}) {
-      ref $provides ? @$provides : ($provides);
-    }
-    elsif (my $provides = $hit->{fields}{'metadata.provides'}) {
-      keys %$provides;
-    }
-    else {
-      (my $module = $dist) =~ s/-/::/g;
-      ($module);
-    }
-  })[0];
   $todo_module{$module} = $todo{$dist}
     if exists $todo{$dist};
   $skip_module{$module} = $skip{$dist}
@@ -144,9 +147,8 @@ for my $hit (@{ $res->{hits}{hits} }) {
   if ($dist =~ /^(Task|Bundle|Acme)-/) {
     $skip_module{$module} = "not testing $1 dist";
   }
-  $dists{$module} = $dist;
+  $module_to_dist{$module} = $dist;
   push @modules, $module;
-  $module;
 }
 @modules = sort @modules;
 
@@ -154,12 +156,11 @@ if ( $moox ) {
   @modules = grep /^MooX(?:$|::)/, @modules;
 }
 elsif ( $count ) {
-  $count = $count == 1 ? 200 : $count;
   diag(<<"EOF");
   Picking $count random dependents to test. Set MOO_TEST_MD=all to test all
   dependents or MOO_TEST_MD=MooX to test extension modules only.
 EOF
-  @modules = grep { !exists $skip_modules{$_} } List::Util::shuffle(@modules);
+  @modules = grep { !exists $skip_module{$_} } List::Util::shuffle(@modules);
   @modules = @modules[0 .. $count-1];
 }
 elsif ( @pick ) {
@@ -167,7 +168,7 @@ elsif ( @pick ) {
   if (my @unknown = grep { !$modules{$_} } @pick) {
     die "Unknown modules: @unknown";
   }
-  delete @skip_modules{@pick};
+  delete @skip_module{@pick};
   @modules = @pick;
 }
 
@@ -197,8 +198,8 @@ for my $module (@modules) {
       if (! $last->{ok}) {
         my $name = $last->{name};
         $name =~ s/\s.*//;
-        $name =~ s/^\Q$dists{$module}-//;
-        print { $skip_report } "$dists{$module}  # $name\n";
+        $name =~ s/^\Q$module_to_dist{$module}-//;
+        print { $skip_report } "$module_to_dist{$module}  # $name\n";
       }
     }
   }

@@ -15,6 +15,7 @@
 /Moo-*.tar.gz
 /cover_db/
 /_eumm/
+/xt/.dependents.json
 
 # yes that's right, distar makes it for us
 /MANIFEST.SKIP
