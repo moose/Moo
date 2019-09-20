@@ -57,6 +57,14 @@ sub import {
   goto &Role::Tiny::import;
 }
 
+sub _accessor_maker_for {
+  my ($class, $target) = @_;
+  ($INFO{$target}{accessor_maker} ||= do {
+    require Method::Generate::Accessor;
+    Method::Generate::Accessor->new
+  });
+}
+
 sub _install_subs {
   my ($me, $target) = @_;
   _install_tracked $target => has => sub {
@@ -69,10 +77,8 @@ sub _install_subs {
     my %spec = @_;
     foreach my $name (@name_proto) {
       my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
-      ($INFO{$target}{accessor_maker} ||= do {
-        require Method::Generate::Accessor;
-        Method::Generate::Accessor->new
-      })->generate_method($target, $name, $spec_ref);
+      $me->_accessor_maker_for($target)
+        ->generate_method($target, $name, $spec_ref);
       push @{$INFO{$target}{attributes}||=[]}, $name, $spec_ref;
       $me->_maybe_reset_handlemoose($target);
     }
