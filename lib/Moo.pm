@@ -1038,15 +1038,10 @@ to Moo by providing a more Moose-like interface.
 
 =head1 SUPPORT
 
-Users' IRC: #moose on irc.perl.org
+IRC: #moose on irc.perl.org
 
 =for :html
 L<(click for instant chatroom login)|https://chat.mibbit.com/#moose@irc.perl.org>
-
-Development and contribution IRC: #web-simple on irc.perl.org
-
-=for :html
-L<(click for instant chatroom login)|https://chat.mibbit.com/#web-simple@irc.perl.org>
 
 Bugtracker: L<https://rt.cpan.org/Public/Dist/Display.html?Name=Moo>
 
