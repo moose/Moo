@@ -962,7 +962,7 @@ considers augment to be a bad idea, and override can be translated:
 
 The C<dump> method is not provided by default. The author suggests loading
 L<Devel::Dwarn> into C<main::> (via C<perl -MDevel::Dwarn ...> for example) and
-using C<$obj-E<gt>$::Dwarn()> instead.
+using C<< $obj->$::Dwarn() >> instead.
 
 L</default> only supports coderefs and plain scalars, because passing a hash
 or array reference as a default is almost always incorrect since the value is
