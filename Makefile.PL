@@ -29,8 +29,8 @@ my %META = (
         'Scalar::Util'              => 0,
         'perl'                      => 5.006,
         'Exporter'                  => 5.57,  # Import 'import'
-        'Sub::Quote'                => 2.005000,
-        'Sub::Defer'                => 2.005000,
+        'Sub::Quote'                => 2.006006,
+        'Sub::Defer'                => 2.006006,
       },
       recommends => {
         'Class::XSAccessor'         => 1.18,
