@@ -1,7 +1,21 @@
 Revision history for Moo
 
+  - always exclude helper subs (has, with, etc) from the list of methods, even
+    if they are installed later or wrapped with a modifier
+  - drop Devel::GlobalDestruction prerequisite unless using perl < 5.14
+  - fix preserving full accuracy of numbers in non-ref defaults
+  - fix tracking of stubs and constants as methods to be consistent and work
+    properly with unusual ways of storing subs (RT#130050)
+  - fix test for modules broken by newer Moo versions when new enough
+    CPAN::Meta version is not available
+  - fix undeferring subs before wrapping with a method modifier when subs to
+    wrap are given as a list or array ref
+  - fix error reporting locations from Carp calls in DEMOLISH (RT#124845)
   - fix extending attributes (has +) to allow overriding a default with a
     builder (RT#130361)
+  - reorganized documentation related to Moose to improve clarity
+  - improved documentation of usage with namespace::clean
+  - various documentation tweaks
 
 2.003004 - 2017-12-01
   - re-allow stubs for attribute parameters like isa or coerce (RT#123753)
