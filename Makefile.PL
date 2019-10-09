@@ -13,44 +13,44 @@ my %META = (
     } },
     test => {
       requires => {
-        'Test::More'  => 0.94,
-        'Test::Fatal' => 0.003,
+        'Test::More'  => '0.94',
+        'Test::Fatal' => '0.003',
       },
       recommends => {
-        'CPAN::Meta' => 0,
-        'CPAN::Meta::Requirements' => 0,
+        'Parse::CPAN::Meta'         => '1.4200',
+        'CPAN::Meta::Requirements'  => 0,
       },
     },
     runtime => {
       requires => {
-        'Class::Method::Modifiers'  => 1.10,  # for RT#80194
-        'Module::Runtime'           => 0.014, # for RT#86394
-        'Role::Tiny'                => 2.001002,
-        'Scalar::Util'              => 0,
-        'perl'                      => 5.006,
-        'Exporter'                  => 5.57,  # Import 'import'
-        'Sub::Quote'                => 2.006006,
-        'Sub::Defer'                => 2.006006,
+        'Class::Method::Modifiers'  => '1.10',  # for RT#80194
+        'Module::Runtime'           => '0.014', # for RT#86394
+        'Role::Tiny'                => '2.001002',
+        'Scalar::Util'              => '1.09',
+        'perl'                      => '5.006',
+        'Exporter'                  => '5.57',  # Import 'import'
+        'Sub::Quote'                => '2.006006',
+        'Sub::Defer'                => '2.006006',
       },
       recommends => {
-        'Class::XSAccessor'         => 1.18,
-        'Sub::Name'                 => 0.08,
-        'strictures'                => 2,
+        'Class::XSAccessor'         => '1.18',
+        'Sub::Name'                 => '0.08',
+        'strictures'                => '2',
       },
     },
     develop   => {
       requires => {
-        'strictures' => 2,
-        'indirect' => 0,
-        'multidimensional' => 0,
-        'bareword::filehandles' => 0,
-        'Moose' => 0,
-        'Mouse' => 0,
-        'namespace::clean' => 0,
-        'namespace::autoclean' => 0,
-        'MooseX::Types::Common::Numeric' => 0,
-        'Type::Tiny' => 0,
-        'Class::Tiny' => 1.001,
+        'strictures'                      => '2',
+        'bareword::filehandles'           => 0,
+        'indirect'                        => 0,
+        'multidimensional'                => 0,
+        'Class::Tiny'                     => '1.001',
+        'Moose'                           => '1.15',
+        'MooseX::Types::Common::Numeric'  => 0,
+        'Mouse'                           => 0,
+        'namespace::autoclean'            => 0,
+        'namespace::clean'                => 0,
+        'Type::Tiny'                      => '0.004',
       },
     },
   },
