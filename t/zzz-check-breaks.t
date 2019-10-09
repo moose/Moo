@@ -4,7 +4,7 @@ use Test::More;
 
 my $meta_file;
 BEGIN {
-  eval { require Parse::CPAN::Meta }
+  eval { require Parse::CPAN::Meta; Parse::CPAN::Meta->VERSION(1.4200) }
     or plan skip_all => 'Parse::CPAN::Meta required for checking breakages';
   eval { require CPAN::Meta::Requirements }
     or plan skip_all => 'CPAN::Meta::Requirements required for checking breakages';
@@ -16,7 +16,8 @@ use ExtUtils::MakeMaker;
 use Module::Runtime qw(module_notional_filename);
 
 my $meta = Parse::CPAN::Meta->load_file($meta_file);
-my $req = CPAN::Meta::Requirements->from_string_hash( $meta->{x_breaks} );
+my $breaks = $meta->{x_breaks};
+my $req = CPAN::Meta::Requirements->from_string_hash( $breaks );
 
 pass 'checking breakages...';
 
@@ -30,7 +31,7 @@ for my $module ($req->required_modules) {
     unless defined $version;
   (my $check_version = $version) =~ s/_//;
   if ($req->accepts_module($module, $version)) {
-    my $broken_v = $req->requirements_for_module($module);
+    my $broken_v = $breaks->{$module};
     $broken_v = ">= $broken_v"
       unless $broken_v =~ /\A\s*(?:==|>=|>|<=|<|!=)/;
     push @breaks, [$module, $check_version, $broken_v];
