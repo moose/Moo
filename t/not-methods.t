@@ -4,14 +4,16 @@ use Test::More;
 BEGIN {
   package FooClass;
   sub early { 1 }
+  sub early_constant { 2 }
   use Moo;
   sub late { 2 }
+  sub late_constant { 2 }
 }
 
 BEGIN {
   is_deeply
     [sort keys %{Moo->_concrete_methods_of('FooClass')}],
-    [qw(late)],
+    [qw(late late_constant)],
     'subs created before use Moo are not methods';
 }
 
@@ -77,7 +79,7 @@ SKIP: {
 
   is_deeply
     [sort keys %{Moo->_concrete_methods_of('Gwaf')}],
-    [qw(frab)],
+    [qw(frab terg)],
     'subrefs stored directly in stash treated the same as those with globs';
 }
 
