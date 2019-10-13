@@ -239,7 +239,11 @@ sub _concrete_methods_of {
   my $stash = _getstash($class);
 
   my $subs = {
-    map +($_ => \&{"${class}::${_}"}),
+    map {;
+      no strict 'refs';
+      ${"${class}::${_}"} = ${"${class}::${_}"};
+      ($_ => \&{"${class}::${_}"});
+    }
     grep exists &{"${class}::${_}"},
     grep !/::\z/,
     keys %$stash
