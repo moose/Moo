@@ -1070,6 +1070,25 @@ on your class. (C<make_immutable> is a no-op in Moo to ease migration.)
 An extension L<MooX::late> exists to ease translating Moose packages
 to Moo by providing a more Moose-like interface.
 
+=head1 COMPATIBILITY WITH OLDER PERL VERSIONS
+
+Moo is compatible with perl versions back to 5.6.  When running on older
+versions, additional prerequisites will be required.  If you are packaging a
+script with its dependencies, such as with L<App::FatPacker>, you will need to
+be certain that the extra prerequisites are included.
+
+=over 4
+
+=item L<MRO::Compat>
+
+Required on perl versions prior to 5.10.0.
+
+=item L<Devel::GlobalDestruction>
+
+Required on perl versions prior to 5.14.0.
+
+=back
+
 =head1 SUPPORT
 
 IRC: #moose on irc.perl.org
