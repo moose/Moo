@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.003_005 - 2019-10-18
   - always exclude helper subs (has, with, etc) from the list of methods, even
     if they are installed later or wrapped with a modifier
   - drop Devel::GlobalDestruction prerequisite unless using perl < 5.14
