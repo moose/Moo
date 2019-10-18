@@ -13,6 +13,8 @@ Revision history for Moo
   - fix error reporting locations from Carp calls in DEMOLISH (RT#124845)
   - fix extending attributes (has +) to allow overriding a default with a
     builder (RT#130361)
+  - fix re-throwing Moose inflation exceptions when examining exception
+    objects on older Moose or Devel::StackTrace versions
   - reorganized documentation related to Moose to improve clarity
   - improved documentation of usage with namespace::clean
   - various documentation tweaks
