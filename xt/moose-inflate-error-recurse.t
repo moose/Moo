@@ -52,10 +52,20 @@ BEGIN {
   has ftw => (is => 'ro', traits => [ 'WTF' ]);
 }
 
+# avoiding Test::Fatal, because it checks exceptions for truth and that can
+# cause more exceptions in this case.  Prefer to trigger stringification
+# manually here.
+
+my $e;
+eval {
+  WTF::Class->meta->get_attribute('ftw');
+  1;
+} or $e = $@;
+
+$e = "$e";
+
 like(
-  exception {
-    WTF::Class->meta->get_attribute('ftw');
-  },
+  $e,
   qr/Attribute \(wtf\) is required/,
   'reasonable error rather than deep recursion for inflating invalid attr (traits)',
 );
