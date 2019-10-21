@@ -2,20 +2,25 @@ use strict;
 use warnings;
 use Test::More;
 
-my $meta_file;
+my $meta;
 BEGIN {
   eval { require Parse::CPAN::Meta; Parse::CPAN::Meta->VERSION(1.4200) }
     or plan skip_all => 'Parse::CPAN::Meta required for checking breakages';
   eval { require CPAN::Meta::Requirements }
     or plan skip_all => 'CPAN::Meta::Requirements required for checking breakages';
-  ($meta_file) = grep -f, qw(MYMETA.json MYMETA.yml META.json META.yml)
+  my @meta_files = grep -f, qw(MYMETA.json MYMETA.yml META.json META.yml)
     or plan skip_all => 'no META file exists';
+  for my $meta_file (@meta_files) {
+    eval { $meta = Parse::CPAN::Meta->load_file($meta_file) }
+      and last;
+  }
+  if (!$meta) {
+    plan skip_all => 'unable to load any META files';
+  }
 }
 
 use ExtUtils::MakeMaker;
-use Module::Runtime qw(module_notional_filename);
 
-my $meta = Parse::CPAN::Meta->load_file($meta_file);
 my $breaks = $meta->{x_breaks};
 my $req = CPAN::Meta::Requirements->from_string_hash( $breaks );
 
@@ -23,7 +28,8 @@ pass 'checking breakages...';
 
 my @breaks;
 for my $module ($req->required_modules) {
-  my ($pm_file) = grep -e, map $_.'/'.module_notional_filename($module), @INC;
+  (my $file = "$module.pm") =~ s{::}{/}g;
+  my ($pm_file) = grep -e, map "$_/$file", @INC;
   next
     unless $pm_file;
   my $version = MM->parse_version($pm_file);
