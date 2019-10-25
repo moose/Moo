@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.003006 - 2019-10-25
   - update Role::Tiny prerequisite to 2.001004 to fix issues with re-importing
     Moo::Role
 
