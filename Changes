@@ -1,5 +1,8 @@
 Revision history for Moo
 
+  - update Role::Tiny prerequisite to 2.001004 to fix issues with re-importing
+    Moo::Role
+
 2.003_005 - 2019-10-18
   - always exclude helper subs (has, with, etc) from the list of methods, even
     if they are installed later or wrapped with a modifier
