@@ -18,6 +18,8 @@ matrix:
   include:
     - perl: 5.8.1
       env: AUTHOR_TESTING=0
+    - perl: 5.12
+      env: COVERAGE=codecov
     - perl: 5.26
       env: COVERAGE=codecov
   allow_failures:
