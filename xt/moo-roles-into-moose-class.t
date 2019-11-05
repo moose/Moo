@@ -22,10 +22,12 @@ use Test::Fatal;
 {
     package Baz;
     use Moose;
+
+    with 'Bar';
+
     no Moose;
 
     ::ok(!__PACKAGE__->can('has'), 'No has function after no Moose;');
-    Moose::with('Baz', 'Bar');
 }
 
 ::is(Baz->can('thing'), Bar->can('thing'), 'Role copies method correctly');
