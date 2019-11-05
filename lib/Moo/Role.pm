@@ -497,7 +497,7 @@ And elsewhere:
   use strictures 2;
 
   # bar gets imported, but not foo
-  with('My::Role');
+  with 'My::Role';
 
   sub foo { ... }
 
