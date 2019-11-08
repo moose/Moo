@@ -63,38 +63,50 @@ sub _accessor_maker_for {
 
 sub _install_subs {
   my ($me, $target) = @_;
-  _install_tracked $target => has => sub {
-    my $name_proto = shift;
-    my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
-    if (@_ % 2 != 0) {
-      croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
-        . " attribute(s): even number of arguments expected, got " . scalar @_)
-    }
-    my %spec = @_;
-    foreach my $name (@name_proto) {
-      my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
-      $me->_accessor_maker_for($target)
-        ->generate_method($target, $name, $spec_ref);
-      push @{$INFO{$target}{attributes}||=[]}, $name, $spec_ref;
-      $me->_maybe_reset_handlemoose($target);
-    }
-  };
-  # install before/after/around subs
-  foreach my $type (qw(before after around)) {
-    _install_tracked $target => $type => sub {
-      push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
-      $me->_maybe_reset_handlemoose($target);
-    };
-  }
-  _install_tracked $target => requires => sub {
-    push @{$INFO{$target}{requires}||=[]}, @_;
-    $me->_maybe_reset_handlemoose($target);
-  };
-  _install_tracked $target => with => sub {
-    $me->apply_roles_to_package($target, @_);
-    $me->_maybe_reset_handlemoose($target);
-  };
+  my %install = $me->_gen_subs($target);
+  _install_tracked $target => $_ => $install{$_}
+    for sort keys %install;
   *{_getglob("${target}::meta")} = $me->can('meta');
+  return;
+}
+
+sub _gen_subs {
+  my ($me, $target) = @_;
+  return (
+    has => sub {
+      my $name_proto = shift;
+      my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
+      if (@_ % 2 != 0) {
+        croak("Invalid options for " . join(', ', map "'$_'", @name_proto)
+          . " attribute(s): even number of arguments expected, got " . scalar @_)
+      }
+      my %spec = @_;
+      foreach my $name (@name_proto) {
+        my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
+        $me->_accessor_maker_for($target)
+          ->generate_method($target, $name, $spec_ref);
+        push @{$INFO{$target}{attributes}||=[]}, $name, $spec_ref;
+        $me->_maybe_reset_handlemoose($target);
+      }
+    },
+    (map {
+      my $type = $_;
+      (
+        $type => sub {
+          push @{$INFO{$target}{modifiers}||=[]}, [ $type => @_ ];
+          $me->_maybe_reset_handlemoose($target);
+        },
+      )
+    } qw(before after around)),
+    requires => sub {
+      push @{$INFO{$target}{requires}||=[]}, @_;
+      $me->_maybe_reset_handlemoose($target);
+    },
+    with => sub {
+      $me->apply_roles_to_package($target, @_);
+      $me->_maybe_reset_handlemoose($target);
+    },
+  );
 }
 
 push @ON_ROLE_CREATE, sub {
