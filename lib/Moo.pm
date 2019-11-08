@@ -36,62 +36,35 @@ our %MAKERS;
 sub import {
   my $target = caller;
   my $class = shift;
+  if ($INC{'Role/Tiny.pm'} and Role::Tiny->is_role($target)) {
+    croak "Cannot import Moo into a role";
+  }
+
   _set_loaded(caller);
 
   strict->import;
   warnings->import;
 
-  if ($INC{'Role/Tiny.pm'} and Role::Tiny->is_role($target)) {
-    croak "Cannot import Moo into a role";
-  }
-  $MAKERS{$target} ||= {};
-  _install_tracked $target => extends => sub {
-    $class->_set_superclasses($target, @_);
-    $class->_maybe_reset_handlemoose($target);
-    return;
-  };
-  _install_tracked $target => with => sub {
-    require Moo::Role;
-    Moo::Role->apply_roles_to_package($target, @_);
-    $class->_maybe_reset_handlemoose($target);
-  };
-  _install_tracked $target => has => sub {
-    my $name_proto = shift;
-    my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
-    if (@_ % 2 != 0) {
-      croak "Invalid options for " . join(', ', map "'$_'", @name_proto)
-        . " attribute(s): even number of arguments expected, got " . scalar @_;
-    }
-    my %spec = @_;
-    foreach my $name (@name_proto) {
-      # Note that when multiple attributes specified, each attribute
-      # needs a separate \%specs hashref
-      my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
-      $class->_constructor_maker_for($target)
-            ->register_attribute_specs($name, $spec_ref);
-      $class->_accessor_maker_for($target)
-            ->generate_method($target, $name, $spec_ref);
-      $class->_maybe_reset_handlemoose($target);
-    }
-    return;
-  };
-  foreach my $type (qw(before after around)) {
-    _install_tracked $target => $type => sub {
-      _install_modifier($target, $type, @_);
-      return;
-    };
-  }
-  return if $MAKERS{$target}{is_class}; # already exported into this package
+  $class->_install_subs($target, @_);
+  $class->make_class($target);
+  return;
+}
+
+sub make_class {
+  my ($me, $target) = @_;
+
+  my $makers = $MAKERS{$target} ||= {};
+  return $target if $makers->{is_class};
 
   my $stash = _getstash($target);
-  $MAKERS{$target}{non_methods} = {
+  $makers->{non_methods} = {
     map +($_ => \&{"${target}::${_}"}),
     grep exists &{"${target}::${_}"},
     grep !/::\z/ && !/\A\(/,
     keys %$stash
   };
 
-  $MAKERS{$target}{is_class} = 1;
+  $makers->{is_class} = 1;
   {
     no strict 'refs';
     @{"${target}::ISA"} = do {
@@ -101,6 +74,65 @@ sub import {
   if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::inject_fake_metaclass_for($target);
   }
+  return $target;
+}
+
+sub is_class {
+  my ($me, $class) = @_;
+  return $MAKERS{$class} && $MAKERS{$class}{is_class};
+}
+
+sub _install_subs {
+  my ($me, $target) = @_;
+  my %install = $me->_gen_subs($target);
+  _install_tracked $target => $_ => $install{$_}
+    for sort keys %install;
+  return;
+}
+
+sub _gen_subs {
+  my ($me, $target) = @_;
+  return (
+    extends => sub {
+      $me->_set_superclasses($target, @_);
+      $me->_maybe_reset_handlemoose($target);
+      return;
+    },
+    with => sub {
+      require Moo::Role;
+      Moo::Role->apply_roles_to_package($target, @_);
+      $me->_maybe_reset_handlemoose($target);
+    },
+    has => sub {
+      my $name_proto = shift;
+      my @name_proto = ref $name_proto eq 'ARRAY' ? @$name_proto : $name_proto;
+      if (@_ % 2 != 0) {
+        croak "Invalid options for " . join(', ', map "'$_'", @name_proto)
+          . " attribute(s): even number of arguments expected, got " . scalar @_;
+      }
+      my %spec = @_;
+      foreach my $name (@name_proto) {
+        # Note that when multiple attributes specified, each attribute
+        # needs a separate \%specs hashref
+        my $spec_ref = @name_proto > 1 ? +{%spec} : \%spec;
+        $me->_constructor_maker_for($target)
+              ->register_attribute_specs($name, $spec_ref);
+        $me->_accessor_maker_for($target)
+              ->generate_method($target, $name, $spec_ref);
+        $me->_maybe_reset_handlemoose($target);
+      }
+      return;
+    },
+    (map {
+      my $type = $_;
+      (
+        $type => sub {
+          _install_modifier($target, $type, @_);
+          return;
+        },
+      )
+    } qw(before after around)),
+  );
 }
 
 sub unimport {
