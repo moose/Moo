@@ -13,7 +13,6 @@ use Moo::_Utils qw(
   _set_loaded
   _unimport_coderefs
 );
-use Scalar::Util qw(reftype);
 use Carp qw(croak);
 BEGIN {
   our @CARP_NOT = qw(
