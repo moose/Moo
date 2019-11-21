@@ -58,15 +58,15 @@ like($constructor, qr{I am your father}, 'Sub::Quoted isa got inlined');
 
 require Scalar::Util;
 is(
-  Scalar::Util::refaddr($luke),
-  Scalar::Util::refaddr(
+  0+$luke,
+  0+(
     Moo->_constructor_maker_for("Doubleena")->all_attribute_specs->{"b"}{"isa"}
   ),
   '$spec->{isa} reference is not mutated',
 );
 is(
-  Scalar::Util::refaddr($theforce),
-  Scalar::Util::refaddr(
+  0+$theforce,
+  0+(
     Moo->_constructor_maker_for("Doubleena")->all_attribute_specs->{"b"}{"coerce"}
   ),
   '$spec->{coerce} reference is not mutated',
