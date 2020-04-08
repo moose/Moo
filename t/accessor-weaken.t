@@ -27,6 +27,7 @@ my $ref = {};
 my $foo = Foo->new(one => $ref);
 is($foo->one, $ref, 'value present');
 ok(Scalar::Util::isweak($foo->{one}), 'value weakened');
+is($foo->one($ref), $ref, 'value returned from setter');
 undef $ref;
 ok(!defined $foo->{one}, 'weak value gone');
 
