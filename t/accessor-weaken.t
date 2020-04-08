@@ -39,11 +39,12 @@ is($foo2->one($ref2), $ref2, 'value returned from setter');
 undef $ref2;
 ok(!defined $foo->{one}, 'weak value gone');
 
-is($foo2->two, undef, 'weak+lazy ref not returned');
-is($foo2->{two}, undef, 'internal value not set');
-my $ref3 = {};
-is($foo2->two($ref3), $ref3, 'value returned from setter');
+ok(my $ref3 = $foo2->one, 'value returned');
+is($foo2->one, $ref3, 'value maintained');
+ok(Scalar::Util::isweak($foo2->{one}), 'value weakened');
+is($foo2->one($ref3), $ref3, 'value returned from setter');
 undef $ref3;
+ok(!defined $foo->{one}, 'weak value gone');
 ok(!defined $foo->{two}, 'weak value gone');
 
 my $ref4 = {};

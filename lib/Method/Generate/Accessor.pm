@@ -588,11 +588,10 @@ sub _generate_core_set {
 sub _generate_simple_set {
   my ($self, $me, $name, $spec, $value) = @_;
   my $name_str = quotify $name;
-  my $simple = $self->_generate_core_set($me, $name, $spec, $value);
 
   if ($spec->{weak_ref}) {
     require Scalar::Util;
-    my $get = $self->_generate_simple_get($me, $name, $spec);
+    my $simple = $self->_generate_core_set($me, $name, $spec, '$preserve = ' . $value);
 
     # Perl < 5.8.3 can't weaken refs to readonly vars
     # (e.g. string constants). This *can* be solved by:
@@ -603,26 +602,26 @@ sub _generate_simple_set {
     #
     # but requires Internal functions and is just too damn crazy
     # so simply throw a better exception
-    my $weak_simple = _CAN_WEAKEN_READONLY
-      ? "do { Scalar::Util::weaken(${simple}); no warnings 'void'; $get }"
-      : <<"EOC"
-        ( eval { Scalar::Util::weaken($simple); 1 }
-          ? do { no warnings 'void'; $get }
-          : do {
-            if( \$@ =~ /Modification of a read-only value attempted/) {
+    my $get = $self->_generate_simple_get($me, $name, $spec);
+    my $weaken = _CAN_WEAKEN_READONLY
+        ? "Scalar::Util::weaken(${simple})"
+        : sprintf <<'EOC', $simple, $name_str;
+          eval { Scalar::Util::weaken(%s); 1 } or do {
+            if ( $@ =~ /Modification of a read-only value attempted/ ) {
               require Carp;
-              Carp::croak( sprintf (
-                'Reference to readonly value in "%s" can not be weakened on Perl < 5.8.3',
-                $name_str,
-              ) );
-            } else {
-              die \$@;
+              Carp::croak(
+                'Reference to readonly value in ' . ( %s ) . ' can not be weakened on Perl < 5.8.3'
+              );
             }
-          }
-        )
+            else {
+              die $@;
+            }
+          };
 EOC
-  } else {
-    $simple;
+    "do { my \$preserve; $weaken; no warnings 'void'; $get }"
+  }
+  else {
+    $self->_generate_core_set($me, $name, $spec, $value);
   }
 }
 
