@@ -14,7 +14,7 @@ perl:
   - "5.24"
   - "5.26"
   - "dev"
-matrix:
+jobs:
   include:
     - perl: 5.8.1
       env: AUTHOR_TESTING=0
@@ -26,7 +26,6 @@ matrix:
     - perl: blead
     - perl: 5.6.2
       env: AUTHOR_TESTING=0
-sudo: false
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
   - source ~/travis-perl-helpers/init
