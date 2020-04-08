@@ -176,17 +176,17 @@ sub _accessor_maker_for {
   return unless $MAKERS{$target};
   $MAKERS{$target}{accessor} ||= do {
     my $maker_class = do {
+      no strict 'refs';
       if (my $m = do {
-            require Sub::Defer;
-            if (my $defer_target =
-                  (Sub::Defer::defer_info($target->can('new'))||[])->[0]
-              ) {
-              my ($pkg) = ($defer_target =~ /^(.*)::[^:]+$/);
-              $MAKERS{$pkg} && $MAKERS{$pkg}{accessor};
-            } else {
-              undef;
-            }
-          }) {
+        my @isa = @{mro::get_linear_isa($target)};
+        shift @isa;
+        if (my ($parent_new) = grep +(defined &{$_.'::new'}), @isa) {
+          $MAKERS{$parent_new} && $MAKERS{$parent_new}{accessor};
+        }
+        else {
+          undef;
+        }
+      }) {
         ref($m);
       } else {
         require Method::Generate::Accessor;
