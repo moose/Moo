@@ -7,6 +7,8 @@ Revision history for Moo
   - added is_class and make_class methods to Moo
   - added make_role method to Moo::Role
   - lower Scalar::Util dependency to 1.00
+  - fix unlikely failure to properly inflate Type::Tiny types to Moose under
+    threads on perl 5.8
 
 2.003006 - 2019-10-25
   - update Role::Tiny prerequisite to 2.001004 to fix issues with re-importing
