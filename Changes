@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.004000 - 2020-04-09
   - minor documentation tweaks
   - minor test tweaks
   - refactor creation and installation of helper subs allowing extensions to
