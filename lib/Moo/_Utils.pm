@@ -126,6 +126,9 @@ sub _load_module {
   return 1
     if !defined $e;
 
+  croak $e
+    if $e !~ /\ACan't locate \Q$file\E /;
+
   # can't just ->can('can') because a sub-package Foo::Bar::Baz
   # creates a 'Baz::' key in Foo::Bar's symbol table
   my $stash = _getstash($module)||{};

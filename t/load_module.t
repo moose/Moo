@@ -10,6 +10,13 @@ use InlineModule (
     sub baz { 1 }
     1;
   },
+  'BrokenModule' => q{
+    package BrokenModule;
+    use strict;
+    sub guff { 1 }
+
+    ;_;
+  },
 );
 
 { package Foo::Bar::Baz; sub quux { } }
@@ -17,5 +24,8 @@ use InlineModule (
 _load_module("Foo::Bar");
 
 ok(eval { Foo::Bar->baz }, 'Loaded module ok');
+
+ok do { my $e; eval { _load_module("BrokenModule"); 1 } or $e = $@; $e },
+  'broken module that installs subs gives error';
 
 done_testing;
