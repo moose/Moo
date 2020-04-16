@@ -357,12 +357,12 @@ sub apply_roles_to_object {
   my $class = ref $new;
   _set_loaded($class, (caller)[1]);
 
-  my $apply_defaults = exists $APPLY_DEFAULTS{$class} ? $APPLY_DEFAULTS{$class}
-    : $APPLY_DEFAULTS{$class} = do {
-    my %attrs = map { @{$INFO{$_}{attributes}||[]} } @roles;
+  my $apply_defaults = $APPLY_DEFAULTS{$class};
+  if (!defined $apply_defaults) {
+    my $attrs = { map @{$INFO{$_}{attributes}||[]}, @roles };
 
     if ($INC{'Moo.pm'}
-        and keys %attrs
+        and keys %$attrs
         and my $con_gen = Moo->_constructor_maker_for($class)
         and my $m = Moo->_accessor_maker_for($class)) {
 
@@ -386,11 +386,11 @@ sub apply_roles_to_object {
           else {
             ();
           }
-        } sort keys %attrs ),
+        } sort keys %$attrs ),
       );
       if ($code) {
         require Sub::Quote;
-        Sub::Quote::quote_sub(
+        $apply_defaults = Sub::Quote::quote_sub(
           "${class}::_apply_defaults",
           "no warnings 'void';\n$code",
           \%captures,
@@ -400,14 +400,10 @@ sub apply_roles_to_object {
           }
         );
       }
-      else {
-        0;
-      }
     }
-    else {
-      0;
-    }
-  };
+    $APPLY_DEFAULTS{$class} = $apply_defaults ||= 0;
+  }
+
   if ($apply_defaults) {
     local $Carp::Internal{+__PACKAGE__} = 1;
     local $Carp::Internal{$class} = 1;
