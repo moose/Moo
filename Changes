@@ -1,5 +1,9 @@
 Revision history for Moo
 
+  - remove Module::Runtime prerequisite
+  - internal code cleanups
+  - added test for conflicts in extensions wrapping 'has' and similar subs
+
 2.004000 - 2020-04-09
   - minor documentation tweaks
   - minor test tweaks
