@@ -81,4 +81,29 @@ is exception { MooseChild->new }, undef, 'NonMoo->Moo->Moose(immutable) works';
 
 ok +MooseChild->does('Role2'), "Moose child does parent's composed roles with non-Moo ancestor";
 
+BEGIN {
+  package MooParentInflated;
+  use Moo;
+  has attr1 => (is => 'ro');
+
+  my @methods = __PACKAGE__->meta->get_all_methods;
+
+  __PACKAGE__->new;
+}
+
+BEGIN {
+  package MooseChildOfInflated;
+  use Moose;
+  extends 'MooParentInflated';
+
+}
+
+my @warnings;
+{
+  local $SIG{__WARN__} = sub { push @warnings, @_ };
+  MooseChildOfInflated->meta->make_immutable;
+}
+is join('', @warnings), '',
+  'make_immutable when inheriting from inflated+undeferred no warning';
+
 done_testing;
