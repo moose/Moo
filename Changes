@@ -1,5 +1,8 @@
 Revision history for Moo
 
+  - no changes
+  - releasing as stable
+
 2.004_001 - 2020-07-30
   - remove Module::Runtime prerequisite
   - internal code cleanups
