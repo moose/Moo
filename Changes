@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - fix error location test when using core Carp on perl 5.8.9 - 5.10.1
+
 2.004003 - 2020-11-21
   - fix extraneous MANIFEST entry
 
