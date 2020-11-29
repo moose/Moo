@@ -35,7 +35,6 @@ my %META = (
       recommends => {
         'Class::XSAccessor'         => '1.18',
         'Sub::Util'                 => '0',
-        'strictures'                => '2',
       },
     },
     develop => {
