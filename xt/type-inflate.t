@@ -4,17 +4,24 @@ use Test::More;
 {
   package TypeOMatic;
 
-  use Moo::Role;
   use Sub::Quote;
   use Moo::HandleMoose ();
+  use Moose::Util::TypeConstraints qw(
+    find_type_constraint
+    subtype
+    as
+    where
+    message
+  );
+
+  use Moo::Role;
 
   sub Str {
     my $type = sub {
       die unless defined $_[0] && !ref $_[0];
     };
     $Moo::HandleMoose::TYPE_MAP{$type} = sub {
-      require Moose::Util::TypeConstraints;
-      Moose::Util::TypeConstraints::find_type_constraint("Str");
+      find_type_constraint("Str");
     };
     return ($type, @_);
   }
@@ -23,13 +30,14 @@ use Test::More;
       die unless defined $_[0] && !ref $_[0] && $_[0] =~ /^-?\d+/;
     };
     $Moo::HandleMoose::TYPE_MAP{$type} = sub {
-      require Moose::Util::TypeConstraints;
-      require MooseX::Types::Common::Numeric;
-      Moose::Util::TypeConstraints::find_type_constraint(
-        "MooseX::Types::Common::Numeric::PositiveInt");
+      find_type_constraint(__PACKAGE__.'::PositiveInt');
     };
     return ($type, @_);
   }
+  subtype __PACKAGE__.'::PositiveInt',
+     as 'Int',
+     where { $_ > 0 },
+     message { "$_ is not a positive integer!" };
 
   has named_type => (
     is => 'ro',
@@ -57,8 +65,8 @@ my ($str, $positive_int)
 
 is($str, 'Str', 'Built-in Moose type ok');
 is(
-  $positive_int, 'MooseX::Types::Common::Numeric::PositiveInt',
-  'External (MooseX::Types type) ok'
+  $positive_int, 'TypeOMatic::PositiveInt',
+  'External ok'
 );
 
 local $@;

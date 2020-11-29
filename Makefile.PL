@@ -45,7 +45,6 @@ my %META = (
         'multidimensional'                => 0,
         'Class::Tiny'                     => '1.001',
         'Moose'                           => '1.15',
-        'MooseX::Types::Common::Numeric'  => 0,
         'Mouse'                           => 0,
         'namespace::autoclean'            => 0,
         'namespace::clean'                => 0,
