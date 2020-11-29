@@ -37,7 +37,7 @@ my %META = (
         'strictures'                => '2',
       },
     },
-    develop   => {
+    develop => {
       requires => {
         'strictures'                      => '2',
         'bareword::filehandles'           => 0,
