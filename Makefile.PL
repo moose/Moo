@@ -23,11 +23,12 @@ my %META = (
     },
     runtime => {
       requires => {
+        'perl'                      => '5.006',
+        'Scalar::Util'              => '1.00',
+        'Exporter'                  => 0,
+        'Carp'                      => 0,
         'Class::Method::Modifiers'  => '1.10',  # for RT#80194
         'Role::Tiny'                => '2.001004',
-        'Scalar::Util'              => '1.00',
-        'perl'                      => '5.006',
-        'Exporter'                  => 0,
         'Sub::Quote'                => '2.006006',
         'Sub::Defer'                => '2.006006',
       },
