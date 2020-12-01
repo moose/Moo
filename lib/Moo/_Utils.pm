@@ -28,8 +28,9 @@ BEGIN {
   *_module_name_rx = sub(){$module_name_rx};
 }
 
-use Exporter qw(import);
-use Config;
+use Exporter ();
+BEGIN { *import = \&Exporter::import }
+use Config ();
 use Scalar::Util qw(weaken);
 use Carp qw(croak);
 
@@ -221,7 +222,7 @@ sub _unimport_coderefs {
   }
 }
 
-if ($Config{useithreads}) {
+if ($Config::Config{useithreads}) {
   require Moo::HandleMoose::_TypeMap;
 }
 

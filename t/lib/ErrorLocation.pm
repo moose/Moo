@@ -2,7 +2,8 @@ package ErrorLocation;
 use Moo::_strictures;
 use Test::Builder;
 use Carp qw(croak);
-use Exporter 'import';
+use Exporter ();
+BEGIN { *import = \&Exporter::import }
 use Carp::Heavy ();
 
 our @EXPORT = qw(location_ok);

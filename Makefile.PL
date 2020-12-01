@@ -27,7 +27,7 @@ my %META = (
         'Role::Tiny'                => '2.001004',
         'Scalar::Util'              => '1.00',
         'perl'                      => '5.006',
-        'Exporter'                  => '5.57',  # Import 'import'
+        'Exporter'                  => 0,
         'Sub::Quote'                => '2.006006',
         'Sub::Defer'                => '2.006006',
       },
