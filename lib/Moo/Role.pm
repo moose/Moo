@@ -356,60 +356,71 @@ sub create_class_with_roles {
   return $new_name;
 }
 
+sub _gen_apply_defaults_for {
+  my ($me, $class, @roles) = @_;
+
+  my @attrs = map @{$INFO{$_}{attributes}||[]}, @roles;
+
+  my $con_gen;
+  my $m;
+
+  return undef
+    unless $INC{'Moo.pm'}
+    and @attrs
+    and $con_gen = Moo->_constructor_maker_for($class)
+    and $m = Moo->_accessor_maker_for($class);
+
+  my $specs = $con_gen->all_attribute_specs;
+
+  my %seen;
+  my %captures;
+  my @set;
+  while (my ($name, $spec) = splice @attrs, 0, 2) {
+    next
+      if $seen{$name}++;
+
+    next
+      unless $m->has_eager_default($name, $spec);
+
+    my ($has, $has_cap)
+      = $m->generate_simple_has('$_[0]', $name, $spec);
+    my ($set, $pop_cap)
+      = $m->generate_use_default('$_[0]', $name, $spec, $has);
+
+    @captures{keys %$has_cap, keys %$pop_cap}
+      = (values %$has_cap, values %$pop_cap);
+
+    push @set, $set;
+  }
+
+  return undef
+    if !@set;
+
+  my $code = join '', map "($_),", @set;
+  no warnings 'void';
+  require Sub::Quote;
+  return Sub::Quote::quote_sub(
+    "${class}::_apply_defaults",
+    $code,
+    \%captures,
+    {
+      package => $class,
+      no_install => 1,
+      no_defer => 1,
+    }
+  );
+}
+
 sub apply_roles_to_object {
   my ($me, $object, @roles) = @_;
   my $new = $me->SUPER::apply_roles_to_object($object, @roles);
   my $class = ref $new;
   _set_loaded($class, (caller)[1]);
 
-  my $apply_defaults = $APPLY_DEFAULTS{$class};
-  if (!defined $apply_defaults) {
-    my $attrs = { map @{$INFO{$_}{attributes}||[]}, @roles };
-
-    if ($INC{'Moo.pm'}
-        and keys %$attrs
-        and my $con_gen = Moo->_constructor_maker_for($class)
-        and my $m = Moo->_accessor_maker_for($class)) {
-
-      my $specs = $con_gen->all_attribute_specs;
-
-      my %captures;
-      my $code = join('',
-        ( map {
-          my $name = $_;
-          my $spec = $specs->{$name};
-          if ($m->has_eager_default($name, $spec)) {
-            my ($has, $has_cap)
-              = $m->generate_simple_has('$_[0]', $name, $spec);
-            my ($set, $pop_cap)
-              = $m->generate_use_default('$_[0]', $name, $spec, $has);
-
-            @captures{keys %$has_cap, keys %$pop_cap}
-              = (values %$has_cap, values %$pop_cap);
-            "($set),";
-          }
-          else {
-            ();
-          }
-        } sort keys %$attrs ),
-      );
-      if ($code) {
-        require Sub::Quote;
-        $apply_defaults = Sub::Quote::quote_sub(
-          "${class}::_apply_defaults",
-          "no warnings 'void';\n$code",
-          \%captures,
-          {
-            package => $class,
-            no_install => 1,
-          }
-        );
-      }
-    }
-    $APPLY_DEFAULTS{$class} = $apply_defaults ||= 0;
+  if (!exists $APPLY_DEFAULTS{$class}) {
+    $APPLY_DEFAULTS{$class} = $me->_gen_apply_defaults_for($class, @roles);
   }
-
-  if ($apply_defaults) {
+  if (my $apply_defaults = $APPLY_DEFAULTS{$class}) {
     local $Carp::Internal{+__PACKAGE__} = 1;
     local $Carp::Internal{$class} = 1;
     $new->$apply_defaults;
