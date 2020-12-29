@@ -1,7 +1,7 @@
 package Method::Generate::Accessor;
 
 use Moo::_strictures;
-use Moo::_Utils qw(_load_module _maybe_load_module _install_coderef _module_name_rx);
+use Moo::_Utils qw(_maybe_load_module _install_coderef _module_name_rx);
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quoted_from_sub quotify sanitize_identifier);
@@ -220,7 +220,6 @@ sub generate_method {
           keys %$hspec;
       } elsif (!ref($hspec)) {
         require Moo::Role;
-        _load_module $hspec;
         map [ $_ => $_ ], Moo::Role->methods_provided_by($hspec)
       } else {
         croak "You gave me a handles of ${hspec} and I have no idea why";
