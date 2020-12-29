@@ -427,14 +427,6 @@ sub apply_roles_to_object {
   return $new;
 }
 
-sub _composable_package_for {
-  my ($self, $role) = @_;
-  my $composed_name = 'Role::Tiny::_COMPOSABLE::'.$role;
-  return $composed_name if $COMPOSED{role}{$composed_name};
-  $self->_make_accessors_if_moose($composed_name, $role);
-  $self->SUPER::_composable_package_for($role);
-}
-
 sub _install_single_modifier {
   my ($me, @args) = @_;
   _install_modifier(@args);
