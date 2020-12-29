@@ -71,6 +71,10 @@ sub _install_subs {
   return;
 }
 
+sub _require_module {
+  _load_module($_[1]);
+}
+
 sub _gen_subs {
   my ($me, $target) = @_;
   return (
