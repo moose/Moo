@@ -22,6 +22,7 @@ BEGIN {
     Method::Generate::Constructor
     Moo::sification
     Moo::_Utils
+    Role::Tiny
   );
 }
 
