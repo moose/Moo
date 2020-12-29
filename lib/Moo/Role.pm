@@ -156,7 +156,6 @@ sub _non_methods {
 sub methods_provided_by {
   my ($self, $role) = @_;
   _load_module($role);
-  $self->_inhale_if_moose($role);
   croak "${role} is not a Moo::Role" unless $self->is_role($role);
   return $self->SUPER::methods_provided_by($role);
 }
