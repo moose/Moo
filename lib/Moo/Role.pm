@@ -153,13 +153,6 @@ sub _non_methods {
   return $non_methods;
 }
 
-sub methods_provided_by {
-  my ($self, $role) = @_;
-  _load_module($role);
-  croak "${role} is not a Moo::Role" unless $self->is_role($role);
-  return $self->SUPER::methods_provided_by($role);
-}
-
 sub is_role {
   my ($self, $role) = @_;
   $self->_inhale_if_moose($role);
@@ -299,24 +292,6 @@ sub _undefer_subs {
 sub role_application_steps {
   qw(_handle_constructor _undefer_subs _maybe_make_accessors),
     $_[0]->SUPER::role_application_steps;
-}
-
-sub apply_roles_to_package {
-  my ($me, $to, @roles) = @_;
-  foreach my $role (@roles) {
-    _load_module($role);
-    $me->_inhale_if_moose($role);
-    croak "${role} is not a Moo::Role" unless $me->is_role($role);
-  }
-  $me->SUPER::apply_roles_to_package($to, @roles);
-}
-
-sub apply_single_role_to_package {
-  my ($me, $to, $role) = @_;
-  _load_module($role);
-  $me->_inhale_if_moose($role);
-  croak "${role} is not a Moo::Role" unless $me->is_role($role);
-  $me->SUPER::apply_single_role_to_package($to, $role);
 }
 
 sub create_class_with_roles {
