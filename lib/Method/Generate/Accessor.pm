@@ -7,7 +7,13 @@ BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quoted_from_sub quotify sanitize_identifier);
 use Scalar::Util 'blessed';
 use Carp qw(croak);
-BEGIN { our @CARP_NOT = qw(Moo::_Utils) }
+BEGIN {
+  our @CARP_NOT = qw(
+    Moo::_Utils
+    Moo::Object
+    Moo::Role
+  );
+}
 BEGIN {
   *_CAN_WEAKEN_READONLY = (
     "$]" < 5.008_003 or $ENV{MOO_TEST_PRE_583}
