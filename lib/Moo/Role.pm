@@ -294,38 +294,14 @@ sub role_application_steps {
     $_[0]->SUPER::role_application_steps;
 }
 
-sub create_class_with_roles {
-  my ($me, $superclass, @roles) = @_;
-
-  my ($new_name, $compose_name) = $me->_composite_name($superclass, @roles);
-
-  return $new_name if $COMPOSED{class}{$new_name};
-
-  foreach my $role (@roles) {
-    _load_module($role);
-    $me->_inhale_if_moose($role);
-    croak "${role} is not a Moo::Role" unless $me->is_role($role);
-  }
-
-  my $m;
-  if ($INC{"Moo.pm"}
-      and $m = Moo->_accessor_maker_for($superclass)
-      and ref($m) ne 'Method::Generate::Accessor') {
-    # old fashioned way time.
-    @{*{_getglob("${new_name}::ISA")}{ARRAY}} = ($superclass);
-    $Moo::MAKERS{$new_name} = {is_class => 1};
-    $me->apply_roles_to_package($new_name, @roles);
-  }
-  else {
-    $me->SUPER::create_class_with_roles($superclass, @roles);
-    $Moo::MAKERS{$new_name} = {is_class => 1};
-    $me->_handle_constructor($new_name, $_) for @roles;
-  }
+sub _build_class_with_roles {
+  my ($me, $new_name, $superclass, @roles) = @_;
+  $Moo::MAKERS{$new_name} = {is_class => 1};
+  $me->SUPER::_build_class_with_roles($new_name, $superclass, @roles);
 
   if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::inject_fake_metaclass_for($new_name);
   }
-  $COMPOSED{class}{$new_name} = 1;
   _set_loaded($new_name, (caller)[1]);
   return $new_name;
 }
