@@ -1,6 +1,7 @@
 package Method::Generate::Accessor;
+use strict;
+use warnings;
 
-use Moo::_strictures;
 use Moo::_Utils qw(_maybe_load_module _install_coderef _module_name_rx);
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }

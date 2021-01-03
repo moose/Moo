@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use POSIX ();
 
 my $exit_value = shift;

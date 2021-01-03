@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
 use List::Util;   # List::Util provides Sub::Util::set_subname, so load it early
 use Scalar::Util; # to make sure it doesn't warn about our fake subs

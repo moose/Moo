@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
 use Sub::Quote qw(quote_sub);
 
@@ -58,4 +60,4 @@ $baz->quoted;
 is +$baz->can('quoted'), Bar->can('quoted'),
   'accessor from role is undeferred in consuming class';
 
-done_testing unless caller;
+done_testing;

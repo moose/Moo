@@ -1,12 +1,14 @@
-use Config;
+use strict;
+use warnings;
+
+use Config ();
 BEGIN {
-  unless ($Config{useithreads}) {
+  unless ($Config::Config{useithreads}) {
     print "1..0 # SKIP your perl does not support ithreads\n";
     exit 0;
   }
 }
 use threads;
-use Moo::_strictures;
 use Test::More;
 use Type::Tiny;
 

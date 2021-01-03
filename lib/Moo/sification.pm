@@ -1,7 +1,8 @@
 package Moo::sification;
-
-use Moo::_strictures;
+use strict;
+use warnings;
 no warnings 'once';
+
 BEGIN {
   *_USE_DGD = "$]" < 5.014 ? sub(){1} : sub(){0};
   require Devel::GlobalDestruction

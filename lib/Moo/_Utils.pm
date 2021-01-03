@@ -1,5 +1,6 @@
 package Moo::_Utils;
-use Moo::_strictures;
+use strict;
+use warnings;
 
 {
   no strict 'refs';

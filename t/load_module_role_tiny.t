@@ -1,8 +1,11 @@
+use strict;
+use warnings;
+
+use lib 't/lib';
+use Test::More;
+
 # this test is replicated to t/load_module.t for Moo::_Utils
 
-use Moo::_strictures;
-use Test::More;
-use lib 't/lib';
 use Role::Tiny ();
 use InlineModule (
   'Foo::Bar' => q{

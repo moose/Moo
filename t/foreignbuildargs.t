@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
 
 {
@@ -48,6 +50,5 @@ is $ext_non_moo2->attr, 'bar',
     "extended non-moo passes params";
 is $ext_non_moo2->attr2, 'baz',
     "extended non-moo has own attributes";
-
 
 done_testing;

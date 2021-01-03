@@ -1,4 +1,8 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
+use Test::More;
+
 # when using an Moose object and namespace::autoclean
 # lazy attributes that get a value on initialize still
 # have their builders run
@@ -18,7 +22,6 @@ use Moo::_strictures;
     sub _build_attr {2}
 }
 
-use Test::More;
 # use BadObject <- this is inferred here
 
 is(

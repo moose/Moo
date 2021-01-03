@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
 use Test::Fatal;
 
@@ -29,7 +31,7 @@ like
 is +MyClass->new({foo => 'bar'})->{foo}, undef,
   'arbitrary attributes not stored when no BUILD exists';
 my $built = 0;
-*MyClass::BUILD = sub { $built++ };
+*MyClass::BUILD = *MyClass::BUILD = sub { $built++ };
 is +MyClass->new({foo => 'bar'})->{foo}, undef,
   'arbitrary attributes not stored second time when no BUILD exists';
 is $built, 0, 'BUILD only checked for once';

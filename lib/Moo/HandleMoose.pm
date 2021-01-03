@@ -1,5 +1,8 @@
 package Moo::HandleMoose;
-use Moo::_strictures;
+use strict;
+use warnings;
+no warnings 'once';
+
 use Moo::_Utils qw(_getstash);
 use Sub::Quote qw(quotify);
 use Carp qw(croak);

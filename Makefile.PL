@@ -1,5 +1,5 @@
 use strict;
-use warnings FATAL => 'all';
+use warnings;
 use 5.006;
 
 my %META = (
@@ -39,10 +39,6 @@ my %META = (
     },
     develop => {
       requires => {
-        'strictures'                      => '2',
-        'bareword::filehandles'           => 0,
-        'indirect'                        => 0,
-        'multidimensional'                => 0,
         'Class::Tiny'                     => '1.001',
         'Moose'                           => '1.15',
         'Mouse'                           => 0,
@@ -77,10 +73,6 @@ my %META = (
     'App::Commando'             => '<= 0.012',
   },
   x_authority => 'cpan:MSTROUT',
-  x_cpants => { ignore => {
-    use_strict => 'internal module used to apply strict',
-    use_warnings => 'internal module used to apply warnings',
-  } },
 );
 
 my $xt = $ENV{EXTENDED_TESTING};

@@ -1,4 +1,6 @@
-use strictures 1;
+#!/usr/bin/env perl
+use strict;
+use warnings;
 
 use Benchmark qw/:hireswallclock cmpthese/;
 use Getopt::Long::Descriptive;

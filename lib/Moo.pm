@@ -1,6 +1,8 @@
 package Moo;
+use strict;
+use warnings;
+no warnings 'once';
 
-use Moo::_strictures;
 use Moo::_mro;
 use Moo::_Utils qw(
   _check_tracked

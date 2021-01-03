@@ -1,6 +1,7 @@
 package Method::Generate::BuildAll;
+use strict;
+use warnings;
 
-use Moo::_strictures;
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quotify);

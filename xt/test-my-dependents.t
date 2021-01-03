@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+
 use Test::More;
 BEGIN {
   plan skip_all => <<'END_HELP' unless $ENV{MOO_TEST_MD} || @ARGV;

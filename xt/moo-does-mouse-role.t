@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More "$]" < 5.008009
   ? (skip_all => 'Mouse is broken on perl <= 5.8.8')
   : ();

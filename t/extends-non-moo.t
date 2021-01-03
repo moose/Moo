@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
 use Test::Fatal;
 
@@ -80,4 +82,4 @@ is $app, 100,
   }, undef, 'extending class with prototype on new');
 }
 
-done_testing();
+done_testing;

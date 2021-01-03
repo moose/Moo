@@ -1,5 +1,6 @@
 package Moo::HandleMoose::_TypeMap;
-use Moo::_strictures;
+use strict;
+use warnings;
 
 package
   Moo::HandleMoose;

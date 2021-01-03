@@ -1,7 +1,7 @@
-use Moo::_strictures;
+use strict;
+use warnings;
 use Test::More;
 use Test::Fatal;
-
 
 my $FilePath = sub { die "does not pass the type constraint" if $_[0] eq '/' };
 

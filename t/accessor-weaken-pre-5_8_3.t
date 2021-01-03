@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use File::Spec;
 BEGIN {
   $ENV{MOO_TEST_PRE_583} = 1;

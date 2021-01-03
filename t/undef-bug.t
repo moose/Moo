@@ -1,4 +1,7 @@
-use Test::More tests => 1;
+use strict;
+use warnings;
+
+use Test::More;
 
 package Foo;
 use Moo;
@@ -11,3 +14,5 @@ my $foo = Foo->new;
 
 ok not(exists($foo->{this})),
     "new objects don't have undef attributes";
+
+done_testing;

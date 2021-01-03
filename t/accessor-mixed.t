@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
 use Test::Fatal;
 
@@ -76,6 +78,5 @@ is_deeply(
   }, undef,
     'all accessor methods work with oddly named attribute';
 }
-
 
 done_testing;

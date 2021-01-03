@@ -1,9 +1,6 @@
-sub clean_die {
-  use warnings;
-  die @_;
-}
+use strict;
+use warnings;
 
-use Moo::_strictures;
 use Test::More;
 use Test::Fatal;
 
@@ -29,7 +26,7 @@ my $o = Foo->new;
     my $location = join(':', caller);
     if ($last_die && $last_die eq $location) {
       push @looped_exceptions, $_[0];
-      clean_die(@_);
+      die @_;
     }
     $last_die = $location;
   };

@@ -1,6 +1,7 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
-use Moo::_Utils ();
 use Scalar::Util ();
 
 note "pretending to be pre-5.8.3"

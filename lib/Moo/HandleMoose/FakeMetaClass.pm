@@ -1,5 +1,7 @@
 package Moo::HandleMoose::FakeMetaClass;
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Carp ();
 BEGIN { our @CARP_NOT = qw(Moo::HandleMoose) }
 

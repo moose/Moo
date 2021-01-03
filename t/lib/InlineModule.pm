@@ -1,5 +1,6 @@
 package InlineModule;
-use Moo::_strictures;
+use strict;
+use warnings;
 
 BEGIN {
   *_HAS_PERLIO = "$]" >= 5.008_000 ? sub(){1} : sub(){0};

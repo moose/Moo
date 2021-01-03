@@ -1,5 +1,7 @@
-use Moo::_strictures;
-use lib "t/lib";
+use strict;
+use warnings;
+
+use lib 't/lib';
 use Test::More;
 use InlineModule (
   'withautoclean::Class' => q{

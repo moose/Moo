@@ -1,6 +1,8 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
-use lib "t/lib";
+use lib 't/lib';
 use InlineModule (
   MooRoleWithAttrWithAutoclean => q{
     package MooRoleWithAttrWithAutoclean;
@@ -35,4 +37,5 @@ use InlineModule (
 }
 
 pass 'classes and roles built without error';
+
 done_testing;

@@ -1,6 +1,7 @@
 package Moo::Role;
+use strict;
+use warnings;
 
-use Moo::_strictures;
 use Moo::_Utils qw(
   _check_tracked
   _getglob

@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
 use IPC::Open3;
 use File::Basename qw(dirname);

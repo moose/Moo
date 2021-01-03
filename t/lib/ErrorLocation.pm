@@ -1,5 +1,7 @@
 package ErrorLocation;
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::Builder;
 use Carp qw(croak);
 use Exporter ();

@@ -1,5 +1,6 @@
 package Moo::_mro;
-use Moo::_strictures;
+use strict;
+use warnings;
 
 if ("$]" >= 5.010_000) {
   require mro;

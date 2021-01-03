@@ -1,4 +1,6 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 BEGIN {
   *CORE::GLOBAL::bless = sub {
     my $obj = CORE::bless( $_[0], (@_ > 1) ? $_[1] : CORE::caller() );

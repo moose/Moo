@@ -1,6 +1,7 @@
 package Moo::Object;
+use strict;
+use warnings;
 
-use Moo::_strictures;
 use Carp ();
 
 our %NO_BUILD;

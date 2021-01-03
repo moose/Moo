@@ -1,6 +1,8 @@
-use Moo::_strictures;
+use strict;
+use warnings;
+
 use Test::More;
-use lib qw(t/lib);
+use lib 't/lib';
 use InlineModule (
   'UnderscoreClass' => q{
     package UnderscoreClass;
