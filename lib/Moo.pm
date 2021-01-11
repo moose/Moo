@@ -3,7 +3,6 @@ use strict;
 use warnings;
 no warnings 'once';
 
-use Moo::_mro;
 use Moo::_Utils qw(
   _check_tracked
   _getglob
@@ -11,6 +10,7 @@ use Moo::_Utils qw(
   _install_coderef
   _install_modifier
   _install_tracked
+  _linear_isa
   _load_module
   _set_loaded
   _unimport_coderefs
@@ -179,7 +179,7 @@ sub _accessor_maker_for {
     my $maker_class = do {
       no strict 'refs';
       if (my $m = do {
-        my @isa = @{mro::get_linear_isa($target)};
+        my @isa = @{_linear_isa($target)};
         shift @isa;
         if (my ($parent_new) = grep +(defined &{$_.'::new'}), @isa) {
           $MAKERS{$parent_new} && $MAKERS{$parent_new}{accessor};
@@ -225,7 +225,7 @@ sub _constructor_maker_for {
     );
 
     my $con;
-    my @isa = @{mro::get_linear_isa($target)};
+    my @isa = @{_linear_isa($target)};
     shift @isa;
     no strict 'refs';
     if (my ($parent_new) = grep +(defined &{$_.'::new'}), @isa) {

@@ -3,7 +3,19 @@ use warnings;
 
 use Test::More;
 use Moo ();
-use Moo::_mro;
+BEGIN {
+  if ("$]" >= 5.009_005) {
+    require mro;
+  }
+  elsif (eval { require MRO::Compat; 1 }) {
+    # do nothing
+  }
+  elsif ($ENV{RELEASE_TESTING}) {
+    plan tests => 1;
+    fail "MRO::Compat required for testing on 5.8 under RELEASE_TESTING";
+    exit;
+  }
+}
 
 {
     package Foo;

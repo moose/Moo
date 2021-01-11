@@ -54,6 +54,7 @@ our @EXPORT_OK = qw(
   _name_coderef
   _set_loaded
   _unimport_coderefs
+  _linear_isa
 );
 
 my %EXPORTS;
@@ -158,6 +159,48 @@ sub _maybe_load_module {
     warn "$module exists but failed to load with error: $e";
   }
   return $MAYBE_LOADED{$module} = 0;
+}
+
+BEGIN {
+  # optimize for newer perls
+  require mro
+    if "$]" >= 5.009_005;
+
+  if (defined &mro::get_linear_isa) {
+    *_linear_isa = \&mro::get_linear_isa;
+  }
+  else {
+    my $e;
+    {
+      local $@;
+      eval <<'END_CODE' or $e = $@;
+sub _linear_isa($;$) {
+  my $class = shift;
+  my $type = shift || exists $Class::C3::MRO{$class} ? 'c3' : 'dfs';
+
+  if ($type eq 'c3') {
+    require Class::C3;
+    return [Class::C3::calculateMRO($class)];
+  }
+
+  my @check = ($class);
+  my @lin;
+
+  my %found;
+  while (defined(my $check = shift @check)) {
+    push @lin, $check;
+    no strict 'refs';
+    unshift @check, grep !$found{$_}++, @{"$check\::ISA"};
+  }
+
+  return \@lin;
+}
+
+1;
+END_CODE
+    }
+    die $e if defined $e;
+  }
 }
 
 sub _set_loaded {

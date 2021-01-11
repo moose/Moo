@@ -5,8 +5,7 @@ use warnings;
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quotify);
-use Moo::_Utils qw(_getglob);
-use Moo::_mro;
+use Moo::_Utils qw(_getglob _linear_isa);
 BEGIN {
   *_USE_DGD = "$]" < 5.014 ? sub(){1} : sub(){0};
   require Devel::GlobalDestruction
@@ -49,7 +48,7 @@ sub demolishall_body_for {
   my @demolishers =
     grep *{_getglob($_)}{CODE},
     map "${_}::DEMOLISH",
-    @{mro::get_linear_isa($into)};
+    @{_linear_isa($into)};
   join '',
     qq{    package $into;\n},
     map qq{    ${me}->${_}(${args});\n}, @demolishers;

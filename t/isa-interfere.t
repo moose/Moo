@@ -19,9 +19,11 @@ BEGIN {
 BEGIN {
   package ExtraClass;
 
+  our @ISA = qw(BaseClass);
+
   sub new {
     my $class = shift;
-    $class->next::method(@_);
+    $class->SUPER::new(@_);
   }
 }
 

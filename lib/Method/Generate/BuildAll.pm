@@ -5,8 +5,7 @@ use warnings;
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quotify);
-use Moo::_Utils qw(_getglob);
-use Moo::_mro;
+use Moo::_Utils qw(_getglob _linear_isa);
 
 sub generate_method {
   my ($self, $into) = @_;
@@ -34,7 +33,7 @@ sub buildall_body_for {
   my @builds =
     grep *{_getglob($_)}{CODE},
     map "${_}::BUILD",
-    reverse @{mro::get_linear_isa($into)};
+    reverse @{_linear_isa($into)};
   '    (('.$args.')[0]->{__no_BUILD__} or ('."\n"
   .join('', map qq{      ${me}->${_}(${args}),\n}, @builds)
   ."    )),\n";
