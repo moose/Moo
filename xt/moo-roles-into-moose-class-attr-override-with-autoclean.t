@@ -7,11 +7,10 @@ use InlineModule (
   MooRoleWithAttrWithAutoclean => q{
     package MooRoleWithAttrWithAutoclean;
     use Moo::Role;
-    # Note that autoclean here is the key bit!
-    # It causes the metaclass to be loaded and used before the 'has' fires
+    # This causes the metaclass to be loaded and used before the 'has' fires
     # so Moo needs to blow it away again at that point so the attribute gets
     # added
-    use namespace::autoclean;
+    BEGIN { Class::MOP::class_of(__PACKAGE__)->get_method_list }
 
     has output_to => (
         is => 'ro',

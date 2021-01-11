@@ -16,10 +16,12 @@ use Test::More;
     package BadObject;
     use Moo;
     # use MyMooseObject <- this is inferred here
-    use namespace::autoclean;
 
     has attr => ( is => 'lazy' );
     sub _build_attr {2}
+
+    # forces metaclass inflation like namespace::autoclean would
+    BEGIN { __PACKAGE__->meta->name }
 }
 
 # use BadObject <- this is inferred here
