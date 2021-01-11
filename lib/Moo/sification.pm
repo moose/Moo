@@ -3,13 +3,9 @@ use strict;
 use warnings;
 no warnings 'once';
 
-BEGIN {
-  *_USE_DGD = "$]" < 5.014 ? sub(){1} : sub(){0};
-  require Devel::GlobalDestruction
-    if _USE_DGD();
-}
 use Carp qw(croak);
 BEGIN { our @CARP_NOT = qw(Moo::HandleMoose) }
+use Moo::_Utils qw(_in_global_destruction);
 
 sub unimport {
   croak "Can't disable Moo::sification after inflation has been done"
@@ -18,11 +14,7 @@ sub unimport {
 }
 
 sub Moo::HandleMoose::AuthorityHack::DESTROY {
-  unless (our $disabled or
-    _USE_DGD
-      ? Devel::GlobalDestruction::in_global_destruction()
-      : ${^GLOBAL_PHASE} eq 'DESTRUCT'
-  ) {
+  unless (our $disabled or _in_global_destruction) {
     require Moo::HandleMoose;
     Moo::HandleMoose->import;
   }

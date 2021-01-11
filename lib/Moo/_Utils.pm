@@ -55,6 +55,8 @@ our @EXPORT_OK = qw(
   _set_loaded
   _unimport_coderefs
   _linear_isa
+  _in_global_destruction
+  _in_global_destruction_code
 );
 
 my %EXPORTS;
@@ -201,6 +203,18 @@ END_CODE
     }
     die $e if defined $e;
   }
+}
+
+BEGIN {
+  my $gd_code
+    = "$]" < 5.014
+      ? q[${^GLOBAL_PHASE} eq 'DESTRUCT']
+    : _maybe_load_module('Devel::GlobalDestruction::XS')
+      ? 'Devel::GlobalDestruction::XS::in_global_destruction()'
+      : 'do { use B (); ${B::main_cv()} == 0 }';
+  *_in_global_destruction_code = sub () { $gd_code };
+  eval "sub _in_global_destruction () { $gd_code }; 1"
+    or die $@;
 }
 
 sub _set_loaded {

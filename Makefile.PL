@@ -76,9 +76,10 @@ my %META = (
 );
 
 my $xt = $ENV{EXTENDED_TESTING};
+
 my %MM_ARGS = (
   PREREQ_PM => {
-    ("$]" >= 5.014_000 ? () : ('Devel::GlobalDestruction' => 0.11)),
+    ("$]" < 5.014_000 ? ('Devel::GlobalDestruction' => '0.11') : ()),
   },
   ($xt ? (
     TEST_REQUIRES => {

@@ -5,12 +5,7 @@ use warnings;
 use Moo::Object ();
 BEGIN { our @ISA = qw(Moo::Object) }
 use Sub::Quote qw(quote_sub quotify);
-use Moo::_Utils qw(_getglob _linear_isa);
-BEGIN {
-  *_USE_DGD = "$]" < 5.014 ? sub(){1} : sub(){0};
-  require Devel::GlobalDestruction
-    if _USE_DGD();
-}
+use Moo::_Utils qw(_getglob _linear_isa _in_global_destruction_code);
 
 sub generate_method {
   my ($self, $into) = @_;
@@ -19,28 +14,25 @@ sub generate_method {
     qq{    my \$self = shift;\n},
     $self->demolishall_body_for($into, '$self', '@_'),
     qq{    return \$self\n};
-  quote_sub "${into}::DESTROY", join '',
-    q!    my $self = shift;
-    my $e = do {
+  quote_sub "${into}::DESTROY",
+    sprintf <<'END_CODE', $into, _in_global_destruction_code;
+    my $self = shift;
+    my $e;
+    {
       local $?;
-      local $@;!.(_USE_DGD ? q!
-      require Devel::GlobalDestruction;! : '').q!
-      package !.$into.q!;
+      local $@;
+      package %s;
       eval {
-        $self->DEMOLISHALL(!.(
-          _USE_DGD
-            ? 'Devel::GlobalDestruction::in_global_destruction()'
-            : q[${^GLOBAL_PHASE} eq 'DESTRUCT']
-        ).q!);
-      };
-      $@;
-    };
+        $self->DEMOLISHALL(%s);
+        1;
+      } or $e = $@;
+    }
 
     # fatal warnings+die in DESTROY = bad times (perl rt#123398)
     no warnings FATAL => 'all';
     use warnings 'all';
-    die $e if $e; # rethrow
-  !;
+    die $e if defined $e; # rethrow
+END_CODE
 }
 
 sub demolishall_body_for {
