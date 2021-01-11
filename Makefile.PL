@@ -28,7 +28,7 @@ my %META = (
         'Exporter'                  => 0,
         'Carp'                      => 0,
         'Class::Method::Modifiers'  => '1.10',  # for RT#80194
-        'Role::Tiny'                => '2.001004',
+        'Role::Tiny'                => '2.002003',
         'Sub::Quote'                => '2.006006',
         'Sub::Defer'                => '2.006006',
       },
