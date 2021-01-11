@@ -1,41 +1,36 @@
 use strict;
 use warnings;
 
-use lib 't/lib';
 use Test::More;
-use InlineModule (
-  'withautoclean::Class' => q{
-    package withautoclean::Class;
-    use Moo;
+use Test::Fatal;
 
-    with 'withautoclean::Role';
+{
+  package withautoclean::Role;
+  use Moo::Role;
 
-    before _clear_ctx => sub {};
+  use Moose ();
+  # triggering metaclass inflation previously would cause Moo to cache the
+  # method list. methods added later would not be composed properly.
+  # this could be caused by namespace::autoclean
+  BEGIN { Class::MOP::class_of(__PACKAGE__)->name }
 
-    1;
-  },
-  'withautoclean::Role' => q{
-    package withautoclean::Role;
-    use Moo::Role;
+  has _ctx => (
+    is => 'ro',
+    default => sub { },
+    clearer => '_clear_ctx',
+  );
+}
 
-    # Doing this (or loading a class which is built with Moose)
-    # and then loading autoclean - everything breaks...
-    use Moose ();
-    use namespace::autoclean;
-    # Wouldn't happen normally, but is likely to as you part-port something.
+is exception {
+  package withautoclean::Class;
+  use Moo;
 
-    has _ctx => (
-        is => 'ro',
-        default => sub {
-        },
-        clearer => '_clear_ctx',
-    );
+  with 'withautoclean::Role';
 
-    1;
-  },
-);
+  before _clear_ctx => sub {};
 
-use_ok 'withautoclean::Class';
+  1;
+}, undef, 'clearer properly composed';
 
 my $o = withautoclean::Class->new(_ctx => 1);
 $o->_clear_ctx;
