@@ -18,17 +18,23 @@ EOMOO
   exit 0;
 }
 
-BEGIN {
-    my $package;
-    sub import {
-        moo() if $0 eq '-';
-        $package = $_[1] || 'Class';
-        if ($package =~ /^\+/) {
-            $package =~ s/^\+//;
-            _load_module($package);
-        }
+my $package;
+sub import {
+  moo() if $0 eq '-';
+  $package = $_[1] || 'Class';
+  if ($package =~ s/^\+//) {
+    _load_module($package);
+  }
+  my $line = (caller)[2] || 1;
+  require Filter::Util::Call;
+  my $done;
+  Filter::Util::Call::filter_add(sub {
+    if (!$done) {
+      s{\A}{package $package;\nuse Moo;\n#line $line\n};
+      $done = 1;
     }
-    use Filter::Simple sub { s/^/package $package;\nuse Moo;\n/; }
+    return Filter::Util::Call::filter_read();
+  });
 }
 
 1;
