@@ -1,5 +1,26 @@
 Revision history for Moo
 
+  - remove MooseX::Types from developer prereqs
+  - recommend Sub::Util rather than Sub::Name, since Sub::Util is in core
+  - fix line numbers when using oo module (perl -Moo)
+  - adjust some author tests to rely less on external modules
+  - lower Exporter prereq to any version
+  - bump Role::Tiny prereq to 2.003004
+  - refactor and simplify role application code, as allowed by new Role::Tiny
+    version
+  - switch to using normal strict+warnings rather than strictures for authors
+  - remove strictures from recommends, as Moo does not use it anywhere
+  - remove Task::Weaken prereq, as it served no purpose
+  - remove MRO::Compat prereq, using it only when user code does
+  - remove use of Devel::GlobalDestruction in code, only using
+    Devel::GlobalDestruction::XS when it is available. Devel::GlobalDestruction
+    is still a dependency on perl < 5.14 to facilitate the installation of the
+    ::XS module.
+  - Moo now has no mandatory perl version specific dependencies. The version
+    specific modules are now optional or not used. This means code using Moo can
+    be fatpacked on a new perl version without special cases, and it will work
+    on older perl versions.
+
 2.004004 - 2020-11-25
   - fix error location test when using core Carp on perl 5.8.9 - 5.10.1
 
