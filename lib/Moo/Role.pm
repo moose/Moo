@@ -27,7 +27,7 @@ BEGIN {
   );
 }
 
-our $VERSION = '2.005_000';
+our $VERSION = '2.005_001';
 $VERSION =~ tr/_//d;
 
 require Moo::sification;
