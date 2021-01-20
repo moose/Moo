@@ -207,7 +207,7 @@ END_CODE
 
 BEGIN {
   my $gd_code
-    = "$]" < 5.014
+    = "$]" >= 5.014
       ? q[${^GLOBAL_PHASE} eq 'DESTRUCT']
     : _maybe_load_module('Devel::GlobalDestruction::XS')
       ? 'Devel::GlobalDestruction::XS::in_global_destruction()'
