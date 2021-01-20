@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.005_001 - 2021-01-20
   - fix perl version check in global destruction code
 
 2.005_000 - 2021-01-20
