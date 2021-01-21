@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - fix C3 test skipping properly when MRO::Compat not available on perl < 5.10
+
 2.005_001 - 2021-01-20
   - fix perl version check in global destruction code
 
