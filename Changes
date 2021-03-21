@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - silence 'once' warnings from Moo::_Utils
+
 2.005_002 - 2021-01-22
   - fix C3 test skipping properly when MRO::Compat not available on perl < 5.10
 
