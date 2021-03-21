@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.005003 - 2021-03-21
   - silence 'once' warnings from Moo::_Utils
 
 2.005_002 - 2021-01-22
