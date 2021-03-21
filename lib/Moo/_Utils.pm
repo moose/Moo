@@ -4,6 +4,7 @@ use warnings;
 
 {
   no strict 'refs';
+  no warnings 'once';
   sub _getglob { \*{$_[0]} }
   sub _getstash { \%{"$_[0]::"} }
 }
