@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - fix file set in %INC in create_class_with_roles (RT#134845)
+
 2.005003 - 2021-03-21
   - silence 'once' warnings from Moo::_Utils
 
