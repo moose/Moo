@@ -303,7 +303,16 @@ sub _build_class_with_roles {
   if ($INC{'Moo/HandleMoose.pm'} && !$Moo::sification::disabled) {
     Moo::HandleMoose::inject_fake_metaclass_for($new_name);
   }
-  _set_loaded($new_name, (caller)[1]);
+
+  my $lvl = 0;
+  my $file;
+  while ((my $pack, $file) = caller($lvl++)) {
+    if ($pack ne __PACKAGE__ && $pack ne 'Role::Tiny' && !$pack->isa($me)) {
+      last;
+    }
+  }
+  _set_loaded($new_name, $file || (caller)[1]);
+
   return $new_name;
 }
 
