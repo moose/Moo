@@ -2,9 +2,10 @@ use strict;
 use warnings;
 use 5.006;
 
-my %META = (
+my $META = {
   name => 'Moo',
   license => 'perl_5',
+  author => [ 'mst - Matt S. Trout (cpan:MSTROUT) <mst@shadowcat.co.uk>' ],
   prereqs => {
     configure => { requires => {
       'ExtUtils::MakeMaker'   => 0,
@@ -73,23 +74,23 @@ my %META = (
     'App::Commando'             => '<= 0.012',
   },
   x_authority => 'cpan:MSTROUT',
-);
+};
 
 my $xt = $ENV{EXTENDED_TESTING};
 
-my %MM_ARGS = (
+my $MM_ARGS = {
   PREREQ_PM => {
     ("$]" < 5.014_000 ? ('Devel::GlobalDestruction' => '0.11') : ()),
   },
   ($xt ? (
     TEST_REQUIRES => {
-      %{ $META{prereqs}{runtime}{recommends} },
-      %{ $META{prereqs}{test}{recommends} },
-      %{ $META{prereqs}{develop}{requires} },
+      %{ $META->{prereqs}{runtime}{recommends} },
+      %{ $META->{prereqs}{test}{recommends} },
+      %{ $META->{prereqs}{develop}{requires} },
     },
     test => { TESTS => 't/*.t xt/*.t' },
   ):()),
-);
+};
 
 {
   package MY;
@@ -119,48 +120,8 @@ TEST_TYPE
   }
 }
 
-## BOILERPLATE ###############################################################
-require ExtUtils::MakeMaker;
-(do './maint/Makefile.PL.include' or die $@) unless -f 'META.yml';
+require './maint/Makefile.PL.include';
+WriteMakefileFromMeta($META, $MM_ARGS);
 
-# have to do this since old EUMM dev releases miss the eval $VERSION line
-my $eumm_version  = eval $ExtUtils::MakeMaker::VERSION;
-my $mymeta        = $eumm_version >= 6.57_02;
-my $mymeta_broken = $mymeta && $eumm_version < 6.57_07;
-
-($MM_ARGS{NAME} = $META{name}) =~ s/-/::/g;
-($MM_ARGS{VERSION_FROM} = "lib/$MM_ARGS{NAME}.pm") =~ s{::}{/}g;
-$META{license} = [ $META{license} ]
-  if $META{license} && !ref $META{license};
-$MM_ARGS{LICENSE} = $META{license}[0]
-  if $META{license} && $eumm_version >= 6.30;
-$MM_ARGS{NO_MYMETA} = 1
-  if $mymeta_broken;
-$MM_ARGS{META_ADD} = { 'meta-spec' => { version => 2 }, %META }
-  unless -f 'META.yml';
-$MM_ARGS{PL_FILES} ||= {};
-$MM_ARGS{NORECURS} = 1
-  if not exists $MM_ARGS{NORECURS};
-
-for (qw(configure build test runtime)) {
-  my $key = $_ eq 'runtime' ? 'PREREQ_PM' : uc $_.'_REQUIRES';
-  my $r = $MM_ARGS{$key} = {
-    %{$META{prereqs}{$_}{requires} || {}},
-    %{delete $MM_ARGS{$key} || {}},
-  };
-  defined $r->{$_} or delete $r->{$_} for keys %$r;
-}
-
-$MM_ARGS{MIN_PERL_VERSION} = delete $MM_ARGS{PREREQ_PM}{perl} || 0;
-
-delete $MM_ARGS{MIN_PERL_VERSION}
-  if $eumm_version < 6.47_01;
-$MM_ARGS{BUILD_REQUIRES} = {%{$MM_ARGS{BUILD_REQUIRES}}, %{delete $MM_ARGS{TEST_REQUIRES}}}
-  if $eumm_version < 6.63_03;
-$MM_ARGS{PREREQ_PM} = {%{$MM_ARGS{PREREQ_PM}}, %{delete $MM_ARGS{BUILD_REQUIRES}}}
-  if $eumm_version < 6.55_01;
-delete $MM_ARGS{CONFIGURE_REQUIRES}
-  if $eumm_version < 6.51_03;
-
-ExtUtils::MakeMaker::WriteMakefile(%MM_ARGS);
-## END BOILERPLATE ###########################################################
+manifest_include(t => 'global-destruction-helper.pl');
+manifest_include(xt => 'global-destruct-jenga-helper.pl');
