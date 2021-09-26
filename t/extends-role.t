@@ -11,7 +11,7 @@ use Test::Fatal;
 {
     package MyClass;
     use Moo;
-    ::isnt ::exception { extends "MyRole"; }, undef, "Can't extend role";
+    ::unlike ::exception { extends "MyRole"; }, qr/Can't extend role/;
 }
 
 done_testing;

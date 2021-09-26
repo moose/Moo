@@ -146,7 +146,7 @@ sub _set_superclasses {
   my $target = shift;
   foreach my $superclass (@_) {
     _load_module($superclass);
-    if ($INC{'Role/Tiny.pm'} && Role::Tiny->is_role($superclass)) {
+    if ($INC{'Role/Tiny.pm'} && !Role::Tiny->is_role($superclass)) {
       croak "Can't extend role '$superclass'";
     }
   }
