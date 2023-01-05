@@ -1,5 +1,7 @@
 Revision history for Moo
 
+  - drop dependency on Test::Fatal
+
 2.005004 - 2021-03-29
   - fix file set in %INC in create_class_with_roles (RT#134845)
 
