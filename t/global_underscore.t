@@ -1,8 +1,8 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
-use lib 't/lib';
 use InlineModule (
   'UnderscoreClass' => q{
     package UnderscoreClass;

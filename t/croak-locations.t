@@ -1,10 +1,10 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
 use Carp qw(croak);
 no Moo::sification;
-use lib 't/lib';
 use ErrorLocation;
 
 location_ok <<'END_CODE', 'Moo::_Util::_load_module';

@@ -1,7 +1,7 @@
 use strict;
 use warnings;
-
 use lib 't/lib';
+
 use Test::More;
 
 # this test is replicated to t/load_module.t for Moo::_Utils

@@ -1,7 +1,8 @@
 use strict;
 use warnings;
+use lib 't/lib';
 use Test::More;
-use Test::Fatal;
+use CaptureException;
 
 my $FilePath = sub { die "does not pass the type constraint" if $_[0] eq '/' };
 

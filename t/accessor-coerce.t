@@ -1,8 +1,9 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
-use Test::Fatal;
+use CaptureException;
 
 sub run_for {
   my $class = shift;

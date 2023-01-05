@@ -1,12 +1,12 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
-use Test::Fatal;
+use CaptureException;
 use Moo::_Utils qw(
   _maybe_load_module
 );
-use lib 't/lib';
 use InlineModule (
   'Broken::Class' => q{
     use strict;

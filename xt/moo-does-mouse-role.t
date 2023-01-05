@@ -1,10 +1,11 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More "$]" < 5.008009
   ? (skip_all => 'Mouse is broken on perl <= 5.8.8')
   : ();
-use Test::Fatal;
+use CaptureException;
 
 BEGIN {
   package Ker;

@@ -1,8 +1,9 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
-use Test::Fatal;
+use CaptureException;
 
 use Moose ();
 BEGIN {
@@ -54,7 +55,7 @@ BEGIN {
   has ftw => (is => 'ro', traits => [ 'WTF' ]);
 }
 
-# avoiding Test::Fatal, because it checks exceptions for truth and that can
+# avoiding CaptureException, because it checks exceptions for truth and that can
 # cause more exceptions in this case.  Prefer to trigger stringification
 # manually here.
 

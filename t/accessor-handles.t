@@ -1,9 +1,9 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
-use Test::Fatal;
-use lib 't/lib';
+use CaptureException;
 
 {
   package Baz;

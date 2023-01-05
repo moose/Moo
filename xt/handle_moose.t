@@ -1,8 +1,9 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
-use Test::Fatal;
+use CaptureException;
 use Sub::Quote qw(quote_sub);
 
 {

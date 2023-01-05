@@ -14,7 +14,6 @@ my %META = (
     test => {
       requires => {
         'Test::More'  => '0.94',
-        'Test::Fatal' => '0.003',
       },
       recommends => {
         'Parse::CPAN::Meta'         => '1.4200',

@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 BEGIN {
   *CORE::GLOBAL::bless = sub {
@@ -11,7 +12,7 @@ BEGIN {
   };
 }
 use Test::More;
-use Test::Fatal;
+use CaptureException;
 
 use Moose ();
 
