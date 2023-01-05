@@ -1,5 +1,6 @@
 Revision history for Moo
 
+2.005005 - 2023-01-05
   - drop dependency on Test::Fatal
 
 2.005004 - 2021-03-29
