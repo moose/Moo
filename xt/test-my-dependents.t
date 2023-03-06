@@ -79,7 +79,7 @@ if (open my $fh, '<', $cache_file) {
 if (! %dists) {
   my %bad_prereqs = map +($_ => 1), qw(Gtk2 Padre Wx);
   require HTTP::Tiny;
-  my $res = HTTP::Tiny->new->get(
+  my $res = HTTP::Tiny->new(verify_SSL => 1)->get(
     'https://fastapi.metacpan.org/v1/reverse_dependencies/dist/Moo?size=5000'
   );
   if ($res->{success}) {
