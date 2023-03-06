@@ -10,6 +10,7 @@ our @EXPORT = qw(exception);
 
 sub exception (&) {
   my $cb = shift;
+  local $@;
   eval {
     local $Test::Builder::Level = $Test::Builder::Level + 3;
     $cb->();
