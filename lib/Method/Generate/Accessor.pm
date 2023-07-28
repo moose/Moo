@@ -223,7 +223,7 @@ sub generate_method {
   }
 
   if (my $builder = delete $spec->{builder_sub}) {
-    _install_coderef( "${into}::$spec->{builder}" => $builder );
+    _install_coderef( "${into}::$spec->{builder}" => \&$builder );
   }
 
   if (my $cl = $spec->{clearer}) {

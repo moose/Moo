@@ -134,6 +134,19 @@ is(
   ok Sub::Defer::defer_info($methods->{seventeen}), 'quote opts are passed on';
 }
 
+{
+  package BuilderGenerator;
+  use overload
+    '&{}' => sub { sub { 'generated builder' } },
+    'bool' => sub { !!1 },
+  ;
+}
+
+is(
+  exception { $gen->generate_method('Foo' => 'eighteen' => { is => 'lazy', builder => bless({}, 'BuilderGenerator') } ) },
+  undef, 'builder - code convertable object accepted'
+);
+
 ok !$gen->is_simple_attribute('attr', { builder => 'build_attr' }),
   "attribute with builder isn't simple";
 ok $gen->is_simple_attribute('attr', { clearer => 'clear_attr' }),
