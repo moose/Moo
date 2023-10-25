@@ -634,7 +634,7 @@ The options for C<has> are as follows:
 
 =item C<is>
 
-B<required>, may be C<ro>, C<lazy>, C<rwp> or C<rw>.
+B<required>, may be C<ro>, C<lazy>, C<rwp>, C<rw> or C<bare>.
 
 C<ro> stands for "read-only" and generates an accessor that dies if you attempt
 to write to it - i.e.  a getter only - by defaulting C<reader> to the name of
@@ -655,6 +655,9 @@ This feature comes from L<MooseX::AttributeShortcuts>.
 
 C<rw> stands for "read-write" and generates a normal getter/setter by
 defaulting the C<accessor> to the name of the attribute specified.
+
+C<bare> generates no reader or writer methods. This is useful if you have
+other interfaces for accessing the attribute, such as with L<MooX::HandlesVia>.
 
 =item C<isa>
 
