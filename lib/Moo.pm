@@ -724,13 +724,13 @@ Takes a string
   handles => 'RobotRole'
 
 Where C<RobotRole> is a L<role|Moo::Role> that defines an interface which
-becomes the list of methods to handle.
+becomes the list of methods that are delegated to the object stored in the attribute.
 
-Takes a list of methods
+Takes a list of methods: C<< $obj->one >> will call C<< $obj->attr->one >>
 
   handles => [ qw( one two ) ]
 
-Takes a hashref
+Takes a hashref: C<< $obj->un >> will call C<< $obj->attr->one >>
 
   handles => {
     un => 'one',
