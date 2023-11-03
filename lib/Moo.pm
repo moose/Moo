@@ -43,8 +43,10 @@ sub import {
 
   _set_loaded(caller);
 
+  my $no_warnings = grep /:no_warnings/, @_;
+
   strict->import;
-  warnings->import;
+  warnings->import unless $no_warnings;
 
   $class->_install_subs($target, @_);
   $class->make_class($target);
