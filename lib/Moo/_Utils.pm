@@ -28,6 +28,12 @@ BEGIN {
 
   my $module_name_rx = qr/\A(?!\d)\w+(?:::\w+)*\z/;
   *_module_name_rx = sub(){$module_name_rx};
+
+  *_HINTS_IMPLICIT_LOCAL = ("$]" >= 5.008004) ? sub(){1} : sub(){0};
+
+  # goto &UNIVERSAL::VERSION usually works on 5.8, but fails on some ARM
+  # machines.  Seems to always work on 5.10 though.
+  *_CAN_GOTO_VERSION = ("$]" >= 5.010000) ? sub(){1} : sub(){0};
 }
 
 use Exporter ();
@@ -58,6 +64,7 @@ our @EXPORT_OK = qw(
   _linear_isa
   _in_global_destruction
   _in_global_destruction_code
+  VERSION
 );
 
 my %EXPORTS;
@@ -283,6 +290,40 @@ sub _unimport_coderefs {
 
 if ($Config::Config{useithreads}) {
   require Moo::HandleMoose::_TypeMap;
+}
+
+sub VERSION {
+  {
+    no warnings;
+    local $@;
+    if (defined $_[1] && eval { &UNIVERSAL::VERSION; 1}) {
+      $^H |= 0x20000
+        unless _HINTS_IMPLICIT_LOCAL;
+
+      my $version = $_[1];
+      $version = "$version"
+        if ref $version;
+
+      $^H{$_[0] . '::requested_version'} = $version;
+    }
+  }
+  if (_CAN_GOTO_VERSION) {
+    goto &UNIVERSAL::VERSION;
+  }
+  else {
+    my $return;
+    eval {
+      $return = &UNIVERSAL::VERSION;
+      1;
+    } or do {
+      my $e = $@ || 'Zombie error';
+      my $oldloc = sprintf ' at %s line %d.', __FILE__, __LINE__ - 4;
+      my $newloc = sprintf ' at %s line %d.', (caller(1))[1,2];
+      $e =~ s{\Q$oldloc\E\n.*}{$newloc\n}s;
+      die $e;
+    };
+    return $return;
+  }
 }
 
 1;

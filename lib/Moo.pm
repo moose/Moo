@@ -14,6 +14,7 @@ use Moo::_Utils qw(
   _load_module
   _set_loaded
   _unimport_coderefs
+  VERSION
 );
 use Carp qw(croak);
 BEGIN {
@@ -26,7 +27,7 @@ BEGIN {
   );
 }
 
-our $VERSION = '2.005005';
+our $VERSION = '3.000000';
 $VERSION =~ tr/_//d;
 
 require Moo::sification;
@@ -43,8 +44,10 @@ sub import {
 
   _set_loaded(caller);
 
-  strict->import;
-  warnings->import;
+  if (($^H{'Moo::requested_version'} || 0) < 3) {
+    strict->import;
+    warnings->import;
+  }
 
   $class->_install_subs($target, @_);
   $class->make_class($target);
