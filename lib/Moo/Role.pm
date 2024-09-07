@@ -27,7 +27,7 @@ BEGIN {
   );
 }
 
-our $VERSION = '2.005005';
+our $VERSION = '3.000000';
 $VERSION =~ tr/_//d;
 
 require Moo::sification;
@@ -52,7 +52,13 @@ sub import {
     croak "Cannot import Moo::Role into a Moo class";
   }
   _set_loaded(caller);
-  goto &Role::Tiny::import;
+
+  if (($^H{'Moo::Role::requested_version'} || 0) < 3) {
+    strict->import;
+    warnings->import;
+  }
+
+  Role::Tiny->init_role($target);
 }
 
 sub _accessor_maker_for {
